@@ -10,197 +10,532 @@ editor_options:
 
 ```{r development, include=FALSE}
 library(testthat)
+library(assertthat)
+library(tidyverse)
 ```
 
-<!--
- You need to run the 'description' chunk in the '0-dev_history.Rmd' file before continuing your code there.
-
-If it is the first time you use {fusen}, after 'description', you can directly run the last chunk of the present file with inflate() inside.
---> 
 
 ```{r development-load}
 # Load already included functions if relevant
-pkgload::load_all(export_all = FALSE)
+pkgload::load_all(export_all = F)
 ```
 
-# Include some data examples in your package
+# gro_remoutliers
 
-<!-- 
- Store your dataset in a directory named "inst/" at the root of your project.
- Use it for your tests in this Rmd thanks to `pkgload::load_all()` to make it available
-and `system.file()` to read it in your examples.
+This function removes the outliers from a dataset of weights. This function takes as arguments:
 
-- There already is a dataset in the "inst/" directory to be used in the examples below
--->
+* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
+* `taxa` the name of the taxa studied
+* `ageMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults
+* `maxweight`
+* `variableid` name of the column including individual IDs. Defaut = "AnonID". It must also be a column of `data_weight`
+* `minq` Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
+* `IQR` influences the sensitivity of the function to remove outliers using generalized additive model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
+* `perc_weight_min`  Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
+* `perc_weight_max`  Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
 
-```{r development-dataset}
-# Run all this chunk in the console directly
-# There already is a dataset in the "inst/" directory
-# Make the dataset file available to the current Rmd during development
-pkgload::load_all(path = here::here(), export_all = FALSE)
+This function follow 4 different steps to highlight outliers:
+1/ It removes the measures higher than the argument `maxweight` (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).  In the default case, default values are in kilograms and are set at 7000kg for Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia, 1000kg for Chondrichthyes and 500kg for Actinopterygii.
+2/ Independently on adults and juveniles, it uses the function Gro_Rout_quan() to removes outliers based on percentiles on adults and juveniles. It uses sliding windows of age for juveniles. You can choose the number of individuals included in each interval of the sliding window using the argument `Ninterval_juv`.
+3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
+4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
 
-# You will be able to read your example data file in each of your function examples and tests as follows - see chunks below
-datafile <- system.file("nyc_squirrels_sample.csv", package = "ISRverse")
-nyc_squirrels <- read.csv(datafile, encoding = "UTF-8")
+The function returns:
 
-nyc_squirrels
-```
+* The data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
 
 
-# The first function of the package: Calculate the median of a vector
 
-<!--
-Create a chunk for the core of the function
-
-- The chunk needs to be named `function` at least
-- It contains the code of a documented function
-- The chunk can also be named `function-my_median` to make it easily
-findable in your Rmd
-- Let the `@examples` part empty, and use the next `examples` chunk instead to present reproducible examples
-
-After inflating the template
-
--  This function code will automatically be added in a new file in the "R/" directory
--->
-
-```{r function}
-#' My median
+```{r function-Gro_remoutliers}
+#' Remove outliers from weigth or length data
 #'
-#' @param x Vector of Numeric values
-#' @inheritParams stats::median
+#'Takes a data frame including weight measures and Age and look for possible outliers
 #'
-#' @return
-#' Median of vector x
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric})
+#' @param taxa  \code{character} the name of the taxa studied
+#' @param ageMat \code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults
+#' @param maxweight \code{numeric} the maximum weight allowed for the dataset
+#' @param variableid \code{character} name of the variable including individual ids. Defaut = "AnonID". It must also be a column of data_weight.Default = 6. It must be at least 5
+#' @param min_Nmeasures \code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5
+#' @param minq \code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
+#' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
+#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
+#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
+#' @param Ninterval_juv \code{integer} Minimum number of juveniles used to make one interval of the sliding windows. Default = 500
+#' 
+#' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
+#' 
+#' @details
+#'This function follow 4 different steps to highlight outliers:
+#'1/ It removes the measures higher than \code{maxweight} (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).
+#'2/ Independently on adults and juveniles, it uses the function Gro_Rout_quan() to removes outliers based on percentiles on adults and juveniles. It uses sliding windows of age for juveniles.
+#'3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least 7 measures and remove outliers based on the residuals of the models.
+#'4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
+#' 
+#' @import dplyr assertthat
+#' @importFrom stats lm predict.lm
+#' 
 #' @export
 #'
 #' @examples
-my_median <- function(x, na.rm = TRUE) {
-  if (!is.numeric(x)) {stop("x should be numeric")}
-  stats::median(x, na.rm = na.rm)
+Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL, 
+                            variableid = "AnonID", min_Nmeasures = 7,
+                            perc_weight_min=0.2, perc_weight_max=2.5,
+                            IQR=2.75, minq=0.025, Ninterval_juv = 500) {
+  
+  assert_that(is.data.frame(data_weight))
+  assert_that(data_weight %has_name% c("MeasurementValue", "Age"))
+  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+                          "Chondrichthyes", "Actinopterygii"),
+              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+                          'Chondrichthyes', or 'Actinopterygii'")
+  assert_that(is.numeric(ageMat))
+  if(is.null(maxweight)){
+    if(taxa == "Mammalia")       maxweight = 7000
+    if(taxa == "Aves")           maxweight = 200
+    if(taxa == "Reptilia")       maxweight = 1500
+    if(taxa == "Amphibia")       maxweight = 100
+    if(taxa == "Chondrichthyes") maxweight = 1000
+    if(taxa == "Actinopterygii") maxweight = 500
+  }
+  assert_that(is.numeric(maxweight))
+  assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
+  assert_that(min_Nmeasures>=5)
+  assert_that(Ninterval_juv%%1==0, msg = "Ninterval_juv should be an integer")
+  assert_that(Ninterval_juv>=5)
+  assert_that(all(data_weight$MeasurementValue>0))
+  assert_that(all(data_weight$Age>=0))
+  
+  
+  #1) Removes very large weights using maxweight ----
+  data_weight <- data_weight%>%
+    mutate(keep1 = ifelse(MeasurementValue< maxweight, 1, 0))
+  
+  #2) Separate Juveniles and adults 
+  ### JUVENILES ----
+  juv <- data_weight%>%
+    filter(Age >= 0, Age < ageMat*1.2)
+  if (nrow(juv) > 0) {
+    
+    ##a/Uses sliding windows to check outliers based on percentile of the distribution 
+    #Make maximum intervals of at least Ninterval_juv individuals for sliding windows
+    nInts = round(nrow(juv[juv$keep1==1,])/ Ninterval_juv)
+    windInts <- seq(0, ageMat, length = nInts+1)
+    numInt <- table(findInterval(juv$Age[juv$keep1==1], windInts))
+    nWindInts <- 0
+    ii <- 1
+    while (ii < nInts) {
+      cumInt <- cumsum(numInt[ii:nInts])
+      idnum <- which(cumInt >= Ninterval_juv) + ii
+      if (length(idnum) > 0) {
+        nWindInts <- c(nWindInts, windInts[idnum[1]])
+        ii <- idnum[1]
+      } else {
+        nWindInts <- c(nWindInts, windInts[nInts+1])
+        ii <- nInts
+      }
+    }
+    if (!ageMat %in% nWindInts)  nWindInts <- c(nWindInts, ageMat)
+    nInts <- length(nWindInts) - 1
+    juv$keep2 = juv$keep1
+    for (iints in 1:nInts) {
+      idwind <- which(juv$Age >= nWindInts[iints] & 
+                        juv$Age <= nWindInts[iints + 1] & 
+                        juv$keep1 == 1)
+      juv$keep2[idwind] = Gro_Rout_quan(z = juv$MeasurementValue[idwind],  
+                                        minq = minq)
+    }
+    
+    ##b/Uses individual trajectories to find outliers for juveniles with at least 7 measures
+    juv <-juv %>%
+      group_by(AnonID,keep2)%>%
+      mutate(nb =  sum(keep2),
+             la = length(unique(Age)))%>%
+      dplyr::ungroup()
+    juv$keep3 = juv$keep2
+    if(any(juv$nb >= min_Nmeasures & juv$la>=4)){
+      juv_temp  <- Gro_lin_ind(juv%>%filter(keep2 == 1, nb >= min_Nmeasures, la >= 4), 
+                               variable_id = variableid,
+                               perc_weight_min = perc_weight_min,
+                               perc_weight_max = perc_weight_max,
+                               IQR = IQR,
+                               remove_ext = F, traj_ind = T
+      )
+      
+      juv$keep3[juv$keep2==1 & juv$nb >= min_Nmeasures & juv$la >=4] = juv_temp$Keep2 
+    }
+  }
+  
+  ### ADULTS ----
+  ad <- data_weight%>%
+    filter(Age >=  ageMat*1.2)
+  if (nrow(ad) > 0) {
+    
+    ##a/Check outliers based on percentile of the distribution 
+    ad$keep2=ad$keep1
+    ad$keep2[ad$keep1 == 1] = Gro_Rout_quan(z = ad$MeasurementValue[ad$keep1 == 1],  
+                                            minq = minq)
+    
+    ##b/Uses individual trajectories to find outliers for adults with at least 7 measures
+    ad <-ad %>%
+      group_by(AnonID,keep2)%>%
+      mutate(nb =  sum(keep2),
+             la = length(unique(Age)))%>%
+      dplyr::ungroup()
+    ad$keep3 = ad$keep2
+    if(any(ad$nb >= min_Nmeasures & ad$la>=4)){
+      
+      ad_temp <- Gro_lin_ind(ad%>%filter(keep2==1, nb >= min_Nmeasures, la >= 4), 
+                             variable_id = variableid,
+                             perc_weight_min = perc_weight_min,
+                             perc_weight_max = perc_weight_max,
+                             IQR = IQR,
+                             remove_ext = F, traj_ind = T
+      )
+      ad$keep3[ad$keep2==1 & ad$nb >= min_Nmeasures & ad$la >=4] = ad_temp$Keep2 
+    }
+  }
+  
+  data_weight1 =rbind(juv,ad)
+  #3) Uses global GAM model to detect remaining outliers ----
+  data_weight1$KEEP= data_weight1$keep3
+   if(sum(data_weight1$KEEP)>4){
+    if(length(unique(data_weight1$Age[data_weight1$KEEP==1]))>=4){
+    data_weight1_temp <- Gro_lin_ind(data_weight1%>%filter(keep3==1), 
+                                     variable_id = "AnonID",
+                                     perc_weight_min = perc_weight_min,
+                                     perc_weight_max = perc_weight_max,
+                                     IQR = IQR,
+                                     remove_ext = F, traj_ind = F
+    )
+    data_weight1$KEEP [data_weight1$keep3 == 1] = data_weight1_temp$Keep2
+  }
+}
+return(data_weight1)
+
 }
 ```
 
-<!--
-Create a chunk with an example of use for your function
 
-- The chunk needs to be named `examples` at least
-- It contains working examples of your function
-- The chunk is better be named `examples-my_median` to be handled
-correctly when inflated as a vignette
+```{r examples-Gro_remoutliers}
+data(weights)
+weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
 
-After inflating the template
+plot(MeasurementValue ~Age, data = weights)
+#Show the four steps used to remove outliers
+#1/ using maximum value
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep1==0), col = "red", pch = 16) 
+#2/ using Inter quartile range
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==0, keep1==1 ), col = "green", pch = 16) 
+#3a/ using individual trajectories
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, keep2==1), col = "cyan", pch = 16) 
+#3b/ using global log-linear model
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(KEEP==0, keep3==1), col = "blue", pch = 16) 
 
--  This example will automatically be added in the '@examples' part of our function above in the "R/" directory
-- This example will automatically be added in the vignette created from this Rmd template
--->
-
-```{r examples}
-my_median(1:12)
-
-# Example with your dataset in "inst/"
-datafile <- system.file("nyc_squirrels_sample.csv", package = "ISRverse")
-nyc_squirrels <- read.csv(datafile, encoding = "UTF-8")
-# Apply my function
-my_median(nyc_squirrels[,"hectare_squirrel_number"])
+#Checking outliers highlighted in Individual trajectories
+anon = unique(weights$AnonID[weights$keep3==0 & weights$keep2==1 ])
+plot(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==1, AnonID == anon))
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, AnonID == anon, keep2==1), col = "cyan", pch = 16)
 ```
 
-<!--
-Create a chunk with a test of use for your function
 
-- The chunk needs to be named `tests` at least
-- It contains working tests of your function
-- The chunk is better be named `tests-my_median` to be handled
-correctly when inflated as a vignette
+```{r development_examples-Gro_remoutliers}
+plot(MeasurementValue ~Age, data = weights, ylim = c(0,400), xlim = c(0,50))
+#Show the four steps used to remove outliers
+#1/ using maximum value
+points(MeasurementValue ~Age, data = weights%>%filter(keep1==0), col = "red", pch = 16) 
+#2/ using Inter quartile range
+points(MeasurementValue ~Age, data = weights%>%filter(keep2==0, keep1==1 ), col = "green", pch = 16) 
+#3a/ using individual trajectories
+points(MeasurementValue ~Age, data = weights%>%filter(keep3==0, keep2==1), col = "cyan", pch = 16) 
+#3b/ using global log-linear model
+points(MeasurementValue ~Age, data = weights%>%filter(KEEP==0, keep3==1), col = "blue", pch = 16) 
 
-After inflating the template
+#Individual trajectories
+i=0
+anon = unique(weights$AnonID[weights$keep3==0 & weights$keep2==1 ])
+i=i+1
+plot(MeasurementValue ~Age, data = weights%>%filter(keep2==1, AnonID == anon[i]))
+points(MeasurementValue ~Age, data = weights%>%filter(keep3==0, AnonID == anon[i], keep2==1), col = "cyan", pch = 16)
 
--  This test code will automatically be added in the "tests/testthat/" directory
--->
+#Other tests
+data(weights_lion)
+weights = Gro_remoutliers(weights_lion, taxa = "Mammalia", ageMat =2, IQR = 2.75, minq=0.025)
+data(weights_bison)
+weights = Gro_remoutliers(weights_bison, taxa = "Mammalia", ageMat =10, IQR = 2.75, minq=0.025)
+data(weights_meerkat)
+weights = Gro_remoutliers(weights_meerkat, taxa = "Mammalia", ageMat =1, IQR = 2.75, minq=0.025)
+data(weights_gorilla)
+weights = Gro_remoutliers(weights_gorilla, taxa = "Mammalia", ageMat =12, IQR = 2.75, minq=0.025)
+```
 
-```{r tests}
-test_that("my_median works properly and show error if needed", {
-  expect_true(my_median(1:12) == 6.5)
-  expect_error(my_median("text"))
+
+
+```{r tests-Gro_remoutliers}
+
+test_that("Gro_remoutliers errors", {
+  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10),
+               msg = "data_weight does not have all of these name(s): 'MeasurementValue', 'Age'")
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "mammalia", ageMat = 10),
+               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+                          'Chondrichthyes', or 'Actinopterygii'")
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3.3),
+               msg = "min_Nmeasures should be an integer")
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3),
+               msg = "min_Nmeasures not greater than or equal to 5")
 })
 
-# Test with your dataset in "inst/"
-datafile <- system.file("nyc_squirrels_sample.csv", package = "ISRverse")
-nyc_squirrels <- read.csv(datafile, encoding = "UTF-8")
-# Apply test on my function
-test_that("my_median works properly with internal dataset", {
-  expect_equal(my_median(nyc_squirrels[,"hectare_squirrel_number"]), 3)
+
+test_that("Gro_remoutliers works", {
+  data = tibble(Age = c(rep(c(1:5),2),4),
+                MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
+                AnonID = c(rep(1:2, each = 5),3))
+  
+  a= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
+                     min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
+  expect_true(sum(a$keep1) == 10)
+  expect_true(sum(a$keep2) == 9)
+  expect_true(sum(a$keep3) == 9)
+  expect_true(sum(a$KEEP) == 9)
 })
 ```
 
-# Calculate the mean of a vector
 
-<!--
-There can be other functions, examples and tests in your flat template.
-Each of them will be inflated in a different file, provided that there is a level-1 or level-2 section title to separate from previous functions.
--->
+## Remove outliers from percentiles
 
-## Use sub-functions in the same chunk
+This functions removes all values lower and higher than the median value multiplied by how many times the (100-q)th percentile is higher than the qth percentile of the distribution of weights.
 
-```{r function-my_other_median}
-#' My Other median
+The measurement values must be positive
+
+```{r function-Gro_Rout_quan}
+#' Remove outliers from percentiles
 #'
-#' @param x Vector of Numeric values
-#' @inheritParams stats::median
+#' @param z  \code{numeric vector} Measurement values
+#' @param minq \code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05
 #'
 #' @return
-#' Median of vector x
+#' Vector of 0 and 1 indicating the measurement values to keep (=1) vs. the outliers (=0).
+#' 
+#' @importFrom stats quantile
+#' 
 #' @export
+#' 
+#' @details
+#' This functions removes all values lower and higher than the median value multiplied by how many times the (100-q)th percentile is higher than the qth percentile of the distribution of weights.
 #'
 #' @examples
-my_other_median <- function(x, na.rm = TRUE) {
-  if (!is.numeric(x)) {stop("x should be numeric")}
-  sub_median(x, na.rm =na.rm)
-}
-
-#' Core of the median not exported
-#' @param x Vector of Numeric values
-#' @inheritParams stats::median
-sub_median <- function(x, na.rm = TRUE) {
-  stats::median(x, na.rm)
+Gro_Rout_quan <- function (z, minq = 0.05) 
+{
+  
+  assert_that(is.numeric(z))
+  assert_that(is.numeric(minq))
+  assert_that(minq < 1, msg = "minq must be a proportion between 0 and 1")
+  assert_that(minq > 0, msg = "minq must be a proportion between 0 and 1")
+  
+  qzn <- quantile(z, c(minq, 1-minq))
+  qzrat <- qzn[2]/qzn[1]
+  qzlu <- c(quantile(z, 0.5)/qzrat, quantile(z, 0.5) * qzrat)
+  idkeep <- which(z > qzlu[1] & z < qzlu[2])
+  indKeep = rep(0,length(z))
+  indKeep[idkeep] <- 1
+  return(indKeep)
 }
 ```
 
-```{r examples-my_other_median}
-my_other_median(1:12)
+```{r examples-Gro_Rout_quan}
+z = c(rnorm(100,5,1), runif(3,40,100))
+Gro_Rout_quan (z, minq = 0.05)
 ```
 
-```{r tests-my_other_median}
-test_that("my_median works properly and show error if needed", {
-  expect_true(my_other_median(1:12) == 6.5)
-  expect_error(my_other_median("text"))
+```{r tests-Gro_Rout_quan}
+z1 = c(rnorm(95,4,1), runif(5,100,1000))
+
+test_that("Gro_Rout_quan error", {
+  expect_error(Gro_Rout_quan("text"))
+  expect_error(Gro_Rout_quan(z1, minq = 1) , regexp = "minq must be a proportion between 0 and 1")
+})
+
+test_that("Gro_Rout_quan works", {
+  expect_true(sum(Gro_Rout_quan(z1, minq = 0.05)) == 95)
 })
 ```
 
-<!--
-# There can be development actions
 
-Create a chunk with 'development' actions
+## Linearize individual trajectories
 
-- The chunk needs to be named `development` or `dev`
-- It contains functions that are used for package development only
-- Note that you may want to store most of these functions in the 0-dev_history.Rmd file
+This function takes as arguments:
 
-These are only included in the present flat template file, their content will not be part of the package anywhere else.
--->
+* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
+* `variable_id` name of the variable including individual ids. Defaut = "AnonID". It must also be a column of  `data_weight`
+* `perc_weight_min`  Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
+* `perc_weight_max`  Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
+* `IQR` influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
+* `remove_ext` Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers. Default =  TRUE
+*  `traj_ind` Do you want to build a model at the level of the individual trajectory  Default =  TRUE. If yes, each individual trajectory must have at least 5 measures. 
+
+The function uses build generalized additive model of the measurement value in relation to age. It flags as outliers all measures for which the residuals from the linear model are above  IQR * the inter quantile interval (quantile(0.9) - quantile(0.1)) of the residuals. `perc_weight_min` and `perc_weight_max` limit the values that must be considered as outliers.
+
+```{r function-Gro_lin_ind}
+
+#' Flag outliers in individual trajectories
+#' 
+#' This function flag 
+#' 
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric})
+#' @param variable_id \code{character} name of the variable including individual ids. Defaut = "AnonID". It must also be a column of data_weight
+#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
+#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
+#' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
+#' @param remove_ext \code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers. Default =  TRUE
+#' @param traj_ind \code{logical} Do you want to build linear model at the level of the individual trajectory  Default =  TRUE. If yes, each individual trajectory must have at least 5 measures. 
+#' 
+#' @details
+#' The function uses a log-linear model of the measurement value in relation to a quadratic effect of age for each individual trajectories. It flags as outliers all measures for which the residuals from the linear model are above  IQR * the inter quantile interval (quantile(0.9) - quantile(0.1)) of the residuals. \code{perc_weight_min} and \code{perc_weight_max} limit the values that must be considered as outliers.
+#'The \code{remove_ext} argument prevents the function from removing the 2 last and 2 first value observations in relation to age as these values may often be farther from the prediction line.
+#' 
+#' @import dplyr assertthat
+#' @importFrom stats quantile
+#'
+#' @return data frame; the data set including an additional column *Keep2* of 0 (potential outliers) and 1
+#' 
+#' @export
+Gro_lin_ind <- function(data_weight, 
+                        variable_id = "AnonID",
+                        perc_weight_min = 0.2,
+                        perc_weight_max = 2.5,
+                        IQR = 1.5,
+                        remove_ext = T,
+                        traj_ind = T
+) {
+  
+  assert_that(is.numeric(perc_weight_min ))
+  assert_that(perc_weight_min  >0 )
+  assert_that(perc_weight_min  <1)
+  assert_that(is.numeric(perc_weight_max ))
+  assert_that(perc_weight_max  >1 )
+  assert_that(is.numeric(IQR))
+  assert_that(IQR  > 1, msg = 'IQR should be higher than 1 to avoid removing real data')
+  assert_that(is.logical(remove_ext))
+  assert_that(is.logical(traj_ind))
+  assert_that(data_weight %has_name% c("MeasurementValue","Age"))
+  
+  
+  data_weight<-data_weight%>%
+    dplyr::mutate(pop = 1)%>%
+    dplyr::group_by(pop)
+  
+  assert_that(nrow(data_weight)  > 4, msg = 'There should be at least 5 measures')
+  assert_that(min(length(unique(data_weight$Age)))  >= 4, msg = 'Measures must have been taken at 4 different unique ages, at least')
+  
+  
+  #only for individual trajectory 
+  if(traj_ind==T){
+    assert_that(is.character(variable_id))
+    assert_that(data_weight %has_name% c(variable_id))
+    
+    data_weight<-data_weight%>%
+      mutate(anonid = {{variable_id}})%>%
+      group_by(anonid)
+    
+    da_weight<-data_weight%>%
+      summarize(nb= n(),
+                la = length(unique(Age)))
+    assert_that(min(da_weight$nb)  > 4, msg = 'Each individual trajectory must have at least 5 measures')
+    assert_that(min(da_weight$la)  >= 4, msg = 'Each individual trajectory must have measures at 4 different unique ages, at least')
+  }
+  data_weight$pred2 = perc_weight_max
+  data_weight$pred2[data_weight$Age<1] = 1000
+  data_weight<-data_weight%>%
+    mutate(pred = stats::predict(mgcv::gam(MeasurementValue ~ s(Age, bs = "cr", k=3), data = cur_group())),
+           res = abs(MeasurementValue - pred),
+           pred1 = abs(perc_weight_min*pred),
+           pred2 = abs(pred*pred2),
+           lwr = abs(IQR*(quantile(res,0.90)-quantile(res,0.10))),
+           ager = rank(Age),
+           #Prevent from removing 2 first and 2lasts obs as they will tend to be removed
+           age0 = ager < min(ager)+2,
+           agem = ager > max(ager)-2)%>%
+    dplyr::ungroup()%>% 
+    rowwise%>%
+    mutate(
+      Keep2 = res < min(max(lwr,pred1),pred2))
+  if( !(remove_ext))   data_weight$Keep2[data_weight$age0 | data_weight$agem]=1
+  data_weight<-data_weight%>%
+    dplyr::select(- pred1, -lwr, -res, -age0, -agem, -pred, -ager,
+                  -pop, -pred2)
+  
+  if(traj_ind==T){
+    data_weight<-data_weight%>%dplyr::select(-anonid)
+  } 
+  return(data_weight)
+}
+```
+
+```{r example-Gro_lin_ind}
+data(weights)
+
+#We use only trajectories for which the number of individual datapoints is > 6
+weights <- weights%>%
+  dplyr::group_by(AnonID)%>%
+  dplyr::mutate(nb= dplyr::n())%>%
+  dplyr::ungroup()%>%
+  dplyr::filter(nb >6)
+
+weights <- weights%>%Gro_lin_ind(traj_ind = TRUE)
+as.numeric(weights$Keep2)
+
+weights_pop <- weights%>%Gro_lin_ind(traj_ind = FALSE)
+```
+
+
+```{r tests-Gro_lin_ind}
+data <- tibble(AnonID = rep(c(1,2), c(10,15)),
+               Age = c(c(1:10), c(1:15)),
+               MeasurementValue = 2+3*Age)
+data$MeasurementValue[1] = 0.5
+data$MeasurementValue[3] = data$MeasurementValue[3]+50
+data$MeasurementValue[14] = data$MeasurementValue[3]+30
+data$MeasurementValue[20] = data$MeasurementValue[3]+100
+
+test_that(
+  "Gro_lin_ind error",
+  {
+    expect_error(
+      data %>% Gro_lin_ind(variable_id ="ID"))
+    expect_error(
+      data %>% Gro_lin_ind(IQR =0.5),
+      regexp = "IQR should be higher than 1 to avoid removing real data")
+    expect_error(
+      data[1:4,] %>% Gro_lin_ind(),
+      regexp = "There should be at least 5 measures")
+  })
+
+
+
+test_that(
+  "Gro_lin_ind Tested ",
+  { 
+    expect_named(
+      data %>% Gro_lin_ind(),
+      c("AnonID", "Age", "MeasurementValue", "Keep2"))
+    expect_equal(
+      sum(data %>% Gro_lin_ind(IQR= 1.5, remove_ext = F, traj_ind = F)%>%pull(Keep2)),
+      25-3)
+    expect_equal(
+      sum(data %>% Gro_lin_ind(remove_ext = F)%>%pull(Keep2)),
+      25-3)
+    expect_equal(
+      sum(data %>% Gro_lin_ind(IQR= 1.5)%>%pull(Keep2)),
+      25-3)
+  }
+)
+```
+
 
 ```{r development-inflate, eval=FALSE}
 # Keep eval=FALSE to avoid infinite loop in case you hit the knit button
 # Execute in the console directly
-fusen::inflate(flat_file = "dev/flat_growth.Rmd", vignette_name = "Get started")
+fusen::inflate(flat_file = "dev/flat_growth.Rmd", vignette_name = "Growth")
 ```
 
 
-# Inflate your package
-
-You're one inflate from paper to box.
-Build your package from this very Rmd using `fusen::inflate()`
-
-- Verify your `"DESCRIPTION"` file has been updated
-- Verify your function is in `"R/"` directory
-- Verify your test is in `"tests/testthat/"` directory
-- Verify this Rmd appears in `"vignettes/"` directory

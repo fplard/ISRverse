@@ -75,23 +75,6 @@ usethis::use_pipe()
 
 # package-level documentation
 usethis::use_package_doc()
-
-# GitHub
-# Add your credentials for GitHub
-usethis::create_github_token()
-gitcreds::gitcreds_set()
-
-# _Or one step at a time
-# Send your project to a new GitHub project (included in `init_share_on_github()`)
-usethis::use_github()
-
-# Set Continuous Integration
-# _GitHub (included in `init_share_on_github()`)
-usethis::use_github_action_check_standard()
-usethis::use_github_action("pkgdown")
-usethis::use_github_action("test-coverage")
-# _GitLab
-gitlabr::use_gitlab_ci(type = "check-coverage-pkgdown")
 ```
 
 ## Use everytime needed

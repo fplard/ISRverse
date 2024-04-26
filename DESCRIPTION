@@ -10,7 +10,13 @@ Description: Survival, Reproduction and Growth analyses.
 License: file LICENSE
 URL: https://github.com/fplard/ISRverse
 BugReports: https://github.com/fplard/ISRverse/issues
+Depends: 
+    R (>= 2.10)
 Imports: 
+    assertthat,
+    dplyr,
+    magrittr,
+    mgcv,
     stats
 Suggests: 
     knitr,
@@ -20,5 +26,6 @@ VignetteBuilder:
     knitr
 Config/fusen/version: 0.5.2
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
