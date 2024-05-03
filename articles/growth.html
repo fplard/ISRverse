@@ -94,6 +94,45 @@
 <!-- Run this 'development' chunk -->
 <!-- Store every call to library() that you need to explore your functions -->
 <div class="section level2">
+<h2 id="gro_cleanmeasures">Gro_cleanmeasures<a class="anchor" aria-label="anchor" href="#gro_cleanmeasures"></a>
+</h2>
+<p>This function is used to prepare weight and length dataset. It unify
+the unity used, select clean measures and add individual age at each
+measure. This function takes as arguments:</p>
+<ul>
+<li>
+<code>data</code>: the weight or length data from ZIMS</li>
+<li>
+<code>coresubse</code>: the core data of the species from ZIMS</li>
+<li>
+<code>CaptiveBirths</code> Should captive born individuals be
+included, only? Default = TRUE</li>
+<li>
+<code>InclUnkSex</code>Should undetermined sexes be included Default
+= FALSE</li>
+<li>
+<code>mindate</code> Earlier date to include data
+(‘YYYY-MM-DD’)</li>
+<li>
+<code>MeasureType</code> Name of the type of measurements that
+should be included. Default = NULL, all measurement type are
+included.</li>
+<li>
+<code>type</code> Either ‘weight’ or ‘length’.</li>
+</ul>
+<p>The function returns the data frame including selected measures, plus
+individual birth date and individual age at each measure</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">raw_weights</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">data_weights</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_cleanmeasures.html">Gro_cleanmeasures</a></span><span class="op">(</span><span class="va">raw_weights</span>, <span class="va">core</span>,</span>
+<span>                                CaptiveBirths <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                MeasureType <span class="op">=</span> <span class="st">'Live weight'</span>,</span>
+<span>                                InclUnkSex <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                                mindate <span class="op">=</span> <span class="st">"1980-01-01"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="gro_remoutliers">gro_remoutliers<a class="anchor" aria-label="anchor" href="#gro_remoutliers"></a>
 </h2>
 <p>This function removes the outliers from a dataset of weights. This
@@ -111,7 +150,7 @@ from adults</li>
 <li><code>maxweight</code></li>
 <li>
 <code>variableid</code> name of the column including individual IDs.
-Defaut = “AnonID”. It must also be a column of
+Defaut = “anonID”. It must also be a column of
 <code>data_weight</code>
 </li>
 <li>
@@ -156,27 +195,34 @@ vector of 1 and 0 indicating the measures to keep. The 0 signal
 outliers. Other additional columns keep1, keep2, keep3 indicates the
 individuals highlighted as outliers (0) in steps 1 to 3.</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op">)</span></span>
 <span><span class="co">#Show the four steps used to remove outliers</span></span>
 <span><span class="co">#1/ using maximum value</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep1</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep1</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="st">"red"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
 <span><span class="co">#2/ using Inter quartile range</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep2</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep1</span><span class="op">==</span><span class="fl">1</span> <span class="op">)</span>, col <span class="op">=</span> <span class="st">"green"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep2</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep1</span><span class="op">==</span><span class="fl">1</span> <span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="st">"green"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
 <span><span class="co">#3a/ using individual trajectories</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep2</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"cyan"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep2</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="st">"cyan"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
 <span><span class="co">#3b/ using global log-linear model</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">KEEP</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep3</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"blue"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">KEEP</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep3</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="st">"blue"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="growth_files/figure-html/examples-Gro_remoutliers-1.png" width="700"></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co">#Checking outliers highlighted in Individual trajectories</span></span>
-<span><span class="va">anon</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">weights</span><span class="op">$</span><span class="va">AnonID</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span> <span class="op">&amp;</span> <span class="va">weights</span><span class="op">$</span><span class="va">keep2</span><span class="op">==</span><span class="fl">1</span> <span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep2</span><span class="op">==</span><span class="fl">1</span>, <span class="va">AnonID</span> <span class="op">==</span> <span class="va">anon</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span>, <span class="va">AnonID</span> <span class="op">==</span> <span class="va">anon</span>, <span class="va">keep2</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"cyan"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">anon</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">weights</span><span class="op">$</span><span class="va">anonID</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span> <span class="op">&amp;</span> <span class="va">weights</span><span class="op">$</span><span class="va">keep2</span><span class="op">==</span><span class="fl">1</span> <span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>       <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep2</span><span class="op">==</span><span class="fl">1</span>, <span class="va">anonID</span> <span class="op">==</span> <span class="va">anon</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>         <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span>, <span class="va">anonID</span> <span class="op">==</span> <span class="va">anon</span>, <span class="va">keep2</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="st">"cyan"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
 <p><img src="growth_files/figure-html/examples-Gro_remoutliers-2.png" width="700"></p>
 <div class="section level3">
 <h3 id="remove-outliers-from-percentiles">Remove outliers from percentiles<a class="anchor" aria-label="anchor" href="#remove-outliers-from-percentiles"></a>
@@ -185,7 +231,7 @@ individuals highlighted as outliers (0) in steps 1 to 3.</li>
 value multiplied by how many times the (100-q)th percentile is higher
 than the qth percentile of the distribution of weights.</p>
 <p>The measurement values must be positive</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">z</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">5</span>,<span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">40</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/Gro_Rout_quan.html">Gro_Rout_quan</a></span> <span class="op">(</span><span class="va">z</span>, minq <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
@@ -199,11 +245,8 @@ than the qth percentile of the distribution of weights.</p>
 <ul>
 <li>
 <code>data_weight</code> a data frame that must include at least the
-columns <code>MeasurementValue</code> and <code>Age</code>.</li>
-<li>
-<code>variable_id</code> name of the variable including individual
-ids. Defaut = “AnonID”. It must also be a column of
-<code>data_weight</code>
+columns <code>MeasurementValue</code> and <code>Age</code>and
+<code>anonID</code>
 </li>
 <li>
 <code>perc_weight_min</code> Minimum percentage of weight that an
@@ -232,60 +275,77 @@ the residuals from the linear model are above IQR * the inter quantile
 interval (quantile(0.9) - quantile(0.1)) of the residuals.
 <code>perc_weight_min</code> and <code>perc_weight_max</code> limit the
 values that must be considered as outliers.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#We use only trajectories for which the number of individual datapoints is &gt; 6</span></span>
 <span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">AnonID</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">anonID</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>nb<span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nb</span> <span class="op">&gt;</span><span class="fl">6</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">weights</span><span class="op">$</span><span class="va">Keep2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;   [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;   [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [112] 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [149] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="va">weights_ind</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">weights_ind</span><span class="op">$</span><span class="va">Keep2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    [1] 1 1 1 1 1 1 0 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;   [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;   [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [112] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [149] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt;  [186] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [223] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [260] 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1 0 1</span></span>
-<span><span class="co">#&gt;  [297] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [334] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [371] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [408] 0 1 1 1 1 0 1 1 1 1 0 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [445] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [482] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [519] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [556] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [593] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1 1 1</span></span>
-<span><span class="co">#&gt;  [630] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 1</span></span>
-<span><span class="co">#&gt;  [667] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [704] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [741] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [778] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [815] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 1 1 1 1 0 1 1</span></span>
-<span><span class="co">#&gt;  [852] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [889] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [926] 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [963] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 0 1 1 1</span></span>
-<span><span class="co">#&gt; [1000] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1</span></span>
-<span><span class="co">#&gt; [1037] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1074] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
-<span><span class="co">#&gt; [1111] 1 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1</span></span>
-<span><span class="co">#&gt; [1148] 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1185] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1222] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1259] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1296] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [223] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [260] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [297] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [334] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [371] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [408] 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [445] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [482] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1</span></span>
+<span><span class="co">#&gt;  [519] 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [556] 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [593] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [630] 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [667] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [704] 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [741] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [778] 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [815] 1 1 1 0 0 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [852] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [889] 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [926] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1</span></span>
+<span><span class="co">#&gt;  [963] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1000] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1037] 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0</span></span>
+<span><span class="co">#&gt; [1074] 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1111] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1148] 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1185] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1</span></span>
+<span><span class="co">#&gt; [1222] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1259] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1296] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt; [1333] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1370] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1370] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1</span></span>
 <span></span>
 <span><span class="va">weights_pop</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="growth-model">Growth model<a class="anchor" aria-label="anchor" href="#growth-model"></a>
+</h2>
+<p>This function takes as arguments:</p>
+<ul>
+<li>
+<code>data_weight</code> a data frame that must include at least the
+columns <code>MeasurementValue</code> and <code>Age</code>.</li>
+<li>
+<code>variable_id</code> name of the variable including individual
+ids. Defaut = “anonID”. It must also be a column of
+<code>data_weight</code>
+</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
 
