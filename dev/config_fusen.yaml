@@ -2,13 +2,17 @@ flat_growth.Rmd:
   path: dev/flat_growth.Rmd
   state: active
   R:
+  - R/gro_analysis.R
+  - R/gro_cleanmeasures.R
   - R/gro_lin_ind.R
   - R/gro_remoutliers.R
   - R/gro_rout_quan.R
   tests:
+  - tests/testthat/test-gro_cleanmeasures.R
   - tests/testthat/test-gro_remoutliers.R
   - tests/testthat/test-gro_rout_quan.R
   - tests/testthat/test-gro_lin_ind.R
+  - tests/testthat/test-gro_analysis.R
   vignettes: vignettes/growth.Rmd
   inflate:
     flat_file: dev/flat_growth.Rmd

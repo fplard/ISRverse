@@ -24,6 +24,33 @@ library(ISRverse)
 <!-- Store every call to library() that you need to explore your functions -->
 
 
+# Gro_cleanmeasures
+
+This function is used to prepare weight and length dataset. It unify the unity used, select clean measures and add individual age at each measure. This function takes as arguments:
+
+* `data`: the weight or length data from ZIMS
+* `coresubse`: the core data of the species from ZIMS
+* `CaptiveBirths` Should captive born individuals be included, only? Default =  TRUE
+* `InclUnkSex`Should undetermined sexes be included Default =  FALSE
+* `mindate` Earlier date to include data ('YYYY-MM-DD')
+* `MeasureType` Name of the type of measurements that should be included. Default = NULL, all measurement type are included.
+* `type` Either 'weight' or 'length'.
+
+The function returns the data frame including selected measures, plus individual birth date and individual age at each measure
+
+
+
+```{r examples-Gro_cleanmeasures}
+data(raw_weights)
+data(core)
+
+data_weights= Gro_cleanmeasures(raw_weights, core,
+                                CaptiveBirths = TRUE,
+                                MeasureType = 'Live weight',
+                                InclUnkSex = FALSE, 
+                                mindate = "1980-01-01")
+```
+
 # gro_remoutliers
 
 This function removes the outliers from a dataset of weights. This function takes as arguments:
@@ -32,7 +59,7 @@ This function removes the outliers from a dataset of weights. This function take
 * `taxa` the name of the taxa studied
 * `ageMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults
 * `maxweight`
-* `variableid` name of the column including individual IDs. Defaut = "AnonID". It must also be a column of `data_weight`
+* `variableid` name of the column including individual IDs. Defaut = "anonID". It must also be a column of `data_weight`
 * `minq` Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
 * `IQR` influences the sensitivity of the function to remove outliers using generalized additive model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
 * `perc_weight_min`  Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
@@ -58,18 +85,25 @@ weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
 plot(MeasurementValue ~Age, data = weights)
 #Show the four steps used to remove outliers
 #1/ using maximum value
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep1==0), col = "red", pch = 16) 
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep1==0),
+       col = "red", pch = 16) 
 #2/ using Inter quartile range
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==0, keep1==1 ), col = "green", pch = 16) 
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==0, keep1==1 ),
+       col = "green", pch = 16) 
 #3a/ using individual trajectories
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, keep2==1), col = "cyan", pch = 16) 
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, keep2==1),
+       col = "cyan", pch = 16) 
 #3b/ using global log-linear model
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(KEEP==0, keep3==1), col = "blue", pch = 16) 
+points(MeasurementValue ~Age, data = weights%>%dplyr::filter(KEEP==0, keep3==1),
+       col = "blue", pch = 16) 
 
 #Checking outliers highlighted in Individual trajectories
-anon = unique(weights$AnonID[weights$keep3==0 & weights$keep2==1 ])
-plot(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==1, AnonID == anon))
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, AnonID == anon, keep2==1), col = "cyan", pch = 16)
+anon = unique(weights$anonID[weights$keep3==0 & weights$keep2==1 ])
+plot(MeasurementValue ~Age, data = weights%>%
+       dplyr::filter(keep2==1, anonID == anon))
+points(MeasurementValue ~Age, data = weights%>%
+         dplyr::filter(keep3==0, anonID == anon, keep2==1),
+       col = "cyan", pch = 16)
 ```
 
 ## Remove outliers from percentiles
@@ -88,8 +122,7 @@ Gro_Rout_quan (z, minq = 0.05)
 
 This function takes as arguments:
 
-* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
-* `variable_id` name of the variable including individual ids. Defaut = "AnonID". It must also be a column of  `data_weight`
+* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`and `anonID`
 * `perc_weight_min`  Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
 * `perc_weight_max`  Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
 * `IQR` influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
@@ -104,14 +137,28 @@ data(weights)
 
 #We use only trajectories for which the number of individual datapoints is > 6
 weights <- weights%>%
-  dplyr::group_by(AnonID)%>%
+  dplyr::group_by(anonID)%>%
   dplyr::mutate(nb= dplyr::n())%>%
   dplyr::ungroup()%>%
   dplyr::filter(nb >6)
 
-weights <- weights%>%Gro_lin_ind(traj_ind = TRUE)
-as.numeric(weights$Keep2)
+weights_ind <- weights%>%Gro_lin_ind(traj_ind = TRUE)
+as.numeric(weights_ind$Keep2)
 
 weights_pop <- weights%>%Gro_lin_ind(traj_ind = FALSE)
+```
+
+# Growth model
+
+This function takes as arguments:
+
+* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
+* `variable_id` name of the variable including individual ids. Defaut = "anonID". It must also be a column of  `data_weight`
+
+
+
+```{r example-Gro_analysis}
+data(weights)
+
 ```
 

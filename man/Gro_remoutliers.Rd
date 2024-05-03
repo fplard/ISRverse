@@ -9,7 +9,7 @@ Gro_remoutliers(
   taxa,
   ageMat = 0,
   maxweight = NULL,
-  variableid = "AnonID",
+  variableid = "anonID",
   min_Nmeasures = 7,
   perc_weight_min = 0.2,
   perc_weight_max = 2.5,
@@ -27,7 +27,7 @@ Gro_remoutliers(
 
 \item{maxweight}{\code{numeric} the maximum weight allowed for the dataset}
 
-\item{variableid}{\code{character} name of the variable including individual ids. Defaut = "AnonID". It must also be a column of data_weight.Default = 6. It must be at least 5}
+\item{variableid}{\code{character} name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight.Default = 6. It must be at least 5}
 
 \item{min_Nmeasures}{\code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5}
 
@@ -61,16 +61,23 @@ weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
 plot(MeasurementValue ~Age, data = weights)
 #Show the four steps used to remove outliers
 #1/ using maximum value
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep1==0), col = "red", pch = 16) 
+points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep1==0),
+       col = "red", pch = 16) 
 #2/ using Inter quartile range
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep2==0, keep1==1 ), col = "green", pch = 16) 
+points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep2==0, keep1==1 ),
+       col = "green", pch = 16) 
 #3a/ using individual trajectories
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep3==0, keep2==1), col = "cyan", pch = 16) 
+points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep3==0, keep2==1),
+       col = "cyan", pch = 16) 
 #3b/ using global log-linear model
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(KEEP==0, keep3==1), col = "blue", pch = 16) 
+points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(KEEP==0, keep3==1),
+       col = "blue", pch = 16) 
 
 #Checking outliers highlighted in Individual trajectories
-anon = unique(weights$AnonID[weights$keep3==0 & weights$keep2==1 ])
-plot(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep2==1, AnonID == anon))
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep3==0, AnonID == anon, keep2==1), col = "cyan", pch = 16)
+anon = unique(weights$anonID[weights$keep3==0 & weights$keep2==1 ])
+plot(MeasurementValue ~Age, data = weights\%>\%
+       dplyr::filter(keep2==1, anonID == anon))
+points(MeasurementValue ~Age, data = weights\%>\%
+         dplyr::filter(keep3==0, anonID == anon, keep2==1),
+       col = "cyan", pch = 16)
 }

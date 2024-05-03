@@ -2,6 +2,8 @@
 
 export("%>%")
 export(Gro_Rout_quan)
+export(Gro_analysis)
+export(Gro_cleanmeasures)
 export(Gro_lin_ind)
 export(Gro_remoutliers)
 import(assertthat)

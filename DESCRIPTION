@@ -15,9 +15,11 @@ Depends:
 Imports: 
     assertthat,
     dplyr,
+    lubridate,
     magrittr,
     mgcv,
-    stats
+    stats,
+    stringr
 Suggests: 
     knitr,
     rmarkdown,

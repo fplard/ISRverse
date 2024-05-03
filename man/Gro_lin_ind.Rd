@@ -6,7 +6,6 @@
 \usage{
 Gro_lin_ind(
   data_weight,
-  variable_id = "AnonID",
   perc_weight_min = 0.2,
   perc_weight_max = 2.5,
   IQR = 1.5,
@@ -15,9 +14,7 @@ Gro_lin_ind(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric})}
-
-\item{variable_id}{\code{character} name of the variable including individual ids. Defaut = "AnonID". It must also be a column of data_weight}
+\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric}) and \emph{anonID}}
 
 \item{perc_weight_min}{\code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20\%)}
 
@@ -44,13 +41,13 @@ data(weights)
 
 #We use only trajectories for which the number of individual datapoints is > 6
 weights <- weights\%>\%
-  dplyr::group_by(AnonID)\%>\%
+  dplyr::group_by(anonID)\%>\%
   dplyr::mutate(nb= dplyr::n())\%>\%
   dplyr::ungroup()\%>\%
   dplyr::filter(nb >6)
 
-weights <- weights\%>\%Gro_lin_ind(traj_ind = TRUE)
-as.numeric(weights$Keep2)
+weights_ind <- weights\%>\%Gro_lin_ind(traj_ind = TRUE)
+as.numeric(weights_ind$Keep2)
 
 weights_pop <- weights\%>\%Gro_lin_ind(traj_ind = FALSE)
 }
