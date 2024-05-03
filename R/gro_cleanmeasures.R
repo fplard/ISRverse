@@ -32,7 +32,7 @@
 Gro_cleanmeasures <- function(data, coresubse,
                               CaptiveBirths = TRUE, type = "weight", MeasureType = NULL,
                               InclUnkSex = FALSE, mindate = "1980-01-01",
-                              corevariable = '', variablekeep ='') 
+                              corevariable = NULL, variablekeep =NULL) 
 {
   mindate = lubridate::as_date(mindate)
   assert_that(is.data.frame(data))
@@ -42,10 +42,14 @@ Gro_cleanmeasures <- function(data, coresubse,
   assert_that(is.logical(CaptiveBirths))
   assert_that(is.logical(InclUnkSex))
   assert_that(is.date(mindate))
-  assert_that(is.character(corevariable))
-  assert_that(is.character(variablekeep))
-  if(corevariable != '') {assert_that(coresubse %has_name% corevariable)}
-  if(variablekeep != '') {assert_that(data %has_name% variablekeep)}
+  
+ 
+  if(!is.null(corevariable)) {
+    assert_that(is.character(corevariable))
+    assert_that(coresubse %has_name% corevariable)}
+  if(!is.null(variablekeep)) {
+     assert_that(is.character(variablekeep))
+    assert_that(data %has_name% variablekeep)}
   
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
@@ -78,13 +82,10 @@ Gro_cleanmeasures <- function(data, coresubse,
                         stringsAsFactors = FALSE)
     
   }
-  Corevariable = c("binSpecies", "BirthDate", "Sex", "anonID") 
+  Corevariable = c("binSpecies", "BirthDate", "Sex", "anonID", corevariable) 
   Variablekeep = c(Corevariable,"AnonInstitutionID","MeasurementType", 
-                        "MeasurementDate", "age", "Measure", "Unit")
-  if(corevariable != '') Corevariable = c(Corevariable, corevariable)
-  if(variablekeep != '')  Variablekeep = c(Variablekeep, variablekeep)
+                        "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
  
-    
   coresubse<- coresubse%>%
     rowwise()%>%
     mutate(cond_captivebirth = ifelse(CaptiveBirths,stringr::str_detect(birthType, pattern = "Captive"),1 ),
@@ -120,10 +121,10 @@ Gro_cleanmeasures <- function(data, coresubse,
     
     if (nrow(datasub) > 0) {
       datasub <- datasub%>%
-        mutate(age = as.numeric((MeasurementDate - BirthDate)/365.25))%>%
-        filter(age >= 0)%>%
+        mutate(Age = as.numeric((MeasurementDate - BirthDate)/365.25))%>%
+        filter(Age >= 0)%>%
         left_join(Units, by =c("UnitOfMeasure"= "unit"))%>%
-        mutate(Measure = MeasurementValue * toKg,
+        mutate(MeasurementValue = MeasurementValue * toKg,
                Unit = Units$unit[1])%>%
         dplyr::select(all_of(Variablekeep))
       output <-datasub

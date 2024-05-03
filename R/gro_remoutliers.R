@@ -173,7 +173,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
     }
   }
   
-  data_weight1 =rbind(juv,ad)
+  data_weight1 =rbind(juv,ad)%>%dplyr::select(-nb,-la)
   #3) Uses global GAM model to detect remaining outliers ----
   data_weight1$KEEP= data_weight1$keep3
   if(sum(data_weight1$KEEP)>4){

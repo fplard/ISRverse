@@ -12,8 +12,8 @@ Gro_cleanmeasures(
   MeasureType = NULL,
   InclUnkSex = FALSE,
   mindate = "1980-01-01",
-  corevariable = "",
-  variablekeep = ""
+  corevariable = NULL,
+  variablekeep = NULL
 )
 }
 \arguments{

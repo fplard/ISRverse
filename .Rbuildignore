@@ -5,3 +5,4 @@
 ^\.github$
 ^codecov\.yml$
 ^ISRverse\.Rproj$
+^CODE_OF_CONDUCT\.md$
