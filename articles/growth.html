@@ -179,8 +179,8 @@ Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia,
 1000kg for Chondrichthyes and 500kg for Actinopterygii. 2/ Independently
 on adults and juveniles, it uses the function Gro_Rout_quan() to removes
 outliers based on percentiles on adults and juveniles. It uses sliding
-windows of age for juveniles. You can choose the number of individuals
-included in each interval of the sliding window using the argument
+windows of age for juveniles. You can choose the number of intervals
+used for the sliding windows using the argument
 <code>Ninterval_juv</code>. 3/ Independently on adults and juveniles, it
 uses the function Gro_lin_ind() to build generalized additive models for
 each individual trajectories with at least <code>min_Nmeasures</code>
@@ -325,8 +325,9 @@ values that must be considered as outliers.</p>
 <span><span class="co">#&gt; [1296] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt; [1333] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt; [1370] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1</span></span>
-<span></span>
+<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">weights_pop</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -344,7 +345,7 @@ ids. Defaut = “anonID”. It must also be a column of
 <code>data_weight</code>
 </li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
