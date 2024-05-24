@@ -4,12 +4,14 @@
 \alias{Gro_Rout_quan}
 \title{Remove outliers from percentiles}
 \usage{
-Gro_Rout_quan(z, minq = 0.05)
+Gro_Rout_quan(z, minq = 0.05, type = "both")
 }
 \arguments{
 \item{z}{\code{numeric vector} Measurement values}
 
 \item{minq}{\code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05}
+
+\item{type}{\code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened. Default =  0.05}
 }
 \value{
 Vector of 0 and 1 indicating the measurement values to keep (=1) vs. the outliers (=0).

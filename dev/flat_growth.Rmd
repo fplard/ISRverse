@@ -72,12 +72,12 @@ Gro_cleanmeasures <- function(data, coresubse,
   assert_that(is.logical(InclUnkSex))
   assert_that(is.date(mindate))
   
- 
+  
   if(!is.null(corevariable)) {
     assert_that(is.character(corevariable))
     assert_that(coresubse %has_name% corevariable)}
   if(!is.null(variablekeep)) {
-     assert_that(is.character(variablekeep))
+    assert_that(is.character(variablekeep))
     assert_that(data %has_name% variablekeep)}
   
   if(!is.null(MeasureType)){
@@ -113,8 +113,8 @@ Gro_cleanmeasures <- function(data, coresubse,
   }
   Corevariable = c("binSpecies", "BirthDate", "Sex", "anonID", corevariable) 
   Variablekeep = c(Corevariable,"AnonInstitutionID","MeasurementType", 
-                        "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
- 
+                   "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
+  
   coresubse<- coresubse%>%
     rowwise()%>%
     mutate(cond_captivebirth = ifelse(CaptiveBirths,stringr::str_detect(birthType, pattern = "Captive"),1 ),
@@ -209,7 +209,7 @@ This function removes the outliers from a dataset of weights. This function take
 
 This function follow 4 different steps to highlight outliers:
 1/ It removes the measures higher than the argument `maxweight` (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).  In the default case, default values are in kilograms and are set at 7000kg for Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia, 1000kg for Chondrichthyes and 500kg for Actinopterygii.
-2/ Independently on adults and juveniles, it uses the function Gro_Rout_quan() to removes outliers based on percentiles on adults and juveniles. It uses sliding windows of age for juveniles. You can choose the number of individuals included in each interval of the sliding window using the argument `Ninterval_juv`.
+2/ Independently on adults and juveniles, it uses the function Gro_Rout_quan() to removes outliers based on percentiles on adults and juveniles. It uses sliding windows of age for juveniles. You can choose the number of intervals used for the sliding windows using the argument `Ninterval_juv`.
 3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
 4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
 
@@ -235,7 +235,7 @@ The function returns:
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
 #' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
 #' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
-#' @param Ninterval_juv \code{integer} Minimum number of juveniles used to make one interval of the sliding windows. Default = 500
+#' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10
 #' 
 #' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
 #' 
@@ -255,7 +255,7 @@ The function returns:
 Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL, 
                             variableid = "anonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
-                            IQR=2.75, minq=0.025, Ninterval_juv = 500) {
+                            IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
   assert_that(is.data.frame(data_weight))
   assert_that(data_weight %has_name% c("MeasurementValue", "Age"))
@@ -276,11 +276,10 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
   assert_that(min_Nmeasures>=5)
   assert_that(Ninterval_juv%%1==0, msg = "Ninterval_juv should be an integer")
-  assert_that(Ninterval_juv>=5)
   assert_that(all(data_weight$MeasurementValue>0))
   assert_that(all(data_weight$Age>=0))
   
-  
+  if(ageMat == 0){ageMat=1.5}
   #1) Removes very large weights using maxweight ----
   data_weight <- data_weight%>%
     mutate(keep1 = ifelse(MeasurementValue< maxweight, 1, 0))
@@ -292,15 +291,15 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   if (nrow(juv) > 0) {
     
     ##a/Uses sliding windows to check outliers based on percentile of the distribution 
-    #Make maximum intervals of at least Ninterval_juv individuals for sliding windows
-    nInts = round(nrow(juv[juv$keep1==1,])/ Ninterval_juv)
+    #Make Ninterval_juv for sliding windows
+    nInts = Ninterval_juv
     windInts <- seq(0, ageMat, length = nInts+1)
     numInt <- table(findInterval(juv$Age[juv$keep1==1], windInts))
     nWindInts <- 0
     ii <- 1
     while (ii < nInts) {
       cumInt <- cumsum(numInt[ii:nInts])
-      idnum <- which(cumInt >= Ninterval_juv) + ii
+      idnum <- which(cumInt > 30) + ii
       if (length(idnum) > 0) {
         nWindInts <- c(nWindInts, windInts[idnum[1]])
         ii <- idnum[1]
@@ -317,7 +316,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
                         juv$Age <= nWindInts[iints + 1] & 
                         juv$keep1 == 1)
       juv$keep2[idwind] = Gro_Rout_quan(z = juv$MeasurementValue[idwind],  
-                                        minq = minq)
+                                        minq = minq, type = "upper")
     }
     
     ##b/Uses individual trajectories to find outliers for juveniles with at least 7 measures
@@ -347,7 +346,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
     ##a/Check outliers based on percentile of the distribution 
     ad$keep2=ad$keep1
     ad$keep2[ad$keep1 == 1] = Gro_Rout_quan(z = ad$MeasurementValue[ad$keep1 == 1],  
-                                            minq = minq)
+                                            minq = minq, type = "both")
     
     ##b/Uses individual trajectories to find outliers for adults with at least 7 measures
     ad <-ad %>%
@@ -497,6 +496,7 @@ The measurement values must be positive
 #'
 #' @param z  \code{numeric vector} Measurement values
 #' @param minq \code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05
+#' @param type \code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened. Default =  0.05
 #'
 #' @return
 #' Vector of 0 and 1 indicating the measurement values to keep (=1) vs. the outliers (=0).
@@ -509,18 +509,21 @@ The measurement values must be positive
 #' This functions removes all values lower and higher than the median value multiplied by how many times the (100-q)th percentile is higher than the qth percentile of the distribution of weights.
 #'
 #' @examples
-Gro_Rout_quan <- function (z, minq = 0.05) 
+Gro_Rout_quan <- function (z, minq = 0.05, type = "both") 
 {
   
   assert_that(is.numeric(z))
   assert_that(is.numeric(minq))
+  assert_that(is.character(type))
   assert_that(minq < 1, msg = "minq must be a proportion between 0 and 1")
   assert_that(minq > 0, msg = "minq must be a proportion between 0 and 1")
-  
+  assert_that(type %in% c("upper", "lower", "both"))
   qzn <- quantile(z, c(minq, 1-minq))
   qzrat <- qzn[2]/qzn[1]
   qzlu <- c(quantile(z, 0.5)/qzrat, quantile(z, 0.5) * qzrat)
-  idkeep <- which(z > qzlu[1] & z < qzlu[2])
+  if(type =="both"){idkeep <- which(z > qzlu[1] & z < qzlu[2])}
+  if(type =="lower"){idkeep <- which(z > qzlu[1])}
+  if(type =="upper"){idkeep <- which(z < qzlu[2])}
   indKeep = rep(0,length(z))
   indKeep[idkeep] <- 1
   return(indKeep)
@@ -611,7 +614,7 @@ Gro_lin_ind <- function(data_weight,
   
   #only for individual trajectory 
   if(traj_ind==T){
-     da_weight<-data_weight%>%
+    da_weight<-data_weight%>%
       summarize(nb= n(),
                 la = length(unique(Age)))
     assert_that(min(da_weight$nb)  > 4, msg = 'Each individual trajectory must have at least 5 measures')
@@ -671,7 +674,7 @@ data$MeasurementValue[20] = data$MeasurementValue[3]+100
 test_that(
   "Gro_lin_ind error",
   {
-     expect_error(
+    expect_error(
       data %>% Gro_lin_ind(IQR =0.5),
       regexp = "IQR should be higher than 1 to avoid removing real data")
     expect_error(
@@ -700,56 +703,116 @@ test_that(
 )
 ```
 
+
 # Growth model
 
-This function takes as arguments:
+## Growth analysis
+This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values. It takes as arguments:
 
-* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
-* `variable_id` name of the variable including individual ids. Defaut = "anonID". It must also be a column of  `data_weight`
+* data_weight including at least the numeric columns *Age* and *MeasurementValue* 
+* all_mods indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+* percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 
 
 ```{r function-Gro_analysis}
 
-#' Flag outliers in individual trajectories
+#' Growth model selection
 #' 
-#' This function flag 
+#' This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 #' 
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric})
-#' @param variable_id \code{character} name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight
-
+#' @param data_weight \code{data.frame} including at least the numeric columns *Age* and *MeasurementValue* 
+#' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+#' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 #' 
 #' @details
 #' 
 #' @import dplyr assertthat
 #' @importFrom stats quantile
+#' @importFrom bbmle coef
 #'
-#' @return data frame; the data set including an additional column *Keep2* of 0 (potential outliers) and 1
+#' @return a list including:
+#' * a data frame with the percentile selected
+#' * the fit of the best model
+#' * the AIC table of the model
+#' * GOF: 3 GOF test including the normality of residuals and the test of trend in residuals against X and in the variance of the residuals
 #' 
 #' @export
-Gro_analysis <- function(data_weight, 
-                         variable_id = "anonID"
-                         
+Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles = c(2.5,97.5)
 ) {
-  
-  assert_that(is.numeric(perc_weight_min ))
-  assert_that(perc_weight_min  >0 )
-  assert_that(perc_weight_min  <1)
-  assert_that(is.numeric(perc_weight_max ))
-  assert_that(perc_weight_max  >1 )
-  assert_that(is.numeric(IQR))
-  assert_that(IQR  > 1, msg = 'IQR should be higher than 1 to avoid removing real data')
-  assert_that(is.logical(remove_ext))
-  assert_that(is.logical(traj_ind))
+  assert_that(is.numeric(percentiles))
+  assert_that(min(percentiles) > 0)
+  assert_that(max(percentiles) < 100)
+  assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+  assert_that(is.data.frame(data_weight))
   assert_that(data_weight %has_name% c("MeasurementValue","Age"))
+  assert_that(all(data_weight$Age >= 0 ))
+  assert_that(all(data_weight$MeasurementValue > 0 ))
   
+  data_weight<-data_weight%>%
+    mutate(logx = log(Age + 1),
+           logz = log(MeasurementValue + 1))
   
-  return(data_weight)
+  #Fitting the different growth models
+  all_fits <- lapply( 1:length(all_mods),
+                      Gro_fitlog,
+                      all_mods = all_mods,
+                      dat = data_weight
+  )
+  
+  #Select the best model
+  all_fits_tab=c()
+  for (i in 1:length(all_mods)){
+    all_fits_tab <- rbind(all_fits_tab,all_fits[[i]]$tab%>%as_tibble)
+  }
+  all_fits_tab <- all_fits_tab%>% arrange(AIC)
+  best_std <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$fit
+  growthMod <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$growthMod
+  all_fits_tab <- all_fits_tab%>% 
+    dplyr::select(-index)
+  
+  #Fitted values and residuals
+  gam <- bbmle::coef(best_std)
+  suppressWarnings(gam$logx <- data_weight$logx)
+  
+logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
+  
+  #GOF
+  GOF = list(normal = T, X = T, var = T)
+  elogz <- data_weight$logz - logzfit
+  elogz2 <- elogz^2
+  test  = shapiro.test(elogz)
+  if(test$p.value<0.01){GOF$normal = FALSE}
+  a = summary(lm(elogz2 ~ data_weight$logx)) #test variance?
+  if(a$coefficients[2,4]<0.01){GOF$X = FALSE}
+  b = summary(lm(elogz ~ data_weight$logx)) #test pour senescence??
+  if(b$coefficients[2,4]<0.01){GOF$var = FALSE}
+
+  # Quantile calculation:
+  zQuant <- tibble(Age = seq(min(data_weight$Age), max(data_weight$Age)+0.1, 0.1))
+   gam$logx =  log(zQuant$Age+1)
+  lzexp <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
+  sig <- sd(elogz) 
+  for (al in 1:length(percentiles)) {
+    zQuant[[paste(percentiles[al])]] <- qlnorm(percentiles[al] / 100, mean = lzexp, sd = sig) - 1
+    zQuant[[paste(percentiles[al])]] [which( zQuant[[paste(percentiles[al])]] < 0)] = 0
+  }
+  
+  return(list(percent = zQuant, 
+              fit = best_std,
+              AIC_tab =all_fits_tab,
+              GOF = GOF)
+  )
 }
 ```
 
 ```{r example-Gro_analysis}
-data(weights)
+Age <- sample(c(0:10), 100, replace = T)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01))-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
 
+Gro_analysis(dat, 
+             all_mods = c("logistic", "vonBertalanffy"), 
+             percentiles = c(2.5, 97.5))
 ```
 
 
@@ -794,6 +857,345 @@ test_that(
 )
 ```
 
+
+## Fit growth model
+
+This function fit a given growth model to a dataset. It takes as arguments:
+
+* num index of the model to run 
+* `data`, a data frame including at least the numeric columns *logx* and *logz* 
+* `model` Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+
+
+```{r function-Gro_fitlog}
+
+#' Fit growth model
+#' 
+#' Fit a growth model to data, return its fit and AIC
+#' 
+#' @param num \code{numeric} index of the model to run 
+#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
+#' @param all_mods \code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+#' 
+#' @details
+#' 
+#' @import dplyr assertthat
+#' @importFrom bbmle mle2 logLik
+#'
+#' @return The fit and AIC of the model
+#' 
+#' @export
+Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
+  assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+  assert_that(is.data.frame(data))
+  assert_that(data %has_name% c('logx', 'logz'))
+  assert_that(is.numeric(data$logx))
+  assert_that(is.numeric(data$logz))
+  assert_that(is.numeric(num))
+  assert_that(num <= length(all_mods))
+  
+  model = all_mods[num]
+  modSett <- Gro_ModSettings(data, model)
+  out = list()
+  out$fit <- bbmle::mle2(modSett$growthMod, 
+                         data = data, 
+                         parnames = modSett$namesCoef, 
+                         fixed = list(LL = T),
+                         start = modSett$gamstart
+                         # lower = modSett$low
+  )
+  out$tab = list(index = num,
+                 model = all_mods[num],
+                 k =modSett$np, 
+                 AIC= as.numeric(2*modSett$np - 2*bbmle::logLik(out$fit))) #voir le nombre de decimal
+  out$growthMod = modSett$growthMod
+  return(out)
+}
+```
+
+```{r example-Gro_fitlog}
+logx <- rnorm(100, 0, 1)
+logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
+dat = data.frame(logx = logx, logz = logz)
+Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
+```
+
+
+```{r tests-Gro_fitlog}
+logx <- rnorm(100, 0, 1)
+logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
+dat = data.frame(logx = logx, logz = logz)
+
+test_that(
+  "Gro_fitlog error",
+  {
+    expect_error(
+      Gro_fitlog(data = dat, all_mods = "vonBert"),
+      regexp = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+    expect_error(
+      Gro_fitlog(data = dat$logz), regexp = "data is not a data frame")
+    expect_error(
+      Gro_fitlog(num = 2, data = dat))
+  })
+
+
+a= Gro_fitlog(data = dat, all_mods = "vonBertalanffy")
+
+test_that(
+  "Gro_fitlog works",
+  { 
+    expect_named(a, c("fit", "tab"))
+    expect_named(a$tab, c("index", "model", "k", "AIC"))
+    expect_equal(a$tab$k, 3)
+    expect_match(a$tab$model, "vonBertalanffy")
+    expect_type(a$tab$AIC, "double")
+    expect_equal(a$tab$index, 1)
+    expect_s4_class(a$fit, "mle2")
+  }
+)
+```
+
+## Growth Model Setting
+
+This function gets the parameter and equations for the growth model and takes as arguments:
+
+* `data`, a data frame including at least the numeric columns *logx* and *logz* 
+* `model` Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+
+
+```{r function-Gro_ModSettings}
+
+#' Growth model settings
+#' 
+#' This function gets the parameter and equations for the growth model
+#' 
+#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
+#' @param model \code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial 
+#' 
+#' @details
+#' 
+#' @import dplyr assertthat
+#' @importFrom stats quantile
+#'
+#' @return a list including the function of the growth model,  the number of parameter, their names, their initial values and their lowest possible values
+#' 
+#' @export
+# Set growth model parameters:
+Gro_ModSettings <- function(data, model = "vonBertalanffy") {
+  
+  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+  assert_that(is.data.frame(data))
+  assert_that(data %has_name% c('logx', 'logz'))
+  assert_that(is.numeric(data$logx))
+  assert_that(is.numeric(data$logz))
+  logx = data$logx
+  logz = data$logz
+  # Range of log(x) values:
+  logxDiff <- diff(range(logx))
+  
+  if (model == "logistic") {
+    growthMod <- logisGrowth
+    np <- 3
+    namesCoef <- c("zinf", "gamma", "xInfl")
+    lowCoef <- c(0, 0, -Inf)
+    # Find starting zInf parameter:
+    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
+    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
+    zInf <- max(logz[idInf])
+    
+    # X inflection:
+    xInfl <- mean(range(logx))
+    
+    # find starting gamma:
+    nGams <- 7
+    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
+    dxInts <- logxInts[2] - logxInts[1]
+    logzMeans <- sapply(1:nGams, function(ii) {
+      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
+      logzmean <- mean(logz[idint])
+      return(logzmean)
+    })
+    inrat <- zInf / logzMeans - 1
+    idk <- which(inrat > 0)
+    inlog <- - log(inrat[idk]) / (logxInts[idk] - xInfl)
+    gamma <- mean(inlog)
+    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+      gamma <- 0.5
+    }
+    # Fill-up gamStart:
+    gamStart <- list(zinf = zInf, xInfl = xInfl, gamma = gamma)
+    
+    
+    
+  } else if (model == "gompertz") {
+    growthMod <- gompertzGrowth
+    np <- 3
+    namesCoef <- c("zinf", "beta", "gamma")
+    lowCoef <- c(0, 0, 0)
+    
+    # Find starting zInf parameter:
+    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
+    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
+    zinf <- mean(logz[idInf], na.rm = TRUE) 
+    
+    #Find starting z0 parameter:
+    logxLow <- min(logx) + c(0, logxDiff * 0.01)
+    id0 <- which(logx >= logxLow[1] & logx < logxLow[2])
+    z0 <- mean(logz[id0], na.rm = TRUE)
+    beta = -log(abs(z0/zinf))
+    
+    # find starting gamma:
+    nGams <- 5
+    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
+    dxInts <- logxInts[2] - logxInts[1]
+    logzMeans <- sapply(1:nGams, function(ii) {
+      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
+      logzmean <- mean(logz[idint])
+      return(logzmean)
+    })
+    inlog <- log(abs(log(abs(logzMeans/zinf)) / beta))
+    idkeep <- which(inlog > 0)
+    gamma <- abs(mean(-inlog[idkeep] / (logxInts[idkeep] + dxInts)))
+    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+      gamma <- 0.5
+    }
+    # Fill-up gamStart:
+    gamStart <- list(zinf = zinf, beta = beta, gamma = gamma)
+    
+  } else if (model == "chapmanRichards") {
+    growthMod <- chapmanRichards
+    np <- 4
+    namesCoef <- c("zinf", "beta", "gamma", "m")
+    lowCoef <- c(0, 0, -Inf, -Inf)
+    
+    
+    # Find starting zInf parameter:
+    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
+    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
+    zinf <- mean(logz[idInf], na.rm = TRUE) 
+    
+    #Find starting z0 parameter:
+    logxLow <- min(logx) + c(0, logxDiff * 0.01)
+    id0 <- which(logx >= logxLow[1] & logx < logxLow[2])
+    z0 <- mean(logz[id0], na.rm = TRUE)
+    beta = 1-(z0/zinf)
+    
+    # find starting gamma:
+    nGams <- 5
+    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
+    dxInts <- logxInts[2] - logxInts[1]
+    logzMeans <- sapply(1:nGams, function(ii) {
+      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
+      logzmean <- mean(logz[idint])
+      return(logzmean)
+    })
+    inlog <- log(abs(logzMeans/(zinf *( 1- beta))))
+    idkeep <- which(inlog > 0)
+    gamma <- abs(mean(-inlog[idkeep] / (logxInts[idkeep] + dxInts)))
+    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+      gamma <- 0.5
+    }
+    # Fill-up gamStart:
+    gamStart <- list(zinf = zinf, beta = beta, gamma = gamma, m = 0)
+  } else if (model == "vonBertalanffy") {
+    growthMod <- vbGrowth
+    np <- 3
+    namesCoef <- c("z0", "zinf", "gamma")
+    lowCoef <- rep(0, np)
+    # Find starting z0 parameter:
+    logxLow <- min(logx) + c(0, logxDiff * 0.01)
+    id0 <- which(logx >= logxLow[1] & logx < logxLow[2])
+    z0 <- mean(logz[id0], na.rm = TRUE)
+    
+    # Find starting zInf parameter:
+    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
+    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
+    zInf <- mean(logz[idInf], na.rm = TRUE) - z0
+    
+    if (zInf <= 0) {
+      zInf <- z0 + diff(range(logz))
+    }
+    # find starting gamma:
+    nGams <- 5
+    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
+    dxInts <- logxInts[2] - logxInts[1]
+    logzMeans <- sapply(1:5, function(ii) {
+      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
+      logzmean <- mean(logz[idint])
+      return(logzmean)
+    })
+    inlog <- 1 - (logzMeans - z0) / zInf
+    idkeep <- which(inlog > 0)
+    gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
+    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+      gamma <- 0.5
+    }
+    # Fill-up gamStart:
+    gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma)
+    
+  } else if (model == "polynomial") {
+    growthMod <- polyGrowth
+    np <- 5
+    namesCoef <- sprintf("gam%s", 0:np - 1)
+    lowCoef <- rep(-Inf, np)
+    gamStart <- list(gam0 = 0, gam1 = 0, gam2 = 0, gam3 = 0, gam4 = 0)
+    
+  }
+  return(list(growthMod = growthMod, np = np, namesCoef = namesCoef,
+              low = lowCoef, gamstart = gamStart))
+}
+```
+
+```{r example-Gro_ModSettings}
+logx <- rnorm(100, 0, 1)
+logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
+dat = data.frame(logx = logx, logz = logz)
+
+Gro_ModSettings(data = dat, model = "vonBertalanffy")
+```
+
+
+```{r tests-Gro_ModSettings}
+logx <- rnorm(100, 0, 1)
+logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
+dat = data.frame(logx = logx, logz = logz)
+
+test_that(
+  "Gro_ModSettings error",
+  {
+    expect_error(
+      dat %>% Gro_ModSettings(model = "vonBert"),
+      regexp = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+    expect_error(
+      dat$logz %>% Gro_ModSettings(),
+      regexp = "data is not a data frame")
+  })
+
+
+
+test_that(
+  "Gro_ModSettings works",
+  { 
+    expect_named(
+      dat %>% Gro_ModSettings(model = "vonBertalanffy"),
+      c("growthMod", "np", "namesCoef", "low", "gamstart"))
+    a=dat %>% Gro_ModSettings(model = "vonBertalanffy")
+    expect_equal(a$np, 3)
+    expect_type(a$growthMod, "closure")
+    expect_type(a$low, "double")
+    expect_type(a$namesCoef, "character")
+    expect_named(a$gamstart, c("zinf", "z0", "gamma"))
+    a=dat %>% Gro_ModSettings(model = "logistic")
+    expect_named(a$gamstart, c("zinf", "xInfl", "gamma"))
+    a=dat %>% Gro_ModSettings(model = "gompertz")
+    expect_named(a$gamstart, c("zinf", "beta", "gamma"))
+    a=dat %>% Gro_ModSettings(model = "chapmanRichards")
+    expect_named(a$gamstart, c("zinf",  "beta",  "gamma", "m"))
+    a=dat %>% Gro_ModSettings(model = "polynomial")
+    expect_named(a$gamstart,c("gam0", "gam1", "gam2", "gam3", "gam4"))
+  }
+)
+```
 
 
 

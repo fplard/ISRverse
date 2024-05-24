@@ -15,7 +15,7 @@
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
 #' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
 #' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
-#' @param Ninterval_juv \code{integer} Minimum number of juveniles used to make one interval of the sliding windows. Default = 500
+#' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10
 #' 
 #' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
 #' 
@@ -60,7 +60,7 @@
 Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL, 
                             variableid = "anonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
-                            IQR=2.75, minq=0.025, Ninterval_juv = 500) {
+                            IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
   assert_that(is.data.frame(data_weight))
   assert_that(data_weight %has_name% c("MeasurementValue", "Age"))
@@ -81,11 +81,10 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
   assert_that(min_Nmeasures>=5)
   assert_that(Ninterval_juv%%1==0, msg = "Ninterval_juv should be an integer")
-  assert_that(Ninterval_juv>=5)
   assert_that(all(data_weight$MeasurementValue>0))
   assert_that(all(data_weight$Age>=0))
   
-  
+  if(ageMat == 0){ageMat=1.5}
   #1) Removes very large weights using maxweight ----
   data_weight <- data_weight%>%
     mutate(keep1 = ifelse(MeasurementValue< maxweight, 1, 0))
@@ -97,15 +96,15 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   if (nrow(juv) > 0) {
     
     ##a/Uses sliding windows to check outliers based on percentile of the distribution 
-    #Make maximum intervals of at least Ninterval_juv individuals for sliding windows
-    nInts = round(nrow(juv[juv$keep1==1,])/ Ninterval_juv)
+    #Make Ninterval_juv for sliding windows
+    nInts = Ninterval_juv
     windInts <- seq(0, ageMat, length = nInts+1)
     numInt <- table(findInterval(juv$Age[juv$keep1==1], windInts))
     nWindInts <- 0
     ii <- 1
     while (ii < nInts) {
       cumInt <- cumsum(numInt[ii:nInts])
-      idnum <- which(cumInt >= Ninterval_juv) + ii
+      idnum <- which(cumInt > 30) + ii
       if (length(idnum) > 0) {
         nWindInts <- c(nWindInts, windInts[idnum[1]])
         ii <- idnum[1]
@@ -122,7 +121,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
                         juv$Age <= nWindInts[iints + 1] & 
                         juv$keep1 == 1)
       juv$keep2[idwind] = Gro_Rout_quan(z = juv$MeasurementValue[idwind],  
-                                        minq = minq)
+                                        minq = minq, type = "upper")
     }
     
     ##b/Uses individual trajectories to find outliers for juveniles with at least 7 measures
@@ -152,7 +151,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
     ##a/Check outliers based on percentile of the distribution 
     ad$keep2=ad$keep1
     ad$keep2[ad$keep1 == 1] = Gro_Rout_quan(z = ad$MeasurementValue[ad$keep1 == 1],  
-                                            minq = minq)
+                                            minq = minq, type = "both")
     
     ##b/Uses individual trajectories to find outliers for adults with at least 7 measures
     ad <-ad %>%

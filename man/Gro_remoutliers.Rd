@@ -15,7 +15,7 @@ Gro_remoutliers(
   perc_weight_max = 2.5,
   IQR = 2.75,
   minq = 0.025,
-  Ninterval_juv = 500
+  Ninterval_juv = 10
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ Gro_remoutliers(
 
 \item{minq}{\code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025}
 
-\item{Ninterval_juv}{\code{integer} Minimum number of juveniles used to make one interval of the sliding windows. Default = 500}
+\item{Ninterval_juv}{\code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10}
 }
 \value{
 The data frame including the additional column \code{KEEP} a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
