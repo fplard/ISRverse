@@ -334,19 +334,148 @@ values that must be considered as outliers.</p>
 <div class="section level2">
 <h2 id="growth-model">Growth model<a class="anchor" aria-label="anchor" href="#growth-model"></a>
 </h2>
-<p>This function takes as arguments:</p>
+<div class="section level3">
+<h3 id="growth-analysis">Growth analysis<a class="anchor" aria-label="anchor" href="#growth-analysis"></a>
+</h3>
+<p>This function fit a serie of growth models to a dataset, select the
+best one by AIC and estimates the percentiles of the predicted
+distribution of values. It takes as arguments:</p>
 <ul>
-<li>
-<code>data_weight</code> a data frame that must include at least the
-columns <code>MeasurementValue</code> and <code>Age</code>.</li>
-<li>
-<code>variable_id</code> name of the variable including individual
-ids. Defaut = “anonID”. It must also be a column of
-<code>data_weight</code>
+<li>data_weight including at least the numeric columns <em>Age</em> and
+<em>MeasurementValue</em>
 </li>
+<li>all_mods indicating the growth models that need to be fit.The
+following models are supported : logistic, gompertz, chapmanRichards,
+vonBertalanffy, polynomial. default = “vonBertalanffy”</li>
+<li>percentiles indicating the percentiles that need to be estimated.
+default = c(2.5,97.5) corresponding to the 95% predicted interval.</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">Age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_analysis.html">Gro_analysis</a></span><span class="op">(</span><span class="va">dat</span>, </span>
+<span>                   all_mods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"vonBertalanffy"</span><span class="op">)</span>, </span>
+<span>                   percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">97.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="fit-growth-model">Fit growth model<a class="anchor" aria-label="anchor" href="#fit-growth-model"></a>
+</h3>
+<p>This function fit a given growth model to a dataset. It takes as
+arguments:</p>
+<ul>
+<li>num index of the model to run</li>
+<li>
+<code>data</code>, a data frame including at least the numeric
+columns <em>logx</em> and <em>logz</em>
+</li>
+<li>
+<code>model</code> Name of the model to fit. The following models
+are supported : logistic, gompertz, chapmanRichards, vonBertalanffy,
+polynomial</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">logz</span> <span class="op">&lt;-</span> <span class="fl">0.2</span><span class="op">+</span> <span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">logx</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>logx <span class="op">=</span> <span class="va">logx</span>, logz <span class="op">=</span> <span class="va">logz</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/Gro_fitlog.html">Gro_fitlog</a></span><span class="op">(</span>num <span class="op">=</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">dat</span>, all_mods <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $fit</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; bbmle::mle2(minuslogl = modSett$growthMod, start = modSett$gamstart, </span></span>
+<span><span class="co">#&gt;     fixed = list(LL = T), data = data, parnames = modSett$namesCoef)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients:</span></span>
+<span><span class="co">#&gt;         gamma          zinf            z0            LL </span></span>
+<span><span class="co">#&gt; -1.133183e-02 -2.167117e+03 -7.678333e+00  1.000000e+00 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Log-likelihood: -15264.53 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Warning: optimization did not converge (code 1: )</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $tab</span></span>
+<span><span class="co">#&gt; $tab$index</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $tab$model</span></span>
+<span><span class="co">#&gt; [1] "vonBertalanffy"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $tab$k</span></span>
+<span><span class="co">#&gt; [1] 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $tab$AIC</span></span>
+<span><span class="co">#&gt; [1] 30535.06</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $growthMod</span></span>
+<span><span class="co">#&gt; function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span></span>
+<span><span class="co">#&gt;     if (LL) {</span></span>
+<span><span class="co">#&gt;         return(sum((logz - zEst)^2))</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt;     else {</span></span>
+<span><span class="co">#&gt;         return(zEst)</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x56529d321b40&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="growth-model-setting">Growth Model Setting<a class="anchor" aria-label="anchor" href="#growth-model-setting"></a>
+</h3>
+<p>This function gets the parameter and equations for the growth model
+and takes as arguments:</p>
+<ul>
+<li>
+<code>data</code>, a data frame including at least the numeric
+columns <em>logx</em> and <em>logz</em>
+</li>
+<li>
+<code>model</code> Name of the model to fit. The following models
+are supported : logistic, gompertz, chapmanRichards, vonBertalanffy,
+polynomial</li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">logz</span> <span class="op">&lt;-</span> <span class="fl">0.2</span><span class="op">+</span> <span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">logx</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>logx <span class="op">=</span> <span class="va">logx</span>, logz <span class="op">=</span> <span class="va">logz</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/Gro_ModSettings.html">Gro_ModSettings</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, model <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $growthMod</span></span>
+<span><span class="co">#&gt; function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span></span>
+<span><span class="co">#&gt;     if (LL) {</span></span>
+<span><span class="co">#&gt;         return(sum((logz - zEst)^2))</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt;     else {</span></span>
+<span><span class="co">#&gt;         return(zEst)</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x56529d321b40&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $np</span></span>
+<span><span class="co">#&gt; [1] 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $namesCoef</span></span>
+<span><span class="co">#&gt; [1] "z0"    "zinf"  "gamma"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $low</span></span>
+<span><span class="co">#&gt; [1] 0 0 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $gamstart</span></span>
+<span><span class="co">#&gt; $gamstart$zinf</span></span>
+<span><span class="co">#&gt; [1] 169.7256</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $gamstart$z0</span></span>
+<span><span class="co">#&gt; [1] -155.5349</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $gamstart$gamma</span></span>
+<span><span class="co">#&gt; [1] 0.7128591</span></span></code></pre></div>
+</div>
 </div>
   </div>
 
