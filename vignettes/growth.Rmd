@@ -150,15 +150,57 @@ weights_pop <- weights%>%Gro_lin_ind(traj_ind = FALSE)
 
 # Growth model
 
-This function takes as arguments:
+## Growth analysis
 
-* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
-* `variable_id` name of the variable including individual ids. Defaut = "anonID". It must also be a column of  `data_weight`
+This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values. It takes as arguments:
+
+* data_weight including at least the numeric columns *Age* and *MeasurementValue* 
+* all_mods indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+* percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 
 
 
 ```{r example-Gro_analysis}
-data(weights)
+Age <- sample(c(0:10), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01))-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
 
+out = Gro_analysis(dat, 
+                   all_mods = c("logistic", "vonBertalanffy"), 
+                   percentiles = c(2.5, 97.5))
+```
+
+## Fit growth model
+
+This function fit a given growth model to a dataset. It takes as arguments:
+
+* num index of the model to run 
+* `data`, a data frame including at least the numeric columns *logx* and *logz* 
+* `model` Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+
+
+
+```{r example-Gro_fitlog}
+logx <- rnorm(100, 0, 1)
+logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
+dat = data.frame(logx = logx, logz = logz)
+Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
+```
+
+## Growth Model Setting
+
+This function gets the parameter and equations for the growth model and takes as arguments:
+
+* `data`, a data frame including at least the numeric columns *logx* and *logz* 
+* `model` Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+
+
+
+```{r example-Gro_ModSettings}
+logx <- rnorm(100, 0, 1)
+logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
+dat = data.frame(logx = logx, logz = logz)
+
+Gro_ModSettings(data = dat, model = "vonBertalanffy")
 ```
 

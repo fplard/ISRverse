@@ -43,12 +43,12 @@ Gro_cleanmeasures <- function(data, coresubse,
   assert_that(is.logical(InclUnkSex))
   assert_that(is.date(mindate))
   
- 
+  
   if(!is.null(corevariable)) {
     assert_that(is.character(corevariable))
     assert_that(coresubse %has_name% corevariable)}
   if(!is.null(variablekeep)) {
-     assert_that(is.character(variablekeep))
+    assert_that(is.character(variablekeep))
     assert_that(data %has_name% variablekeep)}
   
   if(!is.null(MeasureType)){
@@ -84,8 +84,8 @@ Gro_cleanmeasures <- function(data, coresubse,
   }
   Corevariable = c("binSpecies", "BirthDate", "Sex", "anonID", corevariable) 
   Variablekeep = c(Corevariable,"AnonInstitutionID","MeasurementType", 
-                        "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
- 
+                   "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
+  
   coresubse<- coresubse%>%
     rowwise()%>%
     mutate(cond_captivebirth = ifelse(CaptiveBirths,stringr::str_detect(birthType, pattern = "Captive"),1 ),

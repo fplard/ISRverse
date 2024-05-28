@@ -65,7 +65,7 @@ Gro_lin_ind <- function(data_weight,
   
   #only for individual trajectory 
   if(traj_ind==T){
-     da_weight<-data_weight%>%
+    da_weight<-data_weight%>%
       summarize(nb= n(),
                 la = length(unique(Age)))
     assert_that(min(da_weight$nb)  > 4, msg = 'Each individual trajectory must have at least 5 measures')

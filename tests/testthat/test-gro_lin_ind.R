@@ -11,7 +11,7 @@ data$MeasurementValue[20] = data$MeasurementValue[3]+100
 test_that(
   "Gro_lin_ind error",
   {
-     expect_error(
+    expect_error(
       data %>% Gro_lin_ind(IQR =0.5),
       regexp = "IQR should be higher than 1 to avoid removing real data")
     expect_error(

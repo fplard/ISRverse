@@ -2,22 +2,39 @@
 % Please edit documentation in R/gro_analysis.R
 \name{Gro_analysis}
 \alias{Gro_analysis}
-\title{Flag outliers in individual trajectories}
+\title{Growth model selection}
 \usage{
-Gro_analysis(data_weight, variable_id = "anonID")
+Gro_analysis(
+  data_weight,
+  all_mods = c("vonBertalanffy"),
+  percentiles = c(2.5, 97.5)
+)
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric})}
+\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age} and \emph{MeasurementValue}}
 
-\item{variable_id}{\code{character} name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight}
+\item{all_mods}{\code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
+
+\item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95\% predicted interval.}
 }
 \value{
-data frame; the data set including an additional column \emph{Keep2} of 0 (potential outliers) and 1
+a list including:
+\itemize{
+\item a data frame with the percentile selected
+\item the fit of the best model
+\item the AIC table of the model
+\item GOF: 3 GOF test including the normality of residuals and the test of trend in residuals against X and in the variance of the residuals
+}
 }
 \description{
-This function flag
+This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 }
 \examples{
-data(weights)
+Age <- sample(c(0:10), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01))-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
 
+out = Gro_analysis(dat, 
+                   all_mods = c("logistic", "vonBertalanffy"), 
+                   percentiles = c(2.5, 97.5))
 }

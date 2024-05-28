@@ -724,8 +724,6 @@ This function fit a serie of growth models to a dataset, select the best one by 
 #' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 #' 
-#' @details
-#' 
 #' @import dplyr assertthat
 #' @importFrom stats quantile
 #' @importFrom bbmle coef
@@ -759,6 +757,8 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
                       dat = data_weight
   )
   
+  # fit_gam <- mgcv
+  
   #Select the best model
   all_fits_tab=c()
   for (i in 1:length(all_mods)){
@@ -774,10 +774,13 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   gam <- bbmle::coef(best_std)
   suppressWarnings(gam$logx <- data_weight$logx)
   
-logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
+  logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
   
   #GOF
-  GOF = list(normal = T, X = T, var = T)
+  
+  conv = slot(best_std, "details")$convergence
+  GOF = list(normal = T, X = T, var = T, conv = T)
+  if(conv == 1){GOF$conv = FALSE}
   elogz <- data_weight$logz - logzfit
   elogz2 <- elogz^2
   test  = shapiro.test(elogz)
@@ -786,10 +789,10 @@ logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
   if(a$coefficients[2,4]<0.01){GOF$X = FALSE}
   b = summary(lm(elogz ~ data_weight$logx)) #test pour senescence??
   if(b$coefficients[2,4]<0.01){GOF$var = FALSE}
-
+  
   # Quantile calculation:
   zQuant <- tibble(Age = seq(min(data_weight$Age), max(data_weight$Age)+0.1, 0.1))
-   gam$logx =  log(zQuant$Age+1)
+  gam$logx =  log(zQuant$Age+1)
   lzexp <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
   sig <- sd(elogz) 
   for (al in 1:length(percentiles)) {
@@ -806,55 +809,46 @@ logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
 ```
 
 ```{r example-Gro_analysis}
-Age <- sample(c(0:10), 100, replace = T)
+Age <- sample(c(0:10), 100, replace = TRUE)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01))-1 
 dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
 
-Gro_analysis(dat, 
-             all_mods = c("logistic", "vonBertalanffy"), 
-             percentiles = c(2.5, 97.5))
+out = Gro_analysis(dat, 
+                   all_mods = c("logistic", "vonBertalanffy"), 
+                   percentiles = c(2.5, 97.5))
 ```
 
 
 ```{r tests-Gro_analysis}
-data <- tibble(anonID = rep(c(1,2), c(10,15)),
-               Age = c(c(1:10), c(1:15)),
-               MeasurementValue = 2+3*Age)
-data$MeasurementValue[1] = 0.5
-data$MeasurementValue[3] = data$MeasurementValue[3]+50
-data$MeasurementValue[14] = data$MeasurementValue[3]+30
-data$MeasurementValue[20] = data$MeasurementValue[3]+100
+Age <- sample(c(0:10), 1000, replace = T)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
 
 test_that(
-  "Gro_lin_ind error",
+  "Gro_analysis error",
   {
-    expect_error(
-      data %>% Gro_lin_ind(IQR =0.5),
-      regexp = "IQR should be higher than 1 to avoid removing real data")
-    expect_error(
-      data[1:4,] %>% Gro_lin_ind(),
-      regexp = "There should be at least 5 measures")
+    expect_error(dat$MeasurementValue %>% Gro_analysis(),
+      regexp = "data_weight is not a data frame")
+    expect_error(dat%>% Gro_analysis(percentiles = c(-0.2)))
   })
 
-
-
 test_that(
-  "Gro_lin_ind Tested ",
+  "Gro_analysis works",
   { 
-    expect_named(
-      data %>% Gro_lin_ind(),
-      c("anonID", "Age", "MeasurementValue", "Keep2"))
-    expect_equal(
-      sum(data %>% Gro_lin_ind(IQR= 1.5, remove_ext = F, traj_ind = F)%>%pull(Keep2)),
-      25-3)
-    expect_equal(
-      sum(data %>% Gro_lin_ind(remove_ext = F)%>%pull(Keep2)),
-      25-3)
-    expect_equal(
-      sum(data %>% Gro_lin_ind(IQR= 1.5)%>%pull(Keep2)),
-      25-3)
-  }
-)
+  out = dat %>% Gro_analysis()
+  expect_named(out,c("percent", "fit", "AIC_tab", "GOF"))
+  expect_named(out$GOF,c("normal", "X", "var", "conv"))
+  expect_type(as.logical(out$GOF), "logical")
+  expect_named(out$percent,c("Age",  "2.5",  "97.5"))
+  expect_type(out$percent$Age, "double")
+  expect_type(out$percent$`2.5`, "double")
+  expect_named(out$AIC_tab,c("model",  "k",  "AIC"))
+  expect_type(out$AIC_tab$model, "character")
+  expect_type(out$AIC_tab$AIC, "double")
+  expect_type(out$AIC_tab$k, "double")
+  expect_s4_class(out$fit, "mle2")
+  out = dat %>% Gro_analysis(all_mods = c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial"))
+  })
 ```
 
 
@@ -877,8 +871,6 @@ This function fit a given growth model to a dataset. It takes as arguments:
 #' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
 #' @param all_mods \code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
 #' 
-#' @details
-#' 
 #' @import dplyr assertthat
 #' @importFrom bbmle mle2 logLik
 #'
@@ -897,17 +889,17 @@ Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
   model = all_mods[num]
   modSett <- Gro_ModSettings(data, model)
   out = list()
-  out$fit <- bbmle::mle2(modSett$growthMod, 
-                         data = data, 
-                         parnames = modSett$namesCoef, 
-                         fixed = list(LL = T),
-                         start = modSett$gamstart
-                         # lower = modSett$low
-  )
+  suppressWarnings(out$fit <- bbmle::mle2(modSett$growthMod, 
+                                          data = data, 
+                                          parnames = modSett$namesCoef, 
+                                          fixed = list(LL = T),
+                                          start = modSett$gamstart
+                                          # lower = modSett$low
+  ))
   out$tab = list(index = num,
                  model = all_mods[num],
                  k =modSett$np, 
-                 AIC= as.numeric(2*modSett$np - 2*bbmle::logLik(out$fit))) #voir le nombre de decimal
+                 AIC= bbmle::AIC(out$fit)) #voir le nombre de decimal
   out$growthMod = modSett$growthMod
   return(out)
 }
@@ -944,7 +936,7 @@ a= Gro_fitlog(data = dat, all_mods = "vonBertalanffy")
 test_that(
   "Gro_fitlog works",
   { 
-    expect_named(a, c("fit", "tab"))
+    expect_named(a, c("fit", "tab", 'growthMod'))
     expect_named(a$tab, c("index", "model", "k", "AIC"))
     expect_equal(a$tab$k, 3)
     expect_match(a$tab$model, "vonBertalanffy")
@@ -972,7 +964,6 @@ This function gets the parameter and equations for the growth model and takes as
 #' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
 #' @param model \code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial 
 #' 
-#' @details
 #' 
 #' @import dplyr assertthat
 #' @importFrom stats quantile
@@ -1019,7 +1010,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     idk <- which(inrat > 0)
     inlog <- - log(inrat[idk]) / (logxInts[idk] - xInfl)
     gamma <- mean(inlog)
-    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
       gamma <- 0.5
     }
     # Fill-up gamStart:
@@ -1056,7 +1047,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     inlog <- log(abs(log(abs(logzMeans/zinf)) / beta))
     idkeep <- which(inlog > 0)
     gamma <- abs(mean(-inlog[idkeep] / (logxInts[idkeep] + dxInts)))
-    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
       gamma <- 0.5
     }
     # Fill-up gamStart:
@@ -1089,15 +1080,16 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
       logzmean <- mean(logz[idint])
       return(logzmean)
     })
-    inlog <- log(abs(logzMeans/(zinf *( 1- beta))))
+    inlog <- (logzMeans/zinf - 1)/(-beta)
     idkeep <- which(inlog > 0)
-    gamma <- abs(mean(-inlog[idkeep] / (logxInts[idkeep] + dxInts)))
-    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+    gamma <- mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts))
+    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
       gamma <- 0.5
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zinf, beta = beta, gamma = gamma, m = 0)
-  } else if (model == "vonBertalanffy") {
+ 
+     } else if (model == "vonBertalanffy") {
     growthMod <- vbGrowth
     np <- 3
     namesCoef <- c("z0", "zinf", "gamma")
@@ -1127,7 +1119,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     inlog <- 1 - (logzMeans - z0) / zInf
     idkeep <- which(inlog > 0)
     gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
-    if (is.na(gamma) | gamma == -Inf | gamma == -Inf) {
+    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
       gamma <- 0.5
     }
     # Fill-up gamStart:
