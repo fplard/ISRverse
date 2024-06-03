@@ -57,27 +57,4 @@ This function follow 4 different steps to highlight outliers:
 \examples{
 data(weights)
 weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
-
-plot(MeasurementValue ~Age, data = weights)
-#Show the four steps used to remove outliers
-#1/ using maximum value
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep1==0),
-       col = "red", pch = 16) 
-#2/ using Inter quartile range
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep2==0, keep1==1 ),
-       col = "green", pch = 16) 
-#3a/ using individual trajectories
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(keep3==0, keep2==1),
-       col = "cyan", pch = 16) 
-#3b/ using global log-linear model
-points(MeasurementValue ~Age, data = weights\%>\%dplyr::filter(KEEP==0, keep3==1),
-       col = "blue", pch = 16) 
-
-#Checking outliers highlighted in Individual trajectories
-anon = unique(weights$anonID[weights$keep3==0 & weights$keep2==1 ])
-plot(MeasurementValue ~Age, data = weights\%>\%
-       dplyr::filter(keep2==1, anonID == anon))
-points(MeasurementValue ~Age, data = weights\%>\%
-         dplyr::filter(keep3==0, anonID == anon, keep2==1),
-       col = "cyan", pch = 16)
 }

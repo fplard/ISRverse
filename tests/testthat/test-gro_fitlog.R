@@ -23,10 +23,10 @@ test_that(
   "Gro_fitlog works",
   { 
     expect_named(a, c("fit", "tab", 'growthMod'))
-    expect_named(a$tab, c("index", "model", "k", "AIC"))
+    expect_named(a$tab, c("index", "model", "k", "LSQ"))
     expect_equal(a$tab$k, 3)
     expect_match(a$tab$model, "vonBertalanffy")
-    expect_type(a$tab$AIC, "double")
+    expect_type(a$tab$LSQ, "double")
     expect_equal(a$tab$index, 1)
     expect_s4_class(a$fit, "mle2")
   }

@@ -138,8 +138,8 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zinf, beta = beta, gamma = gamma, m = 0)
- 
-     } else if (model == "vonBertalanffy") {
+    
+  } else if (model == "vonBertalanffy") {
     growthMod <- vbGrowth
     np <- 3
     namesCoef <- c("z0", "zinf", "gamma")

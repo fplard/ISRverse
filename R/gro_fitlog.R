@@ -42,7 +42,7 @@ Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
   out$tab = list(index = num,
                  model = all_mods[num],
                  k =modSett$np, 
-                 AIC= bbmle::AIC(out$fit)) #voir le nombre de decimal
+                 LSQ= - bbmle::logLik(out$fit)) #voir le nombre de decimal
   out$growthMod = modSett$growthMod
   return(out)
 }

@@ -16,8 +16,10 @@ Imports:
     assertthat,
     bbmle,
     dplyr,
+    ggplot2,
     lubridate,
     magrittr,
+    methods,
     mgcv,
     stats,
     stringr

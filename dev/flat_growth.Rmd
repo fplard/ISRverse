@@ -213,9 +213,7 @@ This function follow 4 different steps to highlight outliers:
 3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
 4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
 
-The function returns:
-
-* The data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
+The function returns the data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
 
 
 
@@ -390,29 +388,6 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
 ```{r examples-Gro_remoutliers}
 data(weights)
 weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
-
-plot(MeasurementValue ~Age, data = weights)
-#Show the four steps used to remove outliers
-#1/ using maximum value
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep1==0),
-       col = "red", pch = 16) 
-#2/ using Inter quartile range
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==0, keep1==1 ),
-       col = "green", pch = 16) 
-#3a/ using individual trajectories
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, keep2==1),
-       col = "cyan", pch = 16) 
-#3b/ using global log-linear model
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(KEEP==0, keep3==1),
-       col = "blue", pch = 16) 
-
-#Checking outliers highlighted in Individual trajectories
-anon = unique(weights$anonID[weights$keep3==0 & weights$keep2==1 ])
-plot(MeasurementValue ~Age, data = weights%>%
-       dplyr::filter(keep2==1, anonID == anon))
-points(MeasurementValue ~Age, data = weights%>%
-         dplyr::filter(keep3==0, anonID == anon, keep2==1),
-       col = "cyan", pch = 16)
 ```
 
 
@@ -511,7 +486,6 @@ The measurement values must be positive
 #' @examples
 Gro_Rout_quan <- function (z, minq = 0.05, type = "both") 
 {
-  
   assert_that(is.numeric(z))
   assert_that(is.numeric(minq))
   assert_that(is.character(type))
@@ -704,12 +678,120 @@ test_that(
 ```
 
 
+
+## Plot outliers
+
+This function makes a plot higlighting the outliers found by Gro_remoutliers()). It takes as arguments:
+
+* data output from Gro_remoutliers() including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*
+* title of the plot
+* xlimit: min and max for the x axis
+* ylimit: min and max for the y axis
+
+
+The plot of the data points showed the outliers :
+* in red if detected using the maximum possible value
+* in green if detected using the inter quartile range
+* in cyan if detected using individual trajectories
+* in blue if detected from the global log-linear model
+
+```{r function-Gro_outplot}
+
+#' Plot outliers
+#' 
+#'Plot higlighting the outliers found by \code{Gro_remoutliers()}
+#' 
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*
+#' @param title \code{character} Title of the plot
+#' @param xlimit \code{vector of 2 numeric} x limit for the plot
+#' @param ylimit \code{vector of 2 numeric} y limit for the plot
+#' 
+#' @import dplyr assertthat 
+#' @importFrom ggplot2 ggplot geom_point ggtitle aes xlim ylim
+#'
+#' @return Plot of the data points with outliers showed:
+#'  - in red if detected using the maximum possible value
+#'  - in green if detected using the inter quartile range
+#'  - in cyan if detected using individual trajectories
+#'  - in blue if detected from the global log-linear model
+#' 
+#' @export
+Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
+  assert_that(is.data.frame(data))
+  assert_that(data %has_name% c("MeasurementValue","Age", 'keep1', 'keep2', 'keep3', "KEEP"))
+  assert_that(is.numeric(data$MeasurementValue))
+  assert_that(is.numeric(data$Age))
+  
+  if (is.null(xlimit)){
+    xlimit = c(min(data$Age, na.rm = T), max(data$Age, na.rm = T))
+  }
+   if (is.null(ylimit)){
+    ylimit = c(min(data$MeasurementValue, na.rm = T), max(data$MeasurementValue, na.rm = T))
+   }
+   assert_that(is.numeric(xlimit))
+  assert_that(is.numeric(ylimit))
+  
+  p <- ggplot(data, aes(x = Age, y = MeasurementValue))+
+    xlim(xlimit)+ ylim (ylimit)+
+    geom_point()+
+    ggtitle(title)+
+    #Show the four steps used to remove outliers
+    #1/ using maximum value
+    geom_point(data = data%>%dplyr::filter(keep1==0), color = "red")+
+    #2/ using Inter quartile range
+    geom_point(data = data%>%dplyr::filter(keep2==0, keep1==1 ), color = "green")+
+    #3a/ using individual trajectories
+    geom_point(data = data%>%dplyr::filter(keep3==0, keep2==1 ), color = "cyan")+
+    #3b/ using global log-linear model
+    geom_point(data = data%>%dplyr::filter(KEEP==0, keep3==1 ), color = "blue")
+    return(p)
+}
+```
+
+```{r example-Gro_outplot}
+data(weights)
+weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+p <- Gro_outplot(data = weights, 
+                 title = "Species A", ylimit = c(0,2000))
+p
+```
+
+
+```{r tests-Gro_outplot}
+data = tibble(Age = c(rep(c(1:5),2),4),
+              MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
+              anonID = c(rep(1:2, each = 5),3))
+
+out= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
+                     min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
+
+test_that(
+  "Gro_outplot",
+  {
+    expect_error(out$MeasurementValue %>% Gro_outplot(),
+                 regexp = "data is not a data frame")
+  })
+
+test_that(
+  "Gro_outplot",
+  { 
+    p<- out %>% Gro_outplot()
+expect_named(p$labels,c("title", "x", "y"))
+expect_length(p$layers,5)
+  })
+
+```
+
+
+
+
+
 # Growth model
 
 ## Growth analysis
 This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values. It takes as arguments:
 
-* data_weight including at least the numeric columns *Age* and *MeasurementValue* 
+* data_weight including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
 * all_mods indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 * percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 
@@ -720,13 +802,15 @@ This function fit a serie of growth models to a dataset, select the best one by 
 #' 
 #' This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 #' 
-#' @param data_weight \code{data.frame} including at least the numeric columns *Age* and *MeasurementValue* 
+#' @param data_weight \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
 #' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 #' 
 #' @import dplyr assertthat
-#' @importFrom stats quantile
+#' @importFrom stats quantile qlnorm sd shapiro.test
 #' @importFrom bbmle coef
+#' @importFrom mgcv gam summary.gam predict.gam
+#' @importFrom methods slot
 #'
 #' @return a list including:
 #' * a data frame with the percentile selected
@@ -740,9 +824,9 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   assert_that(is.numeric(percentiles))
   assert_that(min(percentiles) > 0)
   assert_that(max(percentiles) < 100)
-  assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+  assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
   assert_that(is.data.frame(data_weight))
-  assert_that(data_weight %has_name% c("MeasurementValue","Age"))
+  assert_that(data_weight %has_name% c("MeasurementValue","Age", 'anonID'))
   assert_that(all(data_weight$Age >= 0 ))
   assert_that(all(data_weight$MeasurementValue > 0 ))
   
@@ -750,38 +834,67 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
     mutate(logx = log(Age + 1),
            logz = log(MeasurementValue + 1))
   
+  
   #Fitting the different growth models
-  all_fits <- lapply( 1:length(all_mods),
-                      Gro_fitlog,
-                      all_mods = all_mods,
-                      dat = data_weight
-  )
-  
-  # fit_gam <- mgcv
-  
-  #Select the best model
   all_fits_tab=c()
-  for (i in 1:length(all_mods)){
-    all_fits_tab <- rbind(all_fits_tab,all_fits[[i]]$tab%>%as_tibble)
+  all_fits <- list()
+    all_mods_g = stringr::str_subset(all_mods, 
+                                   pattern = 'gam', 
+                                   negate = T)
+  
+  if(length(all_mods_g)>0){
+    all_fits <- lapply( 1:length(all_mods_g),
+                        Gro_fitlog,
+                        all_mods = all_mods_g,
+                        dat = data_weight
+    )
+    
+    for (i in 1:length(all_mods_g)){
+      all_fits_tab <- rbind(all_fits_tab,all_fits[[i]]$tab%>%as_tibble)
+    }
   }
-  all_fits_tab <- all_fits_tab%>% arrange(AIC)
+  
+  if('gam' %in% all_mods){
+    fit_gam <-   mgcv::gam(logz~s(logx, bs = 'cr', k = 6) + s(anonID, bs = 're'),
+                           data = data_weight,
+                           method = "ML",
+                           drop.unused.levels = FALSE # do not drop empty level for prediction
+    )
+    b = mgcv::summary.gam(fit_gam)
+    all_fits_tab <- rbind(all_fits_tab,tibble(index = length(all_mods_g) +1,
+                                              model = "gam", 
+                                              k =  sum(b$s.table[,2])+1,
+                                              LSQ = sum(fit_gam$residuals^2))
+    )
+    all_fits[[length(all_mods_g) +1]] <- list(fit = fit_gam)
+  }
+  
+  all_fits_tab <- all_fits_tab%>%
+    mutate(QAIC = LSQ + 2 * k)%>% arrange(QAIC)
   best_std <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$fit
-  growthMod <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$growthMod
-  all_fits_tab <- all_fits_tab%>% 
-    dplyr::select(-index)
+  
+  #Vector for predictions
+  zQuant <- tibble(Age = seq(min(data_weight$Age), max(data_weight$Age)+0.1, 0.1))
   
   #Fitted values and residuals
-  gam <- bbmle::coef(best_std)
-  suppressWarnings(gam$logx <- data_weight$logx)
-  
-  logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
+  if( all_fits_tab$model[1] == 'gam'){
+    conv = fit_gam$converged
+    elogz <- fit_gam$residuals
+    lzexp <- predict.gam(fit_gam, newdata = tibble(logx = log(zQuant$Age+1),
+                                                   anonID = 1), exclude = c("s(anonID)"))
+  }else{
+    growthMod <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$growthMod
+    gam <- bbmle::coef(best_std)
+    suppressWarnings(gam$logx <- data_weight$logx)
+    logzfit <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
+    conv = slot(best_std, "details")$convergence == 2
+    elogz <- data_weight$logz - logzfit
+    gam$logx =  log(zQuant$Age+1)
+    lzexp <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
+  }
   
   #GOF
-  
-  conv = slot(best_std, "details")$convergence
-  GOF = list(normal = T, X = T, var = T, conv = T)
-  if(conv == 1){GOF$conv = FALSE}
-  elogz <- data_weight$logz - logzfit
+  GOF = list(normal = T, X = T, var = T, conv = conv)
   elogz2 <- elogz^2
   test  = shapiro.test(elogz)
   if(test$p.value<0.01){GOF$normal = FALSE}
@@ -791,14 +904,19 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   if(b$coefficients[2,4]<0.01){GOF$var = FALSE}
   
   # Quantile calculation:
-  zQuant <- tibble(Age = seq(min(data_weight$Age), max(data_weight$Age)+0.1, 0.1))
-  gam$logx =  log(zQuant$Age+1)
-  lzexp <- do.call(growthMod, as.list(gam[c(1:(length(gam)-2),length(gam))]))
   sig <- sd(elogz) 
   for (al in 1:length(percentiles)) {
-    zQuant[[paste(percentiles[al])]] <- qlnorm(percentiles[al] / 100, mean = lzexp, sd = sig) - 1
-    zQuant[[paste(percentiles[al])]] [which( zQuant[[paste(percentiles[al])]] < 0)] = 0
+    zQuant[[paste0("percent",percentiles[al])]] <- qlnorm(percentiles[al] / 100, mean = lzexp, sd = sig) - 1
+    zQuant[[paste0("percent",percentiles[al])]] [which( zQuant[[paste0("percent",percentiles[al])]] < 0)] = 0
   }
+  if (!(50 %in% percentiles)){
+    zQuant[["percent50"]] <- qlnorm(0.5, mean = lzexp, sd = sig) - 1
+    zQuant[["percent50"]] [which( zQuant[["percent50"]] < 0)] = 0
+    
+  }
+  
+  all_fits_tab <- all_fits_tab%>% 
+    dplyr::select(-index)
   
   return(list(percent = zQuant, 
               fit = best_std,
@@ -810,11 +928,12 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
 
 ```{r example-Gro_analysis}
 Age <- sample(c(0:10), 100, replace = TRUE)
-MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01))-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
+anonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
 
 out = Gro_analysis(dat, 
-                   all_mods = c("logistic", "vonBertalanffy"), 
+                   all_mods = c("logistic", "vonBertalanffy", "gam"), 
                    percentiles = c(2.5, 97.5))
 ```
 
@@ -822,32 +941,34 @@ out = Gro_analysis(dat,
 ```{r tests-Gro_analysis}
 Age <- sample(c(0:10), 1000, replace = T)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
+anonID <- sample(c(0:20), 100, replace = TRUE)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
 
 test_that(
   "Gro_analysis error",
   {
     expect_error(dat$MeasurementValue %>% Gro_analysis(),
-      regexp = "data_weight is not a data frame")
+                 regexp = "data_weight is not a data frame")
     expect_error(dat%>% Gro_analysis(percentiles = c(-0.2)))
   })
 
 test_that(
   "Gro_analysis works",
   { 
-  out = dat %>% Gro_analysis()
-  expect_named(out,c("percent", "fit", "AIC_tab", "GOF"))
-  expect_named(out$GOF,c("normal", "X", "var", "conv"))
-  expect_type(as.logical(out$GOF), "logical")
-  expect_named(out$percent,c("Age",  "2.5",  "97.5"))
-  expect_type(out$percent$Age, "double")
-  expect_type(out$percent$`2.5`, "double")
-  expect_named(out$AIC_tab,c("model",  "k",  "AIC"))
-  expect_type(out$AIC_tab$model, "character")
-  expect_type(out$AIC_tab$AIC, "double")
-  expect_type(out$AIC_tab$k, "double")
-  expect_s4_class(out$fit, "mle2")
-  out = dat %>% Gro_analysis(all_mods = c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial"))
+    out = dat %>% Gro_analysis()
+    expect_named(out,c("percent", "fit", "AIC_tab", "GOF"))
+    expect_named(out$GOF,c("normal", "X", "var", "conv"))
+    expect_type(as.logical(out$GOF), "logical")
+    expect_named(out$percent,c("Age",  "percent2.5",  "percent97.5",  "percent50"))
+    expect_type(out$percent$Age, "double")
+    expect_type(out$percent$`percent2.5`, "double")
+    expect_named(out$AIC_tab,c("model",  "k", "LSQ", "QAIC"))
+    expect_type(out$AIC_tab$model, "character")
+    expect_type(out$AIC_tab$QAIC, "double")
+    expect_type(out$AIC_tab$k, "double")
+    expect_s4_class(out$fit, "mle2")
+    out = dat %>% Gro_analysis(all_mods = c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam"))
+    out = dat %>% Gro_analysis(all_mods = c("gam"))
   })
 ```
 
@@ -899,7 +1020,7 @@ Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
   out$tab = list(index = num,
                  model = all_mods[num],
                  k =modSett$np, 
-                 AIC= bbmle::AIC(out$fit)) #voir le nombre de decimal
+                 LSQ= - bbmle::logLik(out$fit)) #voir le nombre de decimal
   out$growthMod = modSett$growthMod
   return(out)
 }
@@ -937,10 +1058,10 @@ test_that(
   "Gro_fitlog works",
   { 
     expect_named(a, c("fit", "tab", 'growthMod'))
-    expect_named(a$tab, c("index", "model", "k", "AIC"))
+    expect_named(a$tab, c("index", "model", "k", "LSQ"))
     expect_equal(a$tab$k, 3)
     expect_match(a$tab$model, "vonBertalanffy")
-    expect_type(a$tab$AIC, "double")
+    expect_type(a$tab$LSQ, "double")
     expect_equal(a$tab$index, 1)
     expect_s4_class(a$fit, "mle2")
   }
@@ -1088,8 +1209,8 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zinf, beta = beta, gamma = gamma, m = 0)
- 
-     } else if (model == "vonBertalanffy") {
+    
+  } else if (model == "vonBertalanffy") {
     growthMod <- vbGrowth
     np <- 3
     namesCoef <- c("z0", "zinf", "gamma")
@@ -1189,6 +1310,112 @@ test_that(
 )
 ```
 
+
+## Plot model prediction
+
+This function makes a plot of the predicted percentiles from a growth model with data points. It takes as arguments:
+
+* data including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+* data_percent including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
+* title of the plot
+
+
+
+```{r function-Gro_plot}
+
+#' Plot predicted growth curve
+#' 
+#'Plot predicted percentiles from a growth model with data points
+#' 
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+#' @param data_percent \code{data.frame} including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
+#' @param title \code{character} Title of the plot
+#' 
+#' @import dplyr assertthat 
+#' @importFrom ggplot2 ggplot geom_point geom_line ggtitle geom_ribbon aes
+#' @importFrom stringr str_subset str_remove
+#'
+#' @return Plot
+#' 
+#' @export
+Gro_plot <- function(data, data_percent, title = "") {
+  assert_that(is.data.frame(data))
+  assert_that(is.data.frame(data_percent))
+  assert_that(data %has_name% c("MeasurementValue","Age", 'anonID'))
+  assert_that(data_percent %has_name% c("percent50","Age"))
+  
+  assert_that(is.numeric(data$MeasurementValue))
+  assert_that(is.numeric(data$Age))
+  assert_that(is.numeric(data_percent$percent50))
+  assert_that(is.numeric(data_percent$Age))
+  
+  percentiles = str_subset(names(data_percent), "percent")
+  percentiles = str_subset(percentiles, "50", negate = T)
+  percentiles = as.numeric(str_remove(percentiles, "percent"))
+  
+  
+  p <- ggplot(data, aes (x = Age))+
+    ggtitle(title)
+  
+  if (length(percentiles)/2 == 1){
+    colorrib ="grey80"
+  }else{
+    colorrib = paste0("grey", seq(30:90, length.out = length(percentiles)/2))}
+  for (i in 1:(length(percentiles)/2) ){
+    per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
+    p <- p +
+      geom_ribbon(data = data_percent,aes ( ymin = !!sym(per[1]), ymax = !!sym(per[2])),
+                  fill = colorrib[i])
+  }
+  p <- p +
+     geom_point(aes(y = MeasurementValue))+
+    geom_line(data = data_percent,aes ( y = percent50 ))   
+  return(p)
+}
+```
+
+```{r example-Gro_plot}
+Age <- sample(c(0:10), 100, replace = TRUE)
+anonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+
+out = Gro_analysis(dat, 
+                   all_mods = c("logistic", "vonBertalanffy", "gam"), 
+                   percentiles = c(2.5, 97.5))
+
+p <- Gro_plot(data = dat, 
+              data_percent = out$percent, 
+              title =out$AIC_tab$model[1])
+p
+```
+
+
+```{r tests-Gro_plot}
+Age <- sample(c(0:10), 1000, replace = T)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
+anonID <- sample(c(0:20), 100, replace = TRUE)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+out = dat %>% Gro_analysis()
+
+test_that(
+  "Gro_plot",
+  {
+    expect_error(dat$MeasurementValue %>% Gro_plot(out$percent),
+                 regexp = "data is not a data frame")
+    expect_error(dat %>% Gro_plot(out$percent$Age),
+                 regexp = "data_percent is not a data frame")
+  })
+
+test_that(
+  "Gro_plot",
+  { 
+    p<- dat %>% Gro_plot(out$percent)
+    expect_named(p$labels,c("title", "x", "ymin", "ymax", "y"))
+    expect_length(p$layers,3)
+  })
+
+```
 
 
 

@@ -71,9 +71,7 @@ This function follow 4 different steps to highlight outliers:
 3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
 4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
 
-The function returns:
-
-* The data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
+The function returns the data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
 
 
 
@@ -81,29 +79,6 @@ The function returns:
 ```{r examples-Gro_remoutliers}
 data(weights)
 weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
-
-plot(MeasurementValue ~Age, data = weights)
-#Show the four steps used to remove outliers
-#1/ using maximum value
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep1==0),
-       col = "red", pch = 16) 
-#2/ using Inter quartile range
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep2==0, keep1==1 ),
-       col = "green", pch = 16) 
-#3a/ using individual trajectories
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(keep3==0, keep2==1),
-       col = "cyan", pch = 16) 
-#3b/ using global log-linear model
-points(MeasurementValue ~Age, data = weights%>%dplyr::filter(KEEP==0, keep3==1),
-       col = "blue", pch = 16) 
-
-#Checking outliers highlighted in Individual trajectories
-anon = unique(weights$anonID[weights$keep3==0 & weights$keep2==1 ])
-plot(MeasurementValue ~Age, data = weights%>%
-       dplyr::filter(keep2==1, anonID == anon))
-points(MeasurementValue ~Age, data = weights%>%
-         dplyr::filter(keep3==0, anonID == anon, keep2==1),
-       col = "cyan", pch = 16)
 ```
 
 ## Remove outliers from percentiles
@@ -148,13 +123,38 @@ as.numeric(weights_ind$Keep2)
 weights_pop <- weights%>%Gro_lin_ind(traj_ind = FALSE)
 ```
 
+## Plot outliers
+
+This function makes a plot higlighting the outliers found by Gro_remoutliers()). It takes as arguments:
+
+* data output from Gro_remoutliers() including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*
+* title of the plot
+* xlimit: min and max for the x axis
+* ylimit: min and max for the y axis
+
+
+The plot of the data points showed the outliers :
+* in red if detected using the maximum possible value
+* in green if detected using the inter quartile range
+* in cyan if detected using individual trajectories
+* in blue if detected from the global log-linear model
+
+
+```{r example-Gro_outplot}
+data(weights)
+weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+p <- Gro_outplot(data = weights, 
+                 title = "Species A", ylimit = c(0,2000))
+p
+```
+
 # Growth model
 
 ## Growth analysis
 
 This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values. It takes as arguments:
 
-* data_weight including at least the numeric columns *Age* and *MeasurementValue* 
+* data_weight including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
 * all_mods indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 * percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 
@@ -162,11 +162,12 @@ This function fit a serie of growth models to a dataset, select the best one by 
 
 ```{r example-Gro_analysis}
 Age <- sample(c(0:10), 100, replace = TRUE)
-MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01))-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue)
+anonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
 
 out = Gro_analysis(dat, 
-                   all_mods = c("logistic", "vonBertalanffy"), 
+                   all_mods = c("logistic", "vonBertalanffy", "gam"), 
                    percentiles = c(2.5, 97.5))
 ```
 
@@ -202,5 +203,32 @@ logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
 dat = data.frame(logx = logx, logz = logz)
 
 Gro_ModSettings(data = dat, model = "vonBertalanffy")
+```
+
+## Plot model prediction
+
+This function makes a plot of the predicted percentiles from a growth model with data points. It takes as arguments:
+
+* data including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+* data_percent including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
+* title of the plot
+
+
+
+
+```{r example-Gro_plot}
+Age <- sample(c(0:10), 100, replace = TRUE)
+anonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+
+out = Gro_analysis(dat, 
+                   all_mods = c("logistic", "vonBertalanffy", "gam"), 
+                   percentiles = c(2.5, 97.5))
+
+p <- Gro_plot(data = dat, 
+              data_percent = out$percent, 
+              title =out$AIC_tab$model[1])
+p
 ```
 

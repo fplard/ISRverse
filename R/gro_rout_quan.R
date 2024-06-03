@@ -21,7 +21,6 @@
 #' Gro_Rout_quan (z, minq = 0.05)
 Gro_Rout_quan <- function (z, minq = 0.05, type = "both") 
 {
-  
   assert_that(is.numeric(z))
   assert_that(is.numeric(minq))
   assert_that(is.character(type))
