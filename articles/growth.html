@@ -188,42 +188,14 @@ measures and remove outliers based on the residuals of the models. 4/ It
 uses the function Gro_lin_ind() to build a common generalized additive
 model for all growth trajectories and remove outliers based on the
 residuals of the models.</p>
-<p>The function returns:</p>
-<ul>
-<li>The data frame including the column <code>KEEP</code> a numeric
-vector of 1 and 0 indicating the measures to keep. The 0 signal
-outliers. Other additional columns keep1, keep2, keep3 indicates the
-individuals highlighted as outliers (0) in steps 1 to 3.</li>
-</ul>
+<p>The function returns the data frame including the column
+<code>KEEP</code> a numeric vector of 1 and 0 indicating the measures to
+keep. The 0 signal outliers. Other additional columns keep1, keep2,
+keep3 indicates the individuals highlighted as outliers (0) in steps 1
+to 3.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
-<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op">)</span></span>
-<span><span class="co">#Show the four steps used to remove outliers</span></span>
-<span><span class="co">#1/ using maximum value</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep1</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"red"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
-<span><span class="co">#2/ using Inter quartile range</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep2</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep1</span><span class="op">==</span><span class="fl">1</span> <span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"green"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
-<span><span class="co">#3a/ using individual trajectories</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep2</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"cyan"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span>
-<span><span class="co">#3b/ using global log-linear model</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">KEEP</span><span class="op">==</span><span class="fl">0</span>, <span class="va">keep3</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"blue"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="growth_files/figure-html/examples-Gro_remoutliers-1.png" width="700"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co">#Checking outliers highlighted in Individual trajectories</span></span>
-<span><span class="va">anon</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">weights</span><span class="op">$</span><span class="va">anonID</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span> <span class="op">&amp;</span> <span class="va">weights</span><span class="op">$</span><span class="va">keep2</span><span class="op">==</span><span class="fl">1</span> <span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>       <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep2</span><span class="op">==</span><span class="fl">1</span>, <span class="va">anonID</span> <span class="op">==</span> <span class="va">anon</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">MeasurementValue</span> <span class="op">~</span><span class="va">Age</span>, data <span class="op">=</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>         <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">keep3</span><span class="op">==</span><span class="fl">0</span>, <span class="va">anonID</span> <span class="op">==</span> <span class="va">anon</span>, <span class="va">keep2</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"cyan"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
-<p><img src="growth_files/figure-html/examples-Gro_remoutliers-2.png" width="700"></p>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="remove-outliers-from-percentiles">Remove outliers from percentiles<a class="anchor" aria-label="anchor" href="#remove-outliers-from-percentiles"></a>
 </h3>
@@ -231,7 +203,7 @@ individuals highlighted as outliers (0) in steps 1 to 3.</li>
 value multiplied by how many times the (100-q)th percentile is higher
 than the qth percentile of the distribution of weights.</p>
 <p>The measurement values must be positive</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">z</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">5</span>,<span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">40</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/Gro_Rout_quan.html">Gro_Rout_quan</a></span> <span class="op">(</span><span class="va">z</span>, minq <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
@@ -275,7 +247,7 @@ the residuals from the linear model are above IQR * the inter quantile
 interval (quantile(0.9) - quantile(0.1)) of the residuals.
 <code>perc_weight_min</code> and <code>perc_weight_max</code> limit the
 values that must be considered as outliers.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#We use only trajectories for which the number of individual datapoints is &gt; 6</span></span>
@@ -326,9 +298,39 @@ values that must be considered as outliers.</p>
 <span><span class="co">#&gt; [1333] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt; [1370] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">weights_pop</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="plot-outliers">Plot outliers<a class="anchor" aria-label="anchor" href="#plot-outliers"></a>
+</h3>
+<p>This function makes a plot higlighting the outliers found by
+Gro_remoutliers()). It takes as arguments:</p>
+<ul>
+<li>data output from Gro_remoutliers() including at least the numeric
+columns <em>Age</em>, <em>MeasurementValue</em>, <em>keep1</em>,
+<em>keep2</em>, <em>keep3</em>, and <em>KEEP</em>
+</li>
+<li>title of the plot</li>
+<li>xlimit: min and max for the x axis</li>
+<li>ylimit: min and max for the y axis</li>
+</ul>
+<p>The plot of the data points showed the outliers : * in red if
+detected using the maximum possible value * in green if detected using
+the inter quartile range * in cyan if detected using individual
+trajectories * in blue if detected from the global log-linear model</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gro_outplot.html">Gro_outplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, </span>
+<span>                 title <span class="op">=</span> <span class="st">"Species A"</span>, ylimit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">p</span></span>
+<span><span class="co">#&gt; Warning: Removed 1 row containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_point()`).</span></span>
+<span><span class="co">#&gt; Removed 1 row containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_point()`).</span></span></code></pre></div>
+<p><img src="growth_files/figure-html/example-Gro_outplot-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -341,8 +343,8 @@ values that must be considered as outliers.</p>
 best one by AIC and estimates the percentiles of the predicted
 distribution of values. It takes as arguments:</p>
 <ul>
-<li>data_weight including at least the numeric columns <em>Age</em> and
-<em>MeasurementValue</em>
+<li>data_weight including at least the numeric columns <em>Age</em>,
+<em>MeasurementValue</em> and <em>anonID</em>
 </li>
 <li>all_mods indicating the growth models that need to be fit.The
 following models are supported : logistic, gompertz, chapmanRichards,
@@ -352,11 +354,12 @@ default = c(2.5,97.5) corresponding to the 95% predicted interval.</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
-<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span><span class="op">)</span></span>
+<span><span class="va">anonID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span> <span class="op">+</span> <span class="va">anonID</span><span class="op">*</span><span class="fl">0.1</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span>, anonID <span class="op">=</span> <span class="va">anonID</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_analysis.html">Gro_analysis</a></span><span class="op">(</span><span class="va">dat</span>, </span>
-<span>                   all_mods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"vonBertalanffy"</span><span class="op">)</span>, </span>
+<span>                   all_mods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"vonBertalanffy"</span>, <span class="st">"gam"</span><span class="op">)</span>, </span>
 <span>                   percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">97.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -388,9 +391,9 @@ polynomial</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients:</span></span>
 <span><span class="co">#&gt;         gamma          zinf            z0            LL </span></span>
-<span><span class="co">#&gt; -1.133183e-02 -2.167117e+03 -7.678333e+00  1.000000e+00 </span></span>
+<span><span class="co">#&gt; -7.877089e-03 -3.129765e+03 -9.872109e+00  1.000000e+00 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Log-likelihood: -15264.53 </span></span>
+<span><span class="co">#&gt; Log-likelihood: -48371.95 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Warning: optimization did not converge (code 1: )</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -404,8 +407,8 @@ polynomial</li>
 <span><span class="co">#&gt; $tab$k</span></span>
 <span><span class="co">#&gt; [1] 3</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tab$AIC</span></span>
-<span><span class="co">#&gt; [1] 30535.06</span></span>
+<span><span class="co">#&gt; $tab$LSQ</span></span>
+<span><span class="co">#&gt; 'log Lik.' 48371.95 (df=3)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $growthMod</span></span>
@@ -419,7 +422,7 @@ polynomial</li>
 <span><span class="co">#&gt;         return(zEst)</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x56529d321b40&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x560af548ae78&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -454,7 +457,7 @@ polynomial</li>
 <span><span class="co">#&gt;         return(zEst)</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x56529d321b40&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x560af548ae78&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $np</span></span>
@@ -468,13 +471,43 @@ polynomial</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart</span></span>
 <span><span class="co">#&gt; $gamstart$zinf</span></span>
-<span><span class="co">#&gt; [1] 169.7256</span></span>
+<span><span class="co">#&gt; [1] 209.22</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$z0</span></span>
-<span><span class="co">#&gt; [1] -155.5349</span></span>
+<span><span class="co">#&gt; [1] -196.0978</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$gamma</span></span>
-<span><span class="co">#&gt; [1] 0.7128591</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 4.318082</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="plot-model-prediction">Plot model prediction<a class="anchor" aria-label="anchor" href="#plot-model-prediction"></a>
+</h3>
+<p>This function makes a plot of the predicted percentiles from a growth
+model with data points. It takes as arguments:</p>
+<ul>
+<li>data including at least the numeric columns <em>Age</em>,
+<em>MeasurementValue</em> and <em>anonID</em>
+</li>
+<li>data_percent including the predicted percentile from the growth
+model and the numeric columns <em>Age</em>, <em>percentiles50</em> and
+other percentiles to plot.</li>
+<li>title of the plot</li>
+</ul>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">anonID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span> <span class="op">+</span> <span class="va">anonID</span><span class="op">*</span><span class="fl">0.1</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span>, anonID <span class="op">=</span> <span class="va">anonID</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_analysis.html">Gro_analysis</a></span><span class="op">(</span><span class="va">dat</span>, </span>
+<span>                   all_mods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"vonBertalanffy"</span>, <span class="st">"gam"</span><span class="op">)</span>, </span>
+<span>                   percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">97.5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gro_plot.html">Gro_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, </span>
+<span>              data_percent <span class="op">=</span> <span class="va">out</span><span class="op">$</span><span class="va">percent</span>, </span>
+<span>              title <span class="op">=</span><span class="va">out</span><span class="op">$</span><span class="va">AIC_tab</span><span class="op">$</span><span class="va">model</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">p</span></span></code></pre></div>
+<p><img src="growth_files/figure-html/example-Gro_plot-1.png" width="700"></p>
 </div>
 </div>
   </div>
