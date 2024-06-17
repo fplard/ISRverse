@@ -32,6 +32,9 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/go-further.html">Go further</a>
+    </li>
+    <li>
       <a href="../articles/growth.html">Growth</a>
     </li>
   </ul></li>
@@ -66,7 +69,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Gro_remoutliers</span><span class="op">(</span></span>
 <span>  <span class="va">data_weight</span>,</span>
 <span>  <span class="va">taxa</span>,</span>
-<span>  ageMat <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  ageMat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  maxweight <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variableid <span class="op">=</span> <span class="st">"anonID"</span>,</span>
 <span>  min_Nmeasures <span class="op">=</span> <span class="fl">7</span>,</span>
@@ -128,7 +131,7 @@
     <h2>Value</h2>
     
 
-<p>The data frame including the additional column <code>KEEP</code> a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.</p>
+<p>The data frame including the additional column <code>KEEP</code> a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3 and the column juv indicates which individuals have been classified as juveniles.</p>
     </div>
     <div id="details">
     <h2>Details</h2>

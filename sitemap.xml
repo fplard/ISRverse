@@ -10,6 +10,9 @@
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
+    <loc>/articles/go-further.html</loc>
+  </url>
+  <url>
     <loc>/articles/growth.html</loc>
   </url>
   <url>
@@ -23,6 +26,9 @@
   </url>
   <url>
     <loc>/news/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Gro_Main.html</loc>
   </url>
   <url>
     <loc>/reference/Gro_ModSettings.html</loc>
@@ -56,6 +62,9 @@
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/my_fun.html</loc>
   </url>
   <url>
     <loc>/reference/pipe.html</loc>
