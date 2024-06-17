@@ -24,30 +24,84 @@ library(ISRverse)
 <!-- Store every call to library() that you need to explore your functions -->
 
 
+# Gro_Main
+
+This function is the main function used to run the growth analysis for taxon profiles. It selects measures, removes outliers, selects the best growth model and produces the percentile of the best fitting growth model for the sexes and birth types selected. It takes as arguments:
+
+* `data`: the weight or length data from ZIMS
+* `coresubse`: the core data of the species from ZIMS
+* `taxa`: the name of the taxa studied
+* `species`: the name of the species studied
+* `sexCats`: Male, Female and/or All
+* `BirthTypebysex`: When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All
+* `BirthType`: Captive and/or Wild Default =  NULL
+* `sexCatsbyBT`: When separated the analysis by birth typ, the sex to be selected: Male, Female, or All
+* `agemat`: A list including the age at sexual maturity for each sex selected in `SexCats` and in `sexCatsbyBT`.
+* `models`: indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+* `percentiles`: indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
+* `minNgro`: Minimum number of weight needed to fit the growth models
+* `minNIgro`: Minimum number of unique individuals needed to fit the growth models
+* `type`: Either 'weight' or 'length'. Default =  'weight
+* `MeasureType`: Name of the type of measurements that should be included. 
+* `mindate`: Earlier date to include data
+* `PlotDir`: Directory to save the plots
+
+
+The function returns a list including an analysis by sex and by birth type as included in the input. Each analysis includes: 
+*  The fit of the growth models with the AIC table of the model, the fit of the best model, a data frame with the percentile selected and 3 GOF test including the normality of residuals and the test of trend in residuals against X and in the variance of the residuals.
+* A summary with the number of individuals and weight used for the analysis:
+- NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
+- NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
+- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
+- NJuv= 0 and NAd indicate the number of weights of juveniles and adults selected
+- NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing outliers
+- NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
+- a logical indicated if the growth analysis was performed
+-  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro 5/NInd < minNIgro 6/Best model did not fit.
+
+
+```{r examples-Gro_Main}
+data(raw_weights)
+data(core)
+output= Gro_Main(data = raw_weights, coresubse = core,
+                    taxa = "Mammalia", species = "Gorilla gorilla" ,
+                    sexCats = c("Female", "Male"), BirthTypebysex = "All",
+                    BirthType = c("Captive", "Wild"), sexCatsbyBT = "All",
+                    agemat = list(Male = 1, Female = 1),
+                    type = "weight", MeasureType = "Live weight",
+                    minNgro = 30, minNIgro = 30, 
+                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
+```
+
 # Gro_cleanmeasures
 
 This function is used to prepare weight and length dataset. It unify the unity used, select clean measures and add individual age at each measure. This function takes as arguments:
 
 * `data`: the weight or length data from ZIMS
 * `coresubse`: the core data of the species from ZIMS
-* `CaptiveBirths` Should captive born individuals be included, only? Default =  TRUE
-* `InclUnkSex`Should undetermined sexes be included Default =  FALSE
+* `BirthType` Captive, Wild, or All Default =  "All"
+* `sex`: Male, Female or All Default =  "All"
 * `mindate` Earlier date to include data ('YYYY-MM-DD')
-* `MeasureType` Name of the type of measurements that should be included. Default = NULL, all measurement type are included.
+* `MeasureType` Name of the type of measurement that should be included. Default = NULL, all measurement type are included.
 * `type` Either 'weight' or 'length'.
 
-The function returns the data frame including selected measures, plus individual birth date and individual age at each measure
+The function returns a list including:
+* The data frame including selected measures, plus individual birth date and individual age at each measure
+* A summary with the number of individuals and weight:
+- NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
+- NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
+- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
+-  If no data are selected, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure.
 
 
 
 ```{r examples-Gro_cleanmeasures}
 data(raw_weights)
 data(core)
-
 data_weights= Gro_cleanmeasures(raw_weights, core,
-                                CaptiveBirths = TRUE,
+                                BirthType = "All",
                                 MeasureType = 'Live weight',
-                                InclUnkSex = FALSE, 
+                                sex = "All", 
                                 mindate = "1980-01-01")
 ```
 
@@ -71,7 +125,7 @@ This function follow 4 different steps to highlight outliers:
 3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
 4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
 
-The function returns the data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
+The function returns the data frame including the column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3, and the column juv indicates which individuals have been classified as juveniles.
 
 
 
@@ -84,13 +138,15 @@ weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
 ## Remove outliers from percentiles
 
 This functions removes all values lower and higher than the median value multiplied by how many times the (100-q)th percentile is higher than the qth percentile of the distribution of weights.
+This function does not remove the 2 youngest and 2 oldest individuals.
 
 The measurement values must be positive
 
 
 ```{r examples-Gro_Rout_quan}
 z = c(rnorm(100,5,1), runif(3,40,100))
-Gro_Rout_quan (z, minq = 0.05)
+x = rnorm(103,3,2)
+Gro_Rout_quan (z,x, minq = 0.05)
 ```
 
 ## Linearize individual trajectories

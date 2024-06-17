@@ -17,7 +17,7 @@
 #' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
 #' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10
 #' 
-#' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
+#' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3 and the column juv indicates which individuals have been classified as juveniles.
 #' 
 #' @details
 #'This function follow 4 different steps to highlight outliers:
@@ -34,7 +34,7 @@
 #' @examples
 #' data(weights)
 #' weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
-Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL, 
+Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL, 
                             variableid = "anonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
                             IQR=2.75, minq=0.025, Ninterval_juv = 10) {
@@ -45,7 +45,6 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
                           "Chondrichthyes", "Actinopterygii"),
               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Actinopterygii'")
-  assert_that(is.numeric(ageMat))
   if(is.null(maxweight)){
     if(taxa == "Mammalia")       maxweight = 7000
     if(taxa == "Aves")           maxweight = 200
@@ -61,7 +60,14 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   assert_that(all(data_weight$MeasurementValue>0))
   assert_that(all(data_weight$Age>=0))
   
-  if(ageMat == 0){ageMat=1.5}
+  if(variableid != "anonID"){
+    data_weight <- data_weight%>%
+      rename(anonID = !!sym(variableid))
+  }
+  
+  if(is.null(ageMat)){ageMat=1.5}
+  assert_that(is.numeric(ageMat))
+  
   #1) Removes very large weights using maxweight ----
   data_weight <- data_weight%>%
     mutate(keep1 = ifelse(MeasurementValue< maxweight, 1, 0))
@@ -69,6 +75,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   #2) Separate Juveniles and adults 
   ### JUVENILES ----
   juv <- data_weight%>%
+    mutate(juv = 1)%>%
     filter(Age >= 0, Age < ageMat*1.2)
   if (nrow(juv) > 0) {
     
@@ -97,9 +104,10 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
       idwind <- which(juv$Age >= nWindInts[iints] & 
                         juv$Age <= nWindInts[iints + 1] & 
                         juv$keep1 == 1)
-      juv$keep2[idwind] = Gro_Rout_quan(z = juv$MeasurementValue[idwind],  
-                                        minq = minq, type = "upper")
+      juv$keep2[idwind] = Gro_Rout_quan(z = juv$MeasurementValue[idwind], x =  juv$Age[idwind],
+                                        minq = minq, type = "both")
     }
+    
     
     ##b/Uses individual trajectories to find outliers for juveniles with at least 7 measures
     juv <-juv %>%
@@ -122,12 +130,13 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = 0, maxweight = NULL,
   
   ### ADULTS ----
   ad <- data_weight%>%
+    mutate(juv = 0)%>%
     filter(Age >=  ageMat*1.2)
   if (nrow(ad) > 0) {
     
     ##a/Check outliers based on percentile of the distribution 
     ad$keep2=ad$keep1
-    ad$keep2[ad$keep1 == 1] = Gro_Rout_quan(z = ad$MeasurementValue[ad$keep1 == 1],  
+    ad$keep2[ad$keep1 == 1] = Gro_Rout_quan(z = ad$MeasurementValue[ad$keep1 == 1], x =  ad$Age[ad$keep1 == 1],  
                                             minq = minq, type = "both")
     
     ##b/Uses individual trajectories to find outliers for adults with at least 7 measures

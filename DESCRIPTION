@@ -17,6 +17,7 @@ Imports:
     bbmle,
     dplyr,
     ggplot2,
+    glue,
     lubridate,
     magrittr,
     methods,

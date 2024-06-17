@@ -7,7 +7,7 @@
 Gro_remoutliers(
   data_weight,
   taxa,
-  ageMat = 0,
+  ageMat = NULL,
   maxweight = NULL,
   variableid = "anonID",
   min_Nmeasures = 7,
@@ -42,7 +42,7 @@ Gro_remoutliers(
 \item{Ninterval_juv}{\code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10}
 }
 \value{
-The data frame including the additional column \code{KEEP} a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3.
+The data frame including the additional column \code{KEEP} a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3 and the column juv indicates which individuals have been classified as juveniles.
 }
 \description{
 Takes a data frame including weight measures and Age and look for possible outliers

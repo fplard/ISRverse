@@ -60,7 +60,7 @@ Gro_plot <- function(data, data_percent, title = "") {
                   fill = colorrib[i])
   }
   p <- p +
-     geom_point(aes(y = MeasurementValue))+
+    geom_point(aes(y = MeasurementValue))+
     geom_line(data = data_percent,aes ( y = percent50 ))   
   return(p)
 }

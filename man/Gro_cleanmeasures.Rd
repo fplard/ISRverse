@@ -7,10 +7,10 @@
 Gro_cleanmeasures(
   data,
   coresubse,
-  CaptiveBirths = TRUE,
+  BirthType = "All",
   type = "weight",
   MeasureType = NULL,
-  InclUnkSex = FALSE,
+  sex = "All",
   mindate = "1980-01-01",
   corevariable = NULL,
   variablekeep = NULL
@@ -21,13 +21,13 @@ Gro_cleanmeasures(
 
 \item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{Sex}, \emph{anonID} and \emph{Birthdate} (\code{date})}
 
-\item{CaptiveBirths}{\code{logical} Should captive born individuals be included, only? Default =  TRUE}
+\item{BirthType}{\code{character} Captive, Wild, or All Default =  TRUE}
 
 \item{type}{\code{character} Either 'weight' or 'length'. Default =  'weight}
 
 \item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.}
 
-\item{InclUnkSex}{\code{logical} Should undetermined sexes be included Default =  FALSE}
+\item{sex}{\code{character} Male, Female or All Default =  "All"}
 
 \item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
@@ -36,7 +36,15 @@ Gro_cleanmeasures(
 \item{variablekeep}{\code{vector character} Name of the data columns that must also be returned}
 }
 \value{
-The data frame including selected measures, plus individual birth date and individual age at each measure
+A list including
+\itemize{
+\item The data frame including selected measures, plus individual birth date and individual age at each measure
+\item A summary with the number of individuals and weight:
+- NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
+- NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
+- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
+-  If no data are selected, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure.
+}
 }
 \description{
 Select clean measures, unify the unity used and add individual age at each measure
@@ -44,10 +52,9 @@ Select clean measures, unify the unity used and add individual age at each measu
 \examples{
 data(raw_weights)
 data(core)
-
 data_weights= Gro_cleanmeasures(raw_weights, core,
-                                CaptiveBirths = TRUE,
+                                BirthType = "All",
                                 MeasureType = 'Live weight',
-                                InclUnkSex = FALSE, 
+                                sex = "All", 
                                 mindate = "1980-01-01")
 }

@@ -1,3 +1,16 @@
+flat_additional.Rmd:
+  path: dev/flat_additional.Rmd
+  state: active
+  R: R/my_fun.R
+  tests: tests/testthat/test-my_fun.R
+  vignettes: vignettes/go-further.Rmd
+  inflate:
+    flat_file: dev/flat_additional.Rmd
+    vignette_name: Go further
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
 flat_growth.Rmd:
   path: dev/flat_growth.Rmd
   state: active
@@ -6,12 +19,14 @@ flat_growth.Rmd:
   - R/gro_cleanmeasures.R
   - R/gro_fitlog.R
   - R/gro_lin_ind.R
+  - R/gro_main.R
   - R/gro_modsettings.R
   - R/gro_outplot.R
   - R/gro_plot.R
   - R/gro_remoutliers.R
   - R/gro_rout_quan.R
   tests:
+  - tests/testthat/test-gro_main.R
   - tests/testthat/test-gro_cleanmeasures.R
   - tests/testthat/test-gro_remoutliers.R
   - tests/testthat/test-gro_rout_quan.R

@@ -18,7 +18,7 @@ test_that(
   "Gro_outplot",
   { 
     p<- out %>% Gro_outplot()
-expect_named(p$labels,c("title", "x", "y"))
-expect_length(p$layers,5)
+    expect_named(p$labels,c("title", "x", "y"))
+    expect_length(p$layers,5)
   })
 

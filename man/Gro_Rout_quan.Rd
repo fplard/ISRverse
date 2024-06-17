@@ -4,10 +4,12 @@
 \alias{Gro_Rout_quan}
 \title{Remove outliers from percentiles}
 \usage{
-Gro_Rout_quan(z, minq = 0.05, type = "both")
+Gro_Rout_quan(z, x, minq = 0.05, type = "both")
 }
 \arguments{
 \item{z}{\code{numeric vector} Measurement values}
+
+\item{x}{\code{numeric vector} Age}
 
 \item{minq}{\code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05}
 
@@ -24,5 +26,6 @@ This functions removes all values lower and higher than the median value multipl
 }
 \examples{
 z = c(rnorm(100,5,1), runif(3,40,100))
-Gro_Rout_quan (z, minq = 0.05)
+x = rnorm(103,3,2)
+Gro_Rout_quan (z,x, minq = 0.05)
 }

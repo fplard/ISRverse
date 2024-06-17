@@ -50,7 +50,7 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   #Fitting the different growth models
   all_fits_tab=c()
   all_fits <- list()
-    all_mods_g = stringr::str_subset(all_mods, 
+  all_mods_g = stringr::str_subset(all_mods, 
                                    pattern = 'gam', 
                                    negate = T)
   
@@ -118,11 +118,11 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   # Quantile calculation:
   sig <- sd(elogz) 
   for (al in 1:length(percentiles)) {
-    zQuant[[paste0("percent",percentiles[al])]] <- qlnorm(percentiles[al] / 100, mean = lzexp, sd = sig) - 1
+    zQuant[[paste0("percent",percentiles[al])]] <- qlnorm(percentiles[al] / 100, meanlog = lzexp, sdlog = sig) - 1
     zQuant[[paste0("percent",percentiles[al])]] [which( zQuant[[paste0("percent",percentiles[al])]] < 0)] = 0
   }
   if (!(50 %in% percentiles)){
-    zQuant[["percent50"]] <- qlnorm(0.5, mean = lzexp, sd = sig) - 1
+    zQuant[["percent50"]] <- qlnorm(0.5, meanlog = lzexp, sdlog = sig) - 1
     zQuant[["percent50"]] [which( zQuant[["percent50"]] < 0)] = 0
     
   }

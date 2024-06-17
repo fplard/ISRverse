@@ -1,0 +1,471 @@
+---
+title: "flat_additional.Rmd empty"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+library(assertthat)
+library(tidyverse)
+library(glue)
+
+```
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+# my_fun
+
+```{r function-my_fun}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+my_fun <- function(sexCats, models = "GO") {
+  # Survival list object:
+  surv <- list()
+  # Run analyses:
+  for (sx in sexCats) {
+    
+    if (sxAnalyzed) {
+      
+      
+      
+      # Matrix of theta parameters:
+      theMat <- outBasta$params
+      
+      # Vector of average parameters:
+      theta <- outBasta$coefficients[, 1]
+      nCoeffs <- length(theta)
+      
+      # model selected:
+      finMod <- outBasta$modelSpecs["model"]
+      
+      # Find age at S(x) = 0.001:
+      Sx <- CalcSurv(theta = theta, x = xv, model = finMod, 
+                     shape = "bathtub")
+      idxMax <- which(Sx < 0.001)[1]
+      if (is.na(idxMax)) {
+        xMax <- max(xv)
+      } else {
+        xMax <- xv[idxMax]
+      }
+      # Remaining life expectancy:
+      remex <- ExtractRemex(theMat = theMat, model = finMod, 
+                            shape = "bathtub", ncpus = ncpus, 
+                            xMax = xMax)
+      remex <-as_tibble(remex)
+      summar$sxAnalyzed <- TRUE
+      
+      if(min(remex$RemLExp)>2){
+        summar$error = "Min(Life_exp)>2"
+        summar$Nerr=8
+      }
+      
+      
+      lx <-outBasta$lifeTable$noCov$Mean$lx
+      #age for mle
+      dif <-abs(outBasta$lifeTable$noCov$Mean$Ages - outBasta$PS$nocov$PS[1,1])
+      
+      if(lx[which(dif == min(dif))]>= 0.1){
+        bastaRes <- list()
+        bastaRes$convergence <- TRUE
+        bastaRes$coefficients <- outBasta$coefficients
+        bastaRes$x <- outBasta$x
+        bastaRes$surv <- outBasta$surv$nocov
+        bastaRes$mort <- outBasta$mort$nocov
+        bastaRes$lifeTable <- outBasta$lifeTable$noCov$Mean
+        bastaRes$PLE <- outBasta$lifeTable$noCov$ple
+        bastaRes$remex <- remex
+        bastaRes$PS <- as_tibble(outBasta$PS$nocov$PS)
+        bastaRes$modelSpecs <- outBasta$modelSpecs
+        bastaRes$settings <- outBasta$settings
+        idnnalt <- which(!is.na(bastaRes$lifeTable$lx))
+        xlim[2] <- max(c(xlim[2], bastaRes$lifeTable$Ages[idnnalt]), 
+                       na.rm = TRUE)
+        ylimRlex[2] <- max(c(ylimRlex[2],remex$Upper), 
+                           na.rm = TRUE)
+      }else{
+        # Logical indicating whether analyses were performed
+        sxAnalyzed <- FALSE
+        error = "lx[MLE]<0.1"
+        Nerr = 9
+        bastaRes <- list()   
+      }
+      
+      
+    }
+    
+  }
+}
+```
+
+```{r examples-my_fun}
+my_fun()
+```
+
+```{r tests-my_fun}
+test_that("my_fun works", {
+  
+})
+```
+
+# Survival Analysis
+
+This functions runs basta models on the data after checking conditions for correct convergence of the models. It includes the following arguments:
+* `sexData`including at least the following columns *anonID*, *Birth.Date*, *Depart.Date*, *Entry.Date*, *Max.Birth.Date*, *Min.Birth.Date*, *Entry.Type*, *Depart.Type*, and *AnonInstitutionID*.
+* `models` names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
+* ` minNsur` Minimum number of individual records needed to run the survival analysis
+* `minlx` Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis
+* `MinBirthKnown` Minimum proportion of individuals with a known birth month in the data
+
+It return a list including:
+* a summary of the data used
+* the basta fit of the best model
+* the DIC table comparing the different fit of the models
+
+```{r function-my_fun}
+#' Survival Analysis
+#' 
+#' Run basta models on the data after checking conditions for correct convergence of the models
+#'
+#' @param sexData \code{data.frame} including at least the following columns *anonID*, *Birth.Date* (\code{date}), *Depart.Date* (\code{date}), *Entry.Date* (\code{date}), *Max.Birth.Date* (\code{date}), *Min.Birth.Date* (\code{date}), *Entry.Type*, *Depart.Type* and *AnonInstitutionID*
+#' @param outlLev1 \code{numeric} Start threshold used to selected for the data: 100%, 99.9, 99 or 95%
+#' @param models \code{vector of characters) names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
+#' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
+#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
+#' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
+#' @param niter  \code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000
+#' @param burnin  \code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001
+#' @param thinning  \code{numeric} Number of iteration to run before saving a set of parameters. see ?basta for more information. Default = 20
+#' @param nchain  \code{numeric} Number of chains to run. Default = 5001
+#' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
+#'
+#' @return The output of a list including:
+#' * a summary of the data used:
+#'- NGlobal: Number of captive born individuals selected from global collections
+#'- NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
+#'- Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
+#'- maxAge: Maximum age of known age individuals
+#'- maxAlive:Maximum number of years spent ex situ
+#'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
+#'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
+#'- a logical indicated if the growth analysis was performed
+#'-  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+#'* the basta fit of the best model
+#'* the DIC table comparing the different fit of the models
+#' 
+#' @export
+#'
+#' @examples
+Surv_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
+                     mindate = "1980-01-01", minNsur = 50, 
+                     minlx = 0.1, MinBirthKnown = 0.3, 
+                    niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
+  
+   mindate = lubridate::as_date(mindate)
+   assert_that(is.data.frame(sexData))
+  assert_that(sexData %has_name% c("anonID", "Birth.Date", "Depart.Date", "Entry.Date", "Max.Birth.Date", "Min.Birth.Date", "Entry.Type", "Depart.Type", "AnonInstitutionID"))
+   assert_that(is.numeric(outlLev1))
+  assert_that(outlLev1 < 100)
+  assert_that(is.numeric(minNsur))
+  assert_that(minNsur > 0)
+ assert_that(is.numeric(minlx))
+  assert_that(minlx > 0)
+ assert_that(minlx <1)
+assert_that(is.numeric(MinBirthKnown))
+  assert_that(MinBirthKnown > 0)
+   assert_that(MinBirthKnown <1)
+ assert_that(is.numeric(niter))
+  assert_that(niter > 0)
+  assert_that(is.numeric(burnin))
+  assert_that(burnin > 0)
+  assert_that(burnin < niter)
+  assert_that(is.numeric(thinning))
+  assert_that(thinning > 0)
+  assert_that(thinning < niter)
+  assert_that(is.numeric(nchain))
+  assert_that(nchain > 0)
+  assert_that(is.numeric(ncpus))
+  assert_that(ncpus > 0)
+assert_that(is.character(models))
+   assert_that(all(models %in% c("GO", "EX", "LO", "WE")))
+assert_that(is.character(shape))
+   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
+  
+  
+  #Initialize
+  summar = list(
+    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
+    maxAge = NULL, maxAlive = NULL, 
+    lxMin = NULL, OutLev = NULL, 
+    analyzed = FALSE, Nerr = 0,  error ="")
+  bastaRes = NULL
+  
+  #Find the minimum threshold for which lxmin  >.1
+  summar$lxMin <- 1
+  outLev2 = outlLev1
+  while(summar$lxMin > 0.1 & outLev2 >= 95){
+    summar$outLev = outLev2
+    if (outLev ==100){
+      data_sel <-  sexData
+    }else{
+      data_sel <-  sexData%>%
+        filter(!!sym(paste0("above", outLev))==1)
+    }
+    data_sel <- data_se%>%
+      mutate(
+        deparAge <- (Depart.Date - Birth.Date) / 365.25,
+        entryAge <- (Entry.Date - Birth.Date) / 365.25
+      )
+    
+    if (!all(data_sel$Depart.Type == "C")) {
+      rawPLE <- surv_ple(data_sel)
+      # Minimum value of lx:
+      summar$lxMin <- min(rawPLE$ple)
+    }
+    if( summar$outLev == 100){outLev2 = 99.9}
+    if( summar$outLev == 99.9){outLev2 = 99}
+    if( summar$outLev == 99){outLev2 = 95}
+    if( summar$outLev == 95){outLev2 = 90}
+  }
+  
+  
+  if (lxMin <= minlx) {
+    #raw median life expectancy
+    # summar$MedLE = median(deparAge[deparType == "D"])
+    
+    # Extract BaSTA table:
+    bastalist <- BaSTA2.0::CreateBastaDf(data_sel, 
+                                         earliestDate = mindate,
+                                         excludeStillbirth = TRUE)
+    bastatab <- bastalist$basta%>%
+      mutate(
+        bdun = Max.Birth.Date-Min.Birth.Date,
+        aliveTime = (Depart.Date - Entry.Date) / 365.25)
+    
+    summar$Nglobal <- nrow(data_sel)
+    summar$NBasta <- nrow(bastatab)
+    summar$maxAge <- max(bastatab$deparAge, na.rm = TRUE)
+    summar$maxAlive <- max(bastatab$aliveTime, na.rm = TRUE)
+    
+    if(summar$NBasta>0){
+      #Check the percentage of individuals with known births
+      Perbirthknown =  length(which(bastatab$bdun<32 & bastatab$Entry.Type=="B")) / 
+        summar$NBasta
+      if(Perbirthknown >= MinBirthKnown){
+        #Check that we have more than 1 institution
+        Instb =  unique(data_sel$firstInst[data_sel$anonID %in% bastatab$anonID])
+        Instl =  unique(data_sel$lastInst[data_sel$anonID %in% bastatab$anonID])
+        if(length(unique(c(Instb,Instl)))>1){
+          if (N >= minNsur) {
+            tempList <- list()
+            DICmods <- rep(NA, nMods)
+            names(DICmods) <- models
+            
+            for (imod in 1:nMods) {
+              print(models[imod])
+              tempList[[models[imod]]] <- BaSTA2.0::basta(
+                bastatab, dataType = "census", shape = "bathtub", 
+                model = models[imod], parallel = TRUE, 
+                ncpus = ncpus, nsim = ncpus,
+                niter = niter, burnin = burnin, thinning = thinning)
+              
+              if (!is.na( tempList[[models[imod]]]$DIC[1])) {
+                DICmods[imod] <-  tempList[[models[imod]]]$DIC["DIC"]
+                bastaRes = tempList[[models[imod]]]
+              }
+            }
+            if (all(is.na(DICmods))) {
+              print("more chains")
+              for (imod in 1:nMods) {
+                print(models[imod])
+                tempList[[models[imod]]] <- BaSTA2.0::basta(
+                  bastatab, dataType = "census", shape = "bathtub", 
+                  model = models[imod], parallel = TRUE, 
+                  ncpus = ncpus, nsim = nchains, 
+                  niter = 200000, burnin = 180001, thinning = thinning)
+                if (!is.na(tempList[[models[imod]]]$DIC[1])) {
+                  DICmods[imod] <-tempList[[models[imod]]]$DIC["DIC"]
+                }
+                
+                
+              } 
+            }
+            
+            # BaSTA outputs:
+            if (any(!is.na(DICmods))) {
+              idModSel <- which(DICmods == min(DICmods, na.rm = TRUE))
+              outBasta <- tempList[[idModSel]]
+            } else {
+              summar$error = 'no DIC from Basta'
+              summar$Nerr = 7
+            }
+          } else {
+            summar$error = "Nbasta < minNsur"
+            summar$Nerr = 6
+          }
+        }else{
+          summar$error = "Data from 1 Institution"
+          summar$Nerr = 5
+        }
+      }else{ 
+        summar$error = "%known births < MinBirthKnown"
+        summar$Nerr = 4
+      }
+    }else{
+      summar$error = "NBasta = 0"
+      summar$Nerr = 3
+    }
+  } else {
+    summar$ error = "lxMin > minlx"
+    summar$ Nerr = 2
+  }
+  
+  return(list(summary = survSummar, bastaRes = bastaRes, DICmods = DICmods))
+}
+```
+
+```{r examples-Surv_ana}
+data(core)
+
+out <- Surv_ana(core,  models = "GO", shape = "simple",
+                    niter = 250, burnin = 50, thinning = 1, nchain = 1, ncpus = 1)
+```
+
+```{r tests-Surv_ana}
+test_that("Surv_ana works", {
+  
+})
+```
+
+# Estimate raw survivorship from life table
+
+This function takes sexData, a data frame including at least the following columns *deparAge*, *entryAge* (\code{date}), and *Depart.Type*
+
+```{r function-surv_ple}
+#' Estimate raw survivorship from life table
+#' 
+#' @param sexData \code{data.frame} including at least the following columns *deparAge*, *entryAge* (\code{date}), and *Depart.Type* 
+#'
+#' @return A data frame including 3 colummns:
+#' * Ages: the different ages
+#' * Surv: survivorship
+#' * event = 1 if the individual was dead at this age 
+#' vs. 0 is the individual was left-censored at this age
+#' 
+#' @export
+#'
+#' @examples
+
+# Product limit estimator:
+surv_ple <- function(sexData) {
+     assert_that(is.data.frame(sexData))
+  assert_that(sexData %has_name% c("deparAge", "Depart.Type", "entryAge"))
+# Find records with same first and last age:
+  sexData <- sexData%>%
+    rowwise()%>%
+    mutate(idsame = entryAge == deparAge,
+           deparAge = ifelse(idsame, deparAge + 1/365.25, deparAge))%>%
+    arrange(deparAge)
+
+  # Number of ages:
+  nage <- nrow(sexData)
+  
+  # Cx and delta:
+  Cx <- rep(0, nage)
+  delx <- rep(0, nage)
+  
+  # Fill up Cx and delta:
+  for (ii in 1:nage) {
+    agev = sexData$deparAge[ii]
+    idNx <-sexData %>%filter(entryAge <= agev,
+                             deparAge >= agev)
+    Cx[ii] <- nrow(idNx) / nage
+    if (sexData$Depart.Type[ii] == "D") delx[ii] <- 1
+  }
+  
+  # Calculate product limit estimator:
+  ple <- cumprod((1 - 1 / (nage * Cx))^delx)
+  ple[ple<0]=0
+  
+  # Add age 0:
+  Ages <- sexData$deparAge
+  if (Ages[1] > 0) {
+    Ages <- c(0, Ages)
+    ple <- c(1, ple)
+    delx<- c(0, delx)
+  }
+  
+  # Output:
+  pleTab <- data.frame(Ages = Ages, ple = ple, event = delx)
+
+  return(pleTab)
+}
+
+```
+
+```{r examples-surv_ple}
+entryAge = sample(c(1:10), 200, replace = T)
+data <- data.frame(
+  entryAge = entryAge,
+  deparAge =  entryAge + sample(c(0:10), 200, replace = T),
+  Depart.Type = sample(c('C', 'D'), 200, replace = T))
+  
+
+out<-surv_ple(data)
+```
+
+```{r tests-surv_ple}
+test_that("surv_ple works", {
+  entryAge = sample(c(1:10), 200, replace = T)
+data <- data.frame(
+  entryAge = entryAge,
+  deparAge =  entryAge + sample(c(0:10), 200, replace = T),
+  Depart.Type = sample(c('C', 'D'), 200, replace = T))
+ out<-surv_ple(data)
+ expect_named(out, c("Ages", "ple", "event"))
+ expect_true(min(out$ple)>=0)
+  expect_true(max(out$ple)<=1)
+})
+```
+
+# my_fun
+
+```{r function-my_fun}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+my_fun <- function() {
+  1
+}
+```
+
+```{r examples-my_fun}
+my_fun()
+```
+
+```{r tests-my_fun}
+test_that("my_fun works", {
+  
+})
+```
+
+
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_additional.Rmd", vignette_name = "Go further")
+```
+

@@ -35,10 +35,10 @@ Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
   if (is.null(xlimit)){
     xlimit = c(min(data$Age, na.rm = T), max(data$Age, na.rm = T))
   }
-   if (is.null(ylimit)){
+  if (is.null(ylimit)){
     ylimit = c(min(data$MeasurementValue, na.rm = T), max(data$MeasurementValue, na.rm = T))
-   }
-   assert_that(is.numeric(xlimit))
+  }
+  assert_that(is.numeric(xlimit))
   assert_that(is.numeric(ylimit))
   
   p <- ggplot(data, aes(x = Age, y = MeasurementValue))+
@@ -54,5 +54,5 @@ Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
     geom_point(data = data%>%dplyr::filter(keep3==0, keep2==1 ), color = "cyan")+
     #3b/ using global log-linear model
     geom_point(data = data%>%dplyr::filter(KEEP==0, keep3==1 ), color = "blue")
-    return(p)
+  return(p)
 }

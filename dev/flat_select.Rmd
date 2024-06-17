@@ -1,0 +1,343 @@
+---
+title: "flat_additional.Rmd empty"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+```
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+# my_fun
+
+```{r function-my_fun}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+ExtractGenInfo <- function(species, coresubset, taxa, forceBySex, speciesID) {
+  # Find latest information from newcore:
+  spCore <- coresubset[which(coresubset$DepartDate == 
+                               max(coresubset$DepartDate))[1], ]
+  
+  # Find earliest record:
+  firstDate <- min(coresubset$EntryDate)
+  
+  # Common name strings:
+  tabCommon <- c(table(coresubset$common))
+  allComName <- stri_encode(names(tabCommon), "", "UTF-8")
+  allComName <- allComName[which(!grepl(species, allComName))]
+  idNotObs <- which(!grepl("OBSOLETE", allComName))
+  tabCommon <- tabCommon[idNotObs]
+  allComName <- allComName[idNotObs]
+  propCommon <- tabCommon / sum(tabCommon)
+  comNames <- allComName[which(propCommon >= 0.3)]
+  
+  if (species == "Callicebus ornatus") {
+    comNames <- "Ornate titi monkey"
+  } else if (species == "Leontocebus nigrifrons") {
+    comNames <- "Geoffroy's saddle-back tamarin"
+  } else if (species == "Ovis aries") {
+    comNames <- "Domestic sheep"
+  } else if (species == "Ovis orientalis") {
+    comNames <- "Mouflon"
+  } 
+  
+  # find specific problems with encoding:
+  if (length(comNames) > 0) {
+    for (iin in 1:length(comNames)) {
+      if (grepl("<8a>", enc2utf8(comNames[iin]))) {
+        comNames[iin] <- gsub("<8a>", "ê", enc2utf8(comNames[iin]))
+      }
+    }
+    
+    # Merge common names:
+    comNames <- paste(comNames, collapse = ", ")
+    
+  } else {
+    comNames <- NA
+  }
+  
+  # IUCN:
+  if (is.na(spCore$IUCN) | spCore$IUCN == "") {
+    spIUCN <- "Not listed"
+  } else {
+    spIUCN <- spCore$IUCN
+  }
+  
+  # cites:
+  if (is.na(spCore$CITES) | spCore$CITES == "") {
+    spCITES <- "Not listed"
+  } else {
+    spCITES <- sprintf("Appendix %s", spCore$CITES)
+  }
+  
+  # General output:
+  temp <- data.frame(species = species, common =stri_encode(comNames, "", "UTF-8"),
+                     Class = spCore$Class,
+                     Order = spCore$Order, Family = spCore$Family, 
+                     IUCN = spIUCN, CITES = spCITES, speciesID = speciesID,
+                     forcedBySex = forceBySex[taxa])
+  return(temp)  
+}
+
+```
+
+```{r examples-my_fun}
+my_fun()
+```
+
+```{r tests-my_fun}
+test_that("my_fun works", {
+
+})
+```
+
+
+
+# my_fun
+
+```{r function-my_fun}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+ExtractSxData <- function(coresubset, sexCats, dcheckSp, 
+                          minDate, maxOutl = NA) {
+  # Subset coresubset by minDate:
+  idncore <- which(coresubset$DepartDate >= minDate)
+  temp = coresubset[-idncore, ]
+  coresubset <- coresubset[idncore, ]
+  
+  Replong = tibble()
+  Nrem = tibble(Sex = sexCats,
+                Nrem_mindate = numeric(1),
+                Nrem_gapthres = numeric(1),
+                Nrem_N50 = numeric(1))%>%
+    rows_upsert(temp%>%
+                  group_by(Sex)%>%
+                  summarize(Nrem_mindate = n(), .groups = "drop"), by ="Sex")%>%
+    rows_upsert(tibble(Sex = "All", Nrem_mindate = nrow(temp)), by ="Sex")
+  
+  # base datasets by sex:
+  anDat <- list()
+  sexSummar <- list()
+  for (sx in sexCats) {
+    dcheckSps = dcheckSp[dcheckSp$Sex ==sx,]
+    thrName <-"GapThresh"
+    if (is.na(maxOutl)) {
+      if (is.na(dcheckSps[thrName])) {
+        outlLev <- NA
+      } else {
+        outlLev <- dcheckSps[thrName]
+      }
+    } else {
+      if (is.na(dcheckSps[thrName])) {
+        outlLev <- maxOutl
+      } else {
+        if (dcheckSps[thrName] < maxOutl) {
+          outlLev <- dcheckSps[thrName]
+        } else {
+          outlLev <- maxOutl
+        }
+      }
+    }
+    idtemp1 <- c()
+    if (is.na(outlLev)) {
+      idtemp <- c()
+      N1 <- length(idtemp)
+    } else{
+      if(outlLev == 0){
+        idtemp <- c()
+        N1 <- length(idtemp)
+        
+      }else if (outlLev == 100) {
+        N1 <- length(which(coresubset$Sex == sx))
+        if (sx == "All") {
+          idtemp <- 1:nrow(coresubset)
+        } else {
+          idtemp <- which(coresubset$Sex == sx)
+        }
+      } else {
+        qlev <- sprintf("above%s", as.character(outlLev))
+        if (sx == "All") {
+          N1 <- nrow(coresubset)
+          idtemp <- which(coresubset[[qlev]] == 0)
+          idtemp1 <- which(coresubset[[qlev]] == 1)
+        } else {
+          N1 <- length(which(coresubset$Sex == sx))
+          idtemp <- which(coresubset$Sex == sx & coresubset[[qlev]] == 0)
+          idtemp1 <- which(coresubset$Sex == sx & coresubset[[qlev]] == 1)
+        }
+      }
+    }
+    # Number of records:
+    N <- length(idtemp)
+    if (sx == "All") {Ndate = nrow(coresubset)
+    }else{
+      Ndate= length(which(coresubset$Sex == sx))}
+    Nrem =  Nrem%>%
+      rows_upsert(tibble(Sex = sx, 
+                         Nrem_N50 = Ndate- N1,
+                         Nrem_gapthres = N1-length(idtemp)),
+                  by ="Sex")
+    
+    if(length(idtemp1)>0){
+      replongs <-coresubset[idtemp1, ]
+    }else{
+      replongs <-tibble() 
+    }
+    if (N > 0) {
+      # Subset core data:
+      temptab <- coresubset[idtemp, ]
+      
+      # Number alive by extraction date:
+      Nalive <- length(which(temptab$DepartDate == extractDate & 
+                               temptab$DepartType == "C"))
+      
+      # First record:
+      firstDate <- min(temptab$EntryDate)
+      
+      # Ages:
+      tempAges <- as.numeric(temptab$DepartDate - temptab$BirthDate) / 365.25
+      tempAlive <- as.numeric(temptab$DepartDate - temptab$EntryDate) / 365.25
+      tempBirths <- as.numeric(temptab$MaxBirthDate - temptab$MinBirthDate) / 
+        365.25
+      
+      # Maximum age:
+      idMaxAge <- which(tempBirths < 1)
+      maxAge <- max(c(tempAges[idMaxAge], tempAlive))
+    } else {
+      temptab <- NULL
+      Nalive <- 0
+      firstDate <- NULL
+      maxAge <- NULL
+    }
+    
+    # Output:
+    sexSummar[[sx]] <- list(N = N, Nalive = Nalive, 
+                            firstDate = firstDate, 
+                            maxAge = maxAge, outlLev = as.numeric(outlLev))
+    anDat[[sx]] <- temptab
+    Replong = rbind(Replong, replongs)
+  }
+  if(nrow(Replong)>0){
+    Replong =Replong%>%
+      select(c("anonID" , "binSpecies", "birthEst", "birthType", "birthObs", 
+               "causeDeath", "deathEst", "globStat", "Sex", "Moves",
+               "firstInst", "lastInst", "EntryType", "DepartType", "EntryFrom",
+               "DepartFrom", "BirthFrom", "BirthDate", "FirstAcqDate", "DeathDate", 
+               "LastTXDate" ))%>%distinct()
+  }else{
+    Replong <- NULL
+  }
+  sexDat <- list(summary = sexSummar, data = anDat, Nrem = Nrem, Replong = Replong)
+  
+  
+   
+        # #### Keep only Global individuals
+        # indglobloc = data_sel%>%
+        #   filter(LastCollectionScopeType == "Local",
+        #          FirstCollectionScopeType == "Global"
+        #   )
+        # 
+        # if(nrow(indglobloc)>0){
+        #   indglobloc = indglobloc%>%
+        #     left_join(.collections%>%as_tibble%>%
+        #                 select(RecordingInstitution, ChangeDate, ScopeType, AnimalID), 
+        #               by = c("anonID" ="AnimalID"))%>%
+        #     group_by(anonID, ScopeType)%>%
+        #     mutate(maxtime = max(ChangeDate)) %>%
+        #     ungroup()%>%
+        #     filter(maxtime  == ChangeDate)
+        #   ##Attention dans les reports, des fois ya 2 institutions pour 1 individu
+        #   indloc<-indglobloc%>%
+        #     filter(ScopeType=="Local")%>%
+        #     select(-RecordingInstitution)%>%
+        #     left_join(indglobloc%>%
+        #                 filter(ScopeType=="Global")%>%
+        #                 select(anonID, RecordingInstitution)%>%
+        #                 group_by(anonID )%>%
+        #                 summarise(RecordingInstitution = min(RecordingInstitution)),  ###!!! TO BE CHANGED
+        #               by = "anonID")%>%
+        #     mutate(globStat ="Undetermined (Lost to follow up)",
+        #            lastInst = as.character(RecordingInstitution),
+        #            LastCollectionScopeType = "now Global",
+        #            DepartType = "C",
+        #            DepartFrom = "collections",
+        #            DeathDate = as_date(NA),
+        #            LastTXDate = as_date(ChangeDate),
+        #            DepartDate = as_date(ChangeDate))%>%
+        #     select(-ChangeDate, -ScopeType,-maxtime, -RecordingInstitution )%>%
+        #     distinct()
+        # }else{indloc<-indglobloc}
+        # 
+        # data_sel <- data_sel%>%
+        #   rows_update(indloc, by="anonID")%>%
+        #   filter(FirstCollectionScopeType == "Global")%>%
+        #   filter(str_detect(birthType ,"Captive"))
+
+  
+  
+  
+  
+  
+  
+  
+  return(sexDat)
+}
+```
+
+```{r examples-my_fun}
+my_fun()
+```
+
+```{r tests-my_fun}
+test_that("my_fun works", {
+
+})
+```
+
+
+
+# my_fun
+
+```{r function-my_fun}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+my_fun <- function() {
+  1
+}
+```
+
+```{r examples-my_fun}
+my_fun()
+```
+
+```{r tests-my_fun}
+test_that("my_fun works", {
+
+})
+```
+
+
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_additional.Rmd", vignette_name = "Go further")
+```
+

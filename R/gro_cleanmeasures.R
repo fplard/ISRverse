@@ -6,15 +6,21 @@
 #'
 #' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *CollectionScopeType*, *UnitOfMeasure*, *ExcludedFromNorms*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *anonID* and *AnonInstitutionID*.
 #' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *Sex*, *anonID* and *Birthdate* (\code{date})
-#' @param CaptiveBirths \code{logical} Should captive born individuals be included, only? Default =  TRUE
-#' @param InclUnkSex \code{logical} Should undetermined sexes be included Default =  FALSE
+#' @param BirthType \code{character} Captive, Wild, or All Default =  TRUE
+#' @param sex \code{character} Male, Female or All Default =  "All"
 #' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.
 #' @param type \code{character} Either 'weight' or 'length'. Default =  'weight
 #' @param corevariable \code{vector character} Name of the core columns that must be added to data
 #' @param variablekeep \code{vector character} Name of the data columns that must also be returned
 #' 
-#' @return The data frame including selected measures, plus individual birth date and individual age at each measure
+#' @return A list including
+#' * The data frame including selected measures, plus individual birth date and individual age at each measure
+#' * A summary with the number of individuals and weight:
+#'         - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
+#'           - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
+#'          - NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
+#'          -  If no data are selected, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure.
 #' 
 #' @import dplyr assertthat
 #' 
@@ -23,24 +29,25 @@
 #' @examples
 #' data(raw_weights)
 #' data(core)
-#'
 #' data_weights= Gro_cleanmeasures(raw_weights, core,
-#'                                 CaptiveBirths = TRUE,
+#'                                 BirthType = "All",
 #'                                 MeasureType = 'Live weight',
-#'                                 InclUnkSex = FALSE, 
+#'                                 sex = "All", 
 #'                                 mindate = "1980-01-01")
 Gro_cleanmeasures <- function(data, coresubse,
-                              CaptiveBirths = TRUE, type = "weight", MeasureType = NULL,
-                              InclUnkSex = FALSE, mindate = "1980-01-01",
+                              BirthType = "All", type = "weight", MeasureType = NULL,
+                              sex = "All", mindate = "1980-01-01",
                               corevariable = NULL, variablekeep =NULL) 
 {
   mindate = lubridate::as_date(mindate)
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(coresubse))
   assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
-  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "Sex", "anonID"))
-  assert_that(is.logical(CaptiveBirths))
-  assert_that(is.logical(InclUnkSex))
+  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "Sex", "anonID", "birthType"))
+  assert_that(is.character(sex))
+  assert_that(sex %in% c("Male", "Female", "All"))
+  assert_that(is.character(BirthType))
+  assert_that(BirthType %in% c("Captive", "Wild", "All"))
   assert_that(is.date(mindate))
   
   
@@ -58,6 +65,10 @@ Gro_cleanmeasures <- function(data, coresubse,
     }
   }
   assertthat::assert_that(type %in% c("weight",'length'))
+  summar <- list(NInd_raw = 0, NWeight_raw = 0, 
+                 NWeight_val = 0, NInd_val =0, 
+                 NWeight_age = 0, NInd_age =0, 
+                 error = "", Nerr = 0)
   
   if(type =="weight"){
     Units <- data.frame(unit = c("kilogram", "gram", 
@@ -86,29 +97,38 @@ Gro_cleanmeasures <- function(data, coresubse,
   Variablekeep = c(Corevariable,"AnonInstitutionID","MeasurementType", 
                    "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
   
-  coresubse<- coresubse%>%
-    rowwise()%>%
-    mutate(cond_captivebirth = ifelse(CaptiveBirths,stringr::str_detect(birthType, pattern = "Captive"),1 ),
-           cond_sex = ifelse(InclUnkSex, 1, stringr::str_detect(Sex, pattern = "Undet", negate = T) ))%>%
-    filter(cond_captivebirth == 1,
-           cond_sex == 1)%>%
-    dplyr::select(-c(cond_captivebirth, cond_sex))
+
+  
+  if (BirthType != "All"){
+     coresubse<- coresubse%>%
+    filter(stringr::str_detect(birthType, pattern = BirthType))
+  }
+  
+  if (sex != "All"){
+    coresubse<- coresubse%>%
+      filter(Sex == sex)
+  }
   
   data <- data%>%
     filter(anonID %in% coresubse$anonID)%>%
     mutate(MeasurementDate = lubridate::as_date(MeasurementDate))%>%
     left_join(coresubse%>%dplyr::select(all_of(Corevariable)), by = "anonID")
   
-  if(!is.null(MeasureType)){
-    data<- data%>%
-      filter(MeasurementType %in% MeasureType)}
   
   if(nrow(data)>0){
-    
-    datasub<- data%>%
-      filter(Sex %in% unique(coresubse$Sex),
-             MeasurementDate>= mindate,
-             CollectionScopeType == "Global",
+  if(!is.null(MeasureType)){
+    data<- data%>%
+      filter(MeasurementType %in% MeasureType,
+             CollectionScopeType == "Global")}
+  summar$NInd_raw = length(unique(data$anonID))
+  summar$NWeight_raw = nrow(data)
+  }else{
+    warnings('no common ID between measured data and core data')
+  }
+  
+  if(nrow(data)>0){
+    data<- data%>%
+      filter(MeasurementDate>= mindate,
              !is.na(MeasurementValue),
              as.character(UnitOfMeasure) %in% Units$unit,
              ExcludedFromNorms == 0 , 
@@ -116,20 +136,32 @@ Gro_cleanmeasures <- function(data, coresubse,
              MeasurementValue > 0,
              RecordType == "Husbandry"
       )
+    summar$NInd_val = length(unique(data$anonID))
+    summar$NWeight_val = nrow(data)
+  }else{
+    summar$error = "No raw data"
+    summar$Nerr = 1
+  }
+  if (nrow(data) > 0) {
+    data <- data%>%
+      mutate(Age = as.numeric((MeasurementDate - BirthDate)/365.25))%>%
+      filter(Age >= 0)%>%
+      left_join(Units, by =c("UnitOfMeasure"= "unit"))%>%
+      mutate(MeasurementValue = MeasurementValue * toKg,
+             Unit = Units$unit[1])%>%
+      dplyr::select(all_of(Variablekeep))
+    summar$NInd_age = length(unique(data$anonID))
+    summar$NWeight_age = nrow(data)
     
-    
-    
-    if (nrow(datasub) > 0) {
-      datasub <- datasub%>%
-        mutate(Age = as.numeric((MeasurementDate - BirthDate)/365.25))%>%
-        filter(Age >= 0)%>%
-        left_join(Units, by =c("UnitOfMeasure"= "unit"))%>%
-        mutate(MeasurementValue = MeasurementValue * toKg,
-               Unit = Units$unit[1])%>%
-        dplyr::select(all_of(Variablekeep))
-      output <-datasub
-    }else{output <- "There is no data selected"}
-    
-  }else{output <- "There is no data selected"}
-  return(output)
+  }
+  
+  if (nrow(data)== 0) {
+    data <- data.frame()
+    if(summar$Nerr==0){
+      summar$error = "No valid weight measure"
+      summar$Nerr = 2
+    }
+  }
+  
+  return(list(data = data, summar = summar))
 }

@@ -6,7 +6,11 @@ data(core)
 test_that("Gro_cleanmeasures works", {
   d=Gro_cleanmeasures(raw_weights, core)
   expect_named(
-    d,
+    d$data,
     c("binSpecies", "BirthDate", "Sex", "anonID", "AnonInstitutionID", "MeasurementType", "MeasurementDate", "Age", "MeasurementValue", "Unit"))
-  expect_true(unique(d$Unit) == "kilogram")
+  expect_named(
+    d$summar,
+    c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", "NWeight_age", 
+      "NInd_age", "error", "Nerr"))
+  expect_true(unique(d$data$Unit) == "kilogram")
 })
