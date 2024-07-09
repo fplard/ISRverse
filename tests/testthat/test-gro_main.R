@@ -4,62 +4,31 @@ data(raw_weights)
 data(core)
 
 
-test_that("Gro_ana M/F works", {
-  output= Gro_Main(data = raw_weights, coresubse = core,
-                    taxa = "Mammalia", species = "Gorilla gorilla" ,
-                    sexCats = c("Female", "Male"), BirthTypebysex = "All",
-                    BirthType = NULL, sexCatsbyBT = "All",
-                    agemat = list(Male = 1, Female = 1),
-                    type = "weight", MeasureType = "Live weight",
-                    minNgro = 30, minNIgro = 30, 
-                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
-
-  expect_named(output,c("Female", "Male"))
-  expect_named(output$Female,c("wSummar", "weightQ"))
-  expect_named(output$Female$wSummar,
-               c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", 
-                 "NWeight_age", "NInd_age", "error", "Nerr", "agemat", "NJuv", 
-                 "NJuv_keep", "NAd", "NAd_keep", "NWeight", "NInd", "analyzed"))
-  expect_null(output$Female$weightQ)
-  expect_equal(output$Female$wSummar$NInd_raw, 0)
-  expect_equal(output$Female$wSummar$Nerr, 1)
-  expect_equal(output$Female$wSummar$NInd_raw, 0)
-  expect_false(output$Female$wSummar$analyzed)
-  expect_match(output$Female$wSummar$error,"No raw data")
- expect_equal(output$Male$wSummar$NInd_raw, 107)
-  expect_equal(output$Male$wSummar$Nerr, 6)
-  expect_equal(output$Male$wSummar$NWeight, 1295)
-  expect_true(output$Male$wSummar$analyzed)
-  expect_match(output$Male$wSummar$error,"Best model did not fit")
-   expect_named(output$Male$weightQ, c("percent", "fit", "AIC_tab", "GOF"))
-  })
-
 test_that("Gro_ana Captive works", {
   output= Gro_Main(data = raw_weights, coresubse = core,
-                    taxa = "Mammalia", species = "Gorilla gorilla" ,
-                    sexCats = "All", BirthTypebysex = "All",
-                    BirthType = c("Captive", "Wild"), sexCatsbyBT = "Male",
-                    agemat = list(Male = 1, Female = 1),
-                    type = "weight", MeasureType = "Live weight",
-                    minNgro = 30, minNIgro = 30, 
-                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
-
-  expect_named(output,c("All", "Captive", "Wild"))
+                   taxa = "Mammalia", species = "Gorilla gorilla" ,
+                   BirthType = c("Captive", "Wild"), 
+                   agemat = 1,
+                   type = "weight", MeasureType = "Live weight",
+                   minNgro = 30, minNIgro = 30, 
+                   models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
+  
+  expect_named(output,c("Captive", "Wild"))
   expect_named(output$Captive,c("wSummar", "weightQ"))
   expect_named(output$Captive$wSummar,
                c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", 
                  "NWeight_age", "NInd_age", "error", "Nerr", "agemat", "NJuv", 
                  "NJuv_keep", "NAd", "NAd_keep", "NWeight", "NInd", "analyzed"))
-  expect_equal(output$Captive$wSummar$NWeight_raw, 1949)
+  expect_equal(output$Captive$wSummar$NWeight_raw, 1072)
   expect_equal(output$Captive$wSummar$Nerr, 6)
-  expect_equal(output$Captive$wSummar$NWeight, 1287)
+  expect_equal(output$Captive$wSummar$NWeight, 753)
   expect_true(output$Captive$wSummar$analyzed)
   expect_match(output$Captive$wSummar$error,"Model did not fit")
- expect_equal(output$Wild$wSummar$NJuv, 0)
+  expect_equal(output$Wild$wSummar$NJuv, 0)
   expect_equal(output$Wild$wSummar$Nerr, 1)
   expect_equal(output$Wild$wSummar$NAd, 0)
   expect_false(output$Wild$wSummar$analyzed)
   expect_match(output$Wild$wSummar$error,"No raw data")
-   expect_named(output$Captive$weightQ, c("percent", "fit", "AIC_tab", "GOF"))
+  expect_named(output$Captive$weightQ, c("percent", "fit", "AIC_tab", "GOF"))
   
 })

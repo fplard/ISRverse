@@ -32,11 +32,8 @@ This function is the main function used to run the growth analysis for taxon pro
 * `coresubse`: the core data of the species from ZIMS
 * `taxa`: the name of the taxa studied
 * `species`: the name of the species studied
-* `sexCats`: Male, Female and/or All
-* `BirthTypebysex`: When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All
 * `BirthType`: Captive and/or Wild Default =  NULL
-* `sexCatsbyBT`: When separated the analysis by birth typ, the sex to be selected: Male, Female, or All
-* `agemat`: A list including the age at sexual maturity for each sex selected in `SexCats` and in `sexCatsbyBT`.
+* `agemat`: age at sexual maturity 
 * `models`: indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
 * `percentiles`: indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 * `minNgro`: Minimum number of weight needed to fit the growth models
@@ -44,7 +41,7 @@ This function is the main function used to run the growth analysis for taxon pro
 * `type`: Either 'weight' or 'length'. Default =  'weight
 * `MeasureType`: Name of the type of measurements that should be included. 
 * `mindate`: Earlier date to include data
-* `PlotDir`: Directory to save the plots
+* `PlotDir`: Directory to save the plots showing outliers and predictions from best models
 
 
 The function returns a list including an analysis by sex and by birth type as included in the input. Each analysis includes: 
@@ -64,13 +61,11 @@ The function returns a list including an analysis by sex and by birth type as in
 data(raw_weights)
 data(core)
 output= Gro_Main(data = raw_weights, coresubse = core,
-                    taxa = "Mammalia", species = "Gorilla gorilla" ,
-                    sexCats = c("Female", "Male"), BirthTypebysex = "All",
-                    BirthType = c("Captive", "Wild"), sexCatsbyBT = "All",
-                    agemat = list(Male = 1, Female = 1),
-                    type = "weight", MeasureType = "Live weight",
-                    minNgro = 30, minNIgro = 30, 
-                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
+                 taxa = "Mammalia", species = "Gorilla gorilla" ,
+                 BirthType = c("Captive", "Wild"), agemat = 1,
+                 type = "weight", MeasureType = "Live weight",
+                 minNgro = 30, minNIgro = 30, 
+                 models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 ```
 
 # Gro_cleanmeasures
@@ -80,7 +75,6 @@ This function is used to prepare weight and length dataset. It unify the unity u
 * `data`: the weight or length data from ZIMS
 * `coresubse`: the core data of the species from ZIMS
 * `BirthType` Captive, Wild, or All Default =  "All"
-* `sex`: Male, Female or All Default =  "All"
 * `mindate` Earlier date to include data ('YYYY-MM-DD')
 * `MeasureType` Name of the type of measurement that should be included. Default = NULL, all measurement type are included.
 * `type` Either 'weight' or 'length'.
@@ -101,7 +95,6 @@ data(core)
 data_weights= Gro_cleanmeasures(raw_weights, core,
                                 BirthType = "All",
                                 MeasureType = 'Live weight',
-                                sex = "All", 
                                 mindate = "1980-01-01")
 ```
 

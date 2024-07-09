@@ -8,14 +8,6 @@
 \description{
 Survival, Reproduction and Growth analyses.
 }
-\seealso{
-Useful links:
-\itemize{
-  \item \url{https://github.com/fplard/ISRverse}
-  \item Report bugs at \url{https://github.com/fplard/ISRverse/issues}
-}
-
-}
 \author{
 \strong{Maintainer}: Floriane Plard \email{floriane.c.plard@gmail.com} [contractor]
 

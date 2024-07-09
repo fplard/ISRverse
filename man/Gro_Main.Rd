@@ -9,11 +9,8 @@ Gro_Main(
   coresubse,
   taxa,
   species,
-  sexCats = c("Female", "Male", "All"),
-  BirthTypebysex = "All",
   BirthType = NULL,
-  sexCatsbyBT = "All",
-  agemat = list(Male = NULL, Female = NULL, All = NULL),
+  agemat = NULL,
   type = "weight",
   MeasureType = NULL,
   minNgro = 30,
@@ -33,15 +30,9 @@ Gro_Main(
 
 \item{species}{\code{character} the name of the species studied}
 
-\item{sexCats}{\code{vector of character} NULL, Male, Female and/or All Default =  c("Female", "Male", "All")}
-
-\item{BirthTypebysex}{\code{character} When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All Default =  "All"}
-
 \item{BirthType}{\code{vector of character} NULL, Captive and/or Wild Default =  NULL}
 
-\item{sexCatsbyBT}{\code{character} When separated the analysis by birth typ, the sex to be selected: Male, Female, or All Default =  "All"}
-
-\item{agemat}{\code{list} A list including the age at sexual maturity for each sex selected in \code{SexCats} and in \code{sexCatsbyBT}. Default = list(Male = NULL, Female = NULL, All = NULL)}
+\item{agemat}{\code{numeric} age at sexual maturity . Default = NULL}
 
 \item{type}{\code{character} Either 'weight' or 'length'. Default =  'weight}
 
@@ -74,7 +65,7 @@ A list including an analysis by sex and by birth type as included in the input. 
 outliers
 \item NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
 \item a logical indicated if the growth analysis was performed
-\item If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for #' this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro #' 5/NInd < minNIgro 6/Best model did not fit.
+\item If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro #' 5/NInd < minNIgro 6/Best model did not fit.
 If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 }
 }
@@ -85,11 +76,9 @@ Select measures, remove outliers, select the best growth model and produce the p
 data(raw_weights)
 data(core)
 output= Gro_Main(data = raw_weights, coresubse = core,
-                    taxa = "Mammalia", species = "Gorilla gorilla" ,
-                    sexCats = c("Female", "Male"), BirthTypebysex = "All",
-                    BirthType = c("Captive", "Wild"), sexCatsbyBT = "All",
-                    agemat = list(Male = 1, Female = 1),
-                    type = "weight", MeasureType = "Live weight",
-                    minNgro = 30, minNIgro = 30, 
-                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
+                 taxa = "Mammalia", species = "Gorilla gorilla" ,
+                 BirthType = c("Captive", "Wild"), agemat = 1,
+                 type = "weight", MeasureType = "Live weight",
+                 minNgro = 30, minNIgro = 30, 
+                 models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 }

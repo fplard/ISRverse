@@ -8,22 +8,29 @@ Authors@R: c(
   )
 Description: Survival, Reproduction and Growth analyses.
 License: file LICENSE
-URL: https://github.com/fplard/ISRverse
-BugReports: https://github.com/fplard/ISRverse/issues
-Depends: 
-    R (>= 2.10)
 Imports: 
     assertthat,
+    BaSTA2.0,
     bbmle,
+    checkmate,
     dplyr,
     ggplot2,
+    ggpubr,
     glue,
+    graphics,
+    grDevices,
     lubridate,
     magrittr,
     methods,
     mgcv,
+    paramDemo,
+    purrr,
+    readr,
+    snowfall,
     stats,
-    stringr
+    stringr,
+    tidyr,
+    utils
 Suggests: 
     knitr,
     rmarkdown,
@@ -32,6 +39,5 @@ VignetteBuilder:
     knitr
 Config/fusen/version: 0.5.2
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1

@@ -7,7 +7,6 @@
 #' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *CollectionScopeType*, *UnitOfMeasure*, *ExcludedFromNorms*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *anonID* and *AnonInstitutionID*.
 #' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *Sex*, *anonID* and *Birthdate* (\code{date})
 #' @param BirthType \code{character} Captive, Wild, or All Default =  TRUE
-#' @param sex \code{character} Male, Female or All Default =  "All"
 #' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.
 #' @param type \code{character} Either 'weight' or 'length'. Default =  'weight
@@ -32,11 +31,10 @@
 #' data_weights= Gro_cleanmeasures(raw_weights, core,
 #'                                 BirthType = "All",
 #'                                 MeasureType = 'Live weight',
-#'                                 sex = "All", 
 #'                                 mindate = "1980-01-01")
 Gro_cleanmeasures <- function(data, coresubse,
                               BirthType = "All", type = "weight", MeasureType = NULL,
-                              sex = "All", mindate = "1980-01-01",
+                               mindate = "1980-01-01",
                               corevariable = NULL, variablekeep =NULL) 
 {
   mindate = lubridate::as_date(mindate)
@@ -44,9 +42,7 @@ Gro_cleanmeasures <- function(data, coresubse,
   assert_that(is.data.frame(coresubse))
   assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
   assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "Sex", "anonID", "birthType"))
-  assert_that(is.character(sex))
-  assert_that(sex %in% c("Male", "Female", "All"))
-  assert_that(is.character(BirthType))
+   assert_that(is.character(BirthType))
   assert_that(BirthType %in% c("Captive", "Wild", "All"))
   assert_that(is.date(mindate))
   
@@ -97,17 +93,13 @@ Gro_cleanmeasures <- function(data, coresubse,
   Variablekeep = c(Corevariable,"AnonInstitutionID","MeasurementType", 
                    "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
   
-
+  
   
   if (BirthType != "All"){
-     coresubse<- coresubse%>%
-    filter(stringr::str_detect(birthType, pattern = BirthType))
-  }
-  
-  if (sex != "All"){
     coresubse<- coresubse%>%
-      filter(Sex == sex)
+      filter(stringr::str_detect(birthType, pattern = BirthType))
   }
+
   
   data <- data%>%
     filter(anonID %in% coresubse$anonID)%>%
@@ -116,12 +108,12 @@ Gro_cleanmeasures <- function(data, coresubse,
   
   
   if(nrow(data)>0){
-  if(!is.null(MeasureType)){
-    data<- data%>%
-      filter(MeasurementType %in% MeasureType,
-             CollectionScopeType == "Global")}
-  summar$NInd_raw = length(unique(data$anonID))
-  summar$NWeight_raw = nrow(data)
+    if(!is.null(MeasureType)){
+      data<- data%>%
+        filter(MeasurementType %in% MeasureType,
+               CollectionScopeType == "Global")}
+    summar$NInd_raw = length(unique(data$anonID))
+    summar$NWeight_raw = nrow(data)
   }else{
     warnings('no common ID between measured data and core data')
   }

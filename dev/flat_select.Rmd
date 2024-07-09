@@ -1,5 +1,5 @@
 ---
-title: "flat_additional.Rmd empty"
+title: "Data Selection"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -7,6 +7,8 @@ editor_options:
 
 ```{r development, include=FALSE}
 library(testthat)
+library(assertthat)
+library(tidyverse)
 ```
 
 ```{r development-load}
@@ -14,330 +16,738 @@ library(testthat)
 pkgload::load_all(export_all = FALSE)
 ```
 
-# my_fun
 
-```{r function-my_fun}
-#' my_fun Title
+
+# Create the species profile report
+
+`tx_report()` runs the survival, reproduction and growth analyses for the selected species. It uses the following main arguments:
+
+* `taxa` the name of the taxa studied
+* `species` the name of the species studied
+* Data for each analysis: at least `core` and `collection`, in addition to `weights`, `parents`, `contraceptions` if needed.   
+* `PlotDir`: Directory to save the plots of the best models
+* `repout` Previous result of the taxon profile for this species if it needs to be updated
+* `sexCats` Sex categories: Male, Female or All 
+* `minN` Minimum number of individuals needed to run the analyses
+* `minDate` Earlier date to include data records
+* `models_sur`  names of the survival basta models to run: "G0", "EX", "LO" and/or "WE"
+* `shape` shape of the survival basta model to run: "simple", "Makeham", "bathtub"
+* `models_gro` indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+
+
+```{r function-tx_report}
+#' Taxon profile report
+#' 
+#' Run the survival, reproduction and growth analysis for the selected species
 #'
-#' @return 1
+#' @param taxa  \code{character} the name of the taxa studied
+#' @param species \code{character} the name of the species studied
+#' @param core \code{data.frame} core data
+#' @param collection  \code{data.frame} collection data
+#' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
+#' @param weights \code{data.frame} weights data if the growth analysis is run
+#' @param parents \code{data.frame} parents data if the reproduction analysis is run
+#' @param contraceptions \code{data.frame} contraception data if the reproduction analysis is run
+#' @param repout \code{list} Previous result of the taxon profile for this species if it needs to be updated only
+#' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
+#' @param sexCats \code{character} Male, Female or All Default =  "All"
+#' @param minN \code{numeric} Minimum number of individuals. Default = 50
+#' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
+#' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
+#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
+#' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
+#' @param maxOutl \code{numeric} Maximum threshold for the longevity distribution. Default = 100
+#' @param models_sur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
+#' @param shape \code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param niter  \code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000
+#' @param burnin  \code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. Default = 5001
+#' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20
+#' @param nchain  \code{numeric} Number of chains to run the survival model. Default = 5001
+#' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
+#' @param parentProb \code{numeric} XXXXXXXXXXX
+#' @param minNrepro  \code{numeric} XXXXXXXXXXX
+#' @param minNparepro  \code{numeric} XXXXXXXXXXX
+#' @param minNseas \code{numeric} XXXXXXXXXXX
+#' @param minNgro \code{numeric} Minimum number of weight needed to fit the growth models
+#' @param minNIgro \code{numeric} Minimum number of unique individuals needed to fit the growth models
+#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.
+#' @param models_gro \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+
+#' @return a list including the results and summary of each analysis
 #' @export
 #'
 #' @examples
-ExtractGenInfo <- function(species, coresubset, taxa, forceBySex, speciesID) {
-  # Find latest information from newcore:
-  spCore <- coresubset[which(coresubset$DepartDate == 
-                               max(coresubset$DepartDate))[1], ]
+tx_report <- function(species, taxa,  core, collection, PlotDir = NULL,
+                      weights = NULL,parents = NULL, contraceptions = NULL,
+                      repout = list(), Sections = c('sur', 'rep', 'gro'),
+                      sexCats = c("Male", "Female"), minN= 50, minDate= "1980-01-01",
+                      extractDate = NULL, minNsur = 50, minlx = 0.1, MinBirthKnown = 0.3, maxOutl = 100,
+                      models_sur = "GO", shape = "bathtub",
+                      niter = 25000, burnin = 5001, thinning = 20, nchain = 3, 
+                      ncpus = 2,
+                      parentProb = 80, minNrepro = 100, minNparepro = 30, minNseas = 50, 
+                      minNgro =100,minNIgro = 50, MeasureType = "",
+                      models_gro = "vonBertalanffy"
+) {
+  assert_that(is.character(taxa))
+  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+                          "Chondrichthyes", "Actinopterygii"),
+              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+                          'Chondrichthyes', or 'Actinopterygii'")
+  assert_that(is.character(Sections))
+  assert_that(all(Sections %in% c("sur", "gro", "rep")))
+  assert_that(is.character(species))
   
-  # Find earliest record:
-  firstDate <- min(coresubset$EntryDate)
+  if(!is.null(extractDate)){
+    extractDate = lubridate::as_date(extractDate)
+  } else{
+    extractDate = max(lubridate::as_date(core$DepartDate), na.rm = T)
+  }
   
-  # Common name strings:
-  tabCommon <- c(table(coresubset$common))
-  allComName <- stri_encode(names(tabCommon), "", "UTF-8")
-  allComName <- allComName[which(!grepl(species, allComName))]
-  idNotObs <- which(!grepl("OBSOLETE", allComName))
-  tabCommon <- tabCommon[idNotObs]
-  allComName <- allComName[idNotObs]
-  propCommon <- tabCommon / sum(tabCommon)
-  comNames <- allComName[which(propCommon >= 0.3)]
+  minDate = lubridate::as_date(minDate)
+  assert_that(is.data.frame(core))
+  assert_that(is.data.frame(collection))
+  assert_that(core  %has_name% c("anonID", "BirthDate", "DepartDate",
+                                 "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                 "EntryType", "DepartType", "DepartFrom", "firstInst", 
+                                 "LastTXDate", "DeathDate", "lastInst","globStat",
+                                 "LastCollectionScopeType","FirstCollectionScopeType"))
+  assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
+                                       "ScopeType", "AnimalID"))
   
-  if (species == "Callicebus ornatus") {
-    comNames <- "Ornate titi monkey"
-  } else if (species == "Leontocebus nigrifrons") {
-    comNames <- "Geoffroy's saddle-back tamarin"
-  } else if (species == "Ovis aries") {
-    comNames <- "Domestic sheep"
-  } else if (species == "Ovis orientalis") {
-    comNames <- "Mouflon"
-  } 
+  if("gro" %in% Sections){
+    assert_that(is.data.frame(weights))
+    assert_that(weights %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
+  }
+  if("rep" %in% Sections){
+    assert_that(is.data.frame(parents))
+    assert_that(is.data.frame(contraceptions))
+    # assert_that(parents %has_name% c()) XXXXXXXXXXXXXXXXXXXXXX
+    # assert_that(contraceptions %has_name% c()) XXXXXXXXXXXXXXXXXX
+  }
   
-  # find specific problems with encoding:
-  if (length(comNames) > 0) {
-    for (iin in 1:length(comNames)) {
-      if (grepl("<8a>", enc2utf8(comNames[iin]))) {
-        comNames[iin] <- gsub("<8a>", "ê", enc2utf8(comNames[iin]))
-      }
+  assert_that(is.character( sexCats))
+  assert_that(all(sexCats %in% c("Male", "Female", "All")))
+  assert_that(is.numeric( maxOutl))
+  assert_that( maxOutl <= 100)
+  assert_that(is.numeric(minNsur))
+  assert_that(minNsur > 0)
+  assert_that(is.numeric(minlx))
+  assert_that(minlx > 0)
+  assert_that(minlx < 1)
+  assert_that(is.numeric(MinBirthKnown))
+  assert_that(MinBirthKnown > 0)
+  assert_that(MinBirthKnown <1)
+  assert_that(is.numeric(niter))
+  assert_that(niter > 0)
+  assert_that(is.numeric(burnin))
+  assert_that(burnin > 0)
+  assert_that(burnin < niter)
+  assert_that(is.numeric(thinning))
+  assert_that(thinning > 0)
+  assert_that(thinning < niter)
+  assert_that(is.numeric(nchain))
+  assert_that(nchain > 0)
+  assert_that(is.numeric(ncpus))
+  assert_that(ncpus > 0)
+  assert_that(is.character(models_sur))
+  assert_that(all(models_sur %in% c("GO", "EX", "LO", "WE")))
+  assert_that(is.character(shape))
+  assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
+  checkmate::assert_directory_exists(PlotDir)
+  
+  assert_that(is.numeric(parentProb))
+  assert_that(parentProb > 0)
+  assert_that(is.numeric(minNrepro))
+  assert_that(minNrepro > 0)
+  assert_that(is.numeric(minNparepro))
+  assert_that(minNparepro > 0)
+  assert_that(is.numeric( minNseas))
+  assert_that( minNseas > 0)
+  
+  assert_that(is.numeric( minNIgro))
+  assert_that( minNIgro > 0)
+  assert_that(is.numeric(minNgro))
+  assert_that(minNgro > 0)
+  assert_that(is.character(MeasureType))
+  assert_that(is.character(models_gro ))
+  assert_that(all(models_gro %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
+  
+  # --------------------- #
+  # ---- Prep. data: ----
+  # --------------------- #
+  ## Extract Data
+  Dat <- select_species(species, core, collection,
+                        minDate = minDate , extractDate = extractDate, Global = TRUE) 
+  repout$general = Dat$summary
+  for (sx in sexCats){
+    sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
+                                    PlotDir= PlotDir, minN = minN ,
+                                    maintitle = glue::glue("{species}_{sx}") )
+    repout$summary[[sx]] = sexDat$summar
+    # -------------------------- #
+    # ---- Survival Module: ----
+    # -------------------------- #
+    # Run survival analyses:
+    if ("sur" %in% Sections) {
+      repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,
+                                     BirthType = "All",
+                                    xMax = 120, PlotDir = PlotDir,
+                                    models = models_sur, shape= shape, 
+                                    outlLev1 = sexDat$summar$GapThresh,
+                                    mindate = minDate, minNsur = minNsur, 
+                                    minlx = minlx , MinBirthKnown = MinBirthKnown, 
+                                    niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
+                                    ncpus = ncpus, plotname = species)
     }
     
-    # Merge common names:
-    comNames <- paste(comNames, collapse = ", ")
+    # # ------------------------------ #
+    # # ---- Reproduction module: ----
+    # # ------------------------------ #
+    # # Reproduction module list:
+    # if ("rep" %in% Sections) {
+    #   # Reproduction module list:
+    #   repout$repr <- RunRepro(sexDat = sexDat, sexCats = sexCats, coresubset= coresubset,
+    #                    PlotDir = PlotDir,
+    #                      subinst = subinst, minNseas = minNseas, 
+    #                    mindate =minDate,
+    #                    newContra = newContra, parentProb = parentProb, 
+    #                    minNrepro = minNrepro,minNparepro = minNparepro,  speciesID = speciesID)
+    # }
     
-  } else {
-    comNames <- NA
+    # ----------------------------- #
+    # ---- Body weight module: ----
+    # ----------------------------- #
+    # Growth module list:
+    if ("gro" %in% Sections) {
+      repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
+                                    taxa = taxa, species = species,
+                                    BirthType = NULL, 
+                                    agemat = NA, percentiles = c(2.5,97.5),
+                                    PlotDir = PlotDir, type = "weight",
+                                    MeasureType = MeasureType,
+                                    minNgro = minNgro, minNIgro = minNIgro, 
+                                    models = models_gro,
+                                    mindate = minDate) 
+    }
   }
   
-  # IUCN:
-  if (is.na(spCore$IUCN) | spCore$IUCN == "") {
-    spIUCN <- "Not listed"
-  } else {
-    spIUCN <- spCore$IUCN
-  }
-  
-  # cites:
-  if (is.na(spCore$CITES) | spCore$CITES == "") {
-    spCITES <- "Not listed"
-  } else {
-    spCITES <- sprintf("Appendix %s", spCore$CITES)
-  }
-  
-  # General output:
-  temp <- data.frame(species = species, common =stri_encode(comNames, "", "UTF-8"),
-                     Class = spCore$Class,
-                     Order = spCore$Order, Family = spCore$Family, 
-                     IUCN = spIUCN, CITES = spCITES, speciesID = speciesID,
-                     forcedBySex = forceBySex[taxa])
-  return(temp)  
+  return(repout)
 }
 
 ```
 
-```{r examples-my_fun}
-my_fun()
+```{r examples-tx_report}
+data(core)
+data(collection)
+PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+dir.create(PlotDir)
+
+out <- tx_report(species = "Gorilla gorilla", taxa = "Mammalia",
+                 core, collection, 
+                 PlotDir = PlotDir,Sections = c('sur'),
+                 sexCats = c("Male", "Female"),
+                 models_sur = "GO", shape = "simple",
+                 models_gro = "vonBertalanffy",
+                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
+)
+
+list.files(PlotDir)
+unlink(PlotDir, recursive = TRUE)
+
 ```
 
-```{r tests-my_fun}
-test_that("my_fun works", {
 
+```{r tests-tx_report}
+test_that("tx_report works", {
+  data(core)
+  data(collection)
+  data(raw_weights)
+  PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+  dir.create(PlotDir)
+  
+  out <- tx_report(species = "Gorilla gorilla", taxa = "Mammalia",
+                   core, collection, weights =raw_weights,
+                   PlotDir = PlotDir, Sections = c('sur','gro'),
+                   sexCats = c("Male", "Female"),
+                   models_sur = "GO", shape = "bathtub",
+                   models_gro = "vonBertalanffy"
+  )
+  expect_named(out, c('general', "summary", 'surv', 'weig'))
+  expect_true(file.exists(paste(PlotDir, "Gorilla gorilla_Male_LongThres.pdf", sep = '\\')))
+  # expect_true(file.exists(paste(PlotDir, "Gorilla gorilla_Male_sur.pdf", sep = '\\')))
+ # XXXXXXXXXXXXXXXXXXXXXXXXX
+  unlink(PlotDir, recursive = TRUE)
 })
 ```
 
 
+# Extract Data
 
-# my_fun
+This function extracts the data of the specified species that fill the condition on minimum date and global collections. It includes the following argument:
 
-```{r function-my_fun}
-#' my_fun Title
+* `species` latin name of the species selected
+* `coresubset`data.frame including at least the following columns *anonID*, *BirthDate*, *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate*, *EntryType*, *DepartType*, *DepartFrom*, *firstInst*, *LastTXDate*, *DeathDate*, *lastInst*,*globStat*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
+* `collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalID*.
+* `minDate`: Earlier date to include data
+* `extractDate`: Date of data extraction
+* `Global` Whether only individuals belonging to global collections should be used.
+
+
+The output is a list including:
+* The subseted dataset
+* a summary of the data used:
+- Nraw : Raw number of individuals selected from global collections
+- Ndate : Number of individuals with an entry date posterior to the minimum date
+- Nglobal: Number of individuals selected from global collections
+- Nalive: Number of individuals still alive
+- firstDate: Date of first record
+- maxAgraw: Maximum observed age
+
+
+
+```{r function-select_species}
+#' Extract data
+#' 
+#' Extract data of the specified species that fill the condition on minimum date and global collections
 #'
-#' @return 1
+#' @param species \code{character} latin name of the species selected
+#' @param coresubset  \code{data.frame} including at least the following columns *anonID*, *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate* (\code{date}), *EntryType*, *DepartType*, *DepartFrom*, *firstInst*, *LastTXDate*, *DeathDate*, *lastInst*,*globStat*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
+#' @param collection \code{data.frame} including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalID*.
+#' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
+#'
+#' @return The output of a list including:
+#' * a summary of the data used:
+#'- Nraw : Raw number of individuals selected from global collections
+#'- Ndate : Number of individuals with an entry date posterior to the minimum date
+#'- Nglobal: Number of individuals selected from global collections
+#'- Nalive: Number of individuals still alive
+#'- firstDate: Date of first record
+#'- maxAgeraw: Maximum observed age
+#'* The subseted dataset
 #' @export
 #'
 #' @examples
-ExtractSxData <- function(coresubset, sexCats, dcheckSp, 
-                          minDate, maxOutl = NA) {
-  # Subset coresubset by minDate:
-  idncore <- which(coresubset$DepartDate >= minDate)
-  temp = coresubset[-idncore, ]
-  coresubset <- coresubset[idncore, ]
+select_species <- function(species, coresubset, collection,
+                           minDate, extractDate, Global = TRUE) {
   
-  Replong = tibble()
-  Nrem = tibble(Sex = sexCats,
-                Nrem_mindate = numeric(1),
-                Nrem_gapthres = numeric(1),
-                Nrem_N50 = numeric(1))%>%
-    rows_upsert(temp%>%
-                  group_by(Sex)%>%
-                  summarize(Nrem_mindate = n(), .groups = "drop"), by ="Sex")%>%
-    rows_upsert(tibble(Sex = "All", Nrem_mindate = nrow(temp)), by ="Sex")
+  minDate = lubridate::as_date(minDate)
+  extractDate = lubridate::as_date(extractDate)
   
-  # base datasets by sex:
-  anDat <- list()
-  sexSummar <- list()
-  for (sx in sexCats) {
-    dcheckSps = dcheckSp[dcheckSp$Sex ==sx,]
-    thrName <-"GapThresh"
-    if (is.na(maxOutl)) {
-      if (is.na(dcheckSps[thrName])) {
-        outlLev <- NA
-      } else {
-        outlLev <- dcheckSps[thrName]
-      }
-    } else {
-      if (is.na(dcheckSps[thrName])) {
-        outlLev <- maxOutl
-      } else {
-        if (dcheckSps[thrName] < maxOutl) {
-          outlLev <- dcheckSps[thrName]
-        } else {
-          outlLev <- maxOutl
-        }
-      }
-    }
-    idtemp1 <- c()
-    if (is.na(outlLev)) {
-      idtemp <- c()
-      N1 <- length(idtemp)
-    } else{
-      if(outlLev == 0){
-        idtemp <- c()
-        N1 <- length(idtemp)
-        
-      }else if (outlLev == 100) {
-        N1 <- length(which(coresubset$Sex == sx))
-        if (sx == "All") {
-          idtemp <- 1:nrow(coresubset)
-        } else {
-          idtemp <- which(coresubset$Sex == sx)
-        }
-      } else {
-        qlev <- sprintf("above%s", as.character(outlLev))
-        if (sx == "All") {
-          N1 <- nrow(coresubset)
-          idtemp <- which(coresubset[[qlev]] == 0)
-          idtemp1 <- which(coresubset[[qlev]] == 1)
-        } else {
-          N1 <- length(which(coresubset$Sex == sx))
-          idtemp <- which(coresubset$Sex == sx & coresubset[[qlev]] == 0)
-          idtemp1 <- which(coresubset$Sex == sx & coresubset[[qlev]] == 1)
-        }
-      }
-    }
-    # Number of records:
-    N <- length(idtemp)
-    if (sx == "All") {Ndate = nrow(coresubset)
-    }else{
-      Ndate= length(which(coresubset$Sex == sx))}
-    Nrem =  Nrem%>%
-      rows_upsert(tibble(Sex = sx, 
-                         Nrem_N50 = Ndate- N1,
-                         Nrem_gapthres = N1-length(idtemp)),
-                  by ="Sex")
-    
-    if(length(idtemp1)>0){
-      replongs <-coresubset[idtemp1, ]
-    }else{
-      replongs <-tibble() 
-    }
-    if (N > 0) {
-      # Subset core data:
-      temptab <- coresubset[idtemp, ]
+  assert_that(is.data.frame(coresubset))
+  assert_that(is.data.frame(collection))
+  assert_that(coresubset  %has_name% c("anonID", "BirthDate", "DepartDate",
+                                       "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                       "EntryType", "DepartType", "DepartFrom", "firstInst", 
+                                       "LastTXDate", "DeathDate", "lastInst","globStat",
+                                       "LastCollectionScopeType","FirstCollectionScopeType"))
+  assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
+                                       "ScopeType", "AnimalID"))
+  assert_that(is.logical(Global))
+  # Select Species
+  coresubset0 <- coresubset%>%
+    filter(species == species)
+  
+  # Subset by min date
+  coresubset1 <- coresubset0%>%
+    filter(DepartDate >= minDate)
+  
+  summar = list(Nraw = nrow(coresubset0),
+                Ndate = nrow(coresubset1),
+                Nglobal = 0,
+                Nalive = 0,
+                firstDate = NULL,
+                maxAgeraw = NULL,
+                extractdate = extractDate)
+  
+  if(summar$Ndate>0){
+    if(Global){
+      # Keep only Global individuals
+      indglobloc = coresubset1%>%
+        filter(LastCollectionScopeType == "Local",
+               FirstCollectionScopeType == "Global"
+        )
+      if(nrow(indglobloc)>0){
+        indglobloc = indglobloc%>%
+          left_join(collections%>%
+                      select(RecordingInstitution, ChangeDate, ScopeType, AnimalID),
+                    by = c("anonID" ="AnimalID"))%>%
+          group_by(anonID, ScopeType)%>%
+          mutate(maxtime = max(ChangeDate)) %>%
+          ungroup()%>%
+          filter(maxtime  == ChangeDate)
+        #Warnings: there are sometimes 2 institutions for 1 individual for same date  ###!!! THIS SHOULD NOT HAPPEN
+        indloc<-indglobloc%>%
+          filter(ScopeType=="Local")%>%
+          select(-RecordingInstitution)%>%
+          left_join(indglobloc%>%
+                      filter(ScopeType=="Global")%>%
+                      select(anonID, RecordingInstitution)%>%
+                      group_by(anonID )%>%
+                      summarise(RecordingInstitution = min(RecordingInstitution)),  ###!!! TO BE CHANGED
+                    by = "anonID")%>%
+          mutate(globStat ="Undetermined (Lost to follow up)",
+                 lastInst = as.character(RecordingInstitution),
+                 LastCollectionScopeType = "now Global",
+                 DepartType = "C",
+                 DepartFrom = "collections",
+                 DeathDate = lubridate::as_date(NA),
+                 LastTXDate = lubridate::as_date(ChangeDate),
+                 DepartDate = lubridate::as_date(ChangeDate))%>%
+          select(-ChangeDate, -ScopeType,-maxtime, -RecordingInstitution )%>%
+          distinct()
+      }else{indloc<-indglobloc}
       
+      data_sel <- coresubset1%>%
+        rows_update(indloc, by="anonID")%>%
+        filter(FirstCollectionScopeType == "Global")
+      summar$Nglobal = nrow(data_sel)
+    }else { data_sel <- coresubset1}
+    
+    
+    if (summar$Nglobal > 0) {
       # Number alive by extraction date:
-      Nalive <- length(which(temptab$DepartDate == extractDate & 
-                               temptab$DepartType == "C"))
+      summar$Nalive <- nrow(data_sel%>%
+                              filter(DepartDate == extractDate , 
+                                     DepartType == "C"))
       
       # First record:
-      firstDate <- min(temptab$EntryDate)
+      summar$firstDate <- min(data_sel$EntryDate)
       
-      # Ages:
-      tempAges <- as.numeric(temptab$DepartDate - temptab$BirthDate) / 365.25
-      tempAlive <- as.numeric(temptab$DepartDate - temptab$EntryDate) / 365.25
-      tempBirths <- as.numeric(temptab$MaxBirthDate - temptab$MinBirthDate) / 
-        365.25
+      # Max Ages:
+      data_age <- data_sel%>%
+        mutate(tempAges = as.numeric(DepartDate - BirthDate) / 365.25,
+               tempAlive = as.numeric(DepartDate - EntryDate) / 365.25,
+               tempBirths = as.numeric(MaxBirthDate - MinBirthDate) / 365.25)%>%
+        filter(tempBirths < 1)
       
-      # Maximum age:
-      idMaxAge <- which(tempBirths < 1)
-      maxAge <- max(c(tempAges[idMaxAge], tempAlive))
-    } else {
-      temptab <- NULL
-      Nalive <- 0
-      firstDate <- NULL
-      maxAge <- NULL
-    }
-    
-    # Output:
-    sexSummar[[sx]] <- list(N = N, Nalive = Nalive, 
-                            firstDate = firstDate, 
-                            maxAge = maxAge, outlLev = as.numeric(outlLev))
-    anDat[[sx]] <- temptab
-    Replong = rbind(Replong, replongs)
+      summar$maxAgeraw <- max(c(data_age$tempAges,data_age$tempAlive))
+    } 
   }
-  if(nrow(Replong)>0){
-    Replong =Replong%>%
-      select(c("anonID" , "binSpecies", "birthEst", "birthType", "birthObs", 
-               "causeDeath", "deathEst", "globStat", "Sex", "Moves",
-               "firstInst", "lastInst", "EntryType", "DepartType", "EntryFrom",
-               "DepartFrom", "BirthFrom", "BirthDate", "FirstAcqDate", "DeathDate", 
-               "LastTXDate" ))%>%distinct()
-  }else{
-    Replong <- NULL
-  }
-  sexDat <- list(summary = sexSummar, data = anDat, Nrem = Nrem, Replong = Replong)
   
   
-   
-        # #### Keep only Global individuals
-        # indglobloc = data_sel%>%
-        #   filter(LastCollectionScopeType == "Local",
-        #          FirstCollectionScopeType == "Global"
-        #   )
-        # 
-        # if(nrow(indglobloc)>0){
-        #   indglobloc = indglobloc%>%
-        #     left_join(.collections%>%as_tibble%>%
-        #                 select(RecordingInstitution, ChangeDate, ScopeType, AnimalID), 
-        #               by = c("anonID" ="AnimalID"))%>%
-        #     group_by(anonID, ScopeType)%>%
-        #     mutate(maxtime = max(ChangeDate)) %>%
-        #     ungroup()%>%
-        #     filter(maxtime  == ChangeDate)
-        #   ##Attention dans les reports, des fois ya 2 institutions pour 1 individu
-        #   indloc<-indglobloc%>%
-        #     filter(ScopeType=="Local")%>%
-        #     select(-RecordingInstitution)%>%
-        #     left_join(indglobloc%>%
-        #                 filter(ScopeType=="Global")%>%
-        #                 select(anonID, RecordingInstitution)%>%
-        #                 group_by(anonID )%>%
-        #                 summarise(RecordingInstitution = min(RecordingInstitution)),  ###!!! TO BE CHANGED
-        #               by = "anonID")%>%
-        #     mutate(globStat ="Undetermined (Lost to follow up)",
-        #            lastInst = as.character(RecordingInstitution),
-        #            LastCollectionScopeType = "now Global",
-        #            DepartType = "C",
-        #            DepartFrom = "collections",
-        #            DeathDate = as_date(NA),
-        #            LastTXDate = as_date(ChangeDate),
-        #            DepartDate = as_date(ChangeDate))%>%
-        #     select(-ChangeDate, -ScopeType,-maxtime, -RecordingInstitution )%>%
-        #     distinct()
-        # }else{indloc<-indglobloc}
-        # 
-        # data_sel <- data_sel%>%
-        #   rows_update(indloc, by="anonID")%>%
-        #   filter(FirstCollectionScopeType == "Global")%>%
-        #   filter(str_detect(birthType ,"Captive"))
-
-  
-  
-  
-  
-  
-  
+  sexDat <- list(summary = summar, data = data_sel)
   
   return(sexDat)
 }
 ```
 
-```{r examples-my_fun}
-my_fun()
+```{r examples-select_species}
+data(core)
+data(collection)
+out<- select_species(species = "Gorilla gorilla gorilla", coresubset = core, collection,
+                     minDate = "1980-01-01", extractDate = "2023-01-01")
+out$summary
+out$data
 ```
 
-```{r tests-my_fun}
-test_that("my_fun works", {
-
+```{r tests-select_species}
+test_that("select_species works", {
+  data(core)
+  data(collection)
+  out<- select_species (species = "Gorilla gorilla",
+                        coresubset = core, collection,
+                        minDate = "1980-01-01", extractDate = "2023-01-01")
+  expect_named(out, c("summary",  "data"))
+  expect_named(out$summary, c("Nraw", "Ndate", "Nglobal", "Nalive",    "firstDate", "maxAgeraw", "extractdate"))
+  expect_equal(out$summary$Nraw,200)
+  expect_equal(out$summary$Ndate,200)
+  expect_equal(out$summary$Nalive,0)
+  expect_named(out$data, names(core))
+  expect_equal(nrow(out$data),out$summary$Nglobal)
+  expect_true(is.numeric(out$summary$maxAgeraw))
+  expect_true(is.date(out$summary$firstDate))
+  
 })
 ```
 
 
 
-# my_fun
+# Gap analysis in longevity
 
-```{r function-my_fun}
-#' my_fun Title
+`select_Longthreshold()` runs a gap analysis on the distribution of longevity and gives the threshold value to use in this distribution to avoid having gaps in longevity. It plots the distribution of longevities with gaps. It can focus on a given sex using the following arguments:
+
+*  `data.core`including at least the following columns *Birth.Date*, *Depart.Date*, *Entry.Date*, and *Sex*
+* `sexCats` Male, Female or All
+* `PlotDir` Directory to save the plots
+* `maintitle` name of the graph to be saved
+* ` minN` Minimum number of individuals
+
+It returns the data with the selected sex and additional columns showing which individuals are above the percentiles 95%, 99% and 99.9%
+and a summary list including the threshold value selected for the distribution of longevity.
+
+```{r function-select_Longthreshold}
+#' Gap analysis in longevity
+#' 
+#' Run a gap analysis on the distribution of longevity and give the threshold value to use in this distribution to avoid having gaps in longevities. Plot the distribution of longevities with gaps.
+#' 
+#' @param data.core \code{data.frame} including at least the following columns *Birth.Date* (\code{date}), *Depart.Date* (\code{date}), *Entry.Date* (\code{date}), and *Sex*
+#' @param sexCats \code{character} Male, Female or All Default =  "All"
+#' @param PlotDir \code{character} Directory to save the plots. Default = ""
+#' @param maintitle \code{character} name of the graph to be saved. Default = ""
+#' @param minN \code{numeric} Minimum number of individuals. Default = 50
 #'
-#' @return 1
+#' @return A list including
+#' * the data with the selected sex and additional columns showing which individuals are above the percentiles 95%, 99% and 99.9%
+#' * A summary list with:
+#' - Sex = the sex selected
+#' - Nglobal: the number of individuals of this sex
+#' - Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
+#' - GapThresh : The threshold value selected for the distribution of longevity
+#' - NThres : the number of individuals slected using this threshold
+#' 
 #' @export
 #'
 #' @examples
-my_fun <- function() {
-  1
+select_Longthreshold <- function(data.core,  sexCats = "All", 
+                                 PlotDir = "", maintitle = '', minN = 50) {
+  
+  assert_that(is.data.frame(data.core ))
+  assert_that(data.core  %has_name% c("BirthDate", "DepartDate",
+                                      "EntryDate", "Sex"))
+  assert_that(is.character(sexCats))
+  assert_that(length(sexCats)==1, 
+              msg = "You can chose only one sex category")
+  assert_that(all(sexCats %in% c("Female", "Male", "All")))
+  assert_that(is.character(PlotDir))
+  checkmate::assert_directory_exists(PlotDir)
+  
+  coresubset <- data.core%>%
+    mutate(
+      #longevities:
+      lifespans = as.numeric(DepartDate - BirthDate) / 365.25,
+      # Calculate time alive:
+      alive = as.numeric(DepartDate - EntryDate) / 365.25)
+  
+  # Output table:
+  outTab <- tibble( 
+    Sex = sexCats,
+    Nglobal = nrow(coresubset),
+    Nlifespan = 0,
+    GapThresh = NA, 
+    NThres = 0
+  ) 
+ 
+   if(sexCats %in% c('Male', 'Female')){
+    coresex <- coresubset%>%filter(Sex ==sexCats)
+  }else{coresex = coresubset}
+  
+  if(nrow(coresex)>0){
+  # Check longevities:
+  pdf(file = glue::glue("{PlotDir}\\{maintitle}_LongThres.pdf"), width = 3, height = 10)
+  par(mfrow = c(4,1))
+ 
+  quant = quantile (coresubset$lifespans,c(0.95,0.99,0.999))
+  
+  coresex <-  coresex%>%
+    mutate(`above95`= if_else(lifespans> quant[1], 1, 0),
+           `above99`= if_else(lifespans> quant[2], 1, 0),
+           `above99.9`= if_else(lifespans> quant[3], 1, 0)
+    )
+  
+  # Find gaps in longevities:
+  corelong <- coresex%>%tidyr::drop_na(lifespans)
+  outTab$Nlifespan <- nrow(corelong)
+  
+  
+  if (nrow(corelong) > minN) {
+    gapsAlive <- find_gaps(corelong$alive, 
+                           maxAlive = quantile(corelong$alive, 0.5, na.rm = TRUE), 
+                           plot = F)
+    if (nrow(gapsAlive) > 0) {
+      maxAlive <-  gapsAlive$iniAge[1]
+    } else {
+      maxAlive <- max(corelong$alive, na.rm = TRUE)
+    }
+    if (maxAlive < 5) {
+      maxAlive <- 5
+    } else if (maxAlive > 50) {
+      maxAlive <- 50
+    }
+    
+    par(mar = c(4, 4, 1, 1))
+    gaps <- find_gaps(corelong$lifespans, plot = T,
+                      main = maintitle, 
+                      xlab = "")
+    
+    
+    if (nrow(gaps) > 0) {
+      allev <- 0
+      while(ngap > 0 & allev < 3) {
+        allev <- allev + 1
+        qlev <- c("99.9", "99", "95")[allev]
+        abcol <- sprintf("above%s", qlev)
+        gaps <- find_gaps(corelong$lifespans[corelong[[abcol]] == 0], 
+                          maxAlive = maxAlive, plot = T,
+                          main = paste(qlev, "%"), 
+                          xlab = "")
+        
+      }
+      outTab$GapThresh <-as.numeric(qlev)
+      
+      if (allev < 3) {
+        for (ll in (allev + 1):3) {
+          qlev <- c("99.9", "99", "95")[ll]
+          abcol <- sprintf("above%s", qlev)
+          plot(c(0, 1), c(0, 1), col = NA, axes = FALSE, xlab = "", 
+               ylab = "", main = paste(qlev, "%"))
+          text(0.5, 0.5, "No gaps", cex = 2)
+          box()
+        }
+      }
+    } else {
+      outTab$GapThresh <-100
+      for (ll in 1:3) {
+        qlev <- c("99.9", "99", "95")[ll]
+        abcol <- sprintf("above%s", qlev)
+        plot(c(0, 1), c(0, 1), col = NA, axes = FALSE, xlab = "", 
+             ylab = "", main = paste(qlev, "%"))
+        text(0.5, 0.5, "No gaps", cex = 2)
+        box()
+      }
+    }
+    outTab$NThres <- nrow(coresex%>%filter())
+    
+    
+    
+  } else {
+    par(mar = c(4, 4, 1, 1))
+    for (inpl in 1:4) {
+      plot(c(0, 1), c(0, 1), col = NA, axes = FALSE, xlab = "", ylab ="")
+      text(0.5, 0.5, "No data")
+    }
+  }
+  
+  dev.off()
+  }
+  return(list(summar = outTab, data = coresex) )
+}
+
+
+
+```
+
+```{r examples-select_Longthreshold}
+TempDir <- paste0(tempdir(check = TRUE),'\\temp')
+dir.create(TempDir)
+data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
+out <- select_Longthreshold (data.core = core,  sexCats = "All", 
+                             PlotDir = TempDir, maintitle = 'Gorilla_gorilla')
+list.files(TempDir)
+#remove temporary folder
+unlink(TempDir, recursive = TRUE)
+```
+
+```{r tests-select_Longthreshold}
+test_that("select_Longthreshold works", {
+  TempDir <- paste0(tempdir(check = TRUE),'\\temp')
+  dir.create(TempDir)
+  data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
+  out <- select_Longthreshold (data.core = core,  sexCats = "All", 
+                               PlotDir = TempDir, maintitle = 'Gorilla_gorilla')
+  expect_true(file.exists(paste(TempDir, 'Gorilla_gorilla_LongThres.pdf', sep = '\\')))
+  #remove temporary folder
+  unlink(TempDir, recursive = TRUE)
+  expect_named(out, c("summar",  "data"))
+  expect_true("above95" %in% names(out$data))
+  expect_named(out$summar, c("Sex", "Nglobal", "Nlifespan", "GapThresh", "NThres"))
+  expect_true(out$summar$Sex == "All" )
+  expect_equal(out$summar$Nglobal, nrow(core))
+unlink(TempDir, recursive = TRUE)
+})
+```
+
+
+## Find gaps in a continuous variable
+
+`find_gaps` Looks for gaps within a continuous variable. Number are rounded and gaps are found if one number is not represented. Gaps are returned only if the length of the gaps is 20% higher than the starting age of this gap. It uses the following arguments:
+
+* `x` variable to analyze
+* `maxAlive` Return gaps higher than this maximum, only. Default = NA
+* other arguments pass to `hist()`
+
+It returns a data frame where each line is a gap described by its initial/starting age, its final/ending age and its length
+
+```{r function-find_gaps}
+#' Find gaps in an integer variable
+#' 
+#' Looks for gaps within a continuous variable. Number are rounded and gaps are found if one number is not represented. Gaps are returned only if the length of the gaps is 20% higher than the starting age of this gap.
+#'
+#' @param x \code{vector of numeric} variable to analyze
+#' @param maxAlive \code{numeric} Return gaps higher than this maximum, only. Default = NA
+#' @param plot \code{logical} whether to actually plot the histogram
+#' @param ... arguments pass to hist()
+#'
+#' @return
+#' A data frame where each line is a gap described by its initial/starting age, its final/ending age and its length
+#' 
+#' @export
+#'
+#' @importFrom graphics abline box hist par text
+#'
+#' @examples
+find_gaps <- function(x,maxAlive = NA, plot = FALSE,...) {
+  
+  assert_that(is.numeric(x))
+  if(is.na(maxAlive)){
+    maxAlive = max(x)
+  }else{
+    assert_that(is.numeric(maxAlive))}
+  
+  
+  breaks <- floor(min(x, na.rm = TRUE)):ceiling(max(x, na.rm = TRUE))
+  hs <- hist(x, breaks = breaks, plot = plot, ...)
+  xc <- hs$counts
+  xc[hs$counts > 0] <- 1
+  
+  fin <- FALSE
+  i <- 1
+  n <- length(xc)
+  gaps <- tibble(iniAge= numeric(1), finAge= numeric(1), Gap= numeric(1))
+  while(!fin & i < n) {
+    id0st <- which(xc[i:n] == 0)[1]
+    if (!is.na(id0st)) {
+      id0fin <- which(xc[(i + id0st - 1):n] == 1)[1] - 1
+      gaps <- rbind(gaps, c(hs$breaks[i + id0st - 1], 
+                            hs$breaks[i + id0st + id0fin - 2], id0fin))
+      i <- i + id0st + id0fin - 1
+    } else {
+      fin <- TRUE
+    }
+  }
+  if(is.na(maxAlive))(maxAlive = max(x))
+  
+  idgap <- gaps%>%
+    filter(Gap/iniAge > 0.2 ,
+           iniAge  >= maxAlive)
+  
+  if (nrow(idgap) > 0 & plot) {abline(v = idgap$iniAge, col = 2)}
+  return(idgap)
 }
 ```
 
-```{r examples-my_fun}
-my_fun()
+```{r examples-find_gaps}
+x = runif(10,0,40)
+out<-find_gaps(x,maxAlive = 5, plot = FALSE)
 ```
 
-```{r tests-my_fun}
-test_that("my_fun works", {
-
+```{r tests-find_gaps}
+test_that("find_gaps works", {
+  x = runif(10,0,40)
+  out<-find_gaps(x,maxAlive = 5, plot = FALSE)
+  expect_named(out,c('iniAge', 'finAge', 'Gap'))
+  expect_equal(out$finAge-out$iniAge+1, out$Gap)
 })
 ```
+
 
 
 ```{r development-inflate, eval=FALSE}
 # Run but keep eval=FALSE to avoid infinite loop
 # Execute in the console directly
-fusen::inflate(flat_file = "dev/flat_additional.Rmd", vignette_name = "Go further")
+fusen::inflate(flat_file = "dev/flat_select.Rmd", vignette_name = "Data Selection")
 ```
 

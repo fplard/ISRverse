@@ -10,7 +10,6 @@ Gro_cleanmeasures(
   BirthType = "All",
   type = "weight",
   MeasureType = NULL,
-  sex = "All",
   mindate = "1980-01-01",
   corevariable = NULL,
   variablekeep = NULL
@@ -26,8 +25,6 @@ Gro_cleanmeasures(
 \item{type}{\code{character} Either 'weight' or 'length'. Default =  'weight}
 
 \item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.}
-
-\item{sex}{\code{character} Male, Female or All Default =  "All"}
 
 \item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
@@ -55,6 +52,5 @@ data(core)
 data_weights= Gro_cleanmeasures(raw_weights, core,
                                 BirthType = "All",
                                 MeasureType = 'Live weight',
-                                sex = "All", 
                                 mindate = "1980-01-01")
 }
