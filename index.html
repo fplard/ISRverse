@@ -19,7 +19,7 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -45,15 +45,24 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/go-further.html">Go further</a>
+      <a href="articles/data-selection.html">Data Selection</a>
     </li>
     <li>
       <a href="articles/growth.html">Growth</a>
+    </li>
+    <li>
+      <a href="articles/reproduction.html">Reproduction</a>
+    </li>
+    <li>
+      <a href="articles/survival.html">Survival</a>
+    </li>
+    <li>
+      <a href="articles/taxon-profiles.html">Taxon profiles</a>
     </li>
   </ul>
 </li>
@@ -61,14 +70,7 @@
   <a href="news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/fplard/ISRverse/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -76,7 +78,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
@@ -85,12 +87,22 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of ISRverse is to …</p>
+<p>ISRverse can be used to run taxon profiles for Species360. It proposes tools to :</p>
+<ul>
+<li>Load Zims data</li>
+<li>Run the main demographic analyses: survival, reproduction and growth models</li>
+<li>Run the taxon profile analyses</li>
+</ul>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of ISRverse from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>First you will need install paramDemo from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="co"># library(devtools)</span></span>
+<span><span class="fu">install_git</span><span class="op">(</span><span class="st">"https://github.com/fercol/paramDemo"</span>, subdir <span class="op">=</span> <span class="st">"pkg/"</span><span class="op">)</span></span></code></pre></div>
+<p>You can install the development version of ISRverse from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"fplard/ISRverse"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -98,47 +110,352 @@
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <p>Full documentation website on: <a href="https://fplard.github.io/ISRverse" class="external-link uri">https://fplard.github.io/ISRverse</a></p>
+<p>You can also open the documentation locally on your machine using</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"site"</span>, <span class="st">"index.html"</span>, package <span class="op">=</span> <span class="st">"ISRverse"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="tutorial-for-reproduction">Tutorial for reproduction<a class="anchor" aria-label="anchor" href="#tutorial-for-reproduction"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/fplard/ISRverse" class="external-link">ISRverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in library(ISRverse): aucun package nommé 'ISRverse' n'est trouvé</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
-<p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cars</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      speed           dist       </span></span>
-<span><span class="co">#&gt;  Min.   : 4.0   Min.   :  2.00  </span></span>
-<span><span class="co">#&gt;  1st Qu.:12.0   1st Qu.: 26.00  </span></span>
-<span><span class="co">#&gt;  Median :15.0   Median : 36.00  </span></span>
-<span><span class="co">#&gt;  Mean   :15.4   Mean   : 42.98  </span></span>
-<span><span class="co">#&gt;  3rd Qu.:19.0   3rd Qu.: 56.00  </span></span>
-<span><span class="co">#&gt;  Max.   :25.0   Max.   :120.00</span></span></code></pre></div>
-<p>You’ll still need to render <code>README.Rmd</code> regularly, to keep <code>README.md</code> up-to-date. <code>devtools::build_readme()</code> is handy for this.</p>
-<p>You can also embed plots, for example:</p>
-<div class="figure">
-<img src="reference/figures/README-pressure-1.png" alt="plot of chunk pressure" width="100%"><p class="caption">
-plot of chunk pressure
-</p>
+<div class="section level3">
+<h3 id="age-at-first-reproduction">Age at first reproduction<a class="anchor" aria-label="anchor" href="#age-at-first-reproduction"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tidyvserse</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># CHANGE THIS to Path to the ZIMSdata directory: </span></span>
+<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/"</span></span>
+<span><span class="va">extractDate</span> <span class="op">=</span> <span class="st">"2023-12-04"</span></span>
+<span><span class="va">minDate</span> <span class="op">=</span> <span class="st">"1980-01-01"</span></span>
+<span><span class="va">Global</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span></span>
+<span><span class="va">taxa</span> <span class="op">=</span> <span class="st">"Mammalia"</span></span>
+<span><span class="va">List_species</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxa</span>, ZIMSdir <span class="op">=</span> <span class="va">ZIMSdir</span>, </span>
+<span>              extractDate <span class="op">=</span> <span class="va">extractDate</span>, </span>
+<span>              type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'core'</span>, <span class="st">'collections'</span>, <span class="st">'parent'</span>, <span class="st">'moves'</span><span class="op">)</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">Tab</span> <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">species</span> <span class="kw">in</span> <span class="va">List_species</span><span class="op">)</span><span class="op">{</span></span>
+<span>  </span>
+<span>  <span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_species.html">select_species</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">core</span>, <span class="va">collection</span>,</span>
+<span>                         minDate <span class="op">=</span> <span class="va">minDate</span> , extractDate <span class="op">=</span> <span class="va">extractDate</span>,</span>
+<span>                         Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span> </span>
+<span>  </span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">sx</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>    </span>
+<span>    <span class="kw">if</span><span class="op">(</span><span class="va">sx</span> <span class="op">!=</span> <span class="st">"All"</span><span class="op">)</span><span class="op">{</span></span>
+<span>      <span class="va">coresubset</span> <span class="op">&lt;-</span> <span class="va">core</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Sex</span> <span class="op">==</span> <span class="va">sx</span><span class="op">)</span></span>
+<span>    <span class="op">}</span><span class="kw">else</span><span class="op">{</span><span class="va">coresubset</span> <span class="op">&lt;-</span> <span class="va">core</span><span class="op">}</span></span>
+<span>    <span class="co">#prepare Reproduction data</span></span>
+<span>    <span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_prepdata.html">Rep_prepdata</a></span><span class="op">(</span>coresubset <span class="op">=</span> <span class="va">coresubset</span>, </span>
+<span>                         <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>,</span>
+<span>                         BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>,</span>
+<span>                         Age_uncert <span class="op">=</span> <span class="fl">365</span>, Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span></span>
+<span>    <span class="co">#Calculate reproductive age statistics</span></span>
+<span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>      <span class="fu">mutate</span><span class="op">(</span>Species <span class="op">=</span> <span class="va">species</span>,</span>
+<span>             Class <span class="op">=</span> <span class="va">taxa</span>,</span>
+<span>             Sex <span class="op">=</span> <span class="va">sx</span><span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">TAB</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">TAB</span>, <span class="va">out</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">TAB</span></span></code></pre></div>
 </div>
-<p>In that case, don’t forget to commit and push the resulting figure files, so they display on GitHub and CRAN.</p>
+</div>
+<div class="section level2">
+<h2 id="tutorial-to-run-taxon-profiles">Tutorial to run Taxon profiles<a class="anchor" aria-label="anchor" href="#tutorial-to-run-taxon-profiles"></a>
+</h2>
+<div class="section level3">
+<h3 id="set-up-your-rstudio-environnement">Set up your Rstudio environnement<a class="anchor" aria-label="anchor" href="#set-up-your-rstudio-environnement"></a>
+</h3>
+<p>Use the correct directories to find data and run the analyses</p>
+<div class="section level4">
+<h4 id="on-your-own-computer">On your own computer<a class="anchor" aria-label="anchor" href="#on-your-own-computer"></a>
+</h4>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Path to the ZIMSdata directory:</span></span>
+<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/"</span></span>
+<span></span>
+<span><span class="va">analysisDir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/Data/ISR"</span></span>
+<span></span>
+<span><span class="co"># ISR data directory:</span></span>
+<span><span class="va">ISRdatDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sISRdata/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Global data directory:</span></span>
+<span><span class="va">globDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sglobal/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="on-ucloud">On Ucloud<a class="anchor" aria-label="anchor" href="#on-ucloud"></a>
+</h4>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Install libraries:</span></span>
+<span><span class="va">instPacks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"snowfall"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"snowfall"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"RColorBrewer"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RColorBrewer"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"rjson"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rjson"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"ggpubr"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggpubr"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co"># Set one thread (core) for BLAS operations: </span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"RhpcBLASctl"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RhpcBLASctl"</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://prs.ism.ac.jp/~nakama/Rhpc/" class="external-link">RhpcBLASctl</a></span><span class="op">)</span></span>
+<span>  <span class="fu">blas_set_num_threads</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># if (!"extractZIMS" %in% instPacks) {</span></span>
+<span><span class="co">#   install.packages("/work/Species360/Rpackages/latestVersion/extractZIMS_0.1.1.tar.gz", </span></span>
+<span><span class="co">#                    type = "source", repos = NULL)</span></span>
+<span><span class="co"># }</span></span>
+<span><span class="co"># if (!"paramDemo" %in% instPacks) {</span></span>
+<span><span class="co">#   install.packages("/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz", </span></span>
+<span><span class="co">#                    type = "source", repos = NULL)</span></span>
+<span><span class="co"># }</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"BaSTA2.0"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"/work/Species360/Rpackages/latestVersion/BaSTA2.0_2.0.0.tar.gz"</span>, </span>
+<span>                   type <span class="op">=</span> <span class="st">"source"</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"ISRverse"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"/work/Species360/Rpackages/latestVersion/ISRverse_1.0.0.tar.gz"</span>, </span>
+<span>                   type <span class="op">=</span> <span class="st">"source"</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co"># Set one thread (core) for BLAS operations: </span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"RhpcBLASctl"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RhpcBLASctl"</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://prs.ism.ac.jp/~nakama/Rhpc/" class="external-link">RhpcBLASctl</a></span><span class="op">)</span></span>
+<span>  <span class="fu">blas_set_num_threads</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Path to the ZIMSdata directory:</span></span>
+<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"/work/Species360/ZIMSdata_ext231204/"</span></span>
+<span></span>
+<span><span class="co"># General directory:</span></span>
+<span><span class="va">analysisDir</span> <span class="op">&lt;-</span> <span class="st">"/work/Species360/ISR/"</span></span>
+<span></span>
+<span><span class="co"># ISR data directory:</span></span>
+<span><span class="va">ISRdatDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sISRdata/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Global data directory:</span></span>
+<span><span class="va">globDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sglobal/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="libraries">Libraries<a class="anchor" aria-label="anchor" href="#libraries"></a>
+</h3>
+<p>Download the needed libraries</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BaSTA2.0</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">snowfall</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/alexcb/rjson" class="external-link">rjson</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringi.gagolewski.com/" class="external-link">stringi</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/" class="external-link">ggpubr</a></span><span class="op">)</span></span>
+<span><span class="co"># library(paramDemo)</span></span>
+<span><span class="co"># library(extractZIMS)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="choose-important-arguments">Choose important arguments<a class="anchor" aria-label="anchor" href="#choose-important-arguments"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Data --------------------------------------------</span></span>
+<span><span class="va">extractDate</span> <span class="op">=</span> <span class="st">"2024-07-01"</span></span>
+<span></span>
+<span><span class="co"># List of taxa to analyze -------------------------</span></span>
+<span><span class="va">taxaList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mammalia"</span>, <span class="st">"Aves"</span>, <span class="st">"Reptilia"</span>, <span class="st">"Amphibia"</span>, </span>
+<span>              <span class="st">"Chondrichthyes"</span>, <span class="st">"Actinopterygii"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sex categories ----------------------------------</span></span>
+<span><span class="va">BySex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
+<span>           Aves <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
+<span>           Reptilia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
+<span>           Amphibia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
+<span>           Chondrichthyes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
+<span>           Actinopterygii <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co">#Filters ----------------------------------</span></span>
+<span><span class="co"># Earliest date to include records</span></span>
+<span><span class="va">minDate</span> <span class="op">&lt;-</span> <span class="st">"1980-01-01"</span></span>
+<span><span class="co"># Minimum number of individuals to run the taxon profile</span></span>
+<span><span class="va">minN</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
+<span><span class="co"># Maximum threshold in the longevity distribution to use</span></span>
+<span><span class="va">maxOutl</span> <span class="op">&lt;-</span> <span class="fl">99</span> </span>
+<span></span>
+<span></span>
+<span><span class="co">#      Survival Models --------------------------------</span></span>
+<span><span class="va">models_sur</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"LO"</span><span class="op">)</span></span>
+<span><span class="va">shape</span> <span class="op">=</span> <span class="st">"bathtub"</span></span>
+<span></span>
+<span><span class="co"># Number of CPUS:</span></span>
+<span><span class="va">ncpus</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
+<span></span>
+<span><span class="co"># MCMC settings:</span></span>
+<span><span class="va">niter</span> <span class="op">&lt;-</span> <span class="fl">25000</span></span>
+<span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">5001</span></span>
+<span><span class="va">thinning</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
+<span></span>
+<span><span class="co"># Conditions to run the survival analysis</span></span>
+<span><span class="va">minNsur</span> <span class="op">=</span> <span class="fl">50</span> <span class="co">#Minimum number of individuals</span></span>
+<span><span class="va">minlx</span> <span class="op">=</span> <span class="fl">0.1</span>  <span class="co">#Minimum survivorship reach by raw life table</span></span>
+<span><span class="va">MinBirthKnown</span> <span class="op">=</span> <span class="fl">0.3</span> <span class="co">#Minimum proportions of known birth date (within a month)</span></span>
+<span></span>
+<span><span class="co">#     Reproduction Models ------------------------------</span></span>
+<span><span class="co"># Conditions to run the reproduction analysis</span></span>
+<span><span class="va">parentProb</span> <span class="op">=</span> <span class="fl">80</span></span>
+<span><span class="va">minNrepro</span> <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="va">minNparepro</span> <span class="op">=</span> <span class="fl">30</span></span>
+<span><span class="va">minNseas</span> <span class="op">=</span> <span class="fl">50</span></span>
+<span></span>
+<span><span class="co">#      Growth Models -----------------------------------</span></span>
+<span><span class="va">models_gro</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"LO"</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># Measure type to select</span></span>
+<span><span class="va">MeasureType</span> <span class="op">=</span> <span class="st">""</span></span>
+<span></span>
+<span><span class="co"># Conditions to run the growth analysis</span></span>
+<span><span class="va">minNgro</span> <span class="op">=</span> <span class="fl">100</span> <span class="co">#Minimum number of individuals</span></span>
+<span><span class="va">minNIgro</span> <span class="op">=</span> <span class="fl">50</span> <span class="co">#Minimum number of weights</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="other-inputs">Other Inputs<a class="anchor" aria-label="anchor" href="#other-inputs"></a>
+</h3>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Table with species that require rerruning with higher outlier level:</span></span>
+<span><span class="va">maxOutLev</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"ISRanalysisData/tables/maxOutlierLevel.csv"</span>, header <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                      stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">spOutLev</span> <span class="op">&lt;-</span> <span class="va">maxOutLev</span><span class="op">$</span><span class="va">Specie</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="run-taxon-profiles-by-taxa">Run taxon profiles by taxa<a class="anchor" aria-label="anchor" href="#run-taxon-profiles-by-taxa"></a>
+</h3>
+<p>You cannot run all taxa at once due to the computational resources needed. But you can choose to run per taxa (option 1) or you can also separate species for each taxa to run it in parallel on different computer (option 2)</p>
+<p>For all options, you can choose which analysis to run using the argument <code>Sections</code> giving the name of the sections to run/update in the taxon profile results: “sur”, “rep” and/or “gro”</p>
+<div class="section level4">
+<h4 id="option-1-run-all-species-of-one-taxa">Option 1: Run all species of one taxa<a class="anchor" aria-label="anchor" href="#option-1-run-all-species-of-one-taxa"></a>
+</h4>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="co">#Sections to run or to update</span></span>
+<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxa</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdir</span>, <span class="va">analysisDir</span>,</span>
+<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, </span>
+<span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
+<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
+<span>               minN <span class="op">=</span> <span class="va">minN</span>,  maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>,</span>
+<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
+<span>               models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
+<span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
+<span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
+<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
+<span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
+<span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
+<span>               model_gro <span class="op">=</span> <span class="va">model_gro</span></span>
+<span>               </span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="option-2-run-one-or-a-group-of-species-from-one-taxa">Option 2: Run one or a group of species from one taxa<a class="anchor" aria-label="anchor" href="#option-2-run-one-or-a-group-of-species-from-one-taxa"></a>
+</h4>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="co">#Sections to run or to update</span></span>
+<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
+<span><span class="va">Species_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Panthera leo'</span>, <span class="st">'Panthera uncia'</span>, <span class="st">'Panthera tigra'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxa</span>, Species_list <span class="op">=</span> <span class="va">Species_list</span>, <span class="va">ZIMSdir</span>, <span class="va">analysisDir</span>,</span>
+<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, </span>
+<span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
+<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
+<span>               minN <span class="op">=</span> <span class="va">minN</span>,  maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>,</span>
+<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
+<span>               models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
+<span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
+<span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
+<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
+<span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
+<span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
+<span>               model_gro <span class="op">=</span> <span class="va">model_gro</span></span>
+<span>               </span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="option-3-run-all-species-from-one-taxa-in-parallel-on-different-computers">Option 3: Run all species from one taxa in parallel on different computers<a class="anchor" aria-label="anchor" href="#option-3-run-all-species-from-one-taxa-in-parallel-on-different-computers"></a>
+</h4>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Run this code changing ipara on each different computer</span></span>
+<span><span class="co"># for example on the first computer:</span></span>
+<span><span class="va">ipara</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span></span>
+<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="co">#Sections to run or to update</span></span>
+<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
+<span><span class="co">#Number of different computers</span></span>
+<span><span class="va">XX</span> <span class="op">=</span> <span class="fl">3</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxa</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdir</span>, <span class="va">analysisDir</span>,</span>
+<span>               inparallel <span class="op">=</span> <span class="cn">TRUE</span>, ipara <span class="op">=</span> <span class="va">ipara</span>, npara <span class="op">=</span> <span class="va">XX</span>, </span>
+<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, </span>
+<span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
+<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
+<span>               minN <span class="op">=</span> <span class="va">minN</span>,  maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>,</span>
+<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
+<span>               models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
+<span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
+<span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
+<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
+<span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
+<span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
+<span>               model_gro <span class="op">=</span> <span class="va">model_gro</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="run-taxon-profiles-by-taxa-1">Run taxon profiles by taxa<a class="anchor" aria-label="anchor" href="#run-taxon-profiles-by-taxa-1"></a>
+</h3>
+</div>
+<div class="section level3">
+<h3 id="group-all-outputs-in-one-compressed-file">Group all outputs in one compressed file<a class="anchor" aria-label="anchor" href="#group-all-outputs-in-one-compressed-file"></a>
+</h3>
+</div>
+<div class="section level3">
+<h3 id="to-json">To Json<a class="anchor" aria-label="anchor" href="#to-json"></a>
+</h3>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="fu">toJSON</span><span class="op">(</span><span class="va">repout</span><span class="op">)</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"ISRdata/global/json/%s.json"</span>, </span>
+<span>                                     <span class="va">repout</span><span class="op">$</span><span class="va">general</span><span class="op">$</span><span class="va">speciesID</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="links">
-<h2 data-toc-skip>Links</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/fplard/ISRverse/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/fplard/ISRverse/issues" class="external-link">Report a bug</a></li>
-</ul>
-</div>
-
-<div class="license">
+    <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>file <a href="LICENSE-text.html">LICENSE</a>
@@ -187,16 +504,16 @@ plot of chunk pressure
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
