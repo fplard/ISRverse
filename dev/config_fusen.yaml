@@ -1,0 +1,133 @@
+flat_growth.Rmd:
+  path: dev/flat_growth.Rmd
+  state: active
+  R:
+  - R/gro_analysis.R
+  - R/gro_cleanmeasures.R
+  - R/gro_fitlog.R
+  - R/gro_lin_ind.R
+  - R/gro_main.R
+  - R/gro_modsettings.R
+  - R/gro_outplot.R
+  - R/gro_plot.R
+  - R/gro_remoutliers.R
+  - R/gro_rout_quan.R
+  tests:
+  - tests/testthat/test-gro_main.R
+  - tests/testthat/test-gro_cleanmeasures.R
+  - tests/testthat/test-gro_remoutliers.R
+  - tests/testthat/test-gro_rout_quan.R
+  - tests/testthat/test-gro_lin_ind.R
+  - tests/testthat/test-gro_outplot.R
+  - tests/testthat/test-gro_analysis.R
+  - tests/testthat/test-gro_fitlog.R
+  - tests/testthat/test-gro_modsettings.R
+  - tests/testthat/test-gro_plot.R
+  vignettes: vignettes/growth.Rmd
+  inflate:
+    flat_file: dev/flat_growth.Rmd
+    vignette_name: Growth
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
+flat_main.Rmd:
+  path: dev/flat_main.Rmd
+  state: active
+  R:
+  - R/load_zimsdata.R
+  - R/make_summary.R
+  - R/run_txprofile.R
+  tests:
+  - tests/testthat/test-run_txprofile.R
+  - tests/testthat/test-make_summary.R
+  - tests/testthat/test-load_zimsdata.R
+  vignettes: vignettes/taxon-profiles.Rmd
+  inflate:
+    flat_file: dev/flat_main.Rmd
+    vignette_name: Taxon profiles
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
+flat_repro.Rmd:
+  path: dev/flat_repro.Rmd
+  state: active
+  R:
+  - R/my_fun.R
+  - R/rep_agemat.R
+  - R/rep_fert.R
+  - R/rep_littersize.R
+  - R/rep_prepdata.R
+  - R/rep_season.R
+  - R/rep_main.R
+  tests:
+  - tests/testthat/test-rep_main.R
+  - tests/testthat/test-rep_agemat.R
+  - tests/testthat/test-rep_littersize.R
+  - tests/testthat/test-rep_fert.R
+  - tests/testthat/test-rep_prepdata.R
+  - tests/testthat/test-rep_season.R
+  - tests/testthat/test-my_fun.R
+  vignettes: vignettes/reproduction.Rmd
+  inflate:
+    flat_file: dev/flat_repro.Rmd
+    vignette_name: Reproduction
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
+flat_select.Rmd:
+  path: dev/flat_select.Rmd
+  state: active
+  R:
+  - R/find_gaps.R
+  - R/select_longthreshold.R
+  - R/select_species.R
+  - R/tx_report.R
+  tests:
+  - tests/testthat/test-tx_report.R
+  - tests/testthat/test-select_species.R
+  - tests/testthat/test-select_longthreshold.R
+  - tests/testthat/test-find_gaps.R
+  vignettes: vignettes/data-selection.Rmd
+  inflate:
+    flat_file: dev/flat_select.Rmd
+    vignette_name: Data Selection
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
+flat_survival.Rmd:
+  path: dev/flat_survival.Rmd
+  state: active
+  R:
+  - R/sur_ana.R
+  - R/sur_main.R
+  - R/sur_ple.R
+  - R/sur_relex.R
+  - R/surv_bastab.R
+  tests:
+  - tests/testthat/test-sur_main.R
+  - tests/testthat/test-sur_ana.R
+  - tests/testthat/test-surv_bastab.R
+  - tests/testthat/test-sur_ple.R
+  - tests/testthat/test-sur_relex.R
+  vignettes: vignettes/survival.Rmd
+  inflate:
+    flat_file: dev/flat_survival.Rmd
+    vignette_name: Survival
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask
+keep:
+  path: keep
+  state: active
+  R:
+  - R/ISRverse-package.R
+  - R/utils-pipe.R
+  - R/utils.R
+  - R/zzz.R
+  tests: []
+  vignettes: []

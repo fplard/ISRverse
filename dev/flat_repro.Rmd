@@ -1,0 +1,835 @@
+---
+title: "Reproduction"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+```
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+# Rep_main
+
+```{r function-Rep_main}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+# Rep_main <- function() {
+#   # Find institutions and their hemisphere:
+#   Inst <- newcore$firstInst
+#   idinst <- which(as.character(.institution$AnonInstitutionID) %in% Inst)
+#   subinst <- .institution[idinst, ]
+#   rownames(subinst) <- as.character(subinst$AnonInstitutionID)
+#   subinst <- subinst[Inst, ]  
+#   
+#   # Find which are from the northern and southern hemisphere:
+#   idnorth <- which(subinst$Latitude > 0)
+#   idsouth <- which(subinst$Latitude < 0)
+#   Hemisph <- rep(NA, nrow(subinst))
+#   Hemisph[idnorth] <- "North"
+#   Hemisph[idsouth] <- "South"
+#   instHemisph <- data.frame(AnonInstID = subinst$AnonInstitutionID, 
+#                             Continent = subinst$Continent, 
+#                             Country = subinst$Country, 
+#                             Hemisph = Hemisph)
+#   
+#   
+#   # Extract contraception method:
+#   idIncont <- which(as.character(.contraception$` AnonID`) %in% 
+#                       as.character(newcore$anonID))
+#   subContra <- .contraception[idIncont, ]
+#   nContra <- length(idIncont)
+#   method <- rep("NA", nContra)
+#   genMethod <- c("hormonal", "surgical", "immunological", "Management", 
+#                  "Indeterminate", "Undetermined")
+#   methodTransl <- c("Hormonal", "Surgical", "Immunological", "Management", 
+#                     "Undetermined", "Undetermined")
+#   nMeth <- length(genMethod)
+#   for (ii in 1:nMeth) {
+#     idm <- grep(genMethod[ii], subContra$Method)
+#     method[idm] <- methodTransl[ii]
+#   }
+#   genStatus <- c("Inactive", "Active", "Undetermined", "Indeterminate")
+#   statusTransl <- c("Inactive", "Active", "Undetermined", "Undetermined")
+#   status <- rep(NA, nContra)
+#   for (ii in 1:nMeth) {
+#     idm <- grep(genStatus[ii], subContra$Status)
+#     status[idm] <- statusTransl[ii]
+#   }
+#   
+#   
+#   # Final contraception table:
+#   newContra <- data.frame(anonID = as.character(.contraception$` AnonID`)[idIncont],
+#                           date = as.Date(.contraception$Date)[idIncont], 
+#                           method = method, status = status)
+#   
+#   if(length(unique(subpar$currentInst))>1){
+#     if (fertSumm$NOffsp >= minNrepro) {
+#       if (fertSumm$NParent >= minNparepro) {
+#         
+#         #remove curretn inst to avoid duplicated lines
+#         subparfert <- subpar%>%
+#           select(-currentInst)%>%
+#           distinct()
+#         
+#         
+#         REp_agemat
+#         
+#         
+#       }}}
+#   
+#   
+#   
+# }
+```
+
+```{r examples-Rep_main}
+
+```
+
+```{r tests-Rep_main}
+test_that("Rep_main works", {
+  
+})
+```
+
+
+
+
+# Age at first reproduction
+
+`Rep_agemat()` returns summary statistics for ages of reproduction. It uses the following argument:
+* Reprodata, a data frame including at least the columns *ParentAnonID* and *ageBirth*
+
+```{r function-Rep_agemat}
+#' Age of reproduction
+#' 
+#' Returns summary statistcs for age of reproduction
+#'
+#' @param Reprodata \code{data frame} including at least the columns *ParentAnonID* and *ageBirth*
+#'
+#' @return A data frame including:
+#' * N_moth_agemat: Number of mothers used
+#' * N_birth_agemat : Number of births used
+#' * ageMat: age at first reproduction (i.e. when 2.5% of females have reproduced for the first time)
+#' * ageYouRep: Minimum age at first reproduction
+#' * ageOld1Rep: Maximum age at first reproduction
+#' * ageMean1Rep: Mean age at first reproduction
+#' * ageSd1Rep: Standard deviation of age at first reproduction
+#' * ageOldRep: Maximum age of reproduction
+#' * ageMeanRep: Mean age of reproduction 
+#' * ageSdRep: Standard deviation of age of reproduction 
+#' * ageMedRep: Median age of reproduction 
+#' * ageMeanRepIC: 95% confident interval of mean age of reproduction 
+#' * ageMean1RepIC: 95% confident interval of mean age at first reproduction 
+#' 
+#' @export
+#' @importFrom stats dist median var sd
+#'
+#' @examples
+Rep_agemat <- function(Reprodata) {
+  
+   assert_that(is.data.frame(Reprodata))
+  
+  assert_that(Reprodata %has_name% c("ParentAnonID", "ageBirth"))
+
+  
+  fertSumm <- tibble(N_moth_agemat = 0,N_birth_agemat = 0, 
+                     ageMat = NA,   
+                     ageYouRep = NA, ageOldRep = NA, 
+                     ageMean1Rep = NA,ageSd1Rep = NA, ageOld1Rep = NA,
+                     ageMeanRep = NA, ageSdRep= NA, ageMedRep = NA,
+                     ageMeanRepIC = NA, ageMean1RepIC = NA) 
+  
+  # Age at first reproduction:
+  TageMat <-  Reprodata%>%select(ParentAnonID, ageBirth)%>%
+    group_by(ParentAnonID)%>%
+    summarize(ageMat = min(ageBirth),
+              ageold = max(ageBirth))%>%
+    ungroup()
+    
+    fertSumm$N_moth_agemat  = nrow(TageMat)
+  fertSumm$N_birth_agemat  = nrow( Reprodata)
+  fertSumm$ageMat<- as.numeric(quantile(TageMat$ageMat, 0.025, 
+                                              na.rm = TRUE))
+  
+  fertSumm$ageYouRep= as.numeric(min(TageMat$ageMat, na.rm = TRUE))
+  fertSumm$ageOldRep= as.numeric(max( TageMat$ageold, na.rm = TRUE))
+  fertSumm$ageOld1Rep = as.numeric(max(TageMat$ageMat, na.rm = TRUE))
+  
+  fertSumm$ageMean1Rep = mean(as.numeric(TageMat$ageMat), na.rm = TRUE)
+  fertSumm$ageSd1Rep = sd(as.numeric(TageMat$ageMat), na.rm = TRUE)
+  fertSumm$ageMean1RepIC = list(fertSumm$ageMean1Rep +c(-1.96, 1.96)*sqrt(var(as.numeric(TageMat$ageMat), na.rm = TRUE)/nrow(TageMat)))
+  fertSumm$ageMeanRep = mean(as.numeric(Reprodata$ageBirth), na.rm = TRUE)
+  fertSumm$ageSdRep = sd(as.numeric(Reprodata$ageBirth), na.rm = TRUE)
+  fertSumm$ageMeanRepIC = list(fertSumm$ageMeanRep +c(-1.96, 1.96)*sqrt(var(as.numeric( Reprodata$ageBirth), na.rm = TRUE)/nrow(Reprodata)))
+  
+  fertSumm$ageMedRep =  median(as.numeric(Reprodata$ageBirth), na.rm = TRUE)
+  
+  return(fertSumm)
+}
+```
+
+```{r examples-Rep_agemat}
+data(core)
+data(collection)
+data(parent)
+data(moves)
+#prepare Data
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+#Calculate summary for reproductive ages
+out <- Rep_agemat(Data$Reprodata)
+out
+
+```
+
+```{r tests-Rep_agemat}
+test_that("Rep_agemat works", {
+  data(core)
+data(collection)
+data(parent)
+data(moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+out <- Rep_agemat(Data$Reprodata)
+
+expect_named(out, c("N_moth_agemat", "N_birth_agemat", "ageMat", "ageYouRep",
+                    "ageOldRep", "ageMean1Rep", "ageSd1Rep", "ageOld1Rep",
+                    "ageMeanRep", "ageSdRep", "ageMedRep", "ageMeanRepIC",
+                    "ageMean1RepIC"))
+expect_true(is.numeric(as.numeric(out[1:11])))
+expect_true(is.list(out[12]))
+expect_true(is.list(out[13]))
+})
+```
+
+
+
+
+# litter size
+
+```{r function-Rep_littersize}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+Rep_littersize <- function() {
+  littSumm <- list(NOffsp_prob = NULL,NParent_prob = NULL, 
+                   NReprEvent = NULL,
+                   analyzed = FALSE,error = "", Nerr= 0,
+                   MeanLittSize = NULL, MedLittSize = NULL)
+  
+  subpar <- subpar %>%
+    filter(Probability > parentProb)
+  littSumm$NOffsp_prob <- Nrepros <- length(unique(subpar$AnonID))
+  unParentID <- unique(subpar$ParentAnonID)
+  littSumm$NParent_prob <- Nparent <- length(unParentID)
+  
+  if (sx == "Female" | (sx == "All" & !forceBySex[taxa])) {
+    
+    if(length(unique(subpar$currentInst))>1){
+      
+      #remove curretn inst to avoid duplicated lines
+      subpar <- subpar%>%
+        select(-currentInst)%>%
+        distinct()
+      if (nrow(subpar)>= minNrepro)  {
+        
+        nindVec <- c()
+        parVec <- c()
+        parAgeVec <- c()
+        for (ip in 1:Nparent) {
+          idp <- which(subpar$ParentAnonID == unParentID[ip])
+          nIdp <- length(idp)
+          ibAge <-as.numeric(subpar$Offspring_BirthDate[idp] - subpar$Parent_BirthDate[idp])
+          ibSort <- sort(ibAge)
+          ibDiff <- as.numeric(diff(ibSort))
+          idNew <- which(ibDiff > 7)
+          repEv <- rep(0, nIdp)
+          repEv[1] <- 1
+          repEv[-1][idNew] <- 1
+          nRepEvs <- as.numeric(table(cumsum(repEv)))
+          parAgeVec <- c(parAgeVec, ibSort[which(repEv == 1)] / 365.25)
+          nindVec <- c(nindVec, c(nRepEvs))
+          parVec <- c(parVec, rep(unParentID[ip], length(nRepEvs)))
+        }
+        littSizeDf <- data.frame(parentID = parVec, age = parAgeVec, 
+                                 Noffsp = nindVec)
+        unNind <- min(nindVec):max(nindVec)
+        nind <- length(unNind)
+        littSize <- matrix(NA, nind, 3, 
+                           dimnames = list(NULL, c("littSize", "total", 
+                                                   "prop")))
+        littSize[, "littSize"] <- unNind
+        for (iof in 1:nind) {
+          littSize[iof, "total"] <- length(which(nindVec == unNind[iof]))
+        }
+        littSize[, "prop"] <- littSize[, "total"] / sum(littSize[, "total"], 
+                                                        na.rm = TRUE)
+        # Summary
+        littSumm$MeanLittSize =  mean(nindVec)
+        littSumm$MedLittSize = median(nindVec)
+        littSumm$analyzed = TRUE 
+        littSumm$NReprEvent= sum(littSize[, "total"])
+      }
+    }
+  }
+}
+```
+
+```{r examples-Rep_littersize}
+
+```
+
+```{r tests-Rep_littersize}
+test_that("Rep_littersize works", {
+  
+})
+```
+
+
+
+
+# fertility
+
+```{r function-Rep_fert}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+Rep_fert <- function() {
+  fertSumm <- list(NOffsp_age = 0,  NParent_age = 0,
+                   NOffsp_bd = 0,NParent_bd = 0,
+                   NOffsp_glob = 0,NParent_glob = 0,
+                   NOffsp = 0, NParent = 0, 
+                   NAdult = 0, NAdult_rep = 0, 
+                   analyzed = FALSE, 
+                   Nerr= 0, error = "",
+                   Prepmean = NULL , Fertmean = NULL) 
+  
+  
+  
+  
+  
+  
+  # Store summary:
+  fertSumm$analyzed = TRUE
+  
+  # Reproduction matrix:
+  ageFert <- matrix(0, length(ageVec), 15, 
+                    dimnames = list(NULL, c("Age", "NReprAdult", "NtotParent", 
+                                            "Prep", "SEprep","Plower","Pupper",
+                                            "Fert", "SEfert","Fertlower","Fertupper",
+                                            "SexRatio", "SEsexratio","SRlower","SRupper")))
+  ageFert[, "Age"] <- ageVec
+  Nadstot= Npartot = 0
+  for (ix in 1:length(ageVec)) {
+    xx <- ageVec[ix]
+    Nads <- nrow(ADULTS%>%
+                   filter(Age == xx,
+                          contra == FALSE))
+    
+    subage<- subparfert%>% filter(ageBirthDisc == xx)
+    Npar = length(unique(subage$ParentAnonID))
+    Npartot = Npartot+Npar
+    if (Nads > 0 & Npar >0) {
+      tot <- subage %>% group_by(ParentAnonID)%>% 
+        summarize (rep = max(Probability)/100)
+      prepr <- sum(tot$rep) / Nads
+      Nadstot= Nadstot+Nads
+      fertRate <- sum(subage$Probability)/100 / Npar
+      temp = subage%>% group_by(ParentAnonID)%>%summarize(A = sum(Probability)/100, N = n()^2)
+      Vfert = sum(temp$A*temp$N) / Npar - fertRate^2
+      sr <- length(which(subage$Sex == "Female"))/ length(which(subage$Sex  %in% c("Female", "Male")))
+      if (fertRate > 1) {
+        if(Vfert>0){
+          fertSE <-sqrt(Vfert / Npar)
+        }else{ fertSE <- 0}
+      } else {
+        fertSE <- sqrt(fertRate * (1 - fertRate) / 
+                         Npar)
+      }
+      pSE <-  sqrt(prepr * (1 - prepr) / 
+                     Nads)
+      if(prepr> 1 | prepr<0){stop(glue("p(repro) = {pSE} for age {xx} and sex {sx}.As a probability, it should be include between 0 and 1"))}
+      srSE <-  sqrt( sr * (1 -  sr) / 
+                       length(which(subage$Sex  %in% c("Female", "Male"))))
+      
+      
+    } else {
+      fertRate <- prepr <- sr <- 0
+      pSE <- fertSE <- srSE <- 0
+    }
+    fertlower = fertRate - 1.96*fertSE
+    fertupper = fertRate + 1.96*fertSE
+    plower = prepr -1.96 *  pSE
+    pupper = prepr +1.96 *  pSE
+    srlower = sr -1.96 *  srSE
+    srupper = sr +1.96 *  srSE
+    
+    srlower = ifelse(srlower<0,0,srlower)
+    plower = ifelse(plower<0,0,plower)
+    fertlower = ifelse(fertlower<0,0,fertlower)
+    srupper = ifelse(srupper>1,1,srupper)
+    pupper = ifelse(pupper>1,1,pupper)
+    ageFert[ix, -1] <- c(Nads, Npar, 
+                         prepr, pSE,plower,pupper,
+                         fertRate, fertSE,fertlower,fertupper, 
+                         sr, srSE,srlower,srupper)
+  }
+  tot <- subparfert %>% group_by(ParentAnonID,ageBirthDisc)%>% 
+    summarize ( rep = max(Probability)/100)
+  fertSumm$Prepmean =sum(tot$rep) / Nadstot
+  fertSumm$Fertmean = sum(subpar$Probability)/ Npartot /100
+  
+  
+  
+}
+```
+
+```{r examples-Rep_fert}
+
+```
+
+```{r tests-Rep_fert}
+test_that("Rep_fert works", {
+  
+})
+```
+
+
+
+# Prepare data for reproduction
+
+`Rep_prepdata()` prepares reproduction data including age of parent at birth, offspring sex and birth date and data of potential reproductive individuals at each age. It uses at least the following arguments:
+
+* cleaned `coresubset` including only the selected individuals. It must includes at least the following columns: *anonID*, 'birthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*Sex*, and *firstInst*
+* `collection`data including at least the following columns: *AnimalID*, *ScopeType*, *ChangeDate*
+* `parent` data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnonID*, *ParentOriginType*, *Probability*
+* `moves` data including at least the following columns: *AnonID*, *To*, *Date*
+
+
+```{r function-Rep_prepdata}
+#' Prepare Reproduction date
+#' 
+#' Prepare reproduction data including age of parent at birth, offspring sex and birth date and data of potential reproductive individuals at each age.
+#'
+#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *anonID*, 'birthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*Sex*, and *firstInst*
+#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalID*, *ScopeType*, *ChangeDate*
+#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnonID*, *ParentOriginType*, *Probability*
+#' @param moves \code{data frame} Moves data including at least the following columns: *AnonID*, *To*, *Date*
+#' @param BirthType_parent \code{character} Captive, Wild, or All. Default =  "Captive"
+#' @param BirthType_offspring \code{character} Captive, Wild, or All. Default =  "Captive"
+#' @param Age_uncert \code{numeric} Maximum uncertainty (= MaxBirthDate - MinBirthDate) in birth date in days. Default = 10000
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = TRUE
+#'
+#' @return A list including
+#' * The reproduction data
+#' * The potential reproductive Adults
+#' * A summary including:
+#'  - Nbirths: the raw number of births
+#'  - Nadults: the raw number of potential reproductive adults
+#'  - NOffsp: the number of offspring with known birth date and with parents with known age
+#'  - NParent: the number of unique parents with known age and with offspring with known birth date
+#'  - NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
+#'  - NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
+#' 
+#' @export
+#'
+#' @examples
+Rep_prepdata <- function(coresubset, collection, parent, moves,
+                         BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+                         Age_uncert = 1000000, Global = TRUE
+) {
+  
+  assert_that(is.data.frame(coresubset))
+  assert_that(is.data.frame(collection))
+  assert_that(is.data.frame(parent))
+  assert_that(is.data.frame(moves))
+  
+  assert_that(coresubset %has_name% c("anonID", 'birthType', "MaxBirthDate", 
+                                      "MinBirthDate", "DepartDate", "BirthDate",
+                                      "Sex", "firstInst"))
+  assert_that(collection %has_name% c("AnimalID", "ScopeType", "ChangeDate"))
+  assert_that(parent %has_name% c("ParentAnonID", "ParentCollectionScopeType", 
+                                  "OffspringCollectionScopeType", "AnonID",
+                                  "ParentOriginType", "Probability"))
+  assert_that(moves %has_name% c("AnonID", "To", "Date"))
+  
+  assert_that(is.character( BirthType_parent))
+  assert_that(BirthType_parent %in% c("Captive", "Wild", "All"))
+  assert_that(is.character( BirthType_offspring))
+  assert_that( BirthType_offspring %in% c("Captive", "Wild", "All"))
+  assert_that(is.numeric(Age_uncert))
+  assert_that(is.logical(Global))
+  
+  fertSumm <- tibble(Nbirths = 0,
+                     Nadults = 0,
+                     NOffsp = 0, NParent = 0,
+                     NOffsp_age = 0, NParent_age = 0
+  )
+  
+  #Offspring               
+  if (BirthType_offspring != "All"){
+    offspSub <- coresubset %>%
+      filter(stringr::str_detect(birthType, pattern = BirthType_offspring))
+  }else{offspSub<- coresubset}
+  # Number of birth records:
+  fertSumm$Nbirths <- nrow(offspSub)
+  
+  
+  # Adults:
+  if (BirthType_parent != "All"){
+    ADULTS <- core %>%
+      filter(stringr::str_detect(birthType, pattern = BirthType_parent))
+  }else{ADULTS<- core}
+  
+  ADULTS <- ADULTS%>%
+    filter(as.numeric(MaxBirthDate - MinBirthDate) < Age_uncert)%>%
+    # Find Depart ages of all inds in adults table:
+    mutate(ageAds = ceiling(as.numeric(DepartDate - BirthDate) / 365.25))%>%
+    #increase the table to have a row per individual and per age
+    tidyr::uncount(weights = ageAds, .id = "n", .remove = F) %>%
+    mutate(Age = ageAds - n,
+           Date_age = BirthDate + lubridate::years(Age))%>%
+    distinct()
+  
+  if(Global){
+    ADULTS <- ADULTS%>%
+      #paste collection for each individual and age
+      left_join(collection%>%as_tibble%>%
+                  select(AnimalID, ScopeType, ChangeDate)%>%rename(anonID = AnimalID)%>% distinct(), 
+                by = "anonID", relationship = "many-to-many")%>%
+      mutate(dist = purrr::map2_dbl(Date_age, ChangeDate, difftime)) %>%
+      filter(dist >= 0)%>%
+      group_by(anonID, Age) %>%
+      mutate(maxtime = min(dist)) %>%
+      ungroup()%>%
+      filter(maxtime  == dist) %>%
+      dplyr::select(-maxtime , -dist, -ChangeDate, -n)%>%
+      filter(ScopeType == "Global")
+    
+    parent <- parent %>%
+      filter(ParentCollectionScopeType == "Global",
+             OffspringCollectionScopeType == "Global")
+  }
+  
+  # Number of adult records:
+  fertSumm$Nadults <- length(unique(ADULTS$anonID))
+  
+  
+  if ( fertSumm$Nadults > 0) {
+    
+    #select parents and remove duplicated rows
+    subpar <- parent %>%
+      filter(ParentAnonID %in% unique(ADULTS$anonID))%>% 
+      left_join(ADULTS%>%select(anonID, BirthDate,DepartDate, birthType)%>%distinct(),
+                relationship = "many-to-many",
+                by =c("ParentAnonID" = "anonID"))%>%
+      rename(Parent_BirthDate = BirthDate,
+             Parent_DepartDate = DepartDate,
+             Parent_birthType = birthType)%>% 
+      select(-c("ParentType", "ParentTypeID"))%>%
+      distinct() %>% 
+      #Offsping not in coresubset
+      filter(AnonID %in% offspSub$anonID)%>%
+      left_join(offspSub%>%select(anonID, BirthDate, Sex, firstInst),
+                by =c("AnonID" = "anonID"))%>%
+      rename(Offspring_BirthDate = BirthDate,
+             Offspring_Inst = firstInst)%>%
+      mutate(ageBirth = as.numeric(Offspring_BirthDate - 
+                                     Parent_BirthDate) / 365.25)%>%
+      left_join(moves%>%as_tibble%>%
+                  select(AnonID, To, Date), 
+                by = c("ParentAnonID" = "AnonID"), relationship = "many-to-many")%>%
+      mutate(dist = purrr::map2_dbl(Offspring_BirthDate , Date, difftime)) %>%
+      filter(dist >= 0)%>%
+      group_by(AnonID) %>%
+      mutate(mintime = min(dist)) %>%
+      ungroup()%>%
+      filter(mintime  == dist) %>%
+      dplyr::select(-mintime , -dist, -Date)%>%
+      rename(currentInst = To)%>%
+      distinct()
+    
+    
+    # Number of births
+    fertSumm$NOffsp <- length(unique(subpar$AnonID))
+    fertSumm$NParent <- length(unique(subpar$ParentAnonID))
+    
+    
+    
+    if (fertSumm$NOffsp   > 0 ) {
+      
+      
+      #Keep only repro with age of parents at birth >0 
+      subpar <- subpar%>%
+        ## VERIFIER QUE J4AI Qu'une ligne par couple parent/enfantXXXXXXXXXXXXXXXXXXXXXXX
+        group_by(AnonID, ParentOriginType, ParentAnonID,  
+                 OffspringCollectionScopeType, ParentCollectionScopeType, 
+                 Parent_BirthDate, Parent_birthType, Offspring_BirthDate,
+                 Sex, ageBirth, currentInst,  Offspring_Inst)%>%
+        summarise(Probability = max(Probability))%>%
+        filter(ageBirth>0)%>%ungroup()
+      
+      fertSumm$NOffsp_age <- length(unique(subpar$AnonID))
+      fertSumm$NParent_age <- length(unique(subpar$ParentAnonID))
+      
+    }
+  }
+  
+  # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # # Find which individuals are in the contraception data:
+  #           ADULTS <- ADULTS %>% 
+  #             left_join(newContra%>%as_tibble%>%mutate(anonID = as.numeric(anonID)), 
+  #                       by = "anonID", relationship = "many-to-many")%>%
+  #             mutate(date = case_when(
+  #               is.na(date)~ as_date(Date_age), 
+  #               .default =as_date(date)))%>%
+  #             mutate(dist = purrr::map2_dbl(Date_age , date, difftime)) %>%
+  #             filter(dist >= 0)%>%
+  #             group_by(anonID) %>%
+  #             mutate(mintime = min(dist)) %>%
+  #             ungroup()%>%
+  #             filter(mintime  == dist) %>%
+  #             mutate(contra = case_when(
+  #               is.na(status) ~ FALSE, 
+  #               status =="Inactive" ~ FALSE,
+  #               .default = TRUE))%>%
+  #             dplyr::select(-mintime , -dist, -date, -method, -status)%>%
+  #             distinct()
+  #           
+  
+  
+  return(list(Adults = ADULTS, Reprodata = subpar, summary =  fertSumm))
+  
+  
+  
+}
+```
+
+```{r examples-Rep_prepdata}
+data(core)
+data(collection)
+data(parent)
+data(moves)
+
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
+                      BirthType_parent = "Captive", BirthType_offspring = "Captive"
+)
+```
+
+```{r tests-Rep_prepdata}
+test_that("Rep_prepdata works", {
+  data(core)
+  data(collection)
+  data(parent)
+  data(moves)
+  
+  Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
+                        BirthType_parent = "Captive", BirthType_offspring = "Captive"
+  )
+  expect_named(Data, c("Adults", "Reprodata", "summary"))
+  expect_named(Data$summary, c("Nbirths", "Nadults", "NOffsp", "NParent", "NOffsp_age", "NParent_age"))
+  expect_true(is.numeric(Data$summary%>%as.numeric()))
+  expect_named(Data$Adults, c(names(core), "ageAds", "Age", "Date_age", "ScopeType"))
+  expect_named(Data$Reprodata, c("AnonID", "ParentOriginType", 
+                                 "ParentAnonID", "OffspringCollectionScopeType", 
+                                 "ParentCollectionScopeType", "Parent_BirthDate", 
+                                 "Parent_birthType", "Offspring_BirthDate", "Sex",
+                                 "ageBirth", "currentInst", "Offspring_Inst", 
+                                 "Probability"))
+})
+```
+
+
+# Seasonnality
+
+```{r function-Rep_season}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+Rep_season <- function() {
+  # --------------------------- #
+  # Seasonality in births:
+  # --------------------------- #
+  # Extract birth dates, years and months:
+  if ("All" %in% sexCats) {
+    if (sexDat$summary$All$N > 0) {
+      seasDat <- sexDat$data$All
+      nSeas <- nrow(seasDat)      
+    } else {
+      nSeas <- 0
+    }
+  } else if (sexDat$summary$Female$N > 0 & sexDat$summary$Male$N > 0) {
+    seasDat <- rbind(sexDat$data$Female, sexDat$data$Male)
+    nSeas <- nrow(seasDat)
+  } else if (sexDat$summary$Female$N > 0) {
+    seasDat <- sexDat$data$Female
+    nSeas <- nrow(seasDat)
+  } else if (sexDat$summary$Male$N > 0) {
+    seasDat <- sexDat$data$Male
+    nSeas <- nrow(seasDat)
+  } else {
+    nSeas <- 0
+  }
+  
+  
+  # Hemispheres:
+  seasNames <- c("All", "North", "South")
+  
+  
+  # Fill up no analysis case:
+  for (ii in 1:3) {
+    seas[[seasNames[ii]]] <- list(analyzed = FALSE, prob = NULL, Nbirth_raw = nSeas, Nbirth = 0, 
+                                  plv = list(xysc = NULL, levs = NULL, plmarg =  c(0, 1)), error = "", Nerr = 0, L80 = NULL)
+  }
+  
+  # Available data:
+  if (nSeas > 0) {
+    # Month indices and labels:
+    mon <- 1:12
+    monName <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", 
+                 "Sep", "Oct", "Nov", "Dec")
+    
+    # Extract birth dates, years and months:
+    DATAsea <- seasDat%>%
+      filter(MinBirthDate == MaxBirthDate,
+             grepl("Captive", seasDat$birthType),
+             FirstCollectionScopeType == "Global")
+    
+    if (nrow(DATAsea) > 0) {
+      
+      DATAsea <- DATAsea%>%
+        mutate(birthYear = year(BirthDate),
+               birthDay <-(julian(as.Date(sprintf("%s-12-31", birthYear), 
+                                          format = "%Y-%m-%d")) - 
+                             julian(BirthDate)) / 365 * 2 * pi,
+               birthMonth = month(BirthDate))
+      
+      # Find which are from the northern and southern hemisphere:
+      spInsts <- subinst[DATAsea$firstInst, ]
+      idnorth <- which(spInsts$Latitude > 0)
+      idsouth <- which(spInsts$Latitude < 0)
+      
+      # Store in report list:
+      for (ii in 1:3) {
+        DATAseason <- DATAsea
+        # Find which are from the northern and southern hemisphere:
+        if (ii == 2) {
+          DATAseason <- DATAsea[idnorth,]
+        } 
+        if (ii == 3) {
+          DATAseason <- DATAsea[idsouth,]
+        }
+        seas[[seasNames[ii]]]$Nbirth <-nrow(DATAseason)
+        
+        if(length(unique(DATAseason$firstInst))>1){
+          if (nrow(DATAseason) >= minNseas) {
+            
+            #Find 80% of the births
+            L_80 = quantile(yday(DATAseason$BirthDate), c(0.1,0.9))
+            seas[[seasNames[ii]]]$L80 =as.numeric(L_80[2]-L_80[1])
+            # Find number of births per month:
+            moncounts <- sapply(mon, function(mm) {
+              length(which(DATAseason$birthMonth == mm))
+            })
+            
+            # Proportion of births per month:
+            monprob <- moncounts / sum(moncounts)
+            names(monprob) <- monName
+            
+            # Plot variables:
+            xysc <- ceiling(max(monprob) * 20) / 20 + 0.05
+            levs <- seq(0.05, xysc - 0.05, 0.05)
+            plmarg <- c(-1.01, 1.01) * xysc
+            seas[[seasNames[ii]]]$plv <- list(xysc = xysc, levs = levs, plmarg = plmarg)
+            
+            # Store outputs:
+            seas[[seasNames[ii]]]$analyzed = TRUE
+            seas[[seasNames[ii]]]$prob = monprob
+            
+            
+          }else{
+            seas[[seasNames[ii]]]$error = "Nbirth <= minNseas"
+            seas[[seasNames[ii]]]$Nerr = 4}
+        }else{
+          seas[[seasNames[ii]]]$error = "Data from 1 Institution"
+          seas[[seasNames[ii]]]$Nerr = 3}
+      }
+      
+    }else{ 
+      for (ii in 1:3) {
+        seas[[seasNames[ii]]]$error = "No exact birth month"
+        seas[[seasNames[ii]]]$Nerr = 2
+      }
+    }
+    
+  }else{     
+    for (ii in 1:3) {
+      seas[[seasNames[ii]]]$error = "NThres == 0"
+      seas[[seasNames[ii]]]$Nerr = 1
+    }
+  }
+  
+  
+}
+```
+
+```{r examples-Rep_season}
+
+```
+
+```{r tests-Rep_season}
+test_that("Rep_season works", {
+  
+})
+```
+
+
+# my_fun
+
+```{r function-my_fun}
+#' my_fun Title
+#'
+#' @return 1
+#' @export
+#'
+#' @examples
+my_fun <- function() {
+  1
+}
+```
+
+```{r examples-my_fun}
+my_fun()
+```
+
+```{r tests-my_fun}
+test_that("my_fun works", {
+  
+})
+```
+
+
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_repro.Rmd", vignette_name = "Reproduction")
+```
+
