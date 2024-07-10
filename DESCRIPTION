@@ -10,7 +10,7 @@ Description: Survival, Reproduction and Growth analyses.
 License: file LICENSE
 Imports: 
     assertthat,
-    BaSTA2.0,
+    BaSTA,
     bbmle,
     checkmate,
     dplyr,
@@ -31,6 +31,7 @@ Imports:
     stringr,
     tidyr,
     utils
+Remotes: git::https://github.com/fercol/paramDemo/pkg.git
 Suggests: 
     knitr,
     rmarkdown,

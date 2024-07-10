@@ -28,6 +28,9 @@ fusen::fill_description(
 )
 # Define License with use_*_license()
 usethis::use_proprietary_license("Species360")
+
+# ADD THAT TO DESCRUIPTION TO USE paramDemo...
+#Remotes: git::https://github.com/fercol/paramDemo/pkg.git
 ```
 
 # All-in-one function to deploy publicly on GitHub

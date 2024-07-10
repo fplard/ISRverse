@@ -20,6 +20,15 @@ tools to :
 
 ## Installation
 
+First you will need install paramDemo from [GitHub](https://github.com/)
+with:
+
+``` r
+# install.packages("devtools")
+# library(devtools)
+install_git("https://github.com/fercol/paramDemo", subdir = "pkg/")
+```
+
 You can install the development version of ISRverse from
 [GitHub](https://github.com/) with:
 

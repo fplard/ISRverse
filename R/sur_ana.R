@@ -145,7 +145,7 @@ Sur_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
             
             for (imod in 1:length(models)) {
               print(models[imod])
-              tempList[[models[imod]]] <- BaSTA2.0::basta(
+              tempList[[models[imod]]] <- BaSTA::basta(
                 bastatab, dataType = "census", shape = shape, 
                 model = models[imod], parallel = TRUE, 
                 ncpus = ncpus, nsim = nchain,
@@ -159,7 +159,7 @@ Sur_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
               print("more chains")
               for (imod in 1:length(models)) {
                 print(models[imod])
-                tempList[[models[imod]]] <- BaSTA2.0::basta(
+                tempList[[models[imod]]] <- BaSTA::basta(
                   bastatab, dataType = "census", shape = "bathtub", 
                   model = models[imod], parallel = TRUE, 
                   ncpus = ncpus, nsim = nchain, 
