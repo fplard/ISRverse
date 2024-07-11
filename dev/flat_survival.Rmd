@@ -71,6 +71,8 @@ It return a list per sex category including:
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #'* the estimated remaining life expectancy per age
+#'* the estimated probability to live one year more
+#'* the estimated probability to live five years more
 #' If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 #'
 #' @export
@@ -145,7 +147,7 @@ Sur_main <- function(data.core,  BirthType = "All",
                    mindate = mindate, minNsur = minNsur, 
                    minlx = minlx, MinBirthKnown = MinBirthKnown, 
                    niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, ncpus = ncpus) 
-    out <- append(out, list(relex = NULL))
+    out <- append(out, list(relex = NULL, Sur1 = NULL, Sur5 = NULL))
     if (out$summary$analyzed) {
       
       # Find age at S(x) = 0.001:
@@ -160,15 +162,43 @@ Sur_main <- function(data.core,  BirthType = "All",
                              shape = shape, ncpus = ncpus, 
                              xMax = xMax, dx = 0.01)
       
+      # Proba to live 1 year more:
+      out$Sur1 <- Sur_age(theMat = out$bastaRes$params,  
+                          model = outBasta$modelSpecs["model"], 
+                             shape = shape, ncpus = ncpus, 
+                             ageMax = xMax, dage = 0.01, Nyear = 1)
+      # Proba to live51 year more:
+      out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
+                             model = outBasta$modelSpecs["model"], 
+                             shape = shape, ncpus = ncpus, 
+                             ageMax = xMax,  dage = 0.01, Nyear = 5)
+      
       
       #Plots
       if(out$summar$analyzed && !is.null(PlotDir)){
-        pdf(file = paste0(PlotDir,"/", plotname, "sur.pdf", sep=""), width = 6, height = 9)
+        pdf(file = paste0(PlotDir,"/", plotname, "surcheck.pdf", sep=""), width = 6, height = 9)
         plot(out$bastaRes)
         plot(out$bastaRes, plot.type = 'demorates')
         plot(out$bastaRes, plot.type = 'gof')
         dev.off()
-      }
+      
+        pdf(file = paste0(PlotDir,"/", plotname, "surplot.pdf", sep=""), width = 6, height = 9)
+        plot(out$remex$RemLExp~  out$remex$Age, main = 'Remaining life expectancy')
+        lines(out$remex$lower ~  out$remex$Age, lty = 2)
+        lines(out$remex$upper ~  out$remex$Age, lty = 2)
+
+        plot(out$Sur1$Sur_1yr[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], main = 'Age-specific survival')
+        lines(out$Sur1$lower[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
+        lines(out$Sur1$upper[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
+
+        
+        plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, main = 'p(survive 5 more years')
+        lines(out$Sur5$lower ~  out$Sur5$Age, lty = 2)
+        lines(out$Sur5$upper ~  out$Sur5$Age, lty = 2)
+
+        dev.off()
+    
+        }
       
       # Goodness of fit tests
       ##Test if the minimum life expectancy is below 2 years old
@@ -209,7 +239,7 @@ test_that("Sur_main works", {
   out <- Sur_main(core, BirthType = "Captive", 
                   models = "LO", shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex"))
+  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5'))
 
 })
 ```
@@ -772,7 +802,7 @@ Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
 
 ```
 
-```{r examples-Sur_relex_parr}
+```{r examples-Sur_relex}
 theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
                                b1= rnorm(10, 0.1, 0.01)))
 
@@ -820,6 +850,145 @@ Sur_relex_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',
   return(remex)
 }
 ```
+
+
+
+# Age-specific survival
+
+`Sur_age()` estimate the age-specific survival. It includes the following arguments: 
+
+* `theMat` including the posteriors estimates of the model parameter
+* `model` names of the basta models to run: "G0", "EX", "LO" and/or "WE".
+* `shape` character shape of the basta model: "simple", "Makeham", "bathtub". 
+* `xMax` Maximum age in years
+* `ncpus`; the number of core to use
+
+```{r function-Sur_age}
+#' Age-specific survival
+#' 
+#' Estimate age-specific survival (i.e. the probability to leave at least a given number of years) from the parameters outputs of a Basta model.
+#' 
+#'
+#' @param theMat \code{array} including the posteriors estimates of the model parameter
+#' @param Nyear \code{numeric} number of year to survive Default = 1#
+#' @param model \code{character} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
+#' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param ncpus  \code{numeric} Number of core to use
+#' @param ageMax \code{numeric} Maximum age in years Default = 120
+#' @param dage \code{numeric} precision  for age Default = 0.01
+#'
+#' @return a data frame including age, the mean and 95% credible interval of the remaining life expectancy
+#' 
+#' @export
+#' 
+#' @importFrom paramDemo CalcSurv
+#' @importFrom snowfall sfInit sfLibrary sfClusterApplyLB  sfStop
+#' 
+#' @examples
+Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 1,
+                      ageMax = 120, dage = 0.01) {
+  
+  assert_that(is.array(theMat))
+  assert_that(is.numeric(ageMax))
+  assert_that(ageMax > 1)
+   assert_that(is.numeric(Nyear))
+ assert_that(Nyear > 0)
+  assert_that(is.numeric(dage))
+  assert_that(dage > 0)
+  assert_that(is.numeric(ncpus))
+  assert_that(ncpus > 0)
+  assert_that(is.character(model))
+  assert_that(all(model %in% c("GO", "EX", "LO", "WE")))
+  assert_that(is.character(shape))
+  assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
+  
+  iseq <- floor(seq(0, nrow(theMat), length = ncpus + 1))
+   xv <- seq(0, ageMax, by = dage)
+ 
+  # run parallel estimation:
+  sfInit(parallel = TRUE, cpus = ncpus)
+  # Upload paramDemo:
+  # sfLibrary(paramDemo)
+  # export variables:
+  # sfExport(list = c("iseq", "theMat", "model", "shape", "xMax", "dx"))
+  # Run parallel function:
+  exparal <- sfClusterApplyLB(1:ncpus, Sur_age_0, theMat = theMat,
+                              model = model, shape = shape,  
+                              iseq = iseq, Nyear = Nyear,
+                              xv = xv )
+  
+  # Stop application:
+  sfStop()
+  
+  # Gather estimates:
+  for (jj in 1:ncpus) {
+    if (jj == 1) {
+      exMat <- exparal[[jj]]
+    } else {
+      exMat <- rbind(exMat, exparal[[jj]])
+    }
+  }
+  
+  Sur = paste0("Sur_",Nyear,"yr")
+  exQuants <- tibble(Age = xv[1:ncol(exMat)], 
+                         Lower = apply(exMat, 2, quantile, 0.025),
+                         Upper = apply(exMat, 2, quantile, 0.975))%>%
+    mutate({{Sur}} := apply(exMat, 2, mean))
+  return(exQuants)
+}
+
+```
+
+```{r examples-Sur_age}
+theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
+                               b1= rnorm(10, 0.1, 0.01)))
+
+
+out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
+                 ageMax = 50, dage = 0.1, Nyear = 5)
+```
+
+```{r tests-Sur_age}
+theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
+                               b1= rnorm(10, 0.1, 0.01)))
+
+test_that("Sur_age works", {
+  out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
+                   ageMax = 50, dage = 0.1, Nyear = 1)
+  expect_named(out, c("Age", "Lower", "Upper", "Sur_1yr"))
+  expect_true(is.numeric(out$Sur_1yr))
+  expect_equal(nrow(out), 50*10-10+1)
+})
+```
+
+```{r function-Sur_age_0}
+#' Raw age specific survival
+#'
+#' @return a data frame including age, the mean and 95% credible interval of survival
+#' 
+#' @importFrom paramDemo CalcSurv
+#' 
+#'
+#' @examples
+#' @noRd
+Sur_age_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',  
+                        iseq = 1:nrow(theMat), Nyear = 1, 
+                      xv = seq(0, 50, by = 0.01)
+ ) {
+  
+  idseq <- (iseq[sim] + 1):iseq[sim + 1]
+  dep = which(xv == Nyear)
+  surage <- t(sapply(idseq, function(ith) {
+    theta <- theMat[ith, ]
+    Sx <- paramDemo::CalcSurv(theta = theta, x = xv, model = model, shape = shape)
+    idn0 <- length(Sx)
+    ex = Sx[dep:idn0]/Sx[1:(idn0-dep+1)]
+    return(ex)
+  }))
+  return( surage)
+}
+```
+
 
 ```{r development-inflate, eval=FALSE}
 # Run but keep eval=FALSE to avoid infinite loop

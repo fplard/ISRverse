@@ -53,27 +53,31 @@ browseURL(path)
 ### Age at first reproduction
 
 ``` r
-library(tidyvserse)
+library(tidyverse)
 library(ISRverse)
 
 # CHANGE THIS to Path to the ZIMSdata directory: 
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/"
+ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/Data/"
 extractDate = "2023-12-04"
 minDate = "1980-01-01"
 Global = TRUE
 
 taxa = "Mammalia"
-List_species = c()
+List_species = c("Panthera leo", "Capreolus capreolus", "Alces alces", "Gorilla gorilla", "Suricata suricata")
 
 
-Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdir, 
+Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdir, 
               extractDate = extractDate, 
               type = c('core', 'collections', 'parent', 'moves')) 
+Data$core$anonID = Data$core$AnonID
+Data$core$firstInst = Data$core$FirstHoldingInstitution
+Data$core$lastInst = Data$core$LastHoldingInstitution
+Data$core$lastInst = Data$core$LastHoldingInstitution
 
 Tab = tibble()
 for (species in List_species){
-  
-  Data <- select_species(species, core, collection,
+  print(species)
+  Data <- select_species(species, Data$core, Data$collection,
                          minDate = minDate , extractDate = extractDate,
                          Global = Global) 
   
@@ -84,7 +88,7 @@ for (species in List_species){
     }else{coresubset <- core}
     #prepare Reproduction data
     Data <- Rep_prepdata(coresubset = coresubset, 
-                         collection, parent, moves,
+                         Data$collection, Data$parent, Data$moves,
                          BirthType_parent = "Captive", BirthType_offspring = "Captive",
                          Age_uncert = 365, Global = Global)
     #Calculate reproductive age statistics

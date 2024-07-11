@@ -5,6 +5,6 @@ test_that("Sur_main works", {
   out <- Sur_main(core, BirthType = "Captive", 
                   models = "LO", shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex"))
+  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5'))
 
 })
