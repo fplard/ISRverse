@@ -36,6 +36,8 @@
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #'* the estimated remaining life expectancy per age
+#'* the estimated probability to live one year more
+#'* the estimated probability to live five years more
 #' If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 #'
 #' @export
@@ -114,7 +116,7 @@ Sur_main <- function(data.core,  BirthType = "All",
                    mindate = mindate, minNsur = minNsur, 
                    minlx = minlx, MinBirthKnown = MinBirthKnown, 
                    niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, ncpus = ncpus) 
-    out <- append(out, list(relex = NULL))
+    out <- append(out, list(relex = NULL, Sur1 = NULL, Sur5 = NULL))
     if (out$summary$analyzed) {
       
       # Find age at S(x) = 0.001:
@@ -129,15 +131,43 @@ Sur_main <- function(data.core,  BirthType = "All",
                              shape = shape, ncpus = ncpus, 
                              xMax = xMax, dx = 0.01)
       
+      # Proba to live 1 year more:
+      out$Sur1 <- Sur_age(theMat = out$bastaRes$params,  
+                          model = outBasta$modelSpecs["model"], 
+                             shape = shape, ncpus = ncpus, 
+                             ageMax = xMax, dage = 0.01, Nyear = 1)
+      # Proba to live51 year more:
+      out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
+                             model = outBasta$modelSpecs["model"], 
+                             shape = shape, ncpus = ncpus, 
+                             ageMax = xMax,  dage = 0.01, Nyear = 5)
+      
       
       #Plots
       if(out$summar$analyzed && !is.null(PlotDir)){
-        pdf(file = paste0(PlotDir,"/", plotname, "sur.pdf", sep=""), width = 6, height = 9)
+        pdf(file = paste0(PlotDir,"/", plotname, "surcheck.pdf", sep=""), width = 6, height = 9)
         plot(out$bastaRes)
         plot(out$bastaRes, plot.type = 'demorates')
         plot(out$bastaRes, plot.type = 'gof')
         dev.off()
-      }
+      
+        pdf(file = paste0(PlotDir,"/", plotname, "surplot.pdf", sep=""), width = 6, height = 9)
+        plot(out$remex$RemLExp~  out$remex$Age, main = 'Remaining life expectancy')
+        lines(out$remex$lower ~  out$remex$Age, lty = 2)
+        lines(out$remex$upper ~  out$remex$Age, lty = 2)
+
+        plot(out$Sur1$Sur_1yr[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], main = 'Age-specific survival')
+        lines(out$Sur1$lower[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
+        lines(out$Sur1$upper[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
+
+        
+        plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, main = 'p(survive 5 more years')
+        lines(out$Sur5$lower ~  out$Sur5$Age, lty = 2)
+        lines(out$Sur5$upper ~  out$Sur5$Age, lty = 2)
+
+        dev.off()
+    
+        }
       
       # Goodness of fit tests
       ##Test if the minimum life expectancy is below 2 years old

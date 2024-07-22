@@ -132,20 +132,19 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 8.64 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 9.10 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; R Version:  R version 4.3.2 (2023-10-31 ucrt)</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded in cluster.</span></span>
-<span><span class="co">#&gt; Loading required package: snowfall</span></span>
-<span><span class="co">#&gt; Loading required package: snow</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; Warning: package 'BaSTA' was built under R version 4.3.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 6.70 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 5.26 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -178,16 +177,16 @@ models</p>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 8.21 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 8.82 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded in cluster.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 5.62 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 5.63 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -273,6 +272,37 @@ parameter</li>
 <span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_relex.html">Sur_relex</a></span><span class="op">(</span><span class="va">theMat</span>, model <span class="op">=</span> <span class="st">'GO'</span>, shape <span class="op">=</span> <span class="st">'simple'</span>, ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                 xMax <span class="op">=</span> <span class="fl">50</span>, dx <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 2 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="age-specific-survival">Age-specific survival<a class="anchor" aria-label="anchor" href="#age-specific-survival"></a>
+</h2>
+<p><code><a href="../reference/Sur_age.html">Sur_age()</a></code> estimate the age-specific survival. It
+includes the following arguments:</p>
+<ul>
+<li>
+<code>theMat</code> including the posteriors estimates of the model
+parameter</li>
+<li>
+<code>model</code> names of the basta models to run: “G0”, “EX”,
+“LO” and/or “WE”.</li>
+<li>
+<code>shape</code> character shape of the basta model: “simple”,
+“Makeham”, “bathtub”.</li>
+<li>
+<code>xMax</code> Maximum age in years</li>
+<li>
+<code>ncpus</code>; the number of core to use</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">theMat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span> b0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="op">-</span><span class="fl">6</span>, <span class="fl">0.01</span><span class="op">)</span>,</span>
+<span>                               b1<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_age.html">Sur_age</a></span><span class="op">(</span><span class="va">theMat</span>, model <span class="op">=</span> <span class="st">'GO'</span>, shape <span class="op">=</span> <span class="st">'simple'</span>, ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                 ageMax <span class="op">=</span> <span class="fl">50</span>, dage <span class="op">=</span> <span class="fl">0.1</span>, Nyear <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 2 CPUs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span></code></pre></div>

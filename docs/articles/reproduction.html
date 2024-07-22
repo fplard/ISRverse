@@ -125,8 +125,44 @@ including at least the columns <em>ParentAnonID</em> and
 <span><span class="co">#&gt; <span style="color: #949494;">#   ageMedRep &lt;dbl&gt;, ageMeanRepIC &lt;list&gt;, ageMean1RepIC &lt;list&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="litter-size">litter size<a class="anchor" aria-label="anchor" href="#litter-size"></a>
+<h2 id="litter-size">Litter size<a class="anchor" aria-label="anchor" href="#litter-size"></a>
 </h2>
+<p><code><a href="../reference/Rep_littersize.html">Rep_littersize()</a></code> makes a data frame of litter size per
+parent and birth date and produces summary tables of litter size. It
+uses the following arguments:</p>
+<ul>
+<li>
+<code>Reprodata</code> including at least the columns
+<em>AnonID</em>, <em>ParentAnonID</em>, <em>ParentType</em>,
+<em>Probability</em>, <em>Offspring_BirthDate</em>,
+<em>Offspring_Inst</em> and <em>ageBirth</em>
+</li>
+<li>
+<code>perAge</code>: Whether to estimate litter size per mother
+age</li>
+<li>
+<code>Nday</code>: the number of consecutive days over which the
+birth dates of a litter/clutch can be spread</li>
+</ul>
+<p>It returns a list including: * A data frame with the litter size per
+mother and birth date * A table including the number and proportion of
+each size of litter * Summary statistics * if perAge = TRUE, a table
+including the mean and standard deviation of litter size per maternal
+age</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">collection</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
+<span><span class="co">#prepare Data</span></span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Estimate litter size</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span>, perAge <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                           Nday <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">littSizeTab</span></span>
+<span><span class="co">#&gt; NULL</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="fertility">fertility<a class="anchor" aria-label="anchor" href="#fertility"></a>
@@ -161,7 +197,7 @@ columns: <em>AnimalID</em>, <em>ScopeType</em>, <em>ChangeDate</em>
 <em>AnonID</em>, <em>To</em>, <em>Date</em>
 </li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">collection</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
@@ -178,7 +214,7 @@ columns: <em>AnimalID</em>, <em>ScopeType</em>, <em>ChangeDate</em>
 <div class="section level2">
 <h2 id="my_fun">my_fun<a class="anchor" aria-label="anchor" href="#my_fun"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/my_fun.html">my_fun</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </div>

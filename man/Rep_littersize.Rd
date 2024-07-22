@@ -2,13 +2,63 @@
 % Please edit documentation in R/rep_littersize.R
 \name{Rep_littersize}
 \alias{Rep_littersize}
-\title{my_fun Title}
+\title{Litter Size}
 \usage{
-Rep_littersize()
+Rep_littersize(
+  Reprodata,
+  perAge = FALSE,
+  Nday = 7,
+  parentProb = 80,
+  minNlitter = 30
+)
+}
+\arguments{
+\item{Reprodata}{\code{data frame} including at least the columns \emph{AnonID}, \emph{ParentAnonID}, \emph{ParentType}, \emph{Probability}, \emph{Offspring_BirthDate}, \emph{Offspring_Inst} and \emph{ageBirth}}
+
+\item{perAge}{\code{logical} Whether to estimate litter size per mother age. Default = FALSE}
+
+\item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
+
+\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+
+\item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
 }
 \value{
-1
+A list including:
+\itemize{
+\item A data frame with the litter size per mother and birth date
+\item A table including the number and proportion of each size of litter
+\item Summary statistics including:
+}
+\itemize{
+\item NOffsp_prob: Number of offspring
+\item NParent_prob: Number of parents
+\item NReprEvent: Number of litters
+\item MeanLittSize: Mean litter size
+\item MedLittSize: Median litter size
+\item SdLittSize: Standard deviation of litter size
+\item analyzed = FALSE,
+\item error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {minNlitter}
+\item Nerr: The number id of the error
+}
+\itemize{
+\item if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
+}
 }
 \description{
-my_fun Title
+Make a data frame of litter size per parent and birth date and produce summary tables of litter size. it selects only offspring/mother couples
+}
+\examples{
+data(core)
+data(collection)
+data(parent)
+data(moves)
+#prepare Data
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+
+#Estimate litter size
+out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
+                           Nday = 7)
+
+out$littSizeTab
 }

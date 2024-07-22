@@ -120,12 +120,32 @@ out<-Sur_ple(data)
 * `ncpus`; the number of core to use
 
 
-```{r examples-Sur_relex_parr}
+```{r examples-Sur_relex}
 theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
                                b1= rnorm(10, 0.1, 0.01)))
 
 
 out <- Sur_relex(theMat, model = 'GO', shape = 'simple', ncpus = 2,
                  xMax = 50, dx = 0.1)
+```
+
+# Age-specific survival
+
+`Sur_age()` estimate the age-specific survival. It includes the following arguments: 
+
+* `theMat` including the posteriors estimates of the model parameter
+* `model` names of the basta models to run: "G0", "EX", "LO" and/or "WE".
+* `shape` character shape of the basta model: "simple", "Makeham", "bathtub". 
+* `xMax` Maximum age in years
+* `ncpus`; the number of core to use
+
+
+```{r examples-Sur_age}
+theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
+                               b1= rnorm(10, 0.1, 0.01)))
+
+
+out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
+                 ageMax = 50, dage = 0.1, Nyear = 5)
 ```
 

@@ -62,7 +62,7 @@ unlink(PlotDir, recursive = TRUE)
 
 This function extracts the data of the specified species that fill the condition on minimum date and global collections. It includes the following argument:
 
-* `species` latin name of the species selected
+* `speciesname` latin name of the species selected
 * `coresubset`data.frame including at least the following columns *anonID*, *BirthDate*, *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate*, *EntryType*, *DepartType*, *DepartFrom*, *firstInst*, *LastTXDate*, *DeathDate*, *lastInst*,*globStat*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 * `collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalID*.
 * `minDate`: Earlier date to include data
@@ -86,7 +86,7 @@ The output is a list including:
 ```{r examples-select_species}
 data(core)
 data(collection)
-out<- select_species(species = "Gorilla gorilla gorilla", coresubset = core, collection,
+out<- select_species(speciesname = "Gorilla gorilla", coresubset = core, collection,
                      minDate = "1980-01-01", extractDate = "2023-01-01")
 out$summary
 out$data

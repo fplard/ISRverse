@@ -79,6 +79,8 @@ The output of a list including per sex categories:
 \item the basta fit of the best model
 \item the DIC table comparing the different fit of the models
 \item the estimated remaining life expectancy per age
+\item the estimated probability to live one year more
+\item the estimated probability to live five years more
 If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 }
 }

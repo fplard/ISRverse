@@ -78,9 +78,9 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
   
   # Adults:
   if (BirthType_parent != "All"){
-    ADULTS <- core %>%
+    ADULTS <- coresubset %>%
       filter(stringr::str_detect(birthType, pattern = BirthType_parent))
-  }else{ADULTS<- core}
+  }else{ADULTS<- coresubset}
   
   ADULTS <- ADULTS%>%
     filter(as.numeric(MaxBirthDate - MinBirthDate) < Age_uncert)%>%
@@ -127,7 +127,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
       rename(Parent_BirthDate = BirthDate,
              Parent_DepartDate = DepartDate,
              Parent_birthType = birthType)%>% 
-      select(-c("ParentType", "ParentTypeID"))%>%
+      select(-c("ParentTypeID"))%>%
       distinct() %>% 
       #Offsping not in coresubset
       filter(AnonID %in% offspSub$anonID)%>%
@@ -163,7 +163,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
       #Keep only repro with age of parents at birth >0 
       subpar <- subpar%>%
         ## VERIFIER QUE J4AI Qu'une ligne par couple parent/enfantXXXXXXXXXXXXXXXXXXXXXXX
-        group_by(AnonID, ParentOriginType, ParentAnonID,  
+        group_by(AnonID, ParentOriginType, ParentAnonID,  ParentType,
                  OffspringCollectionScopeType, ParentCollectionScopeType, 
                  Parent_BirthDate, Parent_birthType, Offspring_BirthDate,
                  Sex, ageBirth, currentInst,  Offspring_Inst)%>%
