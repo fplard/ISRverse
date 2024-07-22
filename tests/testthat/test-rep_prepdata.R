@@ -14,7 +14,7 @@ test_that("Rep_prepdata works", {
   expect_true(is.numeric(Data$summary%>%as.numeric()))
   expect_named(Data$Adults, c(names(core), "ageAds", "Age", "Date_age", "ScopeType"))
   expect_named(Data$Reprodata, c("AnonID", "ParentOriginType", 
-                                 "ParentAnonID", "OffspringCollectionScopeType", 
+                                 "ParentAnonID", "ParentType", "OffspringCollectionScopeType", 
                                  "ParentCollectionScopeType", "Parent_BirthDate", 
                                  "Parent_birthType", "Offspring_BirthDate", "Sex",
                                  "ageBirth", "currentInst", "Offspring_Inst", 

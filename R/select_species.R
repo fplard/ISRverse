@@ -4,7 +4,7 @@
 #' 
 #' Extract data of the specified species that fill the condition on minimum date and global collections
 #'
-#' @param species \code{character} latin name of the species selected
+#' @param speciesname \code{character} latin name of the species selected
 #' @param coresubset  \code{data.frame} including at least the following columns *anonID*, *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate* (\code{date}), *EntryType*, *DepartType*, *DepartFrom*, *firstInst*, *LastTXDate*, *DeathDate*, *lastInst*,*globStat*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 #' @param collection \code{data.frame} including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalID*.
 #' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
@@ -25,11 +25,11 @@
 #' @examples
 #' data(core)
 #' data(collection)
-#' out<- select_species(species = "Gorilla gorilla gorilla", coresubset = core, collection,
+#' out<- select_species(speciesname = "Gorilla gorilla", coresubset = core, collection,
 #'                      minDate = "1980-01-01", extractDate = "2023-01-01")
 #' out$summary
 #' out$data
-select_species <- function(species, coresubset, collection,
+select_species <- function(speciesname, coresubset, collection,
                            minDate, extractDate, Global = TRUE) {
   
   minDate = lubridate::as_date(minDate)
@@ -47,11 +47,12 @@ select_species <- function(species, coresubset, collection,
   assert_that(is.logical(Global))
   # Select Species
   coresubset0 <- coresubset%>%
-    filter(species == species)
+    filter(binSpecies == speciesname)
   
   # Subset by min date
   coresubset1 <- coresubset0%>%
-    filter(DepartDate >= minDate)
+    filter(DepartDate >= minDate,
+           BirthDate >= minDate)
   
   summar = list(Nraw = nrow(coresubset0),
                 Ndate = nrow(coresubset1),
@@ -70,7 +71,7 @@ select_species <- function(species, coresubset, collection,
         )
       if(nrow(indglobloc)>0){
         indglobloc = indglobloc%>%
-          left_join(collections%>%
+          left_join(collection%>%
                       select(RecordingInstitution, ChangeDate, ScopeType, AnimalID),
                     by = c("anonID" ="AnimalID"))%>%
           group_by(anonID, ScopeType)%>%
@@ -124,7 +125,8 @@ select_species <- function(species, coresubset, collection,
       
       summar$maxAgeraw <- max(c(data_age$tempAges,data_age$tempAlive))
     } 
-  }
+  
+    }else{data_sel = tibble()}
   
   
   sexDat <- list(summary = summar, data = data_sel)

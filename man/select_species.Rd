@@ -5,7 +5,7 @@
 \title{Extract data}
 \usage{
 select_species(
-  species,
+  speciesname,
   coresubset,
   collection,
   minDate,
@@ -14,7 +14,7 @@ select_species(
 )
 }
 \arguments{
-\item{species}{\code{character} latin name of the species selected}
+\item{speciesname}{\code{character} latin name of the species selected}
 
 \item{coresubset}{\code{data.frame} including at least the following columns \emph{anonID}, \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), \emph{MaxBirthDate} (\code{date}), \emph{MinBirthDate} (\code{date}), \emph{EntryType}, \emph{DepartType}, \emph{DepartFrom}, \emph{firstInst}, \emph{LastTXDate}, \emph{DeathDate}, \emph{lastInst},\emph{globStat}, \emph{LastCollectionScopeType}, and \emph{FirstCollectionScopeType}}
 
@@ -49,7 +49,7 @@ Extract data of the specified species that fill the condition on minimum date an
 \examples{
 data(core)
 data(collection)
-out<- select_species(species = "Gorilla gorilla gorilla", coresubset = core, collection,
+out<- select_species(speciesname = "Gorilla gorilla", coresubset = core, collection,
                      minDate = "1980-01-01", extractDate = "2023-01-01")
 out$summary
 out$data

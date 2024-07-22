@@ -52,7 +52,7 @@ Full documentation website on: https://fplard.github.io/ISRverse
 
 You can also open the documentation locally on your machine using
 ``` r
-path <- system.file("site", "index.html", package = "ISRverse")
+path <- system.file("docs", "index.html", package = "ISRverse")
 browseURL(path)
 ```
 
@@ -64,44 +64,42 @@ browseURL(path)
 ```{r, echo = TRUE, eval = FALSE}
 library(tidyverse)
 library(ISRverse)
+library(glue)
 
 # CHANGE THIS to Path to the ZIMSdata directory: 
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/Data/"
+ZIMSdir <- "C:/Users/flopy/Documents/ISR/Data/ZIMSdata_ext231204"
 extractDate = "2023-12-04"
 minDate = "1980-01-01"
 Global = TRUE
 
 taxa = "Mammalia"
-List_species = c("Panthera leo", "Capreolus capreolus", "Alces alces", "Gorilla gorilla", "Suricata suricata")
+List_species = c("Panthera leo", "Capreolus capreolus", "Alces alces", "Gorilla gorilla", "Suricata suricatta")
 
+load(glue("{ZIMSdir}/03.newcore/{extractDate}-Corrected-{taxa}.RData"))
 
-Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdir, 
+Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = glue("{ZIMSdir}/01.rawData"), 
               extractDate = extractDate, 
-              type = c('core', 'collections', 'parent', 'moves')) 
-Data$core$anonID = Data$core$AnonID
-Data$core$firstInst = Data$core$FirstHoldingInstitution
-Data$core$lastInst = Data$core$LastHoldingInstitution
-Data$core$lastInst = Data$core$LastHoldingInstitution
+              type = c('collections', 'parent', 'moves')) 
 
-Tab = tibble()
+TAB = tibble()
 for (species in List_species){
   print(species)
-  Data <- select_species(species, Data$core, Data$collection,
+  Dataspe <- select_species(species, newcore, Data$collection,
                          minDate = minDate , extractDate = extractDate,
                          Global = Global) 
   
   for (sx in c("Male", "Female", "All")){
     
     if(sx != "All"){
-      coresubset <- core%>%filter(Sex == sx)
-    }else{coresubset <- core}
+      coresubset <- Dataspe$data%>%filter(Sex == sx)
+    }else{coresubset <- Dataspe$data}
     #prepare Reproduction data
-    Data <- Rep_prepdata(coresubset = coresubset, 
+    Datarep <- Rep_prepdata(coresubset = coresubset, 
                          Data$collection, Data$parent, Data$moves,
                          BirthType_parent = "Captive", BirthType_offspring = "Captive",
                          Age_uncert = 365, Global = Global)
     #Calculate reproductive age statistics
-    out <- Rep_agemat(Data$Reprodata)%>%
+    out <- Rep_agemat(Datarep$Reprodata)%>%
       mutate(Species = species,
              Class = taxa,
              Sex = sx)

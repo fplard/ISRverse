@@ -129,7 +129,6 @@ out <- Sur_relex(theMat, model = 'GO', shape = 'simple', ncpus = 2,
                  xMax = 50, dx = 0.1)
 ```
 
-
 # Age-specific survival
 
 `Sur_age()` estimate the age-specific survival. It includes the following arguments: 

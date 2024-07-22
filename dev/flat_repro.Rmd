@@ -87,7 +87,7 @@ pkgload::load_all(export_all = FALSE)
 #         
 #       }}}
 #   
-#   
+#   METTRE LES CONDITIONS SUR AU MOINS 2 INSTITUTIION
 #   
 # }
 ```
@@ -212,88 +212,178 @@ expect_true(is.list(out[13]))
 ```
 
 
+# Litter size
 
+`Rep_littersize()` makes a data frame of litter size per parent and birth date and produces summary tables of litter size. It uses the following arguments:
 
-# litter size
+* `Reprodata` including at least the columns *AnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *ageBirth*
+* `perAge`:  Whether to estimate litter size per mother age
+* `Nday`: the number of consecutive days over which the birth dates of a litter/clutch can be spread
+
+It returns a list including:
+* A data frame with the litter size per mother and birth date
+* A table including the number and proportion of each size of litter
+* Summary statistics
+* if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
 
 ```{r function-Rep_littersize}
-#' my_fun Title
+#' Litter Size
+#' 
+#' Make a data frame of litter size per parent and birth date and produce summary tables of litter size. it selects only offspring/mother couples
 #'
-#' @return 1
+#' @param Reprodata \code{data frame} including at least the columns *AnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *ageBirth*
+#' @param perAge \code{logical} Whether to estimate litter size per mother age. Default = FALSE
+#' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
+#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
+#'
+#' @return A list including:
+#' * A data frame with the litter size per mother and birth date
+#' * A table including the number and proportion of each size of litter
+#' * Summary statistics including:
+#' - NOffsp_prob: Number of offspring
+#' - NParent_prob: Number of parents
+#' - NReprEvent: Number of litters
+#' - MeanLittSize: Mean litter size 
+#' - MedLittSize: Median litter size 
+#' - SdLittSize: Standard deviation of litter size 
+#' - analyzed = FALSE,
+#' - error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {minNlitter}
+#' - Nerr: The number id of the error
+#' * if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
+#' 
 #' @export
 #'
 #' @examples
-Rep_littersize <- function() {
-  littSumm <- list(NOffsp_prob = NULL,NParent_prob = NULL, 
-                   NReprEvent = NULL,
+Rep_littersize <- function(Reprodata, perAge = FALSE,
+                           Nday = 7, 
+                           parentProb = 80,  minNlitter =30
+                           ) {
+  
+   assert_that(is.data.frame(Reprodata))
+  
+  assert_that(Reprodata %has_name% c("AnonID", "ParentAnonID", "Probability", 
+                                     "ParentType", "Offspring_BirthDate",
+                                     "Offspring_Inst"))
+  
+     assert_that(is.logical(perAge))
+     if(perAge){  assert_that(Reprodata %has_name%  "ageBirth")}
+   assert_that(is.numeric(Nday))
+  assert_that(is.numeric(parentProb))
+  assert_that(is.numeric(minNlitter))
+
+
+  
+  littSumm <- tibble(NOffsp_prob = NULL, NParent_prob = NULL, NReprEvent = NULL,
                    analyzed = FALSE,error = "", Nerr= 0,
-                   MeanLittSize = NULL, MedLittSize = NULL)
+                   MeanLittSize = NULL, MedLittSize = NULL, SdLittSize = NULL)
+  littSizeDf <- tibble()
+  littSizeTab <- NULL
+  littSizeperAge <- NULL
   
-  subpar <- subpar %>%
-    filter(Probability > parentProb)
-  littSumm$NOffsp_prob <- Nrepros <- length(unique(subpar$AnonID))
-  unParentID <- unique(subpar$ParentAnonID)
-  littSumm$NParent_prob <- Nparent <- length(unParentID)
+  subpar <- Reprodata %>%
+    filter(ParentType == "Parentage_Dam",
+            Probability >= parentProb)
   
-  if (sx == "Female" | (sx == "All" & !forceBySex[taxa])) {
+  littSumm$NOffsp_prob <- length(unique(subpar$AnonID))
+  littSumm$NParent_prob <- length(unique(subpar$ParentAnonID))
+  
     
-    if(length(unique(subpar$currentInst))>1){
-      
-      #remove curretn inst to avoid duplicated lines
+      if(nrow(subpar >0)){
+    #remove duplicated lines
       subpar <- subpar%>%
-        select(-currentInst)%>%
+        dplyr::select(ParentAnonID, AnonID, Offspring_BirthDate, Offspring_Inst)%>%
         distinct()
-      if (nrow(subpar)>= minNrepro)  {
+      
+
         
-        nindVec <- c()
-        parVec <- c()
-        parAgeVec <- c()
-        for (ip in 1:Nparent) {
-          idp <- which(subpar$ParentAnonID == unParentID[ip])
-          nIdp <- length(idp)
-          ibAge <-as.numeric(subpar$Offspring_BirthDate[idp] - subpar$Parent_BirthDate[idp])
-          ibSort <- sort(ibAge)
-          ibDiff <- as.numeric(diff(ibSort))
-          idNew <- which(ibDiff > 7)
-          repEv <- rep(0, nIdp)
-          repEv[1] <- 1
-          repEv[-1][idNew] <- 1
-          nRepEvs <- as.numeric(table(cumsum(repEv)))
-          parAgeVec <- c(parAgeVec, ibSort[which(repEv == 1)] / 365.25)
-          nindVec <- c(nindVec, c(nRepEvs))
-          parVec <- c(parVec, rep(unParentID[ip], length(nRepEvs)))
+        for (id in unique(subpar$ParentAnonID)) {
+          parid <- subpar%>%filter(ParentAnonID == id)%>%
+            sort(Offspring_BirthDate)
+
+          
+          parid$diff=   as.numeric(diff(parid$Offspring_BirthDate))
+          parid$litt=   as.numeric(diff > Nday)
+          
+          if(!perAge){
+            pardid$ageBirth = 0
+          }
+          
+          parid <- pardid%>%
+            group_by (Offspring_BirthDate, Offspring_Istitution, ageBirth)%>%
+            summarize(litterSize = n())
+          
+          littSizeDf <- rbind(littSizeDf, parid)
         }
-        littSizeDf <- data.frame(parentID = parVec, age = parAgeVec, 
-                                 Noffsp = nindVec)
-        unNind <- min(nindVec):max(nindVec)
-        nind <- length(unNind)
-        littSize <- matrix(NA, nind, 3, 
-                           dimnames = list(NULL, c("littSize", "total", 
-                                                   "prop")))
-        littSize[, "littSize"] <- unNind
-        for (iof in 1:nind) {
-          littSize[iof, "total"] <- length(which(nindVec == unNind[iof]))
+if (nrow(subpar)>= minNlitter)  {
+          littSizeTab <- littSizeDf%>%
+            group_by(litterSize)%>%
+           summarise( N = n(),
+                      prop = n()/nrow(littSizeDf))
+        
+        if(perAge){
+          littSizeperAge <- littSizeDf%>%
+            group_by(Age)%>%
+            summarise(littSizeMean = mean(litterSize),
+                      littSizeMean = sd(litterSize),
+                      Nlitter = n())
+          
+        }else{
+          littSizeDf <- littSizeDf%>%
+            dplyr::select(-ageBirth)
+          
         }
-        littSize[, "prop"] <- littSize[, "total"] / sum(littSize[, "total"], 
-                                                        na.rm = TRUE)
+
         # Summary
-        littSumm$MeanLittSize =  mean(nindVec)
-        littSumm$MedLittSize = median(nindVec)
+        littSumm$MeanLittSize =  mean(littSizeDf$litterSize)
+        littSumm$MedLittSize = median(littSizeDf$litterSize)
+        littSumm$SdLittSize = median(littSizeDf$litterSize)
         littSumm$analyzed = TRUE 
-        littSumm$NReprEvent= sum(littSize[, "total"])
+        littSumm$NReprEvent= sum(littSize$N)
+}else{
+  error = glue::glue("N birts with Parentage probability higher than {parentProb}")
+          Nerr = 2
+}
+      }else{
+        error = glue::glue("N litter < {minNlitter}")
+          Nerr = 1
+        
       }
-    }
-  }
+return(list(summary = littSumm, littSizeDf = littSizeDf,  
+            littSizeTab =  littSizeTab, littSizeperAge = littSizeperAge))
 }
 ```
 
 ```{r examples-Rep_littersize}
+data(core)
+data(collection)
+data(parent)
+data(moves)
+#prepare Data
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
 
+#Estimate litter size
+out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
+                           Nday = 7)
+
+out$littSizeTab
 ```
 
 ```{r tests-Rep_littersize}
 test_that("Rep_littersize works", {
-  
+  data(core)
+data(collection)
+data(parent)
+data(moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
+                           Nday = 7)
+
+expect_named(out, c("summary", "littSizeDf", "littSizeTab", "littSizeperAge"))
+# XXXXXXXXXXXXXXXXXXXXX
+# expect_true(is.numeric(as.numeric(out[1:11])))
+# expect_true(is.list(out[12]))
+# expect_true(is.list(out[13]))
 })
 ```
 
@@ -492,9 +582,9 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
   
   # Adults:
   if (BirthType_parent != "All"){
-    ADULTS <- core %>%
+    ADULTS <- coresubset %>%
       filter(stringr::str_detect(birthType, pattern = BirthType_parent))
-  }else{ADULTS<- core}
+  }else{ADULTS<- coresubset}
   
   ADULTS <- ADULTS%>%
     filter(as.numeric(MaxBirthDate - MinBirthDate) < Age_uncert)%>%
@@ -541,7 +631,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
       rename(Parent_BirthDate = BirthDate,
              Parent_DepartDate = DepartDate,
              Parent_birthType = birthType)%>% 
-      select(-c("ParentType", "ParentTypeID"))%>%
+      select(-c("ParentTypeID"))%>%
       distinct() %>% 
       #Offsping not in coresubset
       filter(AnonID %in% offspSub$anonID)%>%
@@ -577,7 +667,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
       #Keep only repro with age of parents at birth >0 
       subpar <- subpar%>%
         ## VERIFIER QUE J4AI Qu'une ligne par couple parent/enfantXXXXXXXXXXXXXXXXXXXXXXX
-        group_by(AnonID, ParentOriginType, ParentAnonID,  
+        group_by(AnonID, ParentOriginType, ParentAnonID,  ParentType,
                  OffspringCollectionScopeType, ParentCollectionScopeType, 
                  Parent_BirthDate, Parent_birthType, Offspring_BirthDate,
                  Sex, ageBirth, currentInst,  Offspring_Inst)%>%
@@ -646,7 +736,7 @@ test_that("Rep_prepdata works", {
   expect_true(is.numeric(Data$summary%>%as.numeric()))
   expect_named(Data$Adults, c(names(core), "ageAds", "Age", "Date_age", "ScopeType"))
   expect_named(Data$Reprodata, c("AnonID", "ParentOriginType", 
-                                 "ParentAnonID", "OffspringCollectionScopeType", 
+                                 "ParentAnonID", "ParentType", "OffspringCollectionScopeType", 
                                  "ParentCollectionScopeType", "Parent_BirthDate", 
                                  "Parent_birthType", "Offspring_BirthDate", "Sex",
                                  "ageBirth", "currentInst", "Offspring_Inst", 
