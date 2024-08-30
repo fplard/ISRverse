@@ -7,22 +7,33 @@
 tx_report(
   species,
   taxa,
-  core,
+  Animal,
   collection,
   PlotDir = NULL,
   weights = NULL,
   parents = NULL,
+  move = NULL,
   contraceptions = NULL,
+  DeathInformation = NULL,
   repout = list(),
   Sections = c("sur", "rep", "gro"),
   sexCats = c("Male", "Female"),
   minN = 50,
   minDate = "1980-01-01",
+  Global = TRUE,
   extractDate = NULL,
+  uncert_birth = 365,
+  uncert_death = 365,
+  uncert_date = 365,
   minNsur = 50,
+  maxNsur = NULL,
+  minInstitution = 2,
   minlx = 0.1,
   MinBirthKnown = 0.3,
   maxOutl = 100,
+  XMAX = 120,
+  Min_MLE = 0.1,
+  MaxLE = 2,
   models_sur = "GO",
   shape = "bathtub",
   niter = 25000,
@@ -30,13 +41,17 @@ tx_report(
   thinning = 20,
   nchain = 3,
   ncpus = 2,
+  Repsect = c("agemat", "litter"),
+  Birth_Type = "Captive",
   parentProb = 80,
+  minNlitter = 20,
+  Nday = 7,
   minNrepro = 100,
   minNparepro = 30,
   minNseas = 50,
   minNgro = 100,
   minNIgro = 50,
-  MeasureType = "",
+  MeasureType = NULL,
   models_gro = "vonBertalanffy"
 )
 }
@@ -45,7 +60,7 @@ tx_report(
 
 \item{taxa}{\code{character} the name of the taxa studied}
 
-\item{core}{\code{data.frame} core data}
+\item{Animal}{\code{data.frame} core data}
 
 \item{collection}{\code{data.frame} collection data}
 
@@ -55,7 +70,11 @@ tx_report(
 
 \item{parents}{\code{data.frame} parents data if the reproduction analysis is run}
 
+\item{move}{\code{data frame} Moves data including at least the following columns: \emph{AnimalAnonID}, \emph{To}, \emph{Date}}
+
 \item{contraceptions}{\code{data.frame} contraception data if the reproduction analysis is run}
+
+\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}}
 
 \item{repout}{\code{list} Previous result of the taxon profile for this species if it needs to be updated only}
 
@@ -67,15 +86,33 @@ tx_report(
 
 \item{minDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
+\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
+
 \item{extractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
 
+\item{uncert_birth}{\code{numeric}: Maximum uncertainty accepted for birth dates, in days}
+
+\item{uncert_death}{\code{numeric}: Maximum uncertainty accepted for death dates, in days. Default = 365}
+
+\item{uncert_date}{\code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days. Default = 365}
+
 \item{minNsur}{\code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50}
+
+\item{maxNsur}{\code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL}
+
+\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the analyses. Default = 2}
 
 \item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
 
 \item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
 
 \item{maxOutl}{\code{numeric} Maximum threshold for the longevity distribution. Default = 100}
+
+\item{XMAX}{\code{numeric} Maximum possible age. Default = 120}
+
+\item{Min_MLE}{\code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy}
+
+\item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
 
 \item{models_sur}{\code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
 
@@ -91,11 +128,19 @@ tx_report(
 
 \item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
 
-\item{parentProb}{\code{numeric} XXXXXXXXXXX}
+\item{Repsect}{\code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...}
 
-\item{minNrepro}{\code{numeric} XXXXXXXXXXX}
+\item{Birth_Type}{\code{character} Captive, Wild, or All. Default =  "Captive"}
 
-\item{minNparepro}{\code{numeric} XXXXXXXXXXX}
+\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+
+\item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
+
+\item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
+
+\item{minNrepro}{\code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50}
+
+\item{minNparepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30}
 
 \item{minNseas}{\code{numeric} XXXXXXXXXXX}
 
@@ -114,13 +159,19 @@ a list including the results and summary of each analysis
 Run the survival, reproduction and growth analysis for the selected species
 }
 \examples{
-data(core)
-data(collection)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSdirtest = dirname(file)
+data <- Load_Zimsdata	(taxa = "Reptilia",
+                       ZIMSdir = ZIMSdirtest,
+                       Animal = TRUE, tables = c("Collection","DeathInformation"))
+
+
 PlotDir = paste0(tempdir(check = TRUE),'\\\\temp')
 dir.create(PlotDir)
 
-out <- tx_report(species = "Gorilla gorilla", taxa = "Mammalia",
-                 core, collection, 
+out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
+                 data$Reptilia$Animal, data$Reptilia$Collection, 
+                 DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),
                  models_sur = "GO", shape = "simple",

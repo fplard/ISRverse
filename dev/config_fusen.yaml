@@ -38,10 +38,12 @@ flat_main.Rmd:
   - R/load_zimsdata.R
   - R/make_summary.R
   - R/run_txprofile.R
+  - R/split_zimsdata.R
   tests:
   - tests/testthat/test-run_txprofile.R
   - tests/testthat/test-make_summary.R
   - tests/testthat/test-load_zimsdata.R
+  - tests/testthat/test-split_zimsdata.R
   vignettes: vignettes/taxon-profiles.Rmd
   inflate:
     flat_file: dev/flat_main.Rmd
@@ -82,11 +84,13 @@ flat_select.Rmd:
   state: active
   R:
   - R/find_gaps.R
+  - R/prep_animal.R
   - R/select_longthreshold.R
   - R/select_species.R
   - R/tx_report.R
   tests:
   - tests/testthat/test-tx_report.R
+  - tests/testthat/test-prep_animal.R
   - tests/testthat/test-select_species.R
   - tests/testthat/test-select_longthreshold.R
   - tests/testthat/test-find_gaps.R

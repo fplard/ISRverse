@@ -46,7 +46,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
   checkmate::assert_directory_exists(AnalysisDir)
-   checkmate::assert_directory_exists(SaveDir)
+  checkmate::assert_directory_exists(SaveDir)
   assert_that(is.character(namefile))
   assert_that(is.list(BySex))
   assert_that(taxaList %in% names(BySex), msg = "BySex should be a list with names identical to taxaList")
@@ -188,7 +188,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                 by = c("Species", "Sex"))
     
     utils::write.csv(SurTab, file = glue::glue("{savedir}/SRGs_Survival{namefile}.csv"),
-              row.names = FALSE)
+                     row.names = FALSE)
     
     Surtabsum <- SurTab %>% 
       mutate(error =ifelse(error =="", "Analyzed",error),
@@ -225,7 +225,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     
     utils::write.csv(RepTab, file =  glue::glue("{savedir}/SRGs_Reproduction{namefile}.csv", globDir),
-              row.names = FALSE)
+                     row.names = FALSE)
     
     Ferttabsum <- RepTab  %>% tidyr::drop_na(Fert_error)%>% 
       mutate(Fert_error = ifelse(Fert_error =="", "Analyzed",Fert_error),
@@ -307,7 +307,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     
     utils::write.csv(GroTab, file = glue::glue("{savedir}/SRGs_Growth{namefile}.csv", globDir),
-              row.names = FALSE)
+                     row.names = FALSE)
     
     Grotabsum <- GroTab  %>% tidyr::drop_na(error)%>% 
       mutate(error =ifelse(error =="", "Analyzed",error),
@@ -334,7 +334,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   
   
   utils::write.csv(SummTab, file =  glue::glue("{savedir}/SRGs_Analyses{namefile}.csv", globDir),
-            row.names = FALSE)
+                   row.names = FALSE)
   return(SummTab)
   
 }

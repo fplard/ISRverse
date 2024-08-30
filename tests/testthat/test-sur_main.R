@@ -2,9 +2,23 @@
 
 test_that("Sur_main works", {
   data(core)
-  out <- Sur_main(core, BirthType = "Captive", 
+  data(deathinformation)
+  out <- Sur_main(core, DeathInformation = deathinformation, Birth_Type = "Captive", 
                   models = "LO", shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5'))
-
-})
+  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5', 'L90'))
+  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_summ", "Gof_KM"))
+  expect_named(out$DICmods, c("models", "DIC"))
+  expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
+  expect_true(is.numeric(out$relex$Upper))
+  expect_true(is.numeric(out$relex$Age))
+  expect_true(is.numeric(out$relex$RemLExp))
+  expect_true(is.numeric(out$relex$Lower))
+  expect_true(out$relex$Lower[1]<out$relex$RemLExp[1])
+  expect_true(out$relex$RemLExp[1]<out$relex$Upper[1])
+    expect_named(out$Sur5, c("Age", "Lower",  "Upper", "Sur_5yr"))
+  expect_true(is.numeric(out$Sur5$Lower))
+  expect_true(is.numeric(out$Sur5$Sur_5yr))
+   expect_named(out$L90, c("L90", "Lower",  "Upper"))
+  expect_true(out$L90$L90 >5)
+ })

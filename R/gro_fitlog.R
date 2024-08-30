@@ -19,7 +19,7 @@
 #' logx <- rnorm(100, 0, 1)
 #' logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
 #' dat = data.frame(logx = logx, logz = logz)
-#' Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
+#' out <- Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
 Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
   assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))

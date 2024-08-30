@@ -7,17 +7,17 @@
 select_Longthreshold(
   data.core,
   sexCats = "All",
-  PlotDir = "",
+  PlotDir = NULL,
   maintitle = "",
   minN = 50
 )
 }
 \arguments{
-\item{data.core}{\code{data.frame} including at least the following columns \emph{Birth.Date} (\code{date}), \emph{Depart.Date} (\code{date}), \emph{Entry.Date} (\code{date}), and \emph{Sex}}
+\item{data.core}{\code{data.frame} including at least the following columns \emph{Birth.Date} (\code{date}), \emph{Depart.Date} (\code{date}), \emph{Entry.Date} (\code{date}), and \emph{SexType}}
 
 \item{sexCats}{\code{character} Male, Female or All Default =  "All"}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = ""}
+\item{PlotDir}{\code{character} Directory to save the plots.}
 
 \item{maintitle}{\code{character} name of the graph to be saved. Default = ""}
 
@@ -34,7 +34,7 @@ A list including
 \item Nglobal: the number of individuals of this sex
 \item Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
 \item GapThresh : The threshold value selected for the distribution of longevity
-\item NThres : the number of individuals slected using this threshold
+\item NThres : the number of individuals selected using this threshold
 }
 }
 \description{
@@ -45,7 +45,7 @@ TempDir <- paste0(tempdir(check = TRUE),'\\\\temp')
 dir.create(TempDir)
 data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
 out <- select_Longthreshold (data.core = core,  sexCats = "All", 
-                             PlotDir = TempDir, maintitle = 'Gorilla_gorilla')
+                             PlotDir = TempDir, maintitle = "Testudo_hermanni")
 list.files(TempDir)
 #remove temporary folder
 unlink(TempDir, recursive = TRUE)

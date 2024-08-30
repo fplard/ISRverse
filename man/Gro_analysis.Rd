@@ -11,7 +11,7 @@ Gro_analysis(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{anonID}}
+\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{AnimalAnonID}}
 
 \item{all_mods}{\code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
 
@@ -31,9 +31,10 @@ This function fit a serie of growth models to a dataset, select the best one by 
 }
 \examples{
 Age <- sample(c(0:10), 100, replace = TRUE)
-anonID <- sample(c(0:20), 100, replace = TRUE)
-MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
+                          rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
 
 out = Gro_analysis(dat, 
                    all_mods = c("logistic", "vonBertalanffy", "gam"), 

@@ -4,20 +4,23 @@
 #'
 #'Select measures, remove outliers, select the best growth model and produce the percentile of the best fitting growth model for the sexes and birth types selected.
 #'
-#' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *CollectionScopeType*, *UnitOfMeasure*, *ExcludedFromNorms*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *anonID* and *AnonInstitutionID*.
-#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *Sex*, *anonID* and *Birthdate* (\code{date})
+#' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *UnitOfMeasure*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *AnimalAnonID* and *RecordingInstitution*.
+#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID* and *Birthdate* (\code{date})
 #' @param taxa  \code{character} the name of the taxa studied
 #' @param species \code{character} the name of the species studied
-#' @param BirthType \code{vector of character} NULL, Captive and/or Wild Default =  NULL
+#' @param Birth_Type \code{vector of character} "Captive", "Wild", and/or "All"
 #' @param agemat \code{numeric} age at sexual maturity . Default = NULL
 #' @param models \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
+#' @param uncert_date \code{numeric}: Maximum uncertainty accepted for measurement dates, in days
 #' @param minNgro \code{numeric} Minimum number of weight needed to fit the growth models
 #' @param minNIgro \code{numeric} Minimum number of unique individuals needed to fit the growth models
+#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the analysis. Default = 1
 #' @param type \code{character} Either 'weight' or 'length'. Default =  'weight
 #' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.
 #' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
+#' @param plotname \code{character} Name used to save the plot. Default = ""
 #' 
 #' @return A list including an analysis by sex and by birth type as included in the input. Each analysis includes: 
 #' *  The fit of the growth models with the AIC table of the model, the fit of the best model, a data frame with the percentile selected and 3 GOF test including the normality of residuals and the test of trend in residuals against X and in the variance of the residuals.
@@ -40,29 +43,30 @@
 #' @export
 #'
 #' @examples
-#' data(raw_weights)
+#' data(weights)
 #' data(core)
-#' output= Gro_Main(data = raw_weights, coresubse = core,
-#'                  taxa = "Mammalia", species = "Gorilla gorilla" ,
-#'                  BirthType = c("Captive", "Wild"), agemat = 1,
+#' output= Gro_Main(data = weights, coresubse = core,
+#'                  taxa = "Reptilia", species = "Testudo hermanni" ,
+#'                  Birth_Type = c("Captive", "Wild"), agemat = 1,
 #'                  type = "weight", MeasureType = "Live weight",
 #'                  minNgro = 30, minNIgro = 30, 
 #'                  models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 Gro_Main <- function(data, coresubse,
                      taxa, species ,
-                     BirthType = NULL, 
+                     Birth_Type = "All", 
                      agemat = NULL,
-                     type = "weight", MeasureType = NULL,
+                     type = "weight", MeasureType = NULL, 
+                     minInstitution = 1, uncert_date = 365,
                      minNgro = 30, minNIgro = 30, 
                      models = "vonBertalanffy", percentiles = c(2.5,97.5),
                      PlotDir = NULL,
-                     mindate = "1980-01-01") 
+                     mindate = "1980-01-01", plotname = '') 
 {
   mindate = lubridate::as_date(mindate)
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(coresubse))
-  assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
-  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "Sex", "anonID", "birthType"))
+  assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution"))
+  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "SexType", "AnimalAnonID", "BirthType"))
   assert_that(is.date(mindate))
   assert_that(is.character(taxa))
   assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
@@ -70,11 +74,11 @@ Gro_Main <- function(data, coresubse,
               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Actinopterygii'")
   assert_that(is.character(species))
-   if(!is.null(BirthType)){
-    assert_that(is.character(BirthType))
-    assert_that(all(BirthType %in% c("Captive", "Wild")))
-  }
-  
+    assert_that(is.character(Birth_Type))
+    assert_that(all(Birth_Type %in% c("Captive", "Wild", "All")))
+
+  assert_that(is.numeric(uncert_date))
+   assert_that(is.character(plotname))
   
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
@@ -91,18 +95,17 @@ Gro_Main <- function(data, coresubse,
   assert_that( minNIgro > 0)
   assert_that(is.numeric(minNgro))
   assert_that(minNgro > 0)
-    assert_that(is.character(MeasureType))
 assert_that(is.character(models))
     assert_that(all(models %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
 
   output = list()
   
-  # ANALYSIS BY SEX ------------------------------------------------------------------
-   
+
   # ANALYSIS BY BIRTH TYPE ------------------------------------------------------------------
-    for (bt in BirthType) {
+    for (bt in Birth_Type) {
       ouput <- Gro_cleanmeasures(data, coresubse = coresubse,
-                                  BirthType = bt, type = type, 
+                                  Birth_Type = bt, type = type, 
+                                 uncert_date = uncert_date,
                                   MeasureType = MeasureType,
                                   mindate = mindate,
                                   corevariable = NULL, variablekeep =NULL)
@@ -116,7 +119,7 @@ assert_that(is.character(models))
       if(nrow(ouput$data)>0){
         data_weight <- ouput$data%>%
           Gro_remoutliers (taxa = taxa, ageMat = agemat, maxweight = NULL, 
-                           variableid = "anonID", min_Nmeasures = 7,
+                           variableid = "AnimalAnonID", min_Nmeasures = 7,
                            perc_weight_min=0.2, perc_weight_max=2.5,
                            IQR=2.75, minq=0.025, Ninterval_juv = 10)
         summar$NJuv = nrow(data_weight%>%filter(juv==1))
@@ -125,21 +128,21 @@ assert_that(is.character(models))
         summar$NAd_keep = nrow(data_weight%>%filter(juv==0, KEEP == 1))
         
         if(!is.null(PlotDir)){
-          p1 <-Gro_outplot(data, title = glue("{species}_{bt}"), ylimit = NULL, xlimit = NULL)
-          ggsave(p1, filename = glue("{PlotDir}/{species}_{bt}_outliers.png"))
+          p1 <-Gro_outplot(data_weight, title = glue("{plotname}_{bt}"), ylimit = NULL, xlimit = NULL)
+          ggsave(p1, filename = glue("{PlotDir}/{plotname}_{bt}_outliers.png"))
         }
         
         data_weight <- data_weight %>%filter(KEEP ==1)
         
-        if(length(unique(data_weight$AnonInstitutionID))>1){
+        if(length(unique(data_weight$RecordingInstitution))>= minInstitution){
           
           #Take distinct measures are there are some duplicates within raw data
           datsub = data_weight%>%
-            dplyr::select(-AnonInstitutionID)%>%
+            dplyr::select(-RecordingInstitution)%>%
             distinct()
           
           summar$NWeight <- nrow(datsub)
-          summar$NInd <-  length(unique(datsub$anonID))
+          summar$NInd <-  length(unique(datsub$AnimalAnonID))
           
           if (summar$NWeight >= minNgro) {
             if (summar$NInd >= minNIgro) {
@@ -151,7 +154,7 @@ assert_that(is.character(models))
               if(!is.null(PlotDir)){
                 p2 <-Gro_plot(data = datsub, data_percent = wAnalysis$percent,
                               title =  glue("{species}_{bt}"))
-                ggsave(p2, filename = glue("{PlotDir}/{species}_{bt}_growth.png"))
+                ggsave(p2, filename = glue("{PlotDir}/{plotname}_{bt}_growth.png"))
               }
               
               #condition on model fit

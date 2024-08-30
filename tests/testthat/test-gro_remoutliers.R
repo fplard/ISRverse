@@ -17,7 +17,7 @@ test_that("Gro_remoutliers errors", {
 test_that("Gro_remoutliers works", {
   data = tibble(Age = c(rep(c(1:5),2),4),
                 MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
-                anonID = c(rep(1:2, each = 5),3))
+                AnimalAnonID = c(rep(1:2, each = 5),3))
   
   a= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
                      min_Nmeasures = 5, minq = 0.1, IQR = 1.2)

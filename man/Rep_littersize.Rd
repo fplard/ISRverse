@@ -13,7 +13,7 @@ Rep_littersize(
 )
 }
 \arguments{
-\item{Reprodata}{\code{data frame} including at least the columns \emph{AnonID}, \emph{ParentAnonID}, \emph{ParentType}, \emph{Probability}, \emph{Offspring_BirthDate}, \emph{Offspring_Inst} and \emph{ageBirth}}
+\item{Reprodata}{\code{data frame} including at least the columns \emph{AnimalAnonID}, \emph{ParentAnonID}, \emph{ParentType}, \emph{Probability}, \emph{Offspring_BirthDate}, \emph{Offspring_Inst} and \emph{Parent_Age}}
 
 \item{perAge}{\code{logical} Whether to estimate litter size per mother age. Default = FALSE}
 
@@ -54,11 +54,12 @@ data(collection)
 data(parent)
 data(moves)
 #prepare Data
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1, minNparep = 1,
+                      BirthType_parent = "All", BirthType_offspring = "All" )
 
 #Estimate litter size
-out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
-                           Nday = 7)
+out <- Rep_littersize(Data$Reprodata, perAge = FALSE,
+                      Nday = 7)
 
-out$littSizeTab
+out
 }

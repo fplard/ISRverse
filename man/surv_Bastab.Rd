@@ -6,6 +6,7 @@
 \usage{
 surv_Bastab(
   coresubset,
+  DeathInformation,
   earliestDate = NA,
   latestDate = NA,
   otherCovars = NA,
@@ -13,7 +14,9 @@ surv_Bastab(
 )
 }
 \arguments{
-\item{coresubset}{\code{data.frame} including at least the following columns \emph{anonID}, \emph{species}, \emph{binSpecies}, \emph{Class}, \emph{Order}, \emph{Family}, \emph{common}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, and \emph{causeDeath}}
+\item{coresubset}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{binSpecies}, \emph{Class}, \emph{Order}, \emph{Family}, \emph{CommonName}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, and \emph{DepartType}}
+
+\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}}
 
 \item{earliestDate}{\code{character 'YYYY-MM-DD'} Earlier date to be included. Default = NA}
 
@@ -42,7 +45,9 @@ This function removes:
 }
 \examples{
 data(core)
-out<- surv_Bastab(core, earliestDate = '1990-01-01', latestDate = '2020-12-31', 
+data(deathinformation)
+out<- surv_Bastab(core, DeathInformation = deathinformation,
+                  earliestDate = '1990-01-01', latestDate = '2020-12-31', 
                   otherCovars = NA, excludeStillbirth = TRUE)
 
 

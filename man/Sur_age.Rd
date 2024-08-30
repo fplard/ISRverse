@@ -41,5 +41,5 @@ theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
 
 
 out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-                 ageMax = 50, dage = 0.1, Nyear = 5)
+               ageMax = 50, dage = 0.1, Nyear = 5)
 }

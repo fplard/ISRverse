@@ -4,12 +4,16 @@
 #' 
 #' Run basta models on the data after checking conditions for correct convergence of the models
 #'
-#' @param sexData \code{data.frame} including at least the following columns *anonID*, *Birth.Date* (\code{date}), *Depart.Date* (\code{date}), *Entry.Date* (\code{date}), *Max.Birth.Date* (\code{date}), *Min.Birth.Date* (\code{date}), *Entry.Type*, *Depart.Type* and *AnonInstitutionID*
+#' @param sexData \code{data.frame} including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*
+#' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
 #' @param outlLev1 \code{numeric} Start threshold used to selected for the data: 100%, 99.9, 99 or 95%
 #' @param models \code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
 #' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death date, in days
 #' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
+#' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
+#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 1
 #' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
 #' @param niter  \code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000
@@ -28,7 +32,7 @@
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the growth analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data; 2/lxMin > minlx; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #' 
@@ -36,19 +40,29 @@
 #'
 #' @examples
 #' data(core)
-#' out <- Sur_ana(core,  models = "GO", shape = "simple",
-#'                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-Sur_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
-                     mindate = "1980-01-01", minNsur = 50, 
-                     minlx = 0.1, MinBirthKnown = 0.3, 
-                     niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
+#' data(deathinformation)
+#' out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+#'                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", shape = "simple",
+                    mindate = "1980-01-01", minNsur = 50,maxNsur = NULL, uncert_death=365,
+                    minlx = 0.1, MinBirthKnown = 0.3, minInstitution = 1,
+                    niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
   
   mindate = lubridate::as_date(mindate)
   assert_that(is.data.frame(sexData))
-  assert_that(sexData %has_name% c("anonID", "BirthDate", "DepartDate", "EntryDate", "MaxBirthDate", "MinBirthDate", "EntryType", "DepartType", "firstInst", "lastInst"))
-  assert_that(is.numeric(outlLev1))
+  assert_that(sexData %has_name% c("AnimalAnonID", "BirthDate", "DepartDate",
+                                   "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                   "EntryType", "DepartType", "FirstHoldingInstitution", 
+                                   "LastHoldingInstitution", "SexType", "BirthType"))
+  assert_that(is.data.frame(DeathInformation))
+  assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
   assert_that(outlLev1 <= 100)
   assert_that(is.numeric(minNsur))
+  assert_that(is.double(minInstitution))
+  assert_that(is.numeric(uncert_death))
+  if(!is.null(maxNsur)) {
+    assert_that(is.numeric(maxNsur))
+  }else{maxNsur = nrow(sexData)}
   assert_that(minNsur > 0)
   assert_that(is.numeric(minlx))
   assert_that(minlx > 0)
@@ -82,6 +96,11 @@ Sur_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
     analyzed = FALSE, Nerr = 0,  error ="")
   bastaRes = NULL
   DICmods = NULL
+  
+  #Remove individuals with uncertainty in death date
+  sexData <- sexData%>%
+    filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE))
+  
   #Find the minimum threshold for which lxmin  >.1
   summar$lxMin <- 1
   outLev2 = outlLev1
@@ -116,8 +135,8 @@ Sur_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
     # summar$MedLE = median(deparAge[deparType == "D"])
     
     # Extract BaSTA table:
-    bastalist <- surv_Bastab(data_sel, earliestDate = mindate,
-                               excludeStillbirth = TRUE)
+    bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
+                             excludeStillbirth = TRUE)
     bastatab <- bastalist%>%
       mutate(
         bdun = Max.Birth.Date-Min.Birth.Date,
@@ -134,56 +153,58 @@ Sur_ana <- function(sexData, outlLev1 = 100, models = "GO", shape = "simple",
         summar$NBasta
       if(Perbirthknown >= MinBirthKnown){
         #Check that we have more than 1 institution
-        Instb =  unique(data_sel$firstInst[data_sel$anonID %in% bastatab$anonID])
-        Instl =  unique(data_sel$lastInst[data_sel$anonID %in% bastatab$anonID])
-        if(length(unique(c(Instb,Instl)))>1){
+        Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
+        Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
+        if(length(unique(c(Instb,Instl)))>=minInstitution){
           if (summar$NBasta >= minNsur) {
-            tempList <- list()
-            DICmods <- tibble(models,
-                              DIC = 0)
-            
-            
-            for (imod in 1:length(models)) {
-              print(models[imod])
-              tempList[[models[imod]]] <- BaSTA::basta(
-                bastatab, dataType = "census", shape = shape, 
-                model = models[imod], parallel = TRUE, 
-                ncpus = ncpus, nsim = nchain,
-                niter = niter, burnin = burnin, thinning = thinning)
-              
-              if (!is.na( tempList[[models[imod]]]$DIC[1])) {
-                DICmods$DIC[imod] <-  tempList[[models[imod]]]$DIC["DIC"]
-              }
-            }
-            if (all(DICmods$DIC == 0)) {
-              print("more chains")
+            if(summar$NBasta <= maxNsur){
+              tempList <- list()
+              DICmods <- tibble(models,
+                                DIC = 0)
               for (imod in 1:length(models)) {
                 print(models[imod])
                 tempList[[models[imod]]] <- BaSTA::basta(
-                  bastatab, dataType = "census", shape = "bathtub", 
+                  bastatab, dataType = "census", shape = shape, 
                   model = models[imod], parallel = TRUE, 
-                  ncpus = ncpus, nsim = nchain, 
-                  niter = niter*4, burnin = burnin*4, thinning = thinning)
-                if (!is.na(tempList[[models[imod]]]$DIC[1])) {
-                  DICmods$DIC[imod] <-tempList[[models[imod]]]$DIC["DIC"]
+                  ncpus = ncpus, nsim = nchain,
+                  niter = niter, burnin = burnin, thinning = thinning)
+                
+                if (!is.na( tempList[[models[imod]]]$DIC[1])) {
+                  DICmods$DIC[imod] <-  tempList[[models[imod]]]$DIC["DIC"]
                 }
-                
-                
-              } 
-            }
-            
-            # BaSTA outputs:
-            if (any(DICmods$DIC != 0)) {
-              idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
-              bastaRes <- tempList[[idModSel]]
+              }
+              if (all(DICmods$DIC == 0)) {
+                print("more chains")
+                for (imod in 1:length(models)) {
+                  print(models[imod])
+                  tempList[[models[imod]]] <- BaSTA::basta(
+                    bastatab, dataType = "census", shape = shape,
+                    ncpus = ncpus, nsim = nchain, 
+                    niter = niter*4, burnin = burnin*4-3, thinning = thinning)
+                  if (!is.na(tempList[[models[imod]]]$DIC[1])) {
+                    DICmods$DIC[imod] <-tempList[[models[imod]]]$DIC["DIC"]
+                  }
+                  
+                  
+                } 
+              }
+              
+              # BaSTA outputs:
+              if (any(DICmods$DIC != 0)) {
+                idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
+                bastaRes <- tempList[[idModSel]]
+                summar$analyzed = TRUE
+              } else {
+                summar$error = 'no DIC from Basta'
+                summar$Nerr = 8
+              }
             } else {
-              summar$error = 'no DIC from Basta'
+              summar$error = "Nbasta > maxNsur"
               summar$Nerr = 7
+            }} else {
+              summar$error = "Nbasta < minNsur"
+              summar$Nerr = 6
             }
-          } else {
-            summar$error = "Nbasta < minNsur"
-            summar$Nerr = 6
-          }
         }else{
           summar$error = "Data from 1 Institution"
           summar$Nerr = 5

@@ -4,7 +4,7 @@
 #' 
 #' This function flag 
 #' 
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric}) and *anonID*
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric}) and *AnimalAnonID*
 #' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
 #' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
@@ -26,7 +26,7 @@
 #'
 #' #We use only trajectories for which the number of individual datapoints is > 6
 #' weights <- weights%>%
-#'   dplyr::group_by(anonID)%>%
+#'   dplyr::group_by(AnimalAnonID)%>%
 #'   dplyr::mutate(nb= dplyr::n())%>%
 #'   dplyr::ungroup()%>%
 #'   dplyr::filter(nb >6)
@@ -52,7 +52,7 @@ Gro_lin_ind <- function(data_weight,
   assert_that(IQR  > 1, msg = 'IQR should be higher than 1 to avoid removing real data')
   assert_that(is.logical(remove_ext))
   assert_that(is.logical(traj_ind))
-  assert_that(data_weight %has_name% c("MeasurementValue","Age", "anonID"))
+  assert_that(data_weight %has_name% c("MeasurementValue","Age", "AnimalAnonID"))
   
   
   data_weight<-data_weight%>%

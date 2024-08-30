@@ -24,9 +24,9 @@ library(ISRverse)
 
 `Sur_main()` runs the survival analysis (see next function : `Sur_ana()`) and the remaining life expectancy analysis (see `Sur_relex()`) on each sex category. In addition to the arguments of `Sur_ana()`, `Sur_main()` includes the following arguments:
 
-* `data.core`the core data of the species from ZIMS including at least the following columns *anonID*, *Birth.Date*, *Depart.Date*, *Entry.Date*, *Max.Birth.Date*, *Min.Birth.Date*, *Entry.Type*, *Depart.Type*, *Sex*, *birthType*, and *AnonInstitutionID*.
-* `BirthType`: When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All
-* `xMax` Maximum age in years
+* `data.core`the core data of the species from ZIMS including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, *BirthType* and *RelevantDeathInformationType*.
+* `DeathInformation` data.frame including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
+* `Birth_Type`: When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All
 * `PlotDir`: Directory to save the plots of the best models
 
 It return a list per sex category including:
@@ -38,19 +38,24 @@ It return a list per sex category including:
 
 ```{r examples-Sur_main}
 data(core)
-out <- Sur_main(core, BirthType = "All",
-                 models = "GO", shape = "simple",
-                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+data(deathinformation)
+out <- Sur_main(core, DeathInformation = deathinformation, Birth_Type = "All",
+                models = "GO", shape = "simple",
+                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 ```
 
 # Survival Analysis
 
 This functions runs basta models on the data after checking conditions for correct convergence of the models. It includes the following arguments:
-* `sexData`including at least the following columns *anonID*, *Birth.Date*, *Depart.Date*, *Entry.Date*, *Max.Birth.Date*, *Min.Birth.Date*, *Entry.Type*, *Depart.Type*, and *AnonInstitutionID*.
+* `sexData`including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*.
+* `DeathInformation` data.frame including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
 * `models` names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
+* `uncert_death` Maximum uncertainty accepted for death date, in days
 * ` minNsur` Minimum number of individual records needed to run the survival analysis
+* `maxNsur` Maximum number of individual records to run the survival analysis
 * `minlx` Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis
 * `MinBirthKnown` Minimum proportion of individuals with a known birth month in the data
+* `minInstitution` Minimum number of institutions that should hold records to run the survival analysis
 
 It return a list including:
 * a summary of the data used
@@ -60,15 +65,17 @@ It return a list including:
 
 ```{r examples-Sur_ana}
 data(core)
-out <- Sur_ana(core,  models = "GO", shape = "simple",
-                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+data(deathinformation)
+out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 ```
 
 # Create Basta data frame
 
 This functions format the data prior to run basta models. It checks column names and the succession of dates for each individual. It includes the following arguments:
 
-* `coresubset` data frame including at least the following columns *anonID*, *species*, *binSpecies*, *Class*, *Order*, *Family*, *common*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, and *causeDeath*
+* `coresubset` data frame including at least the following columns *AnimalAnonID*, *binSpecies*, *Class*, *Order*, *Family*, *CommonName*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, and *DepartType*
+* `DeathInformation` data.frame including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
 * `earliestDate` Earlier date to be included.
 * `latestDate` LAtest date to be included.
 * `otherCovars` Additional variables to include in the data
@@ -87,7 +94,9 @@ This function return the subset dataset excluding individuals:
 
 ```{r examples-surv_Bastab}
 data(core)
-out<- surv_Bastab(core, earliestDate = '1990-01-01', latestDate = '2020-12-31', 
+data(deathinformation)
+out<- surv_Bastab(core, DeathInformation = deathinformation,
+                  earliestDate = '1990-01-01', latestDate = '2020-12-31', 
                   otherCovars = NA, excludeStillbirth = TRUE)
 
 
@@ -146,6 +155,26 @@ theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
 
 
 out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-                 ageMax = 50, dage = 0.1, Nyear = 5)
+               ageMax = 50, dage = 0.1, Nyear = 5)
+```
+
+# Maximum Longveity
+
+`Sur_90()` estimate the age when 90% of the population died. It includes the following arguments: 
+
+* `theMat` including the posteriors estimates of the model parameter
+* `model` names of the basta models to run: "G0", "EX", "LO" and/or "WE".
+* `shape` character shape of the basta model: "simple", "Makeham", "bathtub". 
+* `xMax` Maximum age in years
+* `ncpus`; the number of core to use
+
+
+```{r examples-Sur_90}
+theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
+                               b1= rnorm(10, 0.1, 0.01)))
+
+
+out <- Sur_90(theMat, model = 'GO', shape = 'simple', ncpus = 2,
+              ageMax = 50, dage = 0.1)
 ```
 

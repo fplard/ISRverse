@@ -6,13 +6,17 @@
 \usage{
 Sur_ana(
   sexData,
+  DeathInformation,
   outlLev1 = 100,
   models = "GO",
   shape = "simple",
   mindate = "1980-01-01",
   minNsur = 50,
+  maxNsur = NULL,
+  uncert_death = 365,
   minlx = 0.1,
   MinBirthKnown = 0.3,
+  minInstitution = 1,
   niter = 25000,
   burnin = 5001,
   thinning = 20,
@@ -21,7 +25,9 @@ Sur_ana(
 )
 }
 \arguments{
-\item{sexData}{\code{data.frame} including at least the following columns \emph{anonID}, \emph{Birth.Date} (\code{date}), \emph{Depart.Date} (\code{date}), \emph{Entry.Date} (\code{date}), \emph{Max.Birth.Date} (\code{date}), \emph{Min.Birth.Date} (\code{date}), \emph{Entry.Type}, \emph{Depart.Type} and \emph{AnonInstitutionID}}
+\item{sexData}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{SexType}, and \emph{BirthType}}
+
+\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}}
 
 \item{outlLev1}{\code{numeric} Start threshold used to selected for the data: 100\%, 99.9, 99 or 95\%}
 
@@ -33,9 +39,15 @@ Sur_ana(
 
 \item{minNsur}{\code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50}
 
+\item{maxNsur}{\code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL}
+
+\item{uncert_death}{\code{numeric}: Maximum uncertainty accepted for death date, in days}
+
 \item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
 
 \item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
+
+\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 1}
 
 \item{niter}{\code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000}
 
@@ -61,7 +73,7 @@ The output of a list including:
 \item lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of  time spent alive: 100\%, 99.9, 99 or 95\%
 \item a logical indicated if the growth analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ \%known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data; 2/lxMin > minlx; 3/NBasta = 0; 4/ \%known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
 }
 \itemize{
 \item the basta fit of the best model
@@ -73,6 +85,7 @@ Run basta models on the data after checking conditions for correct convergence o
 }
 \examples{
 data(core)
-out <- Sur_ana(core,  models = "GO", shape = "simple",
-                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+data(deathinformation)
+out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 }

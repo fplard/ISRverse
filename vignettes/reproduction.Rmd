@@ -22,6 +22,22 @@ library(ISRverse)
 
 # Rep_main
 
+`Rep_main` runs the age at sexual maturity and the litter size analysis. It uses at least the following arguments:
+
+* cleaned `coresubset` including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*
+* `collection`data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
+* `parent` data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
+* `move` data including at least the following columns: *AnimalAnonID*, *To*, *Date*
+* `Repsect` names of the reproductive analyses to run: "agemat", "litter" and/or ...
+
+
+It return a list per sex category including:
+* a summary of the data used
+* the output for the age at maturity if the analysis is selected
+* the output for the litter size if the analysis is selected
+
+
+
 ```{r examples-Rep_main}
 
 ```
@@ -29,7 +45,7 @@ library(ISRverse)
 # Age at first reproduction
 
 `Rep_agemat()` returns summary statistics for ages of reproduction. It uses the following argument:
-* Reprodata, a data frame including at least the columns *ParentAnonID* and *ageBirth*
+* Reprodata, a data frame including at least the columns *ParentAnonID* and *Parent_Age*
 
 
 ```{r examples-Rep_agemat}
@@ -38,7 +54,8 @@ data(collection)
 data(parent)
 data(moves)
 #prepare Data
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves, 
+                      minNrep = 1, minNparep = 1)
 #Calculate summary for reproductive ages
 out <- Rep_agemat(Data$Reprodata)
 out
@@ -49,7 +66,7 @@ out
 
 `Rep_littersize()` makes a data frame of litter size per parent and birth date and produces summary tables of litter size. It uses the following arguments:
 
-* `Reprodata` including at least the columns *AnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *ageBirth*
+* `Reprodata` including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
 * `perAge`:  Whether to estimate litter size per mother age
 * `Nday`: the number of consecutive days over which the birth dates of a litter/clutch can be spread
 
@@ -66,13 +83,14 @@ data(collection)
 data(parent)
 data(moves)
 #prepare Data
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1, minNparep = 1,
+                      BirthType_parent = "All", BirthType_offspring = "All" )
 
 #Estimate litter size
-out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
-                           Nday = 7)
+out <- Rep_littersize(Data$Reprodata, perAge = FALSE,
+                      Nday = 7)
 
-out$littSizeTab
+out
 ```
 
 # fertility
@@ -85,10 +103,10 @@ out$littSizeTab
 
 `Rep_prepdata()` prepares reproduction data including age of parent at birth, offspring sex and birth date and data of potential reproductive individuals at each age. It uses at least the following arguments:
 
-* cleaned `coresubset` including only the selected individuals. It must includes at least the following columns: *anonID*, 'birthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*Sex*, and *firstInst*
-* `collection`data including at least the following columns: *AnimalID*, *ScopeType*, *ChangeDate*
-* `parent` data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnonID*, *ParentOriginType*, *Probability*
-* `moves` data including at least the following columns: *AnonID*, *To*, *Date*
+* cleaned `coresubset` including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*
+* `collection`data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
+* `parent` data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
+* `moves` data including at least the following columns: *AnimalAnonID*, *To*, *Date*
 
 
 
@@ -107,11 +125,5 @@ Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
 
 ```{r examples-Rep_season}
 
-```
-
-# my_fun
-
-```{r examples-my_fun}
-my_fun()
 ```
 

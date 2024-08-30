@@ -22,4 +22,13 @@ globalVariables(c("Age", "anonID", "MeasurementValue", "age0", "agem", "ager", "
     "Parent_birthType", "Probability", "To", "ageAds", "ageBirth", "ageBirthDisc",
     "birthYear", "contra", "currentInst", "dist", "firstInst",
     "minNrepro", "minNseas", "mintime", "sexDat", "subinst",
-    "subpar", "sx", "taxa"), package ="ISRverse")
+    "subpar", "sx", "taxa", "AnimalAgeDays", "AnimalAnonID", "AnimalType", "BirthDateEstimateEnd",
+    "BirthDateEstimateStart", "BirthObserved", "BirthType", "Birth_Uncertainty",
+    "Date_Uncert", "DeathDate", "DeathDateEstimateEnd", "DeathDateEstimateStart",
+    "Death_Uncertainty", "ExcludededFromNorms", "FirstAcquisitionDate",
+    "FirstHoldingInstitution", "GlobalStatus", "InstitutionAnonID", "LastTXDate",
+    "LengthValueCm", "MaxDeathDate", "MeasurementDateEstimateEnd",
+    "MeasurementDateEstimateStart", "MinDeathDate", "ParentType", "Parent_Age",
+    "Parent_BirthType", "RelevantDeathInformationType", "SexType", "SpeciesName",
+    "WeightValueKg", "ageVec", "litter", "litterSize", "out", "parent",
+    "sexCats", "subparfert", "moves", ":="), package ="ISRverse")

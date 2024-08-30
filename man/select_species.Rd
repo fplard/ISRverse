@@ -8,6 +8,7 @@ select_species(
   speciesname,
   coresubset,
   collection,
+  uncert_birth = 365,
   minDate,
   extractDate,
   Global = TRUE
@@ -16,9 +17,11 @@ select_species(
 \arguments{
 \item{speciesname}{\code{character} latin name of the species selected}
 
-\item{coresubset}{\code{data.frame} including at least the following columns \emph{anonID}, \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), \emph{MaxBirthDate} (\code{date}), \emph{MinBirthDate} (\code{date}), \emph{EntryType}, \emph{DepartType}, \emph{DepartFrom}, \emph{firstInst}, \emph{LastTXDate}, \emph{DeathDate}, \emph{lastInst},\emph{globStat}, \emph{LastCollectionScopeType}, and \emph{FirstCollectionScopeType}}
+\item{coresubset}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{binSpecies}, \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), \emph{MaxBirthDate} (\code{date}), \emph{MinBirthDate} (\code{date}), \emph{MaxDeathDate} (\code{date}), \emph{MinDeathDate} (\code{date}), \emph{EntryType}, \emph{DepartType},  \emph{LastTXDate}, \emph{DeathDate}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{GlobalStatus}, \emph{LastCollectionScopeType}, and \emph{FirstCollectionScopeType}}
 
-\item{collection}{\code{data.frame} including at least the following columns\emph{RecordingInstitution}, \emph{ChangeDate}, \emph{ScopeType}, and \emph{AnimalID}.}
+\item{collection}{\code{data.frame} including at least the following columns\emph{RecordingInstitution}, \emph{ChangeDate}, \emph{ScopeType}, and \emph{AnimalAnonID}.}
+
+\item{uncert_birth}{\code{numeric}: Maximum uncertainty accepted for birth date, in days}
 
 \item{minDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
@@ -49,7 +52,7 @@ Extract data of the specified species that fill the condition on minimum date an
 \examples{
 data(core)
 data(collection)
-out<- select_species(speciesname = "Gorilla gorilla", coresubset = core, collection,
+out<- select_species(speciesname = "Testudo hermanni", coresubset = core, collection,
                      minDate = "1980-01-01", extractDate = "2023-01-01")
 out$summary
 out$data

@@ -4,14 +4,15 @@
 #' 
 #' Prepare reproduction data including age of parent at birth, offspring sex and birth date and data of potential reproductive individuals at each age.
 #'
-#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *anonID*, 'birthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*Sex*, and *firstInst*
-#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalID*, *ScopeType*, *ChangeDate*
-#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnonID*, *ParentOriginType*, *Probability*
-#' @param moves \code{data frame} Moves data including at least the following columns: *AnonID*, *To*, *Date*
+#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*
+#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
+#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
+#' @param moves \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*
 #' @param BirthType_parent \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param BirthType_offspring \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param Age_uncert \code{numeric} Maximum uncertainty (= MaxBirthDate - MinBirthDate) in birth date in days. Default = 10000
-#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = TRUE
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = #'
+#' @param minNrep \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
+#' @param minNparep \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
 #'
 #' @return A list including
 #' * The reproduction data
@@ -23,7 +24,10 @@
 #'  - NParent: the number of unique parents with known age and with offspring with known birth date
 #'  - NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
 #'  - NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
-#' 
+#'  - a logical indicated if the reproductive analysis can be performed
+#'  -  If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < minNrep and 2/Nparentshs < minNparep
+#'  
+#'  
 #' @export
 #'
 #' @examples
@@ -35,9 +39,9 @@
 #' Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
 #'                       BirthType_parent = "Captive", BirthType_offspring = "Captive"
 #' )
-Rep_prepdata <- function(coresubset, collection, parent, moves,
+Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minNparep =30,
                          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
-                         Age_uncert = 1000000, Global = TRUE
+                         Global = TRUE
 ) {
   
   assert_that(is.data.frame(coresubset))
@@ -45,32 +49,32 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
   assert_that(is.data.frame(parent))
   assert_that(is.data.frame(moves))
   
-  assert_that(coresubset %has_name% c("anonID", 'birthType', "MaxBirthDate", 
+  assert_that(coresubset %has_name% c("AnimalAnonID", 'BirthType', "MaxBirthDate", 
                                       "MinBirthDate", "DepartDate", "BirthDate",
-                                      "Sex", "firstInst"))
-  assert_that(collection %has_name% c("AnimalID", "ScopeType", "ChangeDate"))
+                                      "SexType", "FirstHoldingInstitution"))
+  assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
   assert_that(parent %has_name% c("ParentAnonID", "ParentCollectionScopeType", 
-                                  "OffspringCollectionScopeType", "AnonID",
+                                  "OffspringCollectionScopeType", "AnimalAnonID",
                                   "ParentOriginType", "Probability"))
-  assert_that(moves %has_name% c("AnonID", "To", "Date"))
+  assert_that(moves %has_name% c("AnimalAnonID", "To", "Date"))
   
-  assert_that(is.character( BirthType_parent))
+  assert_that(is.character(BirthType_parent))
   assert_that(BirthType_parent %in% c("Captive", "Wild", "All"))
   assert_that(is.character( BirthType_offspring))
   assert_that( BirthType_offspring %in% c("Captive", "Wild", "All"))
-  assert_that(is.numeric(Age_uncert))
   assert_that(is.logical(Global))
   
   fertSumm <- tibble(Nbirths = 0,
                      Nadults = 0,
                      NOffsp = 0, NParent = 0,
-                     NOffsp_age = 0, NParent_age = 0
+                     NOffsp_age = 0, NParent_age = 0,
+                     analyzed = TRUE, Nerr = 0, err = ""
   )
   
   #Offspring               
   if (BirthType_offspring != "All"){
     offspSub <- coresubset %>%
-      filter(stringr::str_detect(birthType, pattern = BirthType_offspring))
+      filter(stringr::str_detect(BirthType, pattern = BirthType_offspring))
   }else{offspSub<- coresubset}
   # Number of birth records:
   fertSumm$Nbirths <- nrow(offspSub)
@@ -79,11 +83,10 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
   # Adults:
   if (BirthType_parent != "All"){
     ADULTS <- coresubset %>%
-      filter(stringr::str_detect(birthType, pattern = BirthType_parent))
+      filter(stringr::str_detect(BirthType, pattern = BirthType_parent))
   }else{ADULTS<- coresubset}
   
   ADULTS <- ADULTS%>%
-    filter(as.numeric(MaxBirthDate - MinBirthDate) < Age_uncert)%>%
     # Find Depart ages of all inds in adults table:
     mutate(ageAds = ceiling(as.numeric(DepartDate - BirthDate) / 365.25))%>%
     #increase the table to have a row per individual and per age
@@ -92,15 +95,15 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
            Date_age = BirthDate + lubridate::years(Age))%>%
     distinct()
   
-  if(Global){
+  if(Global & nrow(ADULTS)>0){
     ADULTS <- ADULTS%>%
       #paste collection for each individual and age
       left_join(collection%>%as_tibble%>%
-                  select(AnimalID, ScopeType, ChangeDate)%>%rename(anonID = AnimalID)%>% distinct(), 
-                by = "anonID", relationship = "many-to-many")%>%
+                  select(AnimalAnonID, ScopeType, ChangeDate)%>% distinct(), 
+                by = "AnimalAnonID", relationship = "many-to-many")%>%
       mutate(dist = purrr::map2_dbl(Date_age, ChangeDate, difftime)) %>%
       filter(dist >= 0)%>%
-      group_by(anonID, Age) %>%
+      group_by(AnimalAnonID, Age) %>%
       mutate(maxtime = min(dist)) %>%
       ungroup()%>%
       filter(maxtime  == dist) %>%
@@ -113,36 +116,35 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
   }
   
   # Number of adult records:
-  fertSumm$Nadults <- length(unique(ADULTS$anonID))
+  fertSumm$Nadults <- length(unique(ADULTS$AnimalAnonID))
   
   
   if ( fertSumm$Nadults > 0) {
     
     #select parents and remove duplicated rows
     subpar <- parent %>%
-      filter(ParentAnonID %in% unique(ADULTS$anonID))%>% 
-      left_join(ADULTS%>%select(anonID, BirthDate,DepartDate, birthType)%>%distinct(),
+      filter(ParentAnonID %in% unique(ADULTS$AnimalAnonID))%>% 
+      left_join(ADULTS%>%select(AnimalAnonID, BirthDate,DepartDate, BirthType)%>%distinct(),
                 relationship = "many-to-many",
-                by =c("ParentAnonID" = "anonID"))%>%
+                by =c("ParentAnonID" = "AnimalAnonID"))%>%
       rename(Parent_BirthDate = BirthDate,
              Parent_DepartDate = DepartDate,
-             Parent_birthType = birthType)%>% 
-      select(-c("ParentTypeID"))%>%
+             Parent_BirthType = BirthType)%>% 
       distinct() %>% 
       #Offsping not in coresubset
-      filter(AnonID %in% offspSub$anonID)%>%
-      left_join(offspSub%>%select(anonID, BirthDate, Sex, firstInst),
-                by =c("AnonID" = "anonID"))%>%
+      filter(AnimalAnonID %in% offspSub$AnimalAnonID)%>%
+      left_join(offspSub%>%select(AnimalAnonID, BirthDate, SexType, FirstHoldingInstitution),
+                by =c("AnimalAnonID" = "AnimalAnonID"))%>%
       rename(Offspring_BirthDate = BirthDate,
-             Offspring_Inst = firstInst)%>%
-      mutate(ageBirth = as.numeric(Offspring_BirthDate - 
-                                     Parent_BirthDate) / 365.25)%>%
+             Offspring_Inst = FirstHoldingInstitution)%>%
+      mutate(Parent_Age = as.numeric(Offspring_BirthDate - 
+                                       Parent_BirthDate) / 365.25)%>%
       left_join(moves%>%as_tibble%>%
-                  select(AnonID, To, Date), 
-                by = c("ParentAnonID" = "AnonID"), relationship = "many-to-many")%>%
+                  select(AnimalAnonID, To, Date), 
+                by = c("ParentAnonID" = "AnimalAnonID"), relationship = "many-to-many")%>%
       mutate(dist = purrr::map2_dbl(Offspring_BirthDate , Date, difftime)) %>%
       filter(dist >= 0)%>%
-      group_by(AnonID) %>%
+      group_by(AnimalAnonID) %>%
       mutate(mintime = min(dist)) %>%
       ungroup()%>%
       filter(mintime  == dist) %>%
@@ -152,7 +154,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
     
     
     # Number of births
-    fertSumm$NOffsp <- length(unique(subpar$AnonID))
+    fertSumm$NOffsp <- length(unique(subpar$AnimalAnonID))
     fertSumm$NParent <- length(unique(subpar$ParentAnonID))
     
     
@@ -163,30 +165,73 @@ Rep_prepdata <- function(coresubset, collection, parent, moves,
       #Keep only repro with age of parents at birth >0 
       subpar <- subpar%>%
         ## VERIFIER QUE J4AI Qu'une ligne par couple parent/enfantXXXXXXXXXXXXXXXXXXXXXXX
-        group_by(AnonID, ParentOriginType, ParentAnonID,  ParentType,
+        group_by(AnimalAnonID, ParentOriginType, ParentAnonID,  ParentType,
                  OffspringCollectionScopeType, ParentCollectionScopeType, 
-                 Parent_BirthDate, Parent_birthType, Offspring_BirthDate,
-                 Sex, ageBirth, currentInst,  Offspring_Inst)%>%
+                 Parent_BirthDate, Parent_BirthType, Offspring_BirthDate,
+                 SexType, Parent_Age, currentInst,  Offspring_Inst)%>%
         summarise(Probability = max(Probability))%>%
-        filter(ageBirth>0)%>%ungroup()
+        filter(Parent_Age>0)%>%ungroup()
       
-      fertSumm$NOffsp_age <- length(unique(subpar$AnonID))
+      fertSumm$NOffsp_age <- length(unique(subpar$AnimalAnonID))
       fertSumm$NParent_age <- length(unique(subpar$ParentAnonID))
       
-    }
+      
+    } 
+    
+  }
+  if (fertSumm$NParent_age < minNparep ) {
+    Adults = subpar = tibble()
+    fertSumm$analyzed = FALSE
+    fertSumm$err = "Nparents < minNparep"
+    fertSumm$Nerr = 2
+  }
+  if (fertSumm$NOffsp_age < minNrep ) {
+    Adults = subpar = tibble()
+    fertSumm$analyzed = FALSE
+    fertSumm$err = "Nbirths < minNrep"
+    fertSumm$Nerr = 1
   }
   
   # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  # # Find which individuals are in the contraception data:
+  #   
+  #   # Extract contraception method:
+  #   idIncont <- which(as.character(.contraception$` AnimalAnonID`) %in% 
+  #                       as.character(newcore$AnimalAnonID))
+  #   subContra <- .contraception[idIncont, ]
+  #   nContra <- length(idIncont)
+  #   method <- rep("NA", nContra)
+  #   genMethod <- c("hormonal", "surgical", "immunological", "Management", 
+  #                  "Indeterminate", "Undetermined")
+  #   methodTransl <- c("Hormonal", "Surgical", "Immunological", "Management", 
+  #                     "Undetermined", "Undetermined")
+  #   nMeth <- length(genMethod)
+  #   for (ii in 1:nMeth) {
+  #     idm <- grep(genMethod[ii], subContra$Method)
+  #     method[idm] <- methodTransl[ii]
+  #   }
+  #   genStatus <- c("Inactive", "Active", "Undetermined", "Indeterminate")
+  #   statusTransl <- c("Inactive", "Active", "Undetermined", "Undetermined")
+  #   status <- rep(NA, nContra)
+  #   for (ii in 1:nMeth) {
+  #     idm <- grep(genStatus[ii], subContra$Status)
+  #     status[idm] <- statusTransl[ii]
+  #   }
+  #   
+  #   
+  #   # Final contraception table:
+  #   newContra <- data.frame(AnimalAnonID = as.character(.contraception$` AnimalAnonID`)[idIncont],
+  #                           date = as.Date(.contraception$Date)[idIncont], 
+  #                           method = method, status = status)
+  #   # # Find which individuals are in the contraception data:
   #           ADULTS <- ADULTS %>% 
-  #             left_join(newContra%>%as_tibble%>%mutate(anonID = as.numeric(anonID)), 
-  #                       by = "anonID", relationship = "many-to-many")%>%
+  #             left_join(newContra%>%as_tibble%>%mutate(AnimalAnonID = as.numeric(AnimalAnonID)), 
+  #                       by = "AnimalAnonID", relationship = "many-to-many")%>%
   #             mutate(date = case_when(
   #               is.na(date)~ as_date(Date_age), 
   #               .default =as_date(date)))%>%
   #             mutate(dist = purrr::map2_dbl(Date_age , date, difftime)) %>%
   #             filter(dist >= 0)%>%
-  #             group_by(anonID) %>%
+  #             group_by(AnimalAnonID) %>%
   #             mutate(mintime = min(dist)) %>%
   #             ungroup()%>%
   #             filter(mintime  == dist) %>%

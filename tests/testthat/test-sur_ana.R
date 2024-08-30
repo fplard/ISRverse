@@ -2,13 +2,14 @@
 
 test_that("Sur_ana works", {
   data(core)
-  out <- Sur_ana(core,  models = "GO", shape = "bathtub",
-                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+  data(deathinformation)
+  out <- Sur_ana(core, DeathInformation = deathinformation, models = "GO", shape = "bathtub",
+                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
   expect_named(out, c("summary",  "bastaRes", "DICmods"))
   expect_named(out$DICmods, c("models",  "DIC"))
   expect_equal(nrow(out$DICmods),1)
   expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin",    "outLev", "analyzed", "Nerr", "error"))
-  expect_false(out$summary$analyzed )
+  expect_true(out$summary$analyzed )
   expect_true(is.numeric(out$summary$NGlobal ))
   expect_true(is.numeric(out$summary$NBasta ))
   expect_true(is.numeric(out$summary$Ndead ))

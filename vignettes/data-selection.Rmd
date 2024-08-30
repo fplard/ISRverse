@@ -26,26 +26,34 @@ library(ISRverse)
 
 * `taxa` the name of the taxa studied
 * `species` the name of the species studied
-* Data for each analysis: at least `core` and `collection`, in addition to `weights`, `parents`, `contraceptions` if needed.   
+*  Data for each analysis: at least `Animal` and `collection`, in addition to `weights`, `parents`, `contraceptions` if needed.   
 * `PlotDir`: Directory to save the plots of the best models
 * `repout` Previous result of the taxon profile for this species if it needs to be updated
 * `sexCats` Sex categories: Male, Female or All 
 * `minN` Minimum number of individuals needed to run the analyses
 * `minDate` Earlier date to include data records
+* `Birth_Type` Captive, Wild, or All
 * `models_sur`  names of the survival basta models to run: "G0", "EX", "LO" and/or "WE"
 * `shape` shape of the survival basta model to run: "simple", "Makeham", "bathtub"
 * `models_gro` indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+* `Repsect` names of the reproductive analyses to run: "agemat", "litter" and/or ...
 
 
 
 ```{r examples-tx_report}
-data(core)
-data(collection)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSdirtest = dirname(file)
+data <- Load_Zimsdata	(taxa = "Reptilia",
+                       ZIMSdir = ZIMSdirtest,
+                       Animal = TRUE, tables = c("Collection","DeathInformation"))
+
+
 PlotDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(PlotDir)
 
-out <- tx_report(species = "Gorilla gorilla", taxa = "Mammalia",
-                 core, collection, 
+out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
+                 data$Reptilia$Animal, data$Reptilia$Collection, 
+                 DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),
                  models_sur = "GO", shape = "simple",
@@ -58,13 +66,35 @@ unlink(PlotDir, recursive = TRUE)
 
 ```
 
+# Prepare Animal Data
+
+This function check dates and add the following columns to animal data: MinBirthDate, MaxBirthDate, MinDeathDate, MaxDeathDate, EntryDate, EntryType, DepartDate, DepartType, Birth_Uncertainty, and Death_Uncertainty. It includes the following argument:
+
+* `Animal`data frame including at least the following columns *AnimalAnonID*,  *BirthDate*, *BirthDateEstimateType*, *BirthDateEstimateStart*, *BirthDateEstimateEnd*, *BirthType*, *FirstAcquisitionDate*, *DeathDate*, *DeathDateEstimateType*, *DeathDateEstimateStart*, *DeathDateEstimateEnd*, *LastCommentEntryDate*, *BirthObserved*, *GlobalStatus*, and  *LastTXDate*
+* `extractDate`  Latest possible date in the data: date used when individuals are still alive
+
+
+```{r examples-Prep_Animal}
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSdirtest = dirname(file)
+
+data <- Load_Zimsdata	(taxa = "Reptilia",
+                       ZIMSdir = ZIMSdirtest,
+                       Animal = TRUE)
+
+Animal <- Prep_Animal(data$Reptilia$Animal, extractDate = lubridate::as_date("2023/12/23"))
+
+unlink(ZIMSdirtest, recursive = FALSE)
+```
+
 # Extract Data
 
 This function extracts the data of the specified species that fill the condition on minimum date and global collections. It includes the following argument:
 
 * `speciesname` latin name of the species selected
-* `coresubset`data.frame including at least the following columns *anonID*, *BirthDate*, *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate*, *EntryType*, *DepartType*, *DepartFrom*, *firstInst*, *LastTXDate*, *DeathDate*, *lastInst*,*globStat*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
-* `collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalID*.
+* `coresubset`data.frame including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate*, *EntryType*, *DepartType*, *DepartFrom*, *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
+* `collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
+* `uncert_birth` Maximum uncertainty accepted for birth date, in days
 * `minDate`: Earlier date to include data
 * `extractDate`: Date of data extraction
 * `Global` Whether only individuals belonging to global collections should be used.
@@ -86,7 +116,7 @@ The output is a list including:
 ```{r examples-select_species}
 data(core)
 data(collection)
-out<- select_species(speciesname = "Gorilla gorilla", coresubset = core, collection,
+out<- select_species(speciesname = "Testudo hermanni", coresubset = core, collection,
                      minDate = "1980-01-01", extractDate = "2023-01-01")
 out$summary
 out$data
@@ -96,7 +126,7 @@ out$data
 
 `select_Longthreshold()` runs a gap analysis on the distribution of longevity and gives the threshold value to use in this distribution to avoid having gaps in longevity. It plots the distribution of longevities with gaps. It can focus on a given sex using the following arguments:
 
-*  `data.core`including at least the following columns *Birth.Date*, *Depart.Date*, *Entry.Date*, and *Sex*
+*  `data.core`including at least the following columns *Birth.Date*, *Depart.Date*, *Entry.Date*, and *SexType*
 * `sexCats` Male, Female or All
 * `PlotDir` Directory to save the plots
 * `maintitle` name of the graph to be saved
@@ -111,7 +141,7 @@ TempDir <- paste0(tempdir(check = TRUE),'\\temp')
 dir.create(TempDir)
 data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
 out <- select_Longthreshold (data.core = core,  sexCats = "All", 
-                             PlotDir = TempDir, maintitle = 'Gorilla_gorilla')
+                             PlotDir = TempDir, maintitle = "Testudo_hermanni")
 list.files(TempDir)
 #remove temporary folder
 unlink(TempDir, recursive = TRUE)

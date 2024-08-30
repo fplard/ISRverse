@@ -9,7 +9,7 @@
 #' @param taxa  \code{character} the name of the taxa studied
 #' @param ageMat \code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults
 #' @param maxweight \code{numeric} the maximum weight allowed for the dataset
-#' @param variableid \code{character} name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight.Default = 6. It must be at least 5
+#' @param variableid \code{character} name of the variable including individual ids. Defaut = "AnimalAnonID". It must also be a column of data_weight.Default = 6. It must be at least 5
 #' @param min_Nmeasures \code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5
 #' @param minq \code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
@@ -35,7 +35,7 @@
 #' data(weights)
 #' weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
 Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL, 
-                            variableid = "anonID", min_Nmeasures = 7,
+                            variableid = "AnimalAnonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
                             IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
@@ -60,9 +60,9 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   assert_that(all(data_weight$MeasurementValue>0))
   assert_that(all(data_weight$Age>=0))
   
-  if(variableid != "anonID"){
+  if(variableid != "AnimalAnonID"){
     data_weight <- data_weight%>%
-      rename(anonID = !!sym(variableid))
+      rename(AnimalAnonID = !!sym(variableid))
   }
   
   if(is.null(ageMat)){ageMat=1.5}
@@ -111,7 +111,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
     
     ##b/Uses individual trajectories to find outliers for juveniles with at least 7 measures
     juv <-juv %>%
-      group_by(anonID,keep2)%>%
+      group_by(AnimalAnonID,keep2)%>%
       mutate(nb =  sum(keep2),
              la = length(unique(Age)))%>%
       dplyr::ungroup()
@@ -141,7 +141,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
     
     ##b/Uses individual trajectories to find outliers for adults with at least 7 measures
     ad <-ad %>%
-      group_by(anonID,keep2)%>%
+      group_by(AnimalAnonID,keep2)%>%
       mutate(nb =  sum(keep2),
              la = length(unique(Age)))%>%
       dplyr::ungroup()

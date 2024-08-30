@@ -6,22 +6,34 @@
 #'
 #' @param taxa  \code{character} the name of the taxa studied
 #' @param species \code{character} the name of the species studied
-#' @param core \code{data.frame} core data
+#' @param Animal \code{data.frame} core data
 #' @param collection  \code{data.frame} collection data
 #' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
+#' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
 #' @param weights \code{data.frame} weights data if the growth analysis is run
 #' @param parents \code{data.frame} parents data if the reproduction analysis is run
 #' @param contraceptions \code{data.frame} contraception data if the reproduction analysis is run
+#' @param move \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*
 #' @param repout \code{list} Previous result of the taxon profile for this species if it needs to be updated only
 #' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
 #' @param sexCats \code{character} Male, Female or All Default =  "All"
 #' @param minN \code{numeric} Minimum number of individuals. Default = 50
 #' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
+#' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
+#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the analyses. Default = 2
+#' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth dates, in days
+#' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death dates, in days. Default = 365
+#' @param uncert_date \code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days. Default = 365
 #' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
+#' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
 #' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
 #' @param maxOutl \code{numeric} Maximum threshold for the longevity distribution. Default = 100
+#' @param XMAX \code{numeric} Maximum possible age. Default = 120
+#' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
+#' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
 #' @param models_sur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
 #' @param niter  \code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000
@@ -29,26 +41,35 @@
 #' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20
 #' @param nchain  \code{numeric} Number of chains to run the survival model. Default = 5001
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
-#' @param parentProb \code{numeric} XXXXXXXXXXX
-#' @param minNrepro  \code{numeric} XXXXXXXXXXX
-#' @param minNparepro  \code{numeric} XXXXXXXXXXX
+#' @param Repsect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
+#' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
+#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
+#' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
+#' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
 #' @param minNseas \code{numeric} XXXXXXXXXXX
 #' @param minNgro \code{numeric} Minimum number of weight needed to fit the growth models
 #' @param minNIgro \code{numeric} Minimum number of unique individuals needed to fit the growth models
 #' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.
 #' @param models_gro \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
-
+#' 
 #' @return a list including the results and summary of each analysis
 #' @export
 #'
 #' @examples
-#' data(core)
-#' data(collection)
+#' file = system.file("sci_Animal.csv", package = 'ISRverse')
+#' ZIMSdirtest = dirname(file)
+#' data <- Load_Zimsdata	(taxa = "Reptilia",
+#'                        ZIMSdir = ZIMSdirtest,
+#'                        Animal = TRUE, tables = c("Collection","DeathInformation"))
+#'
+#'
 #' PlotDir = paste0(tempdir(check = TRUE),'\\temp')
 #' dir.create(PlotDir)
 #'
-#' out <- tx_report(species = "Gorilla gorilla", taxa = "Mammalia",
-#'                  core, collection, 
+#' out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
+#'                  data$Reptilia$Animal, data$Reptilia$Collection, 
+#'                  DeathInformation =data$Reptilia$DeathInformation,
 #'                  PlotDir = PlotDir,Sections = c('sur'),
 #'                  sexCats = c("Male", "Female"),
 #'                  models_sur = "GO", shape = "simple",
@@ -59,16 +80,23 @@
 #' list.files(PlotDir)
 #' unlink(PlotDir, recursive = TRUE)
 #'
-tx_report <- function(species, taxa,  core, collection, PlotDir = NULL,
-                      weights = NULL,parents = NULL, contraceptions = NULL,
+tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
+                      weights = NULL,parents = NULL, move= NULL, contraceptions = NULL, DeathInformation = NULL,
                       repout = list(), Sections = c('sur', 'rep', 'gro'),
                       sexCats = c("Male", "Female"), minN= 50, minDate= "1980-01-01",
-                      extractDate = NULL, minNsur = 50, minlx = 0.1, MinBirthKnown = 0.3, maxOutl = 100,
+                      Global = TRUE,
+                      extractDate = NULL, uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
+                      minNsur = 50,maxNsur = NULL, minInstitution = 2, 
+                      minlx = 0.1, MinBirthKnown = 0.3, maxOutl = 100,XMAX =120,
+                      Min_MLE = 0.1, MaxLE = 2, 
                       models_sur = "GO", shape = "bathtub",
                       niter = 25000, burnin = 5001, thinning = 20, nchain = 3, 
                       ncpus = 2,
-                      parentProb = 80, minNrepro = 100, minNparepro = 30, minNseas = 50, 
-                      minNgro =100,minNIgro = 50, MeasureType = "",
+                      Repsect = c('agemat', 'litter'),
+                      Birth_Type = "Captive", 
+                      parentProb = 80, minNlitter = 20,Nday = 7,
+                      minNrepro = 100, minNparepro = 30, minNseas = 50, 
+                      minNgro =100,minNIgro = 50, MeasureType = NULL,
                       models_gro = "vonBertalanffy"
 ) {
   assert_that(is.character(taxa))
@@ -79,42 +107,59 @@ tx_report <- function(species, taxa,  core, collection, PlotDir = NULL,
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
   assert_that(is.character(species))
+  assert_that(is.logical(Global))
+  
+  
+  
+  assert_that(is.data.frame(Animal))
+  assert_that(is.data.frame(collection))
+  assert_that(Animal  %has_name% c("AnimalAnonID", "binSpecies",  "BirthDate", "BirthDateEstimateType", "BirthDateEstimateStart", "BirthDateEstimateEnd",    
+                                   "BirthType", "FirstAcquisitionDate", "DeathDate", "DeathDateEstimateType", "DeathDateEstimateStart", 
+                                   "DeathDateEstimateEnd", "LastCommentEntryDate", "LastTXDate", "FirstHoldingInstitution", 
+                                   "LastTXDate", "LastHoldingInstitution","GlobalStatus",
+                                   "LastCollectionScopeType","FirstCollectionScopeType"))
+  assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
+                                       "ScopeType", "AnimalAnonID"))
   
   if(!is.null(extractDate)){
     extractDate = lubridate::as_date(extractDate)
   } else{
-    extractDate = max(lubridate::as_date(core$DepartDate), na.rm = T)
+    extractDate = max(lubridate::as_date(Animal$LastTXDate), na.rm = T)
   }
-  
-  minDate = lubridate::as_date(minDate)
-  assert_that(is.data.frame(core))
-  assert_that(is.data.frame(collection))
-  assert_that(core  %has_name% c("anonID", "BirthDate", "DepartDate",
-                                 "EntryDate", "MaxBirthDate", "MinBirthDate",
-                                 "EntryType", "DepartType", "DepartFrom", "firstInst", 
-                                 "LastTXDate", "DeathDate", "lastInst","globStat",
-                                 "LastCollectionScopeType","FirstCollectionScopeType"))
-  assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
-                                       "ScopeType", "AnimalID"))
-  
+  if("sur" %in% Sections){
+    assert_that(is.data.frame(DeathInformation))
+    assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
+  }
   if("gro" %in% Sections){
     assert_that(is.data.frame(weights))
-    assert_that(weights %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
+    assert_that(weights %has_name% c("MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution"))
   }
   if("rep" %in% Sections){
     assert_that(is.data.frame(parents))
+    assert_that(is.data.frame(move))
     assert_that(is.data.frame(contraceptions))
-    # assert_that(parents %has_name% c()) XXXXXXXXXXXXXXXXXXXXXX
-    # assert_that(contraceptions %has_name% c()) XXXXXXXXXXXXXXXXXX
+     assert_that(moves %has_name% c("AnimalAnonID", "To", "Date"))
+assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
+    assert_that(parent %has_name% c("ParentAnonID", "ParentCollectionScopeType", 
+                                    "OffspringCollectionScopeType", "AnimalAnonID",
+                                    "ParentOriginType", "Probability"))
   }
+  assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
   
   assert_that(is.character( sexCats))
   assert_that(all(sexCats %in% c("Male", "Female", "All")))
   assert_that(is.numeric( maxOutl))
   assert_that( maxOutl <= 100)
+  assert_that(is.numeric(uncert_birth))
+  assert_that(is.numeric(uncert_death))
+  assert_that(is.numeric(uncert_date))
   assert_that(is.numeric(minNsur))
+  if(!is.null(maxNsur)) assert_that(is.numeric(maxNsur))
   assert_that(minNsur > 0)
   assert_that(is.numeric(minlx))
+  assert_that(is.double(minInstitution))
+  assert_that(is.numeric(Min_MLE))
+  assert_that(is.numeric(MaxLE))  
   assert_that(minlx > 0)
   assert_that(minlx < 1)
   assert_that(is.numeric(MinBirthKnown))
@@ -138,20 +183,23 @@ tx_report <- function(species, taxa,  core, collection, PlotDir = NULL,
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
   checkmate::assert_directory_exists(PlotDir)
   
+  assert_that(all(Repsect %in% c("agemat", "litter")))
   assert_that(is.numeric(parentProb))
   assert_that(parentProb > 0)
   assert_that(is.numeric(minNrepro))
   assert_that(minNrepro > 0)
   assert_that(is.numeric(minNparepro))
   assert_that(minNparepro > 0)
+  assert_that(is.numeric(minNlitter))
+  assert_that(minNlitter > 0)
   assert_that(is.numeric( minNseas))
   assert_that( minNseas > 0)
-  
+  assert_that(is.numeric( Nday))
+  assert_that( Nday >= 0)
   assert_that(is.numeric( minNIgro))
   assert_that( minNIgro > 0)
   assert_that(is.numeric(minNgro))
   assert_that(minNgro > 0)
-  assert_that(is.character(MeasureType))
   assert_that(is.character(models_gro ))
   assert_that(all(models_gro %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
   
@@ -159,43 +207,49 @@ tx_report <- function(species, taxa,  core, collection, PlotDir = NULL,
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-  Dat <- select_species(species, core, collection,
-                        minDate = minDate , extractDate = extractDate, Global = TRUE) 
+  core <- Prep_Animal(Animal, extractDate= extractDate,minDate =minDate )
+  
+  Dat <- select_species(species, core, collection,  uncert_birth = uncert_birth,
+                        minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
+  speciesname = stringr::str_replace(species, " ", "_")
   for (sx in sexCats){
     sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
                                     PlotDir= PlotDir, minN = minN ,
-                                    maintitle = glue::glue("{species}_{sx}") )
+                                    maintitle = glue::glue("{speciesname}_{sx}") )
     repout$summary[[sx]] = sexDat$summar
     # -------------------------- #
     # ---- Survival Module: ----
     # -------------------------- #
     # Run survival analyses:
     if ("sur" %in% Sections) {
-      repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,
-                                     BirthType = "All",
-                                    xMax = 120, PlotDir = PlotDir,
+      repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
+                                    Birth_Type = Birth_Type,
+                                    PlotDir = PlotDir,XMAX = XMAX,
                                     models = models_sur, shape= shape, 
                                     outlLev1 = sexDat$summar$GapThresh,
-                                    mindate = minDate, minNsur = minNsur, 
+                                    Min_MLE = Min_MLE, MaxLE =  MaxLE,
+                                    mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
+                                    minInstitution = minInstitution,uncert_death= uncert_death,
                                     minlx = minlx , MinBirthKnown = MinBirthKnown, 
                                     niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
-                                    ncpus = ncpus, plotname = species)
+                                    ncpus = ncpus, plotname = glue("{speciesname}_{sx}") )
     }
     
-    # # ------------------------------ #
-    # # ---- Reproduction module: ----
-    # # ------------------------------ #
-    # # Reproduction module list:
-    # if ("rep" %in% Sections) {
-    #   # Reproduction module list:
-    #   repout$repr <- RunRepro(sexDat = sexDat, sexCats = sexCats, coresubset= coresubset,
-    #                    PlotDir = PlotDir,
-    #                      subinst = subinst, minNseas = minNseas, 
-    #                    mindate =minDate,
-    #                    newContra = newContra, parentProb = parentProb, 
-    #                    minNrepro = minNrepro,minNparepro = minNparepro,  speciesID = speciesID)
-    # }
+    # ------------------------------ #
+    # ---- Reproduction module: ----
+    # ------------------------------ #
+    # Reproduction module list:
+    if ("rep" %in% Sections) {
+      # Reproduction module list:
+      repout$repr <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
+                              Repsect = Repsect,
+                              BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
+                              Global = Global, minInstitution = minInstitution, 
+                              minNrepro = minNrepro, minNparepro =  minNparepro,
+                              parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
+                              minNseas =  minNseas)
+    }
     
     # ----------------------------- #
     # ---- Body weight module: ----
@@ -204,13 +258,15 @@ tx_report <- function(species, taxa,  core, collection, PlotDir = NULL,
     if ("gro" %in% Sections) {
       repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
                                     taxa = taxa, species = species,
-                                    BirthType = NULL, 
-                                    agemat = NA, percentiles = c(2.5,97.5),
+                                    Birth_Type = Birth_Type, 
+                                    agemat = NULL, percentiles = c(2.5,97.5),
                                     PlotDir = PlotDir, type = "weight",
+                                    uncert_date = uncert_date,
                                     MeasureType = MeasureType,
+                                    minInstitution = minInstitution,
                                     minNgro = minNgro, minNIgro = minNIgro, 
                                     models = models_gro,
-                                    mindate = minDate) 
+                                    mindate = minDate, plotname = glue("{speciesname}_{sx}") )
     }
   }
   

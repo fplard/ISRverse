@@ -4,16 +4,22 @@
 #' 
 #' Run the survival analysis per sex and per birth type
 #'
-#' @param data.core \code{data.frame} including at least the following columns *anonID*, *Birth.Date* (\code{date}), *Depart.Date* (\code{date}), *Entry.Date* (\code{date}), *Max.Birth.Date* (\code{date}), *Min.Birth.Date* (\code{date}), *Entry.Type*, *Depart.Type* *Sex*, *birthType*, and *AnonInstitutionID*
-#' @param BirthType \code{character} When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All Default =  "All"
+#' @param data.core \code{data.frame} including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*
+#' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
+#' @param Birth_Type \code{character} When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All Default =  "All"
 #' @param outlLev1 \code{numeric} Start threshold used to selected for the data: 100%, 99.9, 99 or 95%
 #' @param models \code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param XMAX \code{numeric} Maximum possible age. Default = 120
+#' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death date, in days
 #' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
+#' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
+#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 2
 #' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
-#' @param xMax \code{numeric} Maximum age in years Default = 120
+#' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
+#' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
 #' @param niter  \code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000
 #' @param burnin  \code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001
 #' @param thinning  \code{numeric} Number of iteration to run before saving a set of parameters. see ?basta for more information. Default = 20
@@ -31,11 +37,13 @@
 #'- maxAlive:Maximum number of years spent ex situ
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
-#'- a logical indicated if the growth analysis was performed
+#'- a logical indicated if the survival analysis was performed
 #'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+#'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #'* the estimated remaining life expectancy per age
+#'* the age at which 90% of the population died
 #'* the estimated probability to live one year more
 #'* the estimated probability to live five years more
 #' If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
@@ -43,38 +51,42 @@
 #' @export
 #'
 #' @importFrom grDevices pdf dev.off
+#' @importFrom graphics lines
 #'
 #' @examples
 #' data(core)
-#' out <- Sur_main(core, BirthType = "All",
-#'                  models = "GO", shape = "simple",
-#'                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-Sur_main <- function(data.core,  BirthType = "All",
-                      models = "GO", shape= "simple", 
-                      outlLev1 = NA,
-                      mindate = "1980-01-01", minNsur = 50, 
-                      minlx = 0.1, MinBirthKnown = 0.3, 
-                      xMax = 120,
-                      niter = 25000, burnin = 5001, thinning = 20, nchain = 3, 
-                      ncpus = 2, PlotDir = NULL, plotname = '') {
+#' data(deathinformation)
+#' out <- Sur_main(core, DeathInformation = deathinformation, Birth_Type = "All",
+#'                 models = "GO", shape = "simple",
+#'                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
+                     models = "GO", shape= "simple", 
+                     outlLev1 = NA,
+                     mindate = "1980-01-01", minNsur = 50, maxNsur = NULL,
+                     minInstitution = 2,uncert_death=365,
+                     minlx = 0.1, MinBirthKnown = 0.3, 
+                     Min_MLE = 0.1, MaxLE = 2,XMAX=120,
+                     niter = 25000, burnin = 5001, thinning = 20, nchain = 3, 
+                     ncpus = 2, PlotDir = NULL, plotname = '') {
   
   mindate = lubridate::as_date(mindate)
-  assert_that(is.data.frame(data.core ))
-  assert_that(data.core  %has_name% c("anonID", "BirthDate", "DepartDate",
+  assert_that(is.data.frame(data.core))
+  assert_that(data.core  %has_name% c("AnimalAnonID", "BirthDate", "DepartDate",
                                       "EntryDate", "MaxBirthDate", "MinBirthDate",
-                                      "EntryType", "DepartType", "firstInst", 
-                                      "lastInst", "Sex", "birthType"))
+                                      "EntryType", "DepartType", "FirstHoldingInstitution", 
+                                      "LastHoldingInstitution", "SexType", "BirthType"))
+  assert_that(is.data.frame(DeathInformation))
+  assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
   if(!is.na(outlLev1)){
-  assert_that(is.numeric(outlLev1))
-  assert_that(outlLev1 <= 100)
+    assert_that(is.numeric(outlLev1))
+    assert_that(outlLev1 <= 100)
   }else(outlLev1 = 100)
   assert_that(is.numeric(minNsur))
-  assert_that(minNsur > 0)
-  assert_that(is.numeric(minlx))
-  assert_that(minlx > 0)
-  assert_that(minlx < 1)
-  assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown > 0)
+  assert_that(is.numeric(uncert_death))
+  if(!is.null(maxNsur)) assert_that(is.numeric(maxNsur))
+  assert_that(is.double(minInstitution))
+  assert_that(is.numeric(Min_MLE))
+  assert_that(is.numeric(MaxLE))
   assert_that(MinBirthKnown <1)
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
@@ -93,11 +105,9 @@ Sur_main <- function(data.core,  BirthType = "All",
   assert_that(all(models %in% c("GO", "EX", "LO", "WE")))
   assert_that(is.character(shape))
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
-  assert_that(is.numeric(xMax))
-  assert_that(xMax > 1)
-    assert_that(is.character(BirthType))
-  assert_that(length(BirthType) == 1, msg = "You can use only one birth type for each sex analysis")
-  assert_that(BirthType %in% c("Captive", "Wild", "All"))
+  assert_that(is.character(Birth_Type))
+  assert_that(length(Birth_Type) == 1, msg = "You can use only one birth type for each sex analysis")
+  assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
   if(!is.null(PlotDir)){
     checkmate::assert_directory_exists(PlotDir)
   }
@@ -106,90 +116,106 @@ Sur_main <- function(data.core,  BirthType = "All",
   surv <- list()
   
   # Run analyses:
-    if (BirthType != "All"){
-      sexData<- data.core %>%
-        filter(stringr::str_detect(birthType, pattern = BirthType))
-    }else{sexData<- data.core}
-
-    # Survival Analysis
-    out<- Sur_ana(sexData, outlLev1 = outlLev1, models = "GO", shape = "simple",
-                   mindate = mindate, minNsur = minNsur, 
-                   minlx = minlx, MinBirthKnown = MinBirthKnown, 
-                   niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, ncpus = ncpus) 
-    out <- append(out, list(relex = NULL, Sur1 = NULL, Sur5 = NULL))
-    if (out$summary$analyzed) {
-      
-      # Find age at S(x) = 0.001:
-      Sx <- out$bastaRes$surv$nocov
-      idxMax <- out$bastaRes$x[which(Sx < 0.001)][1]
-      if (is.na(idxMax)) {
-        xMax <- max(xv)
-      } 
-      # Remaining life expectancy:
-      out$relex <- Sur_relex(theMat = out$bastaRes$params, 
-                             model = outBasta$modelSpecs["model"], 
-                             shape = shape, ncpus = ncpus, 
-                             xMax = xMax, dx = 0.01)
-      
-      # Proba to live 1 year more:
-      out$Sur1 <- Sur_age(theMat = out$bastaRes$params,  
-                          model = outBasta$modelSpecs["model"], 
-                             shape = shape, ncpus = ncpus, 
-                             ageMax = xMax, dage = 0.01, Nyear = 1)
-      # Proba to live51 year more:
-      out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
-                             model = outBasta$modelSpecs["model"], 
-                             shape = shape, ncpus = ncpus, 
-                             ageMax = xMax,  dage = 0.01, Nyear = 5)
-      
-      
-      #Plots
-      if(out$summar$analyzed && !is.null(PlotDir)){
-        pdf(file = paste0(PlotDir,"/", plotname, "surcheck.pdf", sep=""), width = 6, height = 9)
-        plot(out$bastaRes)
-        plot(out$bastaRes, plot.type = 'demorates')
-        plot(out$bastaRes, plot.type = 'gof')
-        dev.off()
-      
-        pdf(file = paste0(PlotDir,"/", plotname, "surplot.pdf", sep=""), width = 6, height = 9)
-        plot(out$remex$RemLExp~  out$remex$Age, main = 'Remaining life expectancy')
-        lines(out$remex$lower ~  out$remex$Age, lty = 2)
-        lines(out$remex$upper ~  out$remex$Age, lty = 2)
-
-        plot(out$Sur1$Sur_1yr[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], main = 'Age-specific survival')
-        lines(out$Sur1$lower[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
-        lines(out$Sur1$upper[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
-
-        
-        plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, main = 'p(survive 5 more years')
-        lines(out$Sur5$lower ~  out$Sur5$Age, lty = 2)
-        lines(out$Sur5$upper ~  out$Sur5$Age, lty = 2)
-
-        dev.off()
+  if (Birth_Type != "All"){
+    sexData<- data.core %>%
+      filter(stringr::str_detect(BirthType, pattern = Birth_Type))
+  }else{sexData<- data.core}
+  
+  # Survival Analysis
+  out<- Sur_ana(sexData, DeathInformation = DeathInformation, outlLev1 = outlLev1, models = models, shape = shape,
+                mindate = mindate,      uncert_death = uncert_death,
+                minNsur = minNsur, maxNsur = maxNsur, minInstitution = minInstitution,
+                minlx = minlx, MinBirthKnown = MinBirthKnown, 
+                niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, ncpus = ncpus) 
+  out <- append(out, list(relex = NULL, Sur1 = NULL, Sur5 = NULL, L90 = NULL))
+  if (out$summary$analyzed) {
     
-        }
+    # Find age at S(x) = 0.001:
+    Sx <- out$bastaRes$surv$nocov[1,]
+    idxMax <- out$bastaRes$x[which(Sx < 0.001)][1]
+    if (is.na(idxMax)) {
+      xMax <- min(max(out$bastaRes$x),XMAX)
+    } else {xMax = idxMax}
+    
+    # Remaining life expectancy:
+    out$relex <- Sur_relex(theMat = out$bastaRes$params, 
+                           model = out$bastaRes$modelSpecs["model"], 
+                           shape = shape, ncpus = ncpus, 
+                           xMax = xMax, dx = 0.01)
+    
+    # L90 : Age at which 90% of the individuals died
+    out$L90 <- Sur_90(theMat = out$bastaRes$params,  
+                      model = out$bastaRes$modelSpecs["model"], 
+                      shape = shape, ncpus = ncpus, 
+                      ageMax = xMax, dage = 0.01)
+    
+    # Proba to live 1 year more:
+    out$Sur1 <- Sur_age(theMat = out$bastaRes$params,  
+                        model = out$bastaRes$modelSpecs["model"], 
+                        shape = shape, ncpus = ncpus, 
+                        ageMax = xMax, dage = 0.01, Nyear = 1)
+    # Proba to live 5 year more:
+    out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
+                        model =out$bastaRes$modelSpecs["model"], 
+                        shape = shape, ncpus = ncpus, 
+                        ageMax = xMax,  dage = 0.01, Nyear = 5)
+    
+    
+    #Plots
+    if(out$summary$analyzed && !is.null(PlotDir)){
+      pdf(file = paste0(PlotDir,"/", plotname, "surcheck.pdf", sep=""), width = 6, height = 9)
+      plot(out$bastaRes)
+      plot(out$bastaRes, plot.type = 'demorates')
+      plot(out$bastaRes, plot.type = 'gof')
+      dev.off()
       
-      # Goodness of fit tests
-      ##Test if the minimum life expectancy is below 2 years old
-      if(min(remex$RemLExp)>2){
-        out$summar$error = "Min(Life_exp)>2"
-        out$summar$Nerr=8
-        out$summar$analyzed <- FALSE 
-        out$bastaRes <- list() }
+      pdf(file = paste0(PlotDir,"/", plotname, "surplot.pdf", sep=""), width = 6, height = 9)
+      plot(out$relex$RemLExp~  out$relex$Age, main = 'Remaining life expectancy')
+      lines(out$relex$Lower ~  out$relex$Age, lty = 2)
+      lines(out$relex$Upper ~  out$relex$Age, lty = 2)
       
-      ##Test if the survivorship at mean life expectancy is higher than 0.1
-      lx <-outBasta$lifeTable$noCov$Mean$lx
-      #age for mle
-      dif <-abs(outBasta$lifeTable$noCov$Mean$Ages - outBasta$PS$nocov$PS[1,1])
+      plot(out$Sur1$Sur_1yr[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], main = 'Age-specific survival')
+      lines(out$Sur1$Lower[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
+      lines(out$Sur1$Upper[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
       
-      if(lx[which(dif == min(dif))]< 0.1){
-        out$summar$analyzed <- FALSE
-        out$summar$error = "lx[MLE]<0.1"
-        out$summar$Nerr = 9
-        out$bastaRes <- list()   
-      }
+      
+      plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, main = 'p(survive 5 more years')
+      lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
+      lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
+      
+      dev.off()
       
     }
+    
+    # Goodness of fit tests
+    ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
+    id = which(out$bastaRes$x %in% c(0:round(XMAX)))
+    m = min(length(id),(round(XMAX)+1))
+    res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
+    b = summary(lm(res~c(1:m)))
+    out$summary$Gof_KM_summ = b 
+   out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+   
+    ##Test if the minimum life expectancy is below MaxLE years old
+    if(min(out$relex$RemLExp)>= MaxLE){
+      out$summary$error = "Min(Life_exp) >= MaxLE"
+      out$summary$Nerr=8
+      out$summary$analyzed <- FALSE 
+      out$bastaRes <- list() }
+    
+    ##Test if the survivorship at mean life expectancy is higher than Min_MLE
+    lx <-out$bastaRes$lifeTable$noCov$Mean$lx
+    #age for mle
+    dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
+    
+    if(lx[which(dif == min(dif))]< Min_MLE){
+      out$summary$analyzed <- FALSE
+      out$summary$error = "lx[MLE] < Min_MLE"
+      out$summary$Nerr = 9
+      out$bastaRes <- list()   
+    }
+    
+  }
   return(out)
 }
 

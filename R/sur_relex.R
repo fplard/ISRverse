@@ -42,8 +42,8 @@ Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
   
   iseq <- floor(seq(0, nrow(theMat), length = ncpus + 1))
-   xv <- seq(0, xMax, by = dx)
- 
+  xv <- seq(0, xMax, by = dx)
+  
   # run parallel estimation:
   sfInit(parallel = TRUE, cpus = ncpus)
   # Upload paramDemo:
@@ -86,7 +86,7 @@ Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
 #' @noRd
 Sur_relex_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',  
                         iseq = 1:nrow(theMat), xMax = 120, dx = 0.01 , xv = seq(0, xMax, by = dx)
- ) {
+) {
   
   idseq <- (iseq[sim] + 1):iseq[sim + 1]
   

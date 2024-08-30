@@ -5,7 +5,7 @@ theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
 
 test_that("Sur_age works", {
   out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-                   ageMax = 50, dage = 0.1, Nyear = 1)
+                 ageMax = 50, dage = 0.1, Nyear = 1)
   expect_named(out, c("Age", "Lower", "Upper", "Sur_1yr"))
   expect_true(is.numeric(out$Sur_1yr))
   expect_equal(nrow(out), 50*10-10+1)

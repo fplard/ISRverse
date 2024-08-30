@@ -26,15 +26,15 @@
 #'
 #'
 #' out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-#'                  ageMax = 50, dage = 0.1, Nyear = 5)
+#'                ageMax = 50, dage = 0.1, Nyear = 5)
 Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 1,
-                      ageMax = 120, dage = 0.01) {
+                    ageMax = 120, dage = 0.01) {
   
   assert_that(is.array(theMat))
   assert_that(is.numeric(ageMax))
   assert_that(ageMax > 1)
-   assert_that(is.numeric(Nyear))
- assert_that(Nyear > 0)
+  assert_that(is.numeric(Nyear))
+  assert_that(Nyear > 0)
   assert_that(is.numeric(dage))
   assert_that(dage > 0)
   assert_that(is.numeric(ncpus))
@@ -45,8 +45,8 @@ Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
   
   iseq <- floor(seq(0, nrow(theMat), length = ncpus + 1))
-   xv <- seq(0, ageMax, by = dage)
- 
+  xv <- seq(0, ageMax, by = dage)
+  
   # run parallel estimation:
   sfInit(parallel = TRUE, cpus = ncpus)
   # Upload paramDemo:
@@ -73,8 +73,8 @@ Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 
   
   Sur = paste0("Sur_",Nyear,"yr")
   exQuants <- tibble(Age = xv[1:ncol(exMat)], 
-                         Lower = apply(exMat, 2, quantile, 0.025),
-                         Upper = apply(exMat, 2, quantile, 0.975))%>%
+                     Lower = apply(exMat, 2, quantile, 0.025),
+                     Upper = apply(exMat, 2, quantile, 0.975))%>%
     mutate({{Sur}} := apply(exMat, 2, mean))
   return(exQuants)
 }
@@ -89,9 +89,9 @@ Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 
 #'
 #' @noRd
 Sur_age_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',  
-                        iseq = 1:nrow(theMat), Nyear = 1, 
+                      iseq = 1:nrow(theMat), Nyear = 1, 
                       xv = seq(0, 50, by = 0.01)
- ) {
+) {
   
   idseq <- (iseq[sim] + 1):iseq[sim + 1]
   dep = which(xv == Nyear)

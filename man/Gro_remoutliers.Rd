@@ -9,7 +9,7 @@ Gro_remoutliers(
   taxa,
   ageMat = NULL,
   maxweight = NULL,
-  variableid = "anonID",
+  variableid = "AnimalAnonID",
   min_Nmeasures = 7,
   perc_weight_min = 0.2,
   perc_weight_max = 2.5,
@@ -27,7 +27,7 @@ Gro_remoutliers(
 
 \item{maxweight}{\code{numeric} the maximum weight allowed for the dataset}
 
-\item{variableid}{\code{character} name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight.Default = 6. It must be at least 5}
+\item{variableid}{\code{character} name of the variable including individual ids. Defaut = "AnimalAnonID". It must also be a column of data_weight.Default = 6. It must be at least 5}
 
 \item{min_Nmeasures}{\code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5}
 

@@ -4,7 +4,8 @@
 #' 
 #' Check column names and succession of dates to prepare the data for BASTA.
 #'
-#' @param coresubset  \code{data.frame} including at least the following columns *anonID*, *species*, *binSpecies*, *Class*, *Order*, *Family*, *common*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, and *causeDeath*
+#' @param coresubset  \code{data.frame} including at least the following columns *AnimalAnonID*, *binSpecies*, *Class*, *Order*, *Family*, *CommonName*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, and *DepartType*
+#' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
 #' @param earliestDate \code{character 'YYYY-MM-DD'} Earlier date to be included. Default = NA
 #' @param latestDate \code{character 'YYYY-MM-DD'} LAtest date to be included. Default = NA
 #' @param otherCovars \code{vector of character}. Additional variables to include in the data Default = NA
@@ -22,21 +23,25 @@
 #' @return the subset dataset in the basta format
 #' 
 #' @export
+#' @importFrom tidyr replace_na
 #'
 #' @examples
 #' data(core)
-#' out<- surv_Bastab(core, earliestDate = '1990-01-01', latestDate = '2020-12-31', 
+#' data(deathinformation)
+#' out<- surv_Bastab(core, DeathInformation = deathinformation,
+#'                   earliestDate = '1990-01-01', latestDate = '2020-12-31', 
 #'                   otherCovars = NA, excludeStillbirth = TRUE)
 #'
 #'
-surv_Bastab <- function (coresubset, earliestDate = NA, latestDate = NA, 
+surv_Bastab <- function (coresubset, DeathInformation, earliestDate = NA, latestDate = NA, 
                          otherCovars = NA, excludeStillbirth = FALSE) 
 { 
-  inclcols <- c("anonID", "species", "binSpecies", "Class", 
-                "Order", "Family", "common", "BirthDate", "MinBirthDate", 
+  inclcols <- c("AnimalAnonID", "binSpecies", "Class", 
+                "Order", "Family", "CommonName", "BirthDate", "MinBirthDate", 
                 "MaxBirthDate", "EntryDate", "DepartDate", "EntryType", 
-                "DepartType", "causeDeath")
+                "DepartType")
   assert_that(coresubset %has_name% inclcols)
+  assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
   assert_that(is.logical(excludeStillbirth))
   
   
@@ -46,11 +51,14 @@ surv_Bastab <- function (coresubset, earliestDate = NA, latestDate = NA,
     ncolnames <- c(ncolnames, otherCovars)
   }
   
-  bastadat <- coresubset[, inclcols]
-  colnames(bastadat) <- c("anonID", "species", "binSpecies", "Class", 
-                          "Order", "Family", "common", "Birth.Date", "Min.Birth.Date", 
+  bastadat <- coresubset[, inclcols]%>%
+    left_join(DeathInformation%>%select(AnimalAnonID, RelevantDeathInformationType)%>%
+                filter(RelevantDeathInformationType %in% c("Stillborn","Fetal death")), by = "AnimalAnonID")
+  
+  colnames(bastadat) <- c("AnimalAnonID", "binSpecies", "Class", 
+                          "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", 
                           "Max.Birth.Date", "Entry.Date", "Depart.Date", "Entry.Type", 
-                          "Depart.Type", "causeDeath")
+                          "Depart.Type", "RelevantDeathInformationType")
   
   
   #Earliest and latest dates
@@ -75,10 +83,10 @@ surv_Bastab <- function (coresubset, earliestDate = NA, latestDate = NA,
     filter(Depart.Date >= earliestDate,
            Entry.Date <= latestDate)%>%
     tidyr::drop_na(c(Birth.Date, Min.Birth.Date, Max.Birth.Date, Entry.Date, Depart.Date))%>%
-    filter(Min.Birth.Date <= Birth.Date, 
-           Birth.Date <= Max.Birth.Date, 
-           Birth.Date <= Entry.Date, 
-           Entry.Date <= Depart.Date)%>%
+    filter((Min.Birth.Date <= Birth.Date)%>% replace_na(TRUE), 
+           (Birth.Date <= Max.Birth.Date)%>% replace_na(TRUE), 
+           (Birth.Date <= Entry.Date)%>% replace_na(TRUE), 
+           (Entry.Date <= Depart.Date)%>% replace_na(TRUE))%>%
     mutate(Depart.Type = if_else (Depart.Date > latestDate, "C", Depart.Type),
            Depart.Date = if_else (Depart.Date > latestDate, latestDate, Depart.Date),
            Entry.Type  = if_else (Entry.Date < earliestDate, "C", Entry.Type),
@@ -88,12 +96,12 @@ surv_Bastab <- function (coresubset, earliestDate = NA, latestDate = NA,
   if(excludeStillbirth){
     #Remove Stillborn
     bastadat <- bastadat%>%
-      filter(Depart.Date != Birth.Date,
-             stringr::str_detect(causeDeath, "Stillborn", negate = T),
-             stringr::str_detect(causeDeath, "Fetal death", negate = T))
-  }
+      filter((Depart.Date != Birth.Date)%>% replace_na(TRUE),
+             stringr::str_detect(RelevantDeathInformationType, "Stillborn", negate = T)%>% replace_na(TRUE),
+             stringr::str_detect(RelevantDeathInformationType, "Fetal death", negate = T)%>% replace_na(TRUE))
+  }%>%
+    select(-"RelevantDeathInformationType")
   
-  # class(bastadat) <- "bastazimstab"
   
   return(bastadat)
 }

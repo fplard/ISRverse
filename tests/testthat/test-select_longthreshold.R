@@ -5,8 +5,8 @@ test_that("select_Longthreshold works", {
   dir.create(TempDir)
   data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
   out <- select_Longthreshold (data.core = core,  sexCats = "All", 
-                               PlotDir = TempDir, maintitle = 'Gorilla_gorilla')
-  expect_true(file.exists(paste(TempDir, 'Gorilla_gorilla_LongThres.pdf', sep = '\\')))
+                               PlotDir = TempDir, maintitle = "Testudo_hermanni")
+  expect_true(file.exists(paste(TempDir, 'Testudo_hermanni_LongThres.pdf', sep = '\\')))
   #remove temporary folder
   unlink(TempDir, recursive = TRUE)
   expect_named(out, c("summar",  "data"))
@@ -14,5 +14,5 @@ test_that("select_Longthreshold works", {
   expect_named(out$summar, c("Sex", "Nglobal", "Nlifespan", "GapThresh", "NThres"))
   expect_true(out$summar$Sex == "All" )
   expect_equal(out$summar$Nglobal, nrow(core))
-unlink(TempDir, recursive = TRUE)
+  unlink(TempDir, recursive = TRUE)
 })

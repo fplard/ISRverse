@@ -23,5 +23,5 @@ Fit a growth model to data, return its fit and AIC
 logx <- rnorm(100, 0, 1)
 logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
 dat = data.frame(logx = logx, logz = logz)
-Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
+out <- Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
 }

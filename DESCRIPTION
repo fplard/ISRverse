@@ -8,6 +8,8 @@ Authors@R: c(
   )
 Description: Survival, Reproduction and Growth analyses.
 License: file LICENSE
+Depends: 
+    R (>= 2.10)
 Imports: 
     assertthat,
     BaSTA,
@@ -41,5 +43,6 @@ Remotes:
     git::https://github.com/fercol/paramDemo/tree/main/pkg.git
 Config/fusen/version: 0.5.2
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1

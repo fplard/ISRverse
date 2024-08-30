@@ -21,23 +21,36 @@ run_txprofile(
   minN = 50,
   maxOutl = 99,
   spOutLev = NULL,
+  Global = TRUE,
+  uncert_birth = 365,
+  uncert_death = 365,
+  uncert_date = 365,
   minNsur = 50,
+  maxNsur = NULL,
+  minInstitution = 2,
   minlx = 0.1,
   MinBirthKnown = 0.3,
+  XMAX = 120,
+  Min_MLE = 0.1,
+  MaxLE = 2,
   models_sur = "GO",
-  shape = "bathub",
+  shape = "bathtub",
   niter = 25000,
   burnin = 5001,
   thinning = 20,
   nchain = 3,
   ncpus = 2,
+  Repsect = c("agemat", "litter"),
+  Birth_Type = "Captive",
   parentProb = 80,
+  minNlitter = 20,
+  Nday = 7,
   minNrepro = 100,
   minNparepro = 30,
   minNseas = 50,
   minNgro = 100,
   minNIgro = 50,
-  MeasureType = "",
+  MeasureType = "Live weight",
   models_gro = "vonBertalanffy"
 )
 }
@@ -74,11 +87,29 @@ run_txprofile(
 
 \item{spOutLev}{\code{vector of character} List of species for which the Maximum threshold for the longevity distribution.XXXXXXXXXXXXXXXXXXXXXXXXX}
 
+\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
+
+\item{uncert_birth}{\code{numeric}: Maximum uncertainty accepted for birth dates, in days}
+
+\item{uncert_death}{\code{numeric}: Maximum uncertainty accepted for death dates, in days. Default = 365}
+
+\item{uncert_date}{\code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days. Default = 365}
+
 \item{minNsur}{\code{numeric} Minimum number of individuals to run the survival analysis. Default = 50}
+
+\item{maxNsur}{\code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL}
+
+\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the analyses. Default = 2}
 
 \item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
 
 \item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
+
+\item{XMAX}{\code{numeric} Maximum possible age. Default = 120}
+
+\item{Min_MLE}{\code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy}
+
+\item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
 
 \item{models_sur}{\code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
 
@@ -94,11 +125,19 @@ run_txprofile(
 
 \item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
 
-\item{parentProb}{\code{numeric} XXXXXXXXXXX}
+\item{Repsect}{\code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...}
 
-\item{minNrepro}{\code{numeric} XXXXXXXXXXX}
+\item{Birth_Type}{\code{character} Captive, Wild, or All. Default =  "Captive"}
 
-\item{minNparepro}{\code{numeric} XXXXXXXXXXX}
+\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+
+\item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
+
+\item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
+
+\item{minNrepro}{\code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50}
+
+\item{minNparepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30}
 
 \item{minNseas}{\code{numeric} XXXXXXXXXXX}
 
@@ -117,68 +156,30 @@ Save and replace the result file for each specie sin the list. The file is saved
 Load data needed and run or update demographic analyses for the list of species selected
 }
 \examples{
-# # Here is an example but use directly your own ZIMSdir(directory to find data) and analysisDir(directory to save analysis)
-# file = system.file("coretest.csv", package = 'ISRverse')
-# ZIMSdir = dirname(file)
-# AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-# PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
-# dir.create(AnalysisDir)
-# dir.create(PlotDir)
-# 
-# #This code run the survival analysis for gorilla
-# out <- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla'), 
-#                           ZIMSdir = RastDir, AnalysisDir = AnalysisDir,
-#                           PlotDir = PlotDir,
-#                           extractDate = "", 
-#                           minDate = "1980-01-01",
-#                           Sections = "sur", 
-#                           sexCats = c('Male', 'Female'),
-#                          niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
-# )
-# 
-# list.files(PlotDir)
-# list.files(AnalysisDir)
-# 
-# unlink(AnalysisDir, recursive = TRUE)
-
-
-\dontrun{
-# Here is an example but use directly your own ZIMSdir(directory to find data) and analysisDir(directory #' to save analysis)
-file = system.file("coretest.csv", package = 'ISRverse')
+# Here is an example but use directly your own ZIMSdir (directory to find data) 
+# and analysisDir (directory to save analysis)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdir = dirname(file)
-analysisDir = paste0(tempdir(check = TRUE),'\\\\temp')
+AnalysisDir = paste0(tempdir(check = TRUE),'\\\\temp')
 PlotDir = paste0(tempdir(check = TRUE),'\\\\temp\\\\plot')
-dir.create(analysisDir)
+dir.create(AnalysisDir)
 dir.create(PlotDir)
 
-#Here I want to split my analysis on two computers
-#Run on computer 1:
-out <- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla', "Capreolus capreolus"), 
-                          ZIMSdir = RastDir, analysisDir = analysisDir,
-                         PlotDir = PlotDir,
-                       extractDate = "", 
-                          minDate = "1980-01-01",
-                          Sections = "sur", 
-                          sexCats = c('Male', 'Female'), 
-                          inparallel = TRUE, 
-                          ipara = 1, npara = 2
+#This code run the survival analysis
+run_txprofile(taxa = "Reptilia", Species_list = "All",
+              ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,
+              PlotDir = PlotDir,
+              extractDate = "",
+              minDate = "1980-01-01",
+              Sections = "sur",
+              sexCats = c('Male', 'Female'),
+              niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
 )
 
-
-#Run on computer 2:
-out <- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla', "Capreolus capreolus"), 
-                          ZIMSdir = RastDir, analysisDir = analysisDir,
-                          PlotDir = PlotDir,
-                      extractDate = "", 
-                          minDate = "1980-01-01",
-                          Sections = "sur", 
-                          sexCats = c('Male', 'Female'), 
-                          inparallel = TRUE,
-                           ipara = 2, npara = 2
-)
 list.files(PlotDir)
 list.files(AnalysisDir)
 
-unlink(analysisDir, recursive = TRUE)
-}
+unlink(AnalysisDir, recursive = TRUE)
+unlink(PlotDir, recursive = TRUE)
+
 }

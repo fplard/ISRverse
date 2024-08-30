@@ -14,7 +14,7 @@ Gro_lin_ind(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric}) and \emph{anonID}}
+\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric}) and \emph{AnimalAnonID}}
 
 \item{perc_weight_min}{\code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20\%)}
 
@@ -41,7 +41,7 @@ data(weights)
 
 #We use only trajectories for which the number of individual datapoints is > 6
 weights <- weights\%>\%
-  dplyr::group_by(anonID)\%>\%
+  dplyr::group_by(AnimalAnonID)\%>\%
   dplyr::mutate(nb= dplyr::n())\%>\%
   dplyr::ungroup()\%>\%
   dplyr::filter(nb >6)
