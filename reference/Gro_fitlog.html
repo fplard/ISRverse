@@ -98,47 +98,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">logx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">logz</span> <span class="op">&lt;-</span> <span class="fl">0.2</span><span class="op">+</span> <span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">logx</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">0.01</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>logx <span class="op">=</span> <span class="va">logx</span>, logz <span class="op">=</span> <span class="va">logz</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">Gro_fitlog</span><span class="op">(</span>num <span class="op">=</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">dat</span>, all_mods <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $fit</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bbmle::mle2(minuslogl = modSett$growthMod, start = modSett$gamstart, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     fixed = list(LL = T), data = data, parnames = modSett$namesCoef)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      gamma       zinf         z0         LL </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0000210 14.9993898  0.2012666  1.0000000 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood: -0.01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $tab</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $tab$index</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $tab$model</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "vonBertalanffy"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $tab$k</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $tab$LSQ</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'log Lik.' 0.01007468 (df=3)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $growthMod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     if (LL) {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         return(sum((logz - zEst)^2))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     else {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         return(zEst)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x5574bd0e22f8&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:ISRverse&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Gro_fitlog</span><span class="op">(</span>num <span class="op">=</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">dat</span>, all_mods <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

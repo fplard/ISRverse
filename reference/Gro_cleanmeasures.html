@@ -72,10 +72,11 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Gro_cleanmeasures</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">coresubse</span>,</span>
-<span>  BirthType <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span>  Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"weight"</span>,</span>
 <span>  MeasureType <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mindate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
+<span>  uncert_date <span class="op">=</span> <span class="fl">365</span>,</span>
 <span>  corevariable <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  variablekeep <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -86,14 +87,14 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p><code>data.frame</code> including the following columns <em>MeasurementValue</em>, <em>MeasurementDate</em>, <em>CollectionScopeType</em>, <em>UnitOfMeasure</em>, <em>ExcludedFromNorms</em>, <em>EstimatedMeasurement</em>, <em>RecordType</em>, <em>MeasurementType</em>, <em>anonID</em> and <em>AnonInstitutionID</em>.</p></dd>
+<dd><p><code>data.frame</code> including the following columns <em>MeasurementValue</em>, <em>MeasurementDate</em>, <em>MeasurementDateStart</em>, <em>MeasurementDateEnd</em>, <em>UnitOfMeasure</em>, <em>EstimatedMeasurement</em>, <em>RecordType</em>, <em>MeasurementType</em>, <em>AnimalAnonID</em> and <em>RecordingInstitution</em>.</p></dd>
 
 
 <dt id="arg-coresubse">coresubse<a class="anchor" aria-label="anchor" href="#arg-coresubse"></a></dt>
-<dd><p><code>data.frame</code> including at least the following columns <em>binSpecies</em>, <em>Sex</em>, <em>anonID</em> and <em>Birthdate</em> (<code>date</code>)</p></dd>
+<dd><p><code>data.frame</code> including at least the following columns <em>binSpecies</em>, <em>SexType</em>, <em>AnimalAnonID</em> and <em>Birthdate</em> (<code>date</code>)</p></dd>
 
 
-<dt id="arg-birthtype">BirthType<a class="anchor" aria-label="anchor" href="#arg-birthtype"></a></dt>
+<dt id="arg-birth-type">Birth_Type<a class="anchor" aria-label="anchor" href="#arg-birth-type"></a></dt>
 <dd><p><code>character</code> Captive, Wild, or All Default =  TRUE</p></dd>
 
 
@@ -107,6 +108,10 @@
 
 <dt id="arg-mindate">mindate<a class="anchor" aria-label="anchor" href="#arg-mindate"></a></dt>
 <dd><p><code>character 'YYYY-MM-DD'</code> Earlier date to include data</p></dd>
+
+
+<dt id="arg-uncert-date">uncert_date<a class="anchor" aria-label="anchor" href="#arg-uncert-date"></a></dt>
+<dd><p><code>numeric</code>: Maximum uncertainty accepted for measurement dates, in days</p></dd>
 
 
 <dt id="arg-corevariable">corevariable<a class="anchor" aria-label="anchor" href="#arg-corevariable"></a></dt>
@@ -123,16 +128,15 @@
 <li><p>A summary with the number of individuals and weight:
 - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
-- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 -  If no data are selected, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure.</p></li>
 </ul></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">raw_weights</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">data_weights</span><span class="op">=</span> <span class="fu">Gro_cleanmeasures</span><span class="op">(</span><span class="va">raw_weights</span>, <span class="va">core</span>,</span></span>
-<span class="r-in"><span>                                BirthType <span class="op">=</span> <span class="st">"All"</span>,</span></span>
+<span class="r-in"><span><span class="va">data_weights</span><span class="op">=</span> <span class="fu">Gro_cleanmeasures</span><span class="op">(</span><span class="va">weights</span>, <span class="va">core</span>,</span></span>
+<span class="r-in"><span>                                Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span></span>
 <span class="r-in"><span>                                MeasureType <span class="op">=</span> <span class="st">'Live weight'</span>,</span></span>
 <span class="r-in"><span>                                mindate <span class="op">=</span> <span class="st">"1980-01-01"</span><span class="op">)</span></span></span>
 </code></pre></div>

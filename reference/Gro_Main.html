@@ -74,16 +74,19 @@
 <span>  <span class="va">coresubse</span>,</span>
 <span>  <span class="va">taxa</span>,</span>
 <span>  <span class="va">species</span>,</span>
-<span>  BirthType <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>  agemat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"weight"</span>,</span>
 <span>  MeasureType <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  minInstitution <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  uncert_date <span class="op">=</span> <span class="fl">365</span>,</span>
 <span>  minNgro <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  minNIgro <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  models <span class="op">=</span> <span class="st">"vonBertalanffy"</span>,</span>
 <span>  percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">97.5</span><span class="op">)</span>,</span>
 <span>  PlotDir <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mindate <span class="op">=</span> <span class="st">"1980-01-01"</span></span>
+<span>  mindate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
+<span>  plotname <span class="op">=</span> <span class="st">""</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,11 +95,11 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p><code>data.frame</code> including the following columns <em>MeasurementValue</em>, <em>MeasurementDate</em>, <em>CollectionScopeType</em>, <em>UnitOfMeasure</em>, <em>ExcludedFromNorms</em>, <em>EstimatedMeasurement</em>, <em>RecordType</em>, <em>MeasurementType</em>, <em>anonID</em> and <em>AnonInstitutionID</em>.</p></dd>
+<dd><p><code>data.frame</code> including the following columns <em>MeasurementValue</em>, <em>MeasurementDate</em>, <em>UnitOfMeasure</em>, <em>EstimatedMeasurement</em>, <em>RecordType</em>, <em>MeasurementType</em>, <em>AnimalAnonID</em> and <em>RecordingInstitution</em>.</p></dd>
 
 
 <dt id="arg-coresubse">coresubse<a class="anchor" aria-label="anchor" href="#arg-coresubse"></a></dt>
-<dd><p><code>data.frame</code> including at least the following columns <em>binSpecies</em>, <em>Sex</em>, <em>anonID</em> and <em>Birthdate</em> (<code>date</code>)</p></dd>
+<dd><p><code>data.frame</code> including at least the following columns <em>binSpecies</em>, <em>SexType</em>, <em>AnimalAnonID</em> and <em>Birthdate</em> (<code>date</code>)</p></dd>
 
 
 <dt id="arg-taxa">taxa<a class="anchor" aria-label="anchor" href="#arg-taxa"></a></dt>
@@ -107,8 +110,8 @@
 <dd><p><code>character</code> the name of the species studied</p></dd>
 
 
-<dt id="arg-birthtype">BirthType<a class="anchor" aria-label="anchor" href="#arg-birthtype"></a></dt>
-<dd><p><code>vector of character</code> NULL, Captive and/or Wild Default =  NULL</p></dd>
+<dt id="arg-birth-type">Birth_Type<a class="anchor" aria-label="anchor" href="#arg-birth-type"></a></dt>
+<dd><p><code>vector of character</code> "Captive", "Wild", and/or "All"</p></dd>
 
 
 <dt id="arg-agemat">agemat<a class="anchor" aria-label="anchor" href="#arg-agemat"></a></dt>
@@ -121,6 +124,14 @@
 
 <dt id="arg-measuretype">MeasureType<a class="anchor" aria-label="anchor" href="#arg-measuretype"></a></dt>
 <dd><p><code>vector of characters</code> Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.</p></dd>
+
+
+<dt id="arg-mininstitution">minInstitution<a class="anchor" aria-label="anchor" href="#arg-mininstitution"></a></dt>
+<dd><p><code>numeric</code> Minimum number of institutions that should hold records to run the analysis. Default = 1</p></dd>
+
+
+<dt id="arg-uncert-date">uncert_date<a class="anchor" aria-label="anchor" href="#arg-uncert-date"></a></dt>
+<dd><p><code>numeric</code>: Maximum uncertainty accepted for measurement dates, in days</p></dd>
 
 
 <dt id="arg-minngro">minNgro<a class="anchor" aria-label="anchor" href="#arg-minngro"></a></dt>
@@ -146,6 +157,10 @@
 <dt id="arg-mindate">mindate<a class="anchor" aria-label="anchor" href="#arg-mindate"></a></dt>
 <dd><p><code>character 'YYYY-MM-DD'</code> Earlier date to include data</p></dd>
 
+
+<dt id="arg-plotname">plotname<a class="anchor" aria-label="anchor" href="#arg-plotname"></a></dt>
+<dd><p><code>character</code> Name used to save the plot. Default = ""</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -165,11 +180,11 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">raw_weights</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">output</span><span class="op">=</span> <span class="fu">Gro_Main</span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw_weights</span>, coresubse <span class="op">=</span> <span class="va">core</span>,</span></span>
-<span class="r-in"><span>                 taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, species <span class="op">=</span> <span class="st">"Gorilla gorilla"</span> ,</span></span>
-<span class="r-in"><span>                 BirthType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, agemat <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span><span class="va">output</span><span class="op">=</span> <span class="fu">Gro_Main</span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, coresubse <span class="op">=</span> <span class="va">core</span>,</span></span>
+<span class="r-in"><span>                 taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, species <span class="op">=</span> <span class="st">"Testudo hermanni"</span> ,</span></span>
+<span class="r-in"><span>                 Birth_Type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, agemat <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>                 type <span class="op">=</span> <span class="st">"weight"</span>, MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span></span>
 <span class="r-in"><span>                 minNgro <span class="op">=</span> <span class="fl">30</span>, minNIgro <span class="op">=</span> <span class="fl">30</span>, </span></span>
 <span class="r-in"><span>                 models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"logistic"</span><span class="op">)</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span><span class="op">)</span> </span></span>

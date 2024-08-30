@@ -86,23 +86,36 @@
 <span>  minN <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  maxOutl <span class="op">=</span> <span class="fl">99</span>,</span>
 <span>  spOutLev <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Global <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  uncert_birth <span class="op">=</span> <span class="fl">365</span>,</span>
+<span>  uncert_death <span class="op">=</span> <span class="fl">365</span>,</span>
+<span>  uncert_date <span class="op">=</span> <span class="fl">365</span>,</span>
 <span>  minNsur <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  maxNsur <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  minInstitution <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  minlx <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  MinBirthKnown <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  XMAX <span class="op">=</span> <span class="fl">120</span>,</span>
+<span>  Min_MLE <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  MaxLE <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  models_sur <span class="op">=</span> <span class="st">"GO"</span>,</span>
-<span>  shape <span class="op">=</span> <span class="st">"bathub"</span>,</span>
+<span>  shape <span class="op">=</span> <span class="st">"bathtub"</span>,</span>
 <span>  niter <span class="op">=</span> <span class="fl">25000</span>,</span>
 <span>  burnin <span class="op">=</span> <span class="fl">5001</span>,</span>
 <span>  thinning <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  nchain <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  Repsect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"agemat"</span>, <span class="st">"litter"</span><span class="op">)</span>,</span>
+<span>  Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>,</span>
 <span>  parentProb <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  minNlitter <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  Nday <span class="op">=</span> <span class="fl">7</span>,</span>
 <span>  minNrepro <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  minNparepro <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  minNseas <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  minNgro <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  minNIgro <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>  MeasureType <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span>
 <span>  models_gro <span class="op">=</span> <span class="st">"vonBertalanffy"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -175,8 +188,32 @@
 <dd><p><code>vector of character</code> List of species for which the Maximum threshold for the longevity distribution.XXXXXXXXXXXXXXXXXXXXXXXXX</p></dd>
 
 
+<dt id="arg-global">Global<a class="anchor" aria-label="anchor" href="#arg-global"></a></dt>
+<dd><p><code>logical</code> Whether only individuals belonging to global collections should be used.</p></dd>
+
+
+<dt id="arg-uncert-birth">uncert_birth<a class="anchor" aria-label="anchor" href="#arg-uncert-birth"></a></dt>
+<dd><p><code>numeric</code>: Maximum uncertainty accepted for birth dates, in days</p></dd>
+
+
+<dt id="arg-uncert-death">uncert_death<a class="anchor" aria-label="anchor" href="#arg-uncert-death"></a></dt>
+<dd><p><code>numeric</code>: Maximum uncertainty accepted for death dates, in days. Default = 365</p></dd>
+
+
+<dt id="arg-uncert-date">uncert_date<a class="anchor" aria-label="anchor" href="#arg-uncert-date"></a></dt>
+<dd><p><code>numeric</code>: Maximum uncertainty accepted for measurement dates: weight, in days. Default = 365</p></dd>
+
+
 <dt id="arg-minnsur">minNsur<a class="anchor" aria-label="anchor" href="#arg-minnsur"></a></dt>
 <dd><p><code>numeric</code> Minimum number of individuals to run the survival analysis. Default = 50</p></dd>
+
+
+<dt id="arg-maxnsur">maxNsur<a class="anchor" aria-label="anchor" href="#arg-maxnsur"></a></dt>
+<dd><p><code>numeric</code> Maximum number of individual records to run the survival analysis. Default = NULL</p></dd>
+
+
+<dt id="arg-mininstitution">minInstitution<a class="anchor" aria-label="anchor" href="#arg-mininstitution"></a></dt>
+<dd><p><code>numeric</code> Minimum number of institutions that should hold records to run the analyses. Default = 2</p></dd>
 
 
 <dt id="arg-minlx">minlx<a class="anchor" aria-label="anchor" href="#arg-minlx"></a></dt>
@@ -185,6 +222,18 @@
 
 <dt id="arg-minbirthknown">MinBirthKnown<a class="anchor" aria-label="anchor" href="#arg-minbirthknown"></a></dt>
 <dd><p><code>numeric</code> between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3</p></dd>
+
+
+<dt id="arg-xmax">XMAX<a class="anchor" aria-label="anchor" href="#arg-xmax"></a></dt>
+<dd><p><code>numeric</code> Maximum possible age. Default = 120</p></dd>
+
+
+<dt id="arg-min-mle">Min_MLE<a class="anchor" aria-label="anchor" href="#arg-min-mle"></a></dt>
+<dd><p><code>numeric</code> Goodness of fit: Minimum survivorship at Mean life expectancy</p></dd>
+
+
+<dt id="arg-maxle">MaxLE<a class="anchor" aria-label="anchor" href="#arg-maxle"></a></dt>
+<dd><p><code>numeric</code> Goodness of fit: Maximum remaining life expectancy at max age</p></dd>
 
 
 <dt id="arg-models-sur">models_sur<a class="anchor" aria-label="anchor" href="#arg-models-sur"></a></dt>
@@ -215,16 +264,32 @@
 <dd><p><code>numeric</code> Number of computer core to use. Default = 2</p></dd>
 
 
+<dt id="arg-repsect">Repsect<a class="anchor" aria-label="anchor" href="#arg-repsect"></a></dt>
+<dd><p><code>character</code> names of the reproductive analyses to run: "agemat", "litter" and/or ...</p></dd>
+
+
+<dt id="arg-birth-type">Birth_Type<a class="anchor" aria-label="anchor" href="#arg-birth-type"></a></dt>
+<dd><p><code>character</code> Captive, Wild, or All. Default =  "Captive"</p></dd>
+
+
 <dt id="arg-parentprob">parentProb<a class="anchor" aria-label="anchor" href="#arg-parentprob"></a></dt>
-<dd><p><code>numeric</code> XXXXXXXXXXX</p></dd>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include. Default = 80</p></dd>
+
+
+<dt id="arg-minnlitter">minNlitter<a class="anchor" aria-label="anchor" href="#arg-minnlitter"></a></dt>
+<dd><p><code>numeric</code> Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30</p></dd>
+
+
+<dt id="arg-nday">Nday<a class="anchor" aria-label="anchor" href="#arg-nday"></a></dt>
+<dd><p><code>numeric</code> Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7</p></dd>
 
 
 <dt id="arg-minnrepro">minNrepro<a class="anchor" aria-label="anchor" href="#arg-minnrepro"></a></dt>
-<dd><p><code>numeric</code> XXXXXXXXXXX</p></dd>
+<dd><p><code>numeric</code> Minimum number of birth records needed to run reproductive analyses. Default = 50</p></dd>
 
 
 <dt id="arg-minnparepro">minNparepro<a class="anchor" aria-label="anchor" href="#arg-minnparepro"></a></dt>
-<dd><p><code>numeric</code> XXXXXXXXXXX</p></dd>
+<dd><p><code>numeric</code> Minimum number of unique parent records needed to run reproductive analyses. Default = 30</p></dd>
 
 
 <dt id="arg-minnseas">minNseas<a class="anchor" aria-label="anchor" href="#arg-minnseas"></a></dt>
@@ -254,70 +319,42 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># # Here is an example but use directly your own ZIMSdir(directory to find data) and analysisDir(directory to save analysis)</span></span></span>
-<span class="r-in"><span><span class="co"># file = system.file("coretest.csv", package = 'ISRverse')</span></span></span>
-<span class="r-in"><span><span class="co"># ZIMSdir = dirname(file)</span></span></span>
-<span class="r-in"><span><span class="co"># AnalysisDir = paste0(tempdir(check = TRUE),'\temp')</span></span></span>
-<span class="r-in"><span><span class="co"># PlotDir = paste0(tempdir(check = TRUE),'\temp\plot')</span></span></span>
-<span class="r-in"><span><span class="co"># dir.create(AnalysisDir)</span></span></span>
-<span class="r-in"><span><span class="co"># dir.create(PlotDir)</span></span></span>
-<span class="r-in"><span><span class="co"># </span></span></span>
-<span class="r-in"><span><span class="co"># #This code run the survival analysis for gorilla</span></span></span>
-<span class="r-in"><span><span class="co"># out &lt;- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla'), </span></span></span>
-<span class="r-in"><span><span class="co">#                           ZIMSdir = RastDir, AnalysisDir = AnalysisDir,</span></span></span>
-<span class="r-in"><span><span class="co">#                           PlotDir = PlotDir,</span></span></span>
-<span class="r-in"><span><span class="co">#                           extractDate = "", </span></span></span>
-<span class="r-in"><span><span class="co">#                           minDate = "1980-01-01",</span></span></span>
-<span class="r-in"><span><span class="co">#                           Sections = "sur", </span></span></span>
-<span class="r-in"><span><span class="co">#                           sexCats = c('Male', 'Female'),</span></span></span>
-<span class="r-in"><span><span class="co">#                          niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3</span></span></span>
-<span class="r-in"><span><span class="co"># )</span></span></span>
-<span class="r-in"><span><span class="co"># </span></span></span>
-<span class="r-in"><span><span class="co"># list.files(PlotDir)</span></span></span>
-<span class="r-in"><span><span class="co"># list.files(AnalysisDir)</span></span></span>
-<span class="r-in"><span><span class="co"># </span></span></span>
-<span class="r-in"><span><span class="co"># unlink(AnalysisDir, recursive = TRUE)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Here is an example but use directly your own ZIMSdir(directory to find data) and analysisDir(directory #' to save analysis)</span></span></span>
-<span class="r-in"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"coretest.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Here is an example but use directly your own ZIMSdir (directory to find data) </span></span></span>
+<span class="r-in"><span><span class="co"># and analysisDir (directory to save analysis)</span></span></span>
+<span class="r-in"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ZIMSdir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">analysisDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">AnalysisDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">PlotDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp\\plot'</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">AnalysisDir</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#Here I want to split my analysis on two computers</span></span></span>
-<span class="r-in"><span><span class="co">#Run on computer 1:</span></span></span>
-<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">run_txprofile</span><span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, Species_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Gorilla gorilla'</span>, <span class="st">"Capreolus capreolus"</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>                          ZIMSdir <span class="op">=</span> <span class="va">RastDir</span>, analysisDir <span class="op">=</span> <span class="va">analysisDir</span>,</span></span>
-<span class="r-in"><span>                         PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span></span>
-<span class="r-in"><span>                       extractDate <span class="op">=</span> <span class="st">""</span>, </span></span>
-<span class="r-in"><span>                          minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span></span>
-<span class="r-in"><span>                          Sections <span class="op">=</span> <span class="st">"sur"</span>, </span></span>
-<span class="r-in"><span>                          sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>                          inparallel <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
-<span class="r-in"><span>                          ipara <span class="op">=</span> <span class="fl">1</span>, npara <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="co">#This code run the survival analysis</span></span></span>
+<span class="r-in"><span><span class="fu">run_txprofile</span><span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>,</span></span>
+<span class="r-in"><span>              ZIMSdir <span class="op">=</span> <span class="va">ZIMSdir</span>, AnalysisDir <span class="op">=</span> <span class="va">AnalysisDir</span>,</span></span>
+<span class="r-in"><span>              PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span></span>
+<span class="r-in"><span>              extractDate <span class="op">=</span> <span class="st">""</span>,</span></span>
+<span class="r-in"><span>              minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span></span>
+<span class="r-in"><span>              Sections <span class="op">=</span> <span class="st">"sur"</span>,</span></span>
+<span class="r-in"><span>              sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ====================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:    Reptilia </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species:  Testudo hermanni </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Progress: 100 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> =====================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species running... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  done.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#Run on computer 2:</span></span></span>
-<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">run_txprofile</span><span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, Species_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Gorilla gorilla'</span>, <span class="st">"Capreolus capreolus"</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>                          ZIMSdir <span class="op">=</span> <span class="va">RastDir</span>, analysisDir <span class="op">=</span> <span class="va">analysisDir</span>,</span></span>
-<span class="r-in"><span>                          PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span></span>
-<span class="r-in"><span>                      extractDate <span class="op">=</span> <span class="st">""</span>, </span></span>
-<span class="r-in"><span>                          minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span></span>
-<span class="r-in"><span>                          Sections <span class="op">=</span> <span class="st">"sur"</span>, </span></span>
-<span class="r-in"><span>                          sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>                          inparallel <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                           ipara <span class="op">=</span> <span class="fl">2</span>, npara <span class="op">=</span> <span class="fl">2</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">AnalysisDir</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Testudo_hermanni.RData"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">analysisDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
