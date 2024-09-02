@@ -71,13 +71,17 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Sur_ana</span><span class="op">(</span></span>
 <span>  <span class="va">sexData</span>,</span>
+<span>  <span class="va">DeathInformation</span>,</span>
 <span>  outlLev1 <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  models <span class="op">=</span> <span class="st">"GO"</span>,</span>
 <span>  shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
 <span>  mindate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
 <span>  minNsur <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  maxNsur <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  uncert_death <span class="op">=</span> <span class="fl">365</span>,</span>
 <span>  minlx <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  MinBirthKnown <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  minInstitution <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  niter <span class="op">=</span> <span class="fl">25000</span>,</span>
 <span>  burnin <span class="op">=</span> <span class="fl">5001</span>,</span>
 <span>  thinning <span class="op">=</span> <span class="fl">20</span>,</span>
@@ -89,7 +93,11 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>sexData</dt>
-<dd><p><code>data.frame</code> including at least the following columns <em>anonID</em>, <em>Birth.Date</em> (<code>date</code>), <em>Depart.Date</em> (<code>date</code>), <em>Entry.Date</em> (<code>date</code>), <em>Max.Birth.Date</em> (<code>date</code>), <em>Min.Birth.Date</em> (<code>date</code>), <em>Entry.Type</em>, <em>Depart.Type</em> and <em>AnonInstitutionID</em></p></dd>
+<dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em>, <em>BirthDate</em>, <em>DepartDate</em>, <em>EntryDate</em>, <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>EntryType</em>, <em>DepartType</em>, <em>FirstHoldingInstitution</em>, <em>LastHoldingInstitution</em>, <em>SexType</em>, and <em>BirthType</em></p></dd>
+
+
+<dt>DeathInformation</dt>
+<dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em> and <em>RelevantDeathInformationType</em></p></dd>
 
 
 <dt>outlLev1</dt>
@@ -112,12 +120,24 @@
 <dd><p><code>numeric</code> Minimum number of individual records needed to run the survival analysis. Default = 50</p></dd>
 
 
+<dt>maxNsur</dt>
+<dd><p><code>numeric</code> Maximum number of individual records to run the survival analysis. Default = NULL</p></dd>
+
+
+<dt>uncert_death</dt>
+<dd><p><code>numeric</code>: Maximum uncertainty accepted for death date, in days</p></dd>
+
+
 <dt>minlx</dt>
 <dd><p><code>numeric</code> between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1</p></dd>
 
 
 <dt>MinBirthKnown</dt>
 <dd><p><code>numeric</code> between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3</p></dd>
+
+
+<dt>minInstitution</dt>
+<dd><p><code>numeric</code> Minimum number of institutions that should hold records to run the survival analysis. Default = 1</p></dd>
 
 
 <dt>niter</dt>
@@ -153,7 +173,7 @@
 <li><p>lxMin:Minimum survivorship reached with the raw Kaplan-Meier model</p></li>
 <li><p>OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%</p></li>
 <li><p>a logical indicated if the growth analysis was performed</p></li>
-<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin &gt; minlx 3/NBasta = 0 4/ %known births &lt; MinBirthKnown 5/Data from 1 Institution 6/Nbasta &lt; minNsur, 7/no DIC from Basta.</p></li>
+<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data; 2/lxMin &gt; minlx; 3/NBasta = 0; 4/ %known births &lt; MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta &lt; minNsur; 7/Nbasta &lt; maxNsur; 8/no DIC from Basta.</p></li>
 </ul><ul><li><p>the basta fit of the best model</p></li>
 <li><p>the DIC table comparing the different fit of the models</p></li>
 </ul></div>
@@ -161,8 +181,9 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Sur_ana</span><span class="op">(</span><span class="va">core</span>,  models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span></span>
-<span class="r-in"><span>                niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Sur_ana</span><span class="op">(</span><span class="va">core</span>,  DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span></span>
+<span class="r-in"><span>               niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Registered S3 methods overwritten by 'BaSTA':</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   method                 from    </span>
@@ -175,7 +196,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   print.bastaCheckCens   BaSTA2.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 9.51 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 15.95 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -186,7 +207,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 5.96 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 8.53 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>

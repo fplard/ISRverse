@@ -28,7 +28,7 @@ ISRverse can be used to run taxon profiles for Species360. It proposes tools to 
 
 ## Installation
 
-First you will need install paramDemo from [GitHub](https://github.com/) with:
+First you will need install paramDemo on your computer from [GitHub](https://github.com/) with:
 
 ```{r, echo = TRUE, eval = FALSE}
 # install.packages("devtools")
@@ -56,27 +56,113 @@ path <- system.file("docs", "index.html", package = "ISRverse")
 browseURL(path)
 ```
 
+## Set up your Rstudio environnement
+
+Use the correct directories to find data and run the analyses
+
+#### On your own computer
+
+```{r, echo = TRUE, eval = FALSE}
+# Path to the ZIMSdata directory:
+ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/"
+
+ZIMSdirdata <- glue ("{ZIMSdir}Data")
+analysisDir <- glue ("{ZIMSdir}Analyses/")
+
+# directory to save Rdata:
+ISRdatDir <-  glue ("{analysisDir}Rdata/")
+# directory to save Json for the dev team:
+ISRdatDir <-  glue ("{analysisDir}Json/")
+# Plot directory:
+plotDir <- glue ("{analysisDir}Plot/")
+
+setwd(analysisDir)
+```
+
+
+#### On Ucloud 
+
+```{r, echo = TRUE, eval = FALSE}
+
+# Install libraries:
+instPacks <- installed.packages()[, 1]
+if (!"snowfall" %in% instPacks) {
+  install.packages("snowfall")
+}
+if (!"rjson" %in% instPacks) {
+  install.packages("rjson")
+}
+if (!"ggpubr" %in% instPacks) {
+  install.packages("ggpubr")
+}
+if (!"bbmle" %in% instPacks) {
+  install.packages("bbmle")
+}
+if (!"BasTA" %in% instPacks) {
+  install.packages("BaSTA")
+}
+if (!"assertthat" %in% instPacks) {
+  install.packages("assertthat")
+}
+if (!"glue" %in% instPacks) {
+  install.packages("glue")
+}
+if (!"checkmate" %in% instPacks) {
+  install.packages("checkmate")
+}
+
+if (!"paramDemo" %in% instPacks) {
+  install.packages("/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz",
+                   type = "source", repos = NULL)
+}
+if (!"ISRverse" %in% instPacks) {
+  install.packages("/work/Species360/Rpackages/latestVersion/ISRverse_0.0.0.9000.tar.gz", 
+                   type = "source", repos = NULL)
+}
+library(glue)
+
+# General directory:
+ZIMSdirdata <- "/work/Species360/ZIMSdata_ext240829"
+
+# General directory:
+analysisDir <- glue ("/work/Species360/Demo_Analyses/")
+
+# directory to save Rdata:
+ISRdatDir <-  glue ("{analysisDir}Rdata/")
+# directory to save Json for the dev team:
+ISRdatDir <-  glue ("{analysisDir}Json/")
+# Plot directory:
+plotDir <- glue ("{analysisDir}Plot/")
+```
+
+### Libraries
+
+Download the needed libraries
+
+```{r, echo = TRUE, eval = FALSE}
+library(ISRverse)
+library(tidyverse)
+library(rjson)
+```
+
+
 ## Split Science extract per taxa
 
-To be done only once after the download of the science extract. This function will load the science extract and:
+DO NOT DO THAT IN MOST CASES
+
+To be done !!!!!ONLY ONCE!!!! after the download of the science extract. This function will load the science extract and:
 * split it by taxa 
 * select only "Individual" for Animal Type
 * add binSpecies name
 * weights and lengths: check that measurement are > 0, add the following columns: Age in years, UnitOfMeasure and MeasurementValue
 
 ```{r, echo = TRUE, eval = FALSE}
-# CHANGE THIS to Path to the ZIMSdata directory: 
-ZIMSdirtest = "C:/Users/flopy/Documents/ISR/TaxonProfiles/Data"
-Split_Zimsdata	(ZIMSdir = ZIMSdirtest) 
+# Path to the ZIMSdata directory:
+extractDate ="2024-08-29"
+Split_Zimsdata	(ZIMSdir = ZIMSdirdata, extractDate = extractDate) 
 
 ```
 
-
-
-
-## Run demographic analyses
-
-###
 
 
 ## Tutorial for reproduction
@@ -84,13 +170,7 @@ Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
 ### Litter size
 
 ```{r, echo = TRUE, eval = FALSE}
-library(tidyverse)
-library(ISRverse)
-library(glue)
-
-# CHANGE THIS to Path to the ZIMSdata directory: 
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/Data"
-extractDate = "2024-08-30"
+extractDate ="2024-08-29"
 minDate = "1980-01-01"
 Global = TRUE
 
@@ -105,11 +185,11 @@ minNlitter = 30 #Minimum number of litter sizes
 parentProb = 80 #Minimum parentage probability
 Nday = 7  #Group all offspring born within this interval of days in one litter
 
-Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdir, 
+Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdirdata, 
                       species = List_species,
             Animal = TRUE,
               tables= c('Collection', 'Parent', 'Move')) 
-Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = lubridate::as_date("2023/12/23"))
+Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = lubridate::as_date("2024/08/29"))
   
 TAB = tibble()
 for (species in List_species[[taxa]]){
@@ -123,7 +203,7 @@ for (species in List_species[[taxa]]){
                          Data[[taxa]]$Collection, Data[[taxa]]$Parent, Data[[taxa]]$Move,
                          BirthType_parent = "Captive", BirthType_offspring = "Captive",
                          minNrep=minNrepro, minNparep =minNparepro, Global = Global)
-    if(nrow(Datarep$data)>0){
+    if(nrow(Datarep$Reprodata)>0){
     #Litter sizes
     out <- Rep_littersize(Datarep$Reprodata, perAge = FALSE,
                       Nday = Nday, parentProb = parentProb,  minNlitter =minNlitter)
@@ -143,13 +223,7 @@ TAB
 ### Age at first reproduction
 
 ```{r, echo = TRUE, eval = FALSE}
-library(tidyverse)
-library(ISRverse)
-library(glue)
-
-# CHANGE THIS to Path to the ZIMSdata directory: 
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/Data"
-extractDate = "2023-12-04"
+extractDate ="2024-08-29"
 minDate = "1980-01-01"
 Global = TRUE
 
@@ -162,11 +236,11 @@ minNrepro = 100   #Minimum number of birth records
 minNparepro = 30  #Minimum number of unique parent records
 
 
-Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdir, 
+Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdirdata, 
                       species = List_species,
                       Animal = TRUE,
                       tables= c('Collection', 'Parent', 'Move')) 
-Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = lubridate::as_date("2023/12/23"))
+Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = lubridate::as_date("2024/08/29"))
 
 TAB = tibble()
 for (species in List_species[[taxa]]){
@@ -207,113 +281,6 @@ TAB
 
 ## Tutorial to run Taxon profiles
 
-### Set up your Rstudio environnement
-
-Use the correct directories to find data and run the analyses
-
-#### On your own computer
-
-```{r, echo = TRUE, eval = FALSE}
-# Path to the ZIMSdata directory:
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/"
-
-analysisDir <- "C:/Users/flopy/Documents/ISR/Data/ISR"
-
-# ISR data directory:
-ISRdatDir <- sprintf("%sISRdata/", analysisDir)
-
-# Global data directory:
-globDir <- sprintf("%sglobal/", analysisDir)
-
-setwd(analysisDir)
-```
-
-
-#### On Ucloud 
-
-```{r, echo = TRUE, eval = FALSE}
-
-# Install libraries:
-instPacks <- installed.packages()[, 1]
-if (!"snowfall" %in% instPacks) {
-  install.packages("snowfall")
-}
-if (!"RColorBrewer" %in% instPacks) {
-  install.packages("RColorBrewer")
-}
-if (!"rjson" %in% instPacks) {
-  install.packages("rjson")
-}
-if (!"ggpubr" %in% instPacks) {
-  install.packages("ggpubr")
-}
-# Set one thread (core) for BLAS operations: 
-if (!"RhpcBLASctl" %in% instPacks) {
-  install.packages("RhpcBLASctl")
-  library(RhpcBLASctl)
-  blas_set_num_threads(1)
-}
-
-# if (!"extractZIMS" %in% instPacks) {
-#   install.packages("/work/Species360/Rpackages/latestVersion/extractZIMS_0.1.1.tar.gz", 
-#                    type = "source", repos = NULL)
-# }
-# if (!"paramDemo" %in% instPacks) {
-#   install.packages("/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz", 
-#                    type = "source", repos = NULL)
-# }
-if (!"BaSTA2.0" %in% instPacks) {
-  install.packages("/work/Species360/Rpackages/latestVersion/BaSTA2.0_2.0.0.tar.gz", 
-                   type = "source", repos = NULL)
-}
-if (!"ISRverse" %in% instPacks) {
-  install.packages("/work/Species360/Rpackages/latestVersion/ISRverse_1.0.0.tar.gz", 
-                   type = "source", repos = NULL)
-}
-# Set one thread (core) for BLAS operations: 
-if (!"RhpcBLASctl" %in% instPacks) {
-  install.packages("RhpcBLASctl")
-  library(RhpcBLASctl)
-  blas_set_num_threads(1)
-}
-
-# Path to the ZIMSdata directory:
-ZIMSdir <- "/work/Species360/ZIMSdata_ext231204/"
-
-# General directory:
-analysisDir <- "/work/Species360/ISR/"
-
-# ISR data directory:
-ISRdatDir <- sprintf("%sISRdata/", analysisDir)
-
-# Global data directory:
-globDir <- sprintf("%sglobal/", analysisDir)
-
-
-setwd(analysisDir)
-
-```
-
-### Libraries
-
-Download the needed libraries
-
-```{r, echo = TRUE, eval = FALSE}
-library(ISRverse)
-library(BaSTA2.0)
-library(snowfall)
-library(RColorBrewer)
-library(tidyverse)
-library(rjson)
-library(stringi)
-library(ISRverse)
-library(ggplot2)
-library(ggpubr)
-# library(paramDemo)
-# library(extractZIMS)
-```
-
-
 
 ### Choose important arguments
 
@@ -326,7 +293,7 @@ taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia",
               "Chondrichthyes", "Actinopterygii")
 
 # Sex categories ----------------------------------
-BySex <- c(Mammalia = c("Male", "Female"), 
+BySex <- list(Mammalia = c("Male", "Female"), 
            Aves = c("Male", "Female"), 
            Reptilia = c("Male", "Female", "All"), 
            Amphibia = c("Male", "Female", "All"), 
@@ -337,6 +304,10 @@ BySex <- c(Mammalia = c("Male", "Female"),
 #Filters ----------------------------------
 # Earliest date to include records
 minDate <- "1980-01-01"
+#Whether to include only Global individuals
+Global = TRUE
+#Birth Type of Animals: "Captive", "Wild" or "All"
+Birth_Type = "Captive"
 # Minimum number of individuals to run the taxon profile
 minN <- 50
 # Maximum threshold in the longevity distribution to use
@@ -355,7 +326,9 @@ XMAX = 120
 
 
 #      Survival Models --------------------------------
+# Survival Models to run: "GO", "LO", "EX" or/and "WE"
 models_sur <- c("GO", "LO")
+#Shape of the survival model: "simple", "bathtub" or "Makeham"
 shape = "bathtub"
 
 # Number of CPUS:
@@ -365,7 +338,7 @@ ncpus <- 4
 niter <- 25000
 burnin <- 5001
 thinning <- 20
-
+nchain <- 3
 
 # Conditions to run the survival analysis
 minNsur = 50 #Minimum number of individuals
@@ -379,18 +352,24 @@ MaxLE = 2     #Maximum remaining life expectancy at max age
 
 
 #     Reproduction Models ------------------------------
+# Reproductive Analyses to run: "agemat" or/and "litter"
+Repsect = c('agemat', 'litter')
+
 # Conditions to run the reproduction analyses
 minNrepro = 100   #Minimum number of birth records
 minNparepro = 30  #Minimum number of unique parent records
 
-#Litter size
+#Litter/clutch size
 parentProb = 80 #Minimum percentage of parentage probability to include in litter size
 minNlitter = 30 #Minimum number of litters to run the analysis
+Nday = 7 #Number of days to group all offspring in one litter/clutch
 
-minNseas = 50
+#Seasonnality
+minNseas = 50  #Minimum number of births to run the seasonnality analysis
 
 #      Growth Models -----------------------------------
-models_gro <- c("GO", "LO") 
+#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"
+models_gro <- c("vonBertalanffy") 
 
 # Measure type to select
 MeasureType = "Live weight"
@@ -405,7 +384,7 @@ minNIgro = 50 #Minimum number of weights
 
 ```{r, echo = TRUE, eval = FALSE}
 # Table with species that require rerruning with higher outlier level:
-maxOutLev <- read.csv("ISRanalysisData/tables/maxOutlierLevel.csv", header = TRUE,
+maxOutLev <- read.csv(glue("{analysisDir}maxOutlierLevel.csv"), header = TRUE,
                       stringsAsFactors = FALSE)
 spOutLev <- maxOutLev$Specie
 
@@ -428,15 +407,17 @@ taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
 
-run_txprofile (taxa, Species_list = "All", ZIMSdir, analysisDir,
-               Sections = Sections, 
+run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata, 
+                AnalysisDir = analysisDir, PlotDir = plotDir,
+                 Sections = Sections, erase_previous = FALSE,
                extractDate = extractDate, minDate = minDate,
                sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  maxOutl = maxOutl,  spOutLev = spOutLev,
+               minN = minN,  Global =  Global,
+               maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
                         uncert_date = uncert_date,
                         minInstitution = minInstitution, 
-               minNsur = minNsur, maxNsur = maxNsur,
+               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
                minlx = minlx, MinBirthKnown = MinBirthKnown, 
                Min_MLE = Min_MLE, MaxLE =  MaxLE,
               models_sur = models_sur, shape = shape,
@@ -444,11 +425,11 @@ run_txprofile (taxa, Species_list = "All", ZIMSdir, analysisDir,
                nchain = nchain, ncpus = ncpus,
                parentProb = parentProb, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
+              minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               model_gro = model_gro
+               models_gro = models_gro
                
 )
-
 ```
 
 
@@ -461,15 +442,17 @@ taxa <- 1
 Sections = c("sur", "rep", "gro")
 Species_list = c('Panthera leo', 'Panthera uncia', 'Panthera tigra')
 
-run_txprofile (taxa, Species_list = Species_list, ZIMSdir, analysisDir,
-               Sections = Sections, 
+run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
+              AnalysisDir = analysisDir, PlotDir = plotDir,
+                 Sections = Sections, erase_previous = FALSE,
                extractDate = extractDate, minDate = minDate,
                sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  maxOutl = maxOutl,  spOutLev = spOutLev,
+               minN = minN,  Global =  Global,
+               maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
                         uncert_date = uncert_date,
                         minInstitution = minInstitution, 
-               minNsur = minNsur, maxNsur = maxNsur,
+               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
                minlx = minlx, MinBirthKnown = MinBirthKnown, 
                Min_MLE = Min_MLE, MaxLE =  MaxLE,
               models_sur = models_sur, shape = shape,
@@ -477,14 +460,10 @@ run_txprofile (taxa, Species_list = Species_list, ZIMSdir, analysisDir,
                nchain = nchain, ncpus = ncpus,
                parentProb = parentProb, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
+              minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               model_gro = model_gro
-               
+               models_gro = models_gro
 )
-
-
-
-
 ```
 
 
@@ -492,6 +471,7 @@ run_txprofile (taxa, Species_list = Species_list, ZIMSdir, analysisDir,
 
 ```{r, echo = TRUE, eval = FALSE}
 #Run this code changing ipara on each different computer
+XX = 3
 # for example on the first computer:
 ipara = 1
 
@@ -499,18 +479,19 @@ taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
 #Number of different computers
-XX = 3
 
-run_txprofile (taxa, Species_list = "All", ZIMSdir, analysisDir,
+run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata, 
                inparallel = TRUE, ipara = ipara, npara = XX, 
-               Sections = Sections, 
+          AnalysisDir = analysisDir, PlotDir = plotDir,
+                 Sections = Sections, erase_previous = FALSE,
                extractDate = extractDate, minDate = minDate,
                sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  maxOutl = maxOutl,  spOutLev = spOutLev,
+               minN = minN,  Global =  Global,
+               maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
                         uncert_date = uncert_date,
                         minInstitution = minInstitution, 
-               minNsur = minNsur, maxNsur = maxNsur,
+               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
                minlx = minlx, MinBirthKnown = MinBirthKnown, 
                Min_MLE = Min_MLE, MaxLE =  MaxLE,
               models_sur = models_sur, shape = shape,
@@ -518,29 +499,26 @@ run_txprofile (taxa, Species_list = "All", ZIMSdir, analysisDir,
                nchain = nchain, ncpus = ncpus,
                parentProb = parentProb, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
+              minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               model_gro = model_gro
+               models_gro = models_gro
+               
 )
 
 ```
 
-### Run taxon profiles by taxa
-
-```{r, echo = TRUE, eval = FALSE}
-
-```
-
-
 
 ### Group all outputs in one compressed file
 
-
-### To Json
+### Make the output for the Dev Team
 
 ```{r, echo = TRUE, eval = FALSE}
 write(toJSON(repout), file = sprintf("ISRdata/global/json/%s.json", 
                                      repout$general$speciesID))
 
 ```
+
+### Compress the output
+
 
 

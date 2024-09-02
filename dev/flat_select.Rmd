@@ -238,6 +238,7 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # -------------------------- #
     # Run survival analyses:
     if ("sur" %in% Sections) {
+      cat("Survival Running --------------------------------------------")
       repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
                                     Birth_Type = Birth_Type,
                                     PlotDir = PlotDir,XMAX = XMAX,
@@ -256,7 +257,8 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # ------------------------------ #
     # Reproduction module list:
     if ("rep" %in% Sections) {
-      # Reproduction module list:
+          cat("Reproduction Running --------------------------------------------")
+  # Reproduction module list:
       repout$repr <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
                               Repsect = Repsect,
                               BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
@@ -271,7 +273,8 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # ----------------------------- #
     # Growth module list:
     if ("gro" %in% Sections) {
-      repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
+          cat("Growth Running --------------------------------------------")
+  repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
                                     taxa = taxa, species = species,
                                     Birth_Type = Birth_Type, 
                                     agemat = NULL, percentiles = c(2.5,97.5),
