@@ -1183,8 +1183,9 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   #GOF
   GOF = list(normal = T, X = T, var = T, conv = conv)
   elogz2 <- elogz^2
+  if(length(elogz)<5000 & length(elogz)> 2){
   test  = shapiro.test(elogz)
-  if(test$p.value<0.01){GOF$normal = FALSE}
+  if(test$p.value<0.01){GOF$normal = FALSE}}
   a = summary(lm(elogz2 ~ data_weight$logx)) #test variance?
   if(a$coefficients[2,4]<0.01){GOF$X = FALSE}
   b = summary(lm(elogz ~ data_weight$logx)) #test pour senescence??

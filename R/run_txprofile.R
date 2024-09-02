@@ -189,6 +189,7 @@ minDate = lubridate::as_date(minDate)
   # ======================#
   # ==== Load data ========
   # ======================#
+  cat("Loading Data\n")
   tables = c("Collection")
   if("sur" %in% Sections){
     tables = c(tables, "DeathInformation")
@@ -199,8 +200,10 @@ minDate = lubridate::as_date(minDate)
   if("rep" %in% Sections){
     tables = c(tables, "Parent", "Contraception", "Move")
   }
+  species_list = list()
+  species_list [[taxa]] = Species_list
   data <- Load_Zimsdata	(taxa = taxa, ZIMSdir = ZIMSdir, 
-                         species = Species_list,
+                         species = species_list,
                          Animal = TRUE,
                          tables = tables,
                          silent = TRUE) 
@@ -208,8 +211,10 @@ minDate = lubridate::as_date(minDate)
   # ======================#
   # ==== Species List =====
   # ======================#
-  if( Species_list == "All"){
+  if(all(Species_list == "All")){
     spAll <- unique(data[[taxa]]$Animal$binSpecies)
+  }else{
+     spAll <-Species_list
   }
   if (inparallel){
     # IDs of species to run per version:

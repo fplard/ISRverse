@@ -97,17 +97,13 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">Gro_ModSettings</span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, model <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $growthMod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     if (LL) {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         return(sum((logz - zEst)^2))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     else {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         return(zEst)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> function(gamma = 0.5 , zinf = 0, z0 = 0, LL = F, logx, logz = 0) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   zEst &lt;-z0 + zinf * (1 - exp(- gamma * logx))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   if(LL){</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     return(sum((logz - zEst)^2))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   }else{return(zEst)}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000002687cb6d2f8&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x0000024349bce938&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:ISRverse&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $np</span>

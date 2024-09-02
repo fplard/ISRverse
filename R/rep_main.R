@@ -82,7 +82,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
   assert_that( minNseas > 0)
   assert_that(is.numeric( Nday))
   assert_that( Nday >= 0)
-  
+  out <- list()
   
   #prepare Reproduction data
   Datarep <- Rep_prepdata(coresubset = coresubset, 
@@ -93,7 +93,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
                           Global = Global)
   out[["summary"]] <- Datarep$summary
   out$summary$litt_analyzed =  out$summary$amat_analyzed = FALSE
-  if(nrow(Datarep$data)>0){
+  if(nrow(Datarep$Reprodata)>0){
   if(length(unique(Datarep$Reprodata$currentInst))>=minInstitution){
     #remove curretn inst to avoid duplicated lines
     subfert <- Datarep$Reprodata%>%
