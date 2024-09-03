@@ -4,7 +4,7 @@ test_that("tx_report works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSdirtest = dirname(file)
   data <- Load_Zimsdata	(taxa = "Reptilia",
-                         ZIMSdir = ZIMSdirtest,
+                          species = list(Reptilia = "All"), ZIMSdir = ZIMSdirtest,
                          Animal = TRUE, tables = c("Collection","DeathInformation", "Weight"))
   PlotDir = paste0(tempdir(check = TRUE),'\\temp')
   dir.create(PlotDir)

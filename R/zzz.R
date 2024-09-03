@@ -31,4 +31,4 @@ globalVariables(c("Age", "anonID", "MeasurementValue", "age0", "agem", "ager", "
     "MeasurementDateEstimateStart", "MinDeathDate", "ParentType", "Parent_Age",
     "Parent_BirthType", "RelevantDeathInformationType", "SexType", "SpeciesName",
     "WeightValueKg", "ageVec", "litter", "litterSize", "out", "parent",
-    "sexCats", "subparfert", "moves", ":="), package ="ISRverse")
+    "sexCats", "subparfert", "moves", "maxAge", 'analyzed', ":="), package ="ISRverse")

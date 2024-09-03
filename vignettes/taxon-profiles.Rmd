@@ -50,6 +50,7 @@ ZIMSdir = dirname(file)
 AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
 PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
 dir.create(AnalysisDir)
+dir.create(paste0(tempdir(check = TRUE),'\\temp\\Rdata'))
 dir.create(PlotDir)
 
 #This code run the survival analysis
@@ -58,7 +59,7 @@ run_txprofile(taxa = "Reptilia", Species_list = "All",
               PlotDir = PlotDir,
               extractDate = "",
               minDate = "1980-01-01",
-              Sections = "sur",
+              Sections = c("sur"),
               sexCats = c('Male', 'Female'),
               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
 )
@@ -85,21 +86,20 @@ it returns the main summary table
 
 
 ```{r examples-make_summary}
-# file = system.file("gorilla gorilla.Rdata", package = 'ISRverse')
-# AnalysisDir  = dirname(file)
-# SaveDir = paste0(tempdir(check = TRUE),'\\temp')
-# dir.create(SaveDir)
-# 
-# SummTab <- make_summary (AnalysisDir, SaveDir,
-#                           taxaList = "Mammalia", 
-#                           BySex = list(Mammalia = c("Male", "Female")) , 
-#                           Sections = c("sur", 'gro')
-# )
-# list.files(SaveDir)
-# 
-# 
-# unlink(SaveDir, recursive = TRUE)
+file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
+AnalysisDir  = dirname(file)
+SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+dir.create(SaveDir)
 
+SummTab <- make_summary(AnalysisDir, SaveDir,
+               taxaList = "Reptilia",
+               BySex = list(Reptilia = c("Male", "Female")) ,
+               Sections = c("sur", 'gro')
+)
+list.files(SaveDir)
+
+
+unlink(SaveDir, recursive = TRUE)
 ```
 
 # Load zims core data
@@ -120,6 +120,7 @@ Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
 
 data <- Load_Zimsdata	(taxa = "Reptilia", 
                        ZIMSdir = ZIMSdirtest, 
+                       species = list(Reptilia = "All"),
                        Animal = TRUE,
                        tables = 'Weight') 
 data$Reptilia$Animal

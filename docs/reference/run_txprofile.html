@@ -80,6 +80,7 @@
 <span>  <span class="va">Sections</span>,</span>
 <span>  erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
+<span>  minBirthDate <span class="op">=</span> <span class="st">"1900-01-01"</span>,</span>
 <span>  inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ipara <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  npara <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -160,6 +161,10 @@
 
 <dt>sexCats</dt>
 <dd><p><code>character</code> Male, Female or All Default =  "All"</p></dd>
+
+
+<dt>minBirthDate</dt>
+<dd><p><code>character</code>: Earlier possible date: date used when minimum birth or death date unknown</p></dd>
 
 
 <dt>inparallel</dt>
@@ -326,6 +331,7 @@
 <span class="r-in"><span><span class="va">AnalysisDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">PlotDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp\\plot'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">AnalysisDir</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp\\Rdata'</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#This code run the survival analysis</span></span></span>
@@ -334,7 +340,7 @@
 <span class="r-in"><span>              PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span></span>
 <span class="r-in"><span>              extractDate <span class="op">=</span> <span class="st">""</span>,</span></span>
 <span class="r-in"><span>              minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span></span>
-<span class="r-in"><span>              Sections <span class="op">=</span> <span class="st">"sur"</span>,</span></span>
+<span class="r-in"><span>              Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>              sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>              niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -353,7 +359,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Testudo_hermanni_Female_LongThres.pdf"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2] "Testudo_hermanni_Male_LongThres.pdf"  </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">AnalysisDir</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Testudo_hermanni.RData" "plot"                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rdata" "plot" </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

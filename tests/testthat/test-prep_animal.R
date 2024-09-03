@@ -5,6 +5,7 @@ test_that("Prep_Animal works", {
   ZIMSdirtest = dirname(file)
   
   data <- Load_Zimsdata	(taxa = "Reptilia",
+                          species = list(Reptilia = "All"),
                          ZIMSdir = ZIMSdirtest,
                          Animal = TRUE)
   

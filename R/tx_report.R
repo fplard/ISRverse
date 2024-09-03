@@ -20,6 +20,7 @@
 #' @param minN \code{numeric} Minimum number of individuals. Default = 50
 #' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
+#' @param minBirthDate  \code{character}: Earlier possible date: date used when minimum birth or death date unknown
 #' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
 #' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the analyses. Default = 2
@@ -60,6 +61,7 @@
 #' file = system.file("sci_Animal.csv", package = 'ISRverse')
 #' ZIMSdirtest = dirname(file)
 #' data <- Load_Zimsdata	(taxa = "Reptilia",
+#'                        species = list(Reptilia = "All"),
 #'                        ZIMSdir = ZIMSdirtest,
 #'                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 #'
@@ -84,7 +86,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                       weights = NULL,parents = NULL, move= NULL, contraceptions = NULL, DeathInformation = NULL,
                       repout = list(), Sections = c('sur', 'rep', 'gro'),
                       sexCats = c("Male", "Female"), minN= 50, minDate= "1980-01-01",
-                      Global = TRUE,
+                      Global = TRUE,minBirthDate = "1900-01-01",
                       extractDate = NULL, uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
                       minNsur = 50,maxNsur = NULL, minInstitution = 2, 
                       minlx = 0.1, MinBirthKnown = 0.3, maxOutl = 100,XMAX =120,
@@ -207,17 +209,20 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-  core <- Prep_Animal(Animal, extractDate= extractDate,minDate =minDate )
+  core <- Prep_Animal(Animal, extractDate= extractDate,minBirthDate =minBirthDate )
   
   Dat <- select_species(species, core, collection,  uncert_birth = uncert_birth,
                         minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
   speciesname = stringr::str_replace(species, " ", "_")
+  
+  if(nrow(Dat$data)>0){
   for (sx in sexCats){
     sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
                                     PlotDir= PlotDir, minN = minN ,
                                     maintitle = glue::glue("{speciesname}_{sx}") )
     repout$summary[[sx]] = sexDat$summar
+    if(nrow(sexDat$data)>0){
     # -------------------------- #
     # ---- Survival Module: ----
     # -------------------------- #
@@ -271,6 +276,10 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
                                     models = models_gro,
                                     mindate = minDate, plotname = glue("{speciesname}_{sx}") )
     }
+    }
+  }
+  }else{
+    warnings(glue::glue("No data for {species}"))
   }
   
   return(repout)

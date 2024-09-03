@@ -33,19 +33,18 @@ It saves summary tables and plots for each Sections and a general summary table.
 Produce summary tables and plots of the demographic analyses made for all species
 }
 \examples{
-# file = system.file("gorilla gorilla.Rdata", package = 'ISRverse')
-# AnalysisDir  = dirname(file)
-# SaveDir = paste0(tempdir(check = TRUE),'\\temp')
-# dir.create(SaveDir)
-# 
-# SummTab <- make_summary (AnalysisDir, SaveDir,
-#                           taxaList = "Mammalia", 
-#                           BySex = list(Mammalia = c("Male", "Female")) , 
-#                           Sections = c("sur", 'gro')
-# )
-# list.files(SaveDir)
-# 
-# 
-# unlink(SaveDir, recursive = TRUE)
+file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
+AnalysisDir  = dirname(file)
+SaveDir = paste0(tempdir(check = TRUE),'\\\\temp')
+dir.create(SaveDir)
 
+SummTab <- make_summary(AnalysisDir, SaveDir,
+               taxaList = "Reptilia",
+               BySex = list(Reptilia = c("Male", "Female")) ,
+               Sections = c("sur", 'gro')
+)
+list.files(SaveDir)
+
+
+unlink(SaveDir, recursive = TRUE)
 }

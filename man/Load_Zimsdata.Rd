@@ -7,7 +7,7 @@
 Load_Zimsdata(
   taxa,
   ZIMSdir,
-  species = "All",
+  species,
   Animal = FALSE,
   tables = c(),
   silent = FALSE
@@ -42,6 +42,7 @@ Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
 
 data <- Load_Zimsdata	(taxa = "Reptilia", 
                        ZIMSdir = ZIMSdirtest, 
+                       species = list(Reptilia = "All"),
                        Animal = TRUE,
                        tables = 'Weight') 
 data$Reptilia$Animal

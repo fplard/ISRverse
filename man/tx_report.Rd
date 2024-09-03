@@ -21,6 +21,7 @@ tx_report(
   minN = 50,
   minDate = "1980-01-01",
   Global = TRUE,
+  minBirthDate = "1900-01-01",
   extractDate = NULL,
   uncert_birth = 365,
   uncert_death = 365,
@@ -87,6 +88,8 @@ tx_report(
 \item{minDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
 \item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
+
+\item{minBirthDate}{\code{character}: Earlier possible date: date used when minimum birth or death date unknown}
 
 \item{extractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
 
@@ -162,6 +165,7 @@ Run the survival, reproduction and growth analysis for the selected species
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdirtest = dirname(file)
 data <- Load_Zimsdata	(taxa = "Reptilia",
+                       species = list(Reptilia = "All"),
                        ZIMSdir = ZIMSdirtest,
                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 

@@ -15,6 +15,7 @@ run_txprofile(
   Sections,
   erase_previous = FALSE,
   sexCats = c("Male", "Female"),
+  minBirthDate = "1900-01-01",
   inparallel = FALSE,
   ipara = 1,
   npara = 1,
@@ -74,6 +75,8 @@ run_txprofile(
 \item{erase_previous}{\code{logical} whether the current result file should be deleted (before being replaced). Default = FALSE}
 
 \item{sexCats}{\code{character} Male, Female or All Default =  "All"}
+
+\item{minBirthDate}{\code{character}: Earlier possible date: date used when minimum birth or death date unknown}
 
 \item{inparallel}{\code{logical} Whether this function is run in parallel on different computer. In other words: should the species list be divided? Default = FALSE}
 
@@ -163,6 +166,7 @@ ZIMSdir = dirname(file)
 AnalysisDir = paste0(tempdir(check = TRUE),'\\\\temp')
 PlotDir = paste0(tempdir(check = TRUE),'\\\\temp\\\\plot')
 dir.create(AnalysisDir)
+dir.create(paste0(tempdir(check = TRUE),'\\\\temp\\\\Rdata'))
 dir.create(PlotDir)
 
 #This code run the survival analysis
@@ -171,7 +175,7 @@ run_txprofile(taxa = "Reptilia", Species_list = "All",
               PlotDir = PlotDir,
               extractDate = "",
               minDate = "1980-01-01",
-              Sections = "sur",
+              Sections = c("sur"),
               sexCats = c('Male', 'Female'),
               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
 )

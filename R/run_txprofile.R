@@ -10,6 +10,7 @@
 #' @param AnalysisDir \code{character} directory where to save results
 #' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
 #' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
+#' @param minBirthDate  \code{character}: Earlier possible date: date used when minimum birth or death date unknown
 #' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
@@ -63,6 +64,7 @@
 #' AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
 #' PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
 #' dir.create(AnalysisDir)
+#' dir.create(paste0(tempdir(check = TRUE),'\\temp\\Rdata'))
 #' dir.create(PlotDir)
 #'
 #' #This code run the survival analysis
@@ -71,7 +73,7 @@
 #'               PlotDir = PlotDir,
 #'               extractDate = "",
 #'               minDate = "1980-01-01",
-#'               Sections = "sur",
+#'               Sections = c("sur"),
 #'               sexCats = c('Male', 'Female'),
 #'               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
 #' )
@@ -86,7 +88,7 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
                           AnalysisDir, PlotDir,
                           extractDate, minDate = "1980-01-01",
                           Sections, erase_previous = FALSE,
-                          sexCats = c('Male', 'Female'), 
+                          sexCats = c('Male', 'Female'), minBirthDate = "1900-01-01",
                           inparallel = FALSE, ipara = 1, npara = 1, 
                           minN= 50,  maxOutl =99,  spOutLev = NULL, Global = TRUE,
                           uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
@@ -265,8 +267,8 @@ minDate = lubridate::as_date(minDate)
     if(erase_previous){
       repout = list()
     }else{
-      if(length(list.files(AnalysisDir, glue::glue("{speciesname}.RData")))>0){
-        load(glue::glue("AnalysisDir/{speciesname}.RData"))
+      if(length(list.files(glue::glue("{AnalysisDir}Rdata/"), glue::glue("{speciesname}.RData")))>0){
+        load(glue::glue("{AnalysisDir}Rdata/{speciesname}.RData"))
       }else{repout = list()}
     }
     if (species %in% spOutLev) maxOutl <- 99.9
@@ -275,7 +277,7 @@ minDate = lubridate::as_date(minDate)
     # Create report:
     repout <- tx_report(species, taxa, 
                         data[[taxa]]$Animal, data[[taxa]]$Collection,  DeathInformation = DeathInformation,
-                        PlotDir = PlotDir, extractDate= extractDate,
+                        PlotDir = PlotDir, extractDate= extractDate, minBirthDate = minBirthDate,
                         weights = weights, parents = parents, contraceptions = contraceptions, move = move,
                         repout = repout, Sections = Sections, Birth_Type = Birth_Type,
                         sexCats = sexCats, minN= minN, minDate= minDate, Global = Global,
@@ -298,7 +300,7 @@ minDate = lubridate::as_date(minDate)
     # ---- Save results: ----
     # ----------------------- #
     # Save species list:
-    save("repout", file = glue::glue("{AnalysisDir}/{speciesname}.RData"))
+    save("repout", file = glue::glue("{AnalysisDir}/Rdata/{speciesname}.RData"))
     cat(" done.\n")
   }
 }

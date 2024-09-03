@@ -8,6 +8,7 @@ test_that("Load_Zimsdata works", {
   
   data <- Load_Zimsdata	(taxa = "Reptilia", 
                          ZIMSdir = ZIMSdirtest, 
+                         species = list(Reptilia = "All"),
                          Animal = TRUE,
                          tables = 'Weight') 
   

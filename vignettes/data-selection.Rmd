@@ -44,6 +44,7 @@ library(ISRverse)
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdirtest = dirname(file)
 data <- Load_Zimsdata	(taxa = "Reptilia",
+                       species = list(Reptilia = "All"),
                        ZIMSdir = ZIMSdirtest,
                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 
@@ -78,7 +79,8 @@ This function check dates and add the following columns to animal data: MinBirth
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdirtest = dirname(file)
 
-data <- Load_Zimsdata	(taxa = "Reptilia",
+data <- Load_Zimsdata	(taxa = "Reptilia", 
+                       species = list(Reptilia = "All"),
                        ZIMSdir = ZIMSdirtest,
                        Animal = TRUE)
 

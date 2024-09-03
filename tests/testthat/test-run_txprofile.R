@@ -4,14 +4,12 @@
 test_that("run_txprofile works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSdir = dirname(file)
-  AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-  PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
-  dir.create(AnalysisDir)
+  PlotDir = paste0(tempdir(check = TRUE),'\\tem')
   dir.create(PlotDir)
   
   #This code run the survival analysis
   run_txprofile(taxa = "Reptilia", Species_list = "All",
-                ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,
+                ZIMSdir = ZIMSdir, AnalysisDir = ZIMSdir,
                 PlotDir = PlotDir,
                 extractDate = "",
                 minDate = "1980-01-01",
@@ -20,9 +18,8 @@ test_that("run_txprofile works", {
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
   )
   
-  expect_true(file.exists(paste(AnalysisDir, "Testudo_hermanni.Rdata", sep = '\\')))
-  unlink(AnalysisDir, recursive = TRUE)
-  unlink(PlotDir, recursive = TRUE)
+  expect_true(file.exists(paste(ZIMSdir, "Testudo_hermanni.Rdata", sep = '\\')))
+   unlink(PlotDir, recursive = TRUE)
   
 })
 

@@ -70,7 +70,7 @@ Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 
       exMat <- rbind(exMat, exparal[[jj]])
     }
   }
-  
+  exMat[is.nan(exMat)]=0
   Sur = paste0("Sur_",Nyear,"yr")
   exQuants <- tibble(Age = xv[1:ncol(exMat)], 
                      Lower = apply(exMat, 2, quantile, 0.025),

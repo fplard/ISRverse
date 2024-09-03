@@ -62,9 +62,9 @@ ZIMSdirdata <- glue ("{ZIMSdir}Data")
 analysisDir <- glue ("{ZIMSdir}Analyses/")
 
 # directory to save Rdata:
-ISRdatDir <-  glue ("{analysisDir}Rdata/")
+RdataDir <-  glue ("{analysisDir}Rdata/")
 # directory to save Json for the dev team:
-ISRdatDir <-  glue ("{analysisDir}Json/")
+JsonDir <-  glue ("{analysisDir}Json/")
 # Plot directory:
 plotDir <- glue ("{analysisDir}Plot/")
 
@@ -112,16 +112,16 @@ if (!"ISRverse" %in% instPacks) {
 }
 library(glue)
 
-# General directory:
+# ZIMS directory where to find data:
 ZIMSdirdata <- "/work/Species360/ZIMSdata_ext240829"
 
 # General directory:
 analysisDir <- glue ("/work/Species360/Demo_Analyses/")
 
 # directory to save Rdata:
-ISRdatDir <-  glue ("{analysisDir}Rdata/")
+RdataDir <-  glue ("{analysisDir}Rdata/")
 # directory to save Json for the dev team:
-ISRdatDir <-  glue ("{analysisDir}Json/")
+JsonDir <-  glue ("{analysisDir}Json/")
 # Plot directory:
 plotDir <- glue ("{analysisDir}Plot/")
 ```
@@ -234,7 +234,7 @@ for (species in List_species[[taxa]]){
                             Global = Global) 
  if(nrow(Dataspe$data)>0){
   for (sx in c("Male", "Female", "All")){
-    
+   print(sx)
     if(sx != "All"){
       coresubset <- Dataspe$data%>%filter(SexType == sx)
     }else{coresubset <- Dataspe$data}
@@ -419,7 +419,7 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
 taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
-Species_list = c('Panthera leo', 'Panthera uncia', 'Panthera tigra')
+Species_list = c('Panthera leo', 'Panthera uncia', 'Panthera tigris')
 
 run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
               AnalysisDir = analysisDir, PlotDir = plotDir,
@@ -484,7 +484,28 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
 )
 ```
 
-### Group all outputs in one compressed file
+### Make the summary tables
+
+``` r
+# List of taxa to summarize -------------------------
+taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+              "Chondrichthyes", "Actinopterygii")
+
+# Sex categories ----------------------------------
+BySex <- list(Mammalia = c("Male", "Female"), 
+           Aves = c("Male", "Female"), 
+           Reptilia = c("Male", "Female", "All"), 
+           Amphibia = c("Male", "Female", "All"), 
+           Chondrichthyes = c("Male", "Female", "All"), 
+           Actinopterygii = "All")
+
+
+SummTab <- make_summary(AnalysisDir, SaveDir,
+               taxaList = taxaList,
+               BySex = BySex ,
+               Sections = c("sur","rep", 'gro')
+)
+```
 
 ### Make the output for the Dev Team
 

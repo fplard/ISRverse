@@ -96,7 +96,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>First you will need install paramDemo from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>First you will need install paramDemo on your computer from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="co"># library(devtools)</span></span>
@@ -116,20 +116,102 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="split-science-extract-per-taxa">Split Science extract per taxa<a class="anchor" aria-label="anchor" href="#split-science-extract-per-taxa"></a>
+<h2 id="set-up-your-rstudio-environnement">Set up your Rstudio environnement<a class="anchor" aria-label="anchor" href="#set-up-your-rstudio-environnement"></a>
 </h2>
-<p>To be done only once after the download of the science extract. This function will load the science extract and: * split it by taxa * select only “Individual” for Animal Type * add binSpecies name * weights and lengths: check that measurement are &gt; 0, add the following columns: Age in years, UnitOfMeasure and MeasurementValue</p>
+<p>Use the correct directories to find data and run the analyses</p>
+<div class="section level4">
+<h4 id="on-your-own-computer">On your own computer<a class="anchor" aria-label="anchor" href="#on-your-own-computer"></a>
+</h4>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># CHANGE THIS to Path to the ZIMSdata directory: </span></span>
-<span><span class="va">ZIMSdirtest</span> <span class="op">=</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/Data"</span></span>
-<span><span class="fu"><a href="reference/Split_Zimsdata.html">Split_Zimsdata</a></span>  <span class="op">(</span>ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirtest</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Path to the ZIMSdata directory:</span></span>
+<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/"</span></span>
+<span></span>
+<span><span class="va">ZIMSdirdata</span> <span class="op">&lt;-</span> <span class="fu">glue</span> <span class="op">(</span><span class="st">"{ZIMSdir}Data"</span><span class="op">)</span></span>
+<span><span class="va">analysisDir</span> <span class="op">&lt;-</span> <span class="fu">glue</span> <span class="op">(</span><span class="st">"{ZIMSdir}Analyses/"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># directory to save Rdata:</span></span>
+<span><span class="va">RdataDir</span> <span class="op">&lt;-</span>  <span class="fu">glue</span> <span class="op">(</span><span class="st">"{analysisDir}Rdata/"</span><span class="op">)</span></span>
+<span><span class="co"># directory to save Json for the dev team:</span></span>
+<span><span class="va">JsonDir</span> <span class="op">&lt;-</span>  <span class="fu">glue</span> <span class="op">(</span><span class="st">"{analysisDir}Json/"</span><span class="op">)</span></span>
+<span><span class="co"># Plot directory:</span></span>
+<span><span class="va">plotDir</span> <span class="op">&lt;-</span> <span class="fu">glue</span> <span class="op">(</span><span class="st">"{analysisDir}Plot/"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="on-ucloud">On Ucloud<a class="anchor" aria-label="anchor" href="#on-ucloud"></a>
+</h4>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Install libraries:</span></span>
+<span><span class="va">instPacks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"snowfall"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"snowfall"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"rjson"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rjson"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"ggpubr"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggpubr"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"bbmle"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"bbmle"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"BasTA"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BaSTA"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"assertthat"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"assertthat"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"glue"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"glue"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"checkmate"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"checkmate"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"paramDemo"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz"</span>,</span>
+<span>                   type <span class="op">=</span> <span class="st">"source"</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"ISRverse"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"/work/Species360/Rpackages/latestVersion/ISRverse_0.0.0.9000.tar.gz"</span>, </span>
+<span>                   type <span class="op">=</span> <span class="st">"source"</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/" class="external-link">glue</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># General directory:</span></span>
+<span><span class="va">ZIMSdirdata</span> <span class="op">&lt;-</span> <span class="st">"/work/Species360/ZIMSdata_ext240829"</span></span>
+<span></span>
+<span><span class="co"># General directory:</span></span>
+<span><span class="va">analysisDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"/work/Species360/Demo_Analyses/"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># directory to save Rdata:</span></span>
+<span><span class="va">RdataDir</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{analysisDir}Rdata/"</span><span class="op">)</span></span>
+<span><span class="co"># directory to save Json for the dev team:</span></span>
+<span><span class="va">JsonDir</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{analysisDir}Json/"</span><span class="op">)</span></span>
+<span><span class="co"># Plot directory:</span></span>
+<span><span class="va">plotDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{analysisDir}Plot/"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="libraries">Libraries<a class="anchor" aria-label="anchor" href="#libraries"></a>
+</h3>
+<p>Download the needed libraries</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/alexcb/rjson" class="external-link">rjson</a></span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="run-demographic-analyses">Run demographic analyses<a class="anchor" aria-label="anchor" href="#run-demographic-analyses"></a>
+<h2 id="split-science-extract-per-taxa">Split Science extract per taxa<a class="anchor" aria-label="anchor" href="#split-science-extract-per-taxa"></a>
 </h2>
-<div class="section level3">
-<h3 id="section"></h3>
-</div>
+<p>DO NOT DO THAT IN MOST CASES</p>
+<p>To be done !!!!!ONLY ONCE!!!! after the download of the science extract. This function will load the science extract and: * split it by taxa * select only “Individual” for Animal Type * add binSpecies name * weights and lengths: check that measurement are &gt; 0, add the following columns: Age in years, UnitOfMeasure and MeasurementValue</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Path to the ZIMSdata directory:</span></span>
+<span><span class="va">extractDate</span> <span class="op">=</span><span class="st">"2024-08-29"</span></span>
+<span><span class="fu"><a href="reference/Split_Zimsdata.html">Split_Zimsdata</a></span>  <span class="op">(</span>ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirdata</span>, extractDate <span class="op">=</span> <span class="va">extractDate</span><span class="op">)</span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="tutorial-for-reproduction">Tutorial for reproduction<a class="anchor" aria-label="anchor" href="#tutorial-for-reproduction"></a>
@@ -137,14 +219,8 @@
 <div class="section level3">
 <h3 id="litter-size">Litter size<a class="anchor" aria-label="anchor" href="#litter-size"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/" class="external-link">glue</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># CHANGE THIS to Path to the ZIMSdata directory: </span></span>
-<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/Data"</span></span>
-<span><span class="va">extractDate</span> <span class="op">=</span> <span class="st">"2024-08-30"</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">extractDate</span> <span class="op">=</span><span class="st">"2024-08-29"</span></span>
 <span><span class="va">minDate</span> <span class="op">=</span> <span class="st">"1980-01-01"</span></span>
 <span><span class="va">Global</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span></span>
@@ -159,11 +235,11 @@
 <span><span class="va">parentProb</span> <span class="op">=</span> <span class="fl">80</span> <span class="co">#Minimum parentage probability</span></span>
 <span><span class="va">Nday</span> <span class="op">=</span> <span class="fl">7</span>  <span class="co">#Group all offspring born within this interval of days in one litter</span></span>
 <span></span>
-<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxa</span>, ZIMSdir <span class="op">=</span> <span class="va">ZIMSdir</span>, </span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxa</span>, ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirdata</span>, </span>
 <span>                      species <span class="op">=</span> <span class="va">List_species</span>,</span>
 <span>            Animal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>              tables<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Collection'</span>, <span class="st">'Parent'</span>, <span class="st">'Move'</span><span class="op">)</span><span class="op">)</span> </span>
-<span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, extractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2023/12/23"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, extractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2024/08/29"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span><span class="va">TAB</span> <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">species</span> <span class="kw">in</span> <span class="va">List_species</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">{</span></span>
@@ -177,7 +253,7 @@
 <span>                         <span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Parent</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Move</span>,</span>
 <span>                         BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>,</span>
 <span>                         minNrep<span class="op">=</span><span class="va">minNrepro</span>, minNparep <span class="op">=</span><span class="va">minNparepro</span>, Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span></span>
-<span>    <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
 <span>    <span class="co">#Litter sizes</span></span>
 <span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">Reprodata</span>, perAge <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                      Nday <span class="op">=</span> <span class="va">Nday</span>, parentProb <span class="op">=</span> <span class="va">parentProb</span>,  minNlitter <span class="op">=</span><span class="va">minNlitter</span><span class="op">)</span></span>
@@ -193,14 +269,8 @@
 <div class="section level3">
 <h3 id="age-at-first-reproduction">Age at first reproduction<a class="anchor" aria-label="anchor" href="#age-at-first-reproduction"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/" class="external-link">glue</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># CHANGE THIS to Path to the ZIMSdata directory: </span></span>
-<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/Data"</span></span>
-<span><span class="va">extractDate</span> <span class="op">=</span> <span class="st">"2023-12-04"</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">extractDate</span> <span class="op">=</span><span class="st">"2024-08-29"</span></span>
 <span><span class="va">minDate</span> <span class="op">=</span> <span class="st">"1980-01-01"</span></span>
 <span><span class="va">Global</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span></span>
@@ -213,11 +283,11 @@
 <span><span class="va">minNparepro</span> <span class="op">=</span> <span class="fl">30</span>  <span class="co">#Minimum number of unique parent records</span></span>
 <span></span>
 <span></span>
-<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxa</span>, ZIMSdir <span class="op">=</span> <span class="va">ZIMSdir</span>, </span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxa</span>, ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirdata</span>, </span>
 <span>                      species <span class="op">=</span> <span class="va">List_species</span>,</span>
 <span>                      Animal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      tables<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Collection'</span>, <span class="st">'Parent'</span>, <span class="st">'Move'</span><span class="op">)</span><span class="op">)</span> </span>
-<span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, extractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2023/12/23"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, extractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2024/08/29"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">TAB</span> <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">species</span> <span class="kw">in</span> <span class="va">List_species</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">{</span></span>
@@ -257,110 +327,6 @@
 <h2 id="tutorial-to-run-taxon-profiles">Tutorial to run Taxon profiles<a class="anchor" aria-label="anchor" href="#tutorial-to-run-taxon-profiles"></a>
 </h2>
 <div class="section level3">
-<h3 id="set-up-your-rstudio-environnement">Set up your Rstudio environnement<a class="anchor" aria-label="anchor" href="#set-up-your-rstudio-environnement"></a>
-</h3>
-<p>Use the correct directories to find data and run the analyses</p>
-<div class="section level4">
-<h4 id="on-your-own-computer">On your own computer<a class="anchor" aria-label="anchor" href="#on-your-own-computer"></a>
-</h4>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Path to the ZIMSdata directory:</span></span>
-<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/TaxonProfiles/"</span></span>
-<span></span>
-<span><span class="va">analysisDir</span> <span class="op">&lt;-</span> <span class="st">"C:/Users/flopy/Documents/ISR/Data/ISR"</span></span>
-<span></span>
-<span><span class="co"># ISR data directory:</span></span>
-<span><span class="va">ISRdatDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sISRdata/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Global data directory:</span></span>
-<span><span class="va">globDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sglobal/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="on-ucloud">On Ucloud<a class="anchor" aria-label="anchor" href="#on-ucloud"></a>
-</h4>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Install libraries:</span></span>
-<span><span class="va">instPacks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"snowfall"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"snowfall"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"RColorBrewer"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RColorBrewer"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"rjson"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rjson"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"ggpubr"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggpubr"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co"># Set one thread (core) for BLAS operations: </span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"RhpcBLASctl"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RhpcBLASctl"</span><span class="op">)</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://prs.ism.ac.jp/~nakama/Rhpc/" class="external-link">RhpcBLASctl</a></span><span class="op">)</span></span>
-<span>  <span class="fu">blas_set_num_threads</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># if (!"extractZIMS" %in% instPacks) {</span></span>
-<span><span class="co">#   install.packages("/work/Species360/Rpackages/latestVersion/extractZIMS_0.1.1.tar.gz", </span></span>
-<span><span class="co">#                    type = "source", repos = NULL)</span></span>
-<span><span class="co"># }</span></span>
-<span><span class="co"># if (!"paramDemo" %in% instPacks) {</span></span>
-<span><span class="co">#   install.packages("/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz", </span></span>
-<span><span class="co">#                    type = "source", repos = NULL)</span></span>
-<span><span class="co"># }</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"BaSTA2.0"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"/work/Species360/Rpackages/latestVersion/BaSTA2.0_2.0.0.tar.gz"</span>, </span>
-<span>                   type <span class="op">=</span> <span class="st">"source"</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"ISRverse"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"/work/Species360/Rpackages/latestVersion/ISRverse_1.0.0.tar.gz"</span>, </span>
-<span>                   type <span class="op">=</span> <span class="st">"source"</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co"># Set one thread (core) for BLAS operations: </span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="st">"RhpcBLASctl"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">instPacks</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"RhpcBLASctl"</span><span class="op">)</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://prs.ism.ac.jp/~nakama/Rhpc/" class="external-link">RhpcBLASctl</a></span><span class="op">)</span></span>
-<span>  <span class="fu">blas_set_num_threads</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Path to the ZIMSdata directory:</span></span>
-<span><span class="va">ZIMSdir</span> <span class="op">&lt;-</span> <span class="st">"/work/Species360/ZIMSdata_ext231204/"</span></span>
-<span></span>
-<span><span class="co"># General directory:</span></span>
-<span><span class="va">analysisDir</span> <span class="op">&lt;-</span> <span class="st">"/work/Species360/ISR/"</span></span>
-<span></span>
-<span><span class="co"># ISR data directory:</span></span>
-<span><span class="va">ISRdatDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sISRdata/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Global data directory:</span></span>
-<span><span class="va">globDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%sglobal/"</span>, <span class="va">analysisDir</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level3">
-<h3 id="libraries">Libraries<a class="anchor" aria-label="anchor" href="#libraries"></a>
-</h3>
-<p>Download the needed libraries</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BaSTA2.0</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">snowfall</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/alexcb/rjson" class="external-link">rjson</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringi.gagolewski.com/" class="external-link">stringi</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/" class="external-link">ggpubr</a></span><span class="op">)</span></span>
-<span><span class="co"># library(paramDemo)</span></span>
-<span><span class="co"># library(extractZIMS)</span></span></code></pre></div>
-</div>
-<div class="section level3">
 <h3 id="choose-important-arguments">Choose important arguments<a class="anchor" aria-label="anchor" href="#choose-important-arguments"></a>
 </h3>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -372,7 +338,7 @@
 <span>              <span class="st">"Chondrichthyes"</span>, <span class="st">"Actinopterygii"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Sex categories ----------------------------------</span></span>
-<span><span class="va">BySex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
+<span><span class="va">BySex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
 <span>           Aves <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
 <span>           Reptilia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
 <span>           Amphibia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
@@ -383,6 +349,10 @@
 <span><span class="co">#Filters ----------------------------------</span></span>
 <span><span class="co"># Earliest date to include records</span></span>
 <span><span class="va">minDate</span> <span class="op">&lt;-</span> <span class="st">"1980-01-01"</span></span>
+<span><span class="co">#Whether to include only Global individuals</span></span>
+<span><span class="va">Global</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="co">#Birth Type of Animals: "Captive", "Wild" or "All"</span></span>
+<span><span class="va">Birth_Type</span> <span class="op">=</span> <span class="st">"Captive"</span></span>
 <span><span class="co"># Minimum number of individuals to run the taxon profile</span></span>
 <span><span class="va">minN</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="co"># Maximum threshold in the longevity distribution to use</span></span>
@@ -401,7 +371,9 @@
 <span></span>
 <span></span>
 <span><span class="co">#      Survival Models --------------------------------</span></span>
+<span><span class="co"># Survival Models to run: "GO", "LO", "EX" or/and "WE"</span></span>
 <span><span class="va">models_sur</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"LO"</span><span class="op">)</span></span>
+<span><span class="co">#Shape of the survival model: "simple", "bathtub" or "Makeham"</span></span>
 <span><span class="va">shape</span> <span class="op">=</span> <span class="st">"bathtub"</span></span>
 <span></span>
 <span><span class="co"># Number of CPUS:</span></span>
@@ -411,7 +383,7 @@
 <span><span class="va">niter</span> <span class="op">&lt;-</span> <span class="fl">25000</span></span>
 <span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">5001</span></span>
 <span><span class="va">thinning</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
-<span></span>
+<span><span class="va">nchain</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
 <span></span>
 <span><span class="co"># Conditions to run the survival analysis</span></span>
 <span><span class="va">minNsur</span> <span class="op">=</span> <span class="fl">50</span> <span class="co">#Minimum number of individuals</span></span>
@@ -425,18 +397,24 @@
 <span></span>
 <span></span>
 <span><span class="co">#     Reproduction Models ------------------------------</span></span>
+<span><span class="co"># Reproductive Analyses to run: "agemat" or/and "litter"</span></span>
+<span><span class="va">Repsect</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'agemat'</span>, <span class="st">'litter'</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Conditions to run the reproduction analyses</span></span>
 <span><span class="va">minNrepro</span> <span class="op">=</span> <span class="fl">100</span>   <span class="co">#Minimum number of birth records</span></span>
 <span><span class="va">minNparepro</span> <span class="op">=</span> <span class="fl">30</span>  <span class="co">#Minimum number of unique parent records</span></span>
 <span></span>
-<span><span class="co">#Litter size</span></span>
+<span><span class="co">#Litter/clutch size</span></span>
 <span><span class="va">parentProb</span> <span class="op">=</span> <span class="fl">80</span> <span class="co">#Minimum percentage of parentage probability to include in litter size</span></span>
 <span><span class="va">minNlitter</span> <span class="op">=</span> <span class="fl">30</span> <span class="co">#Minimum number of litters to run the analysis</span></span>
+<span><span class="va">Nday</span> <span class="op">=</span> <span class="fl">7</span> <span class="co">#Number of days to group all offspring in one litter/clutch</span></span>
 <span></span>
-<span><span class="va">minNseas</span> <span class="op">=</span> <span class="fl">50</span></span>
+<span><span class="co">#Seasonnality</span></span>
+<span><span class="va">minNseas</span> <span class="op">=</span> <span class="fl">50</span>  <span class="co">#Minimum number of births to run the seasonnality analysis</span></span>
 <span></span>
 <span><span class="co">#      Growth Models -----------------------------------</span></span>
-<span><span class="va">models_gro</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"LO"</span><span class="op">)</span> </span>
+<span><span class="co">#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"</span></span>
+<span><span class="va">models_gro</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># Measure type to select</span></span>
 <span><span class="va">MeasureType</span> <span class="op">=</span> <span class="st">"Live weight"</span></span>
@@ -450,7 +428,7 @@
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Table with species that require rerruning with higher outlier level:</span></span>
-<span><span class="va">maxOutLev</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"ISRanalysisData/tables/maxOutlierLevel.csv"</span>, header <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span><span class="va">maxOutLev</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{analysisDir}maxOutlierLevel.csv"</span><span class="op">)</span>, header <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">spOutLev</span> <span class="op">&lt;-</span> <span class="va">maxOutLev</span><span class="op">$</span><span class="va">Specie</span></span></code></pre></div>
 </div>
@@ -468,15 +446,17 @@
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxa</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdir</span>, <span class="va">analysisDir</span>,</span>
-<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, </span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdirdata</span>, </span>
+<span>                AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
+<span>                 Sections <span class="op">=</span> <span class="va">Sections</span>, erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
 <span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
-<span>               minN <span class="op">=</span> <span class="va">minN</span>,  maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>,</span>
+<span>               minN <span class="op">=</span> <span class="va">minN</span>,  Global <span class="op">=</span>  <span class="va">Global</span>,</span>
+<span>               maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>, Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
 <span>               uncert_birth <span class="op">=</span> <span class="va">uncert_birth</span>, uncert_death<span class="op">=</span> <span class="va">uncert_death</span>,</span>
 <span>                        uncert_date <span class="op">=</span> <span class="va">uncert_date</span>,</span>
 <span>                        minInstitution <span class="op">=</span> <span class="va">minInstitution</span>, </span>
-<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>,</span>
+<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>, XMAX <span class="op">=</span> <span class="va">XMAX</span>,</span>
 <span>               minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
 <span>               Min_MLE <span class="op">=</span> <span class="va">Min_MLE</span>, MaxLE <span class="op">=</span>  <span class="va">MaxLE</span>,</span>
 <span>              models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
@@ -484,8 +464,9 @@
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
 <span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
 <span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
+<span>              minNlitter <span class="op">=</span> <span class="va">minNlitter</span>, Nday <span class="op">=</span> <span class="va">Nday</span>, </span>
 <span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
-<span>               model_gro <span class="op">=</span> <span class="va">model_gro</span></span>
+<span>               models_gro <span class="op">=</span> <span class="va">models_gro</span></span>
 <span>               </span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -497,17 +478,19 @@
 <span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
-<span><span class="va">Species_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Panthera leo'</span>, <span class="st">'Panthera uncia'</span>, <span class="st">'Panthera tigra'</span><span class="op">)</span></span>
+<span><span class="va">Species_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Panthera leo'</span>, <span class="st">'Panthera uncia'</span>, <span class="st">'Panthera tigris'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxa</span>, Species_list <span class="op">=</span> <span class="va">Species_list</span>, <span class="va">ZIMSdir</span>, <span class="va">analysisDir</span>,</span>
-<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, </span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="va">Species_list</span>, <span class="va">ZIMSdirdata</span>,</span>
+<span>              AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
+<span>                 Sections <span class="op">=</span> <span class="va">Sections</span>, erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
 <span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
-<span>               minN <span class="op">=</span> <span class="va">minN</span>,  maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>,</span>
+<span>               minN <span class="op">=</span> <span class="va">minN</span>,  Global <span class="op">=</span>  <span class="va">Global</span>,</span>
+<span>               maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>, Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
 <span>               uncert_birth <span class="op">=</span> <span class="va">uncert_birth</span>, uncert_death<span class="op">=</span> <span class="va">uncert_death</span>,</span>
 <span>                        uncert_date <span class="op">=</span> <span class="va">uncert_date</span>,</span>
 <span>                        minInstitution <span class="op">=</span> <span class="va">minInstitution</span>, </span>
-<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>,</span>
+<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>, XMAX <span class="op">=</span> <span class="va">XMAX</span>,</span>
 <span>               minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
 <span>               Min_MLE <span class="op">=</span> <span class="va">Min_MLE</span>, MaxLE <span class="op">=</span>  <span class="va">MaxLE</span>,</span>
 <span>              models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
@@ -515,9 +498,9 @@
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
 <span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
 <span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
+<span>              minNlitter <span class="op">=</span> <span class="va">minNlitter</span>, Nday <span class="op">=</span> <span class="va">Nday</span>, </span>
 <span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
-<span>               model_gro <span class="op">=</span> <span class="va">model_gro</span></span>
-<span>               </span>
+<span>               models_gro <span class="op">=</span> <span class="va">models_gro</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -525,6 +508,7 @@
 </h4>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Run this code changing ipara on each different computer</span></span>
+<span><span class="va">XX</span> <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="co"># for example on the first computer:</span></span>
 <span><span class="va">ipara</span> <span class="op">=</span> <span class="fl">1</span></span>
 <span></span>
@@ -532,18 +516,19 @@
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
 <span><span class="co">#Number of different computers</span></span>
-<span><span class="va">XX</span> <span class="op">=</span> <span class="fl">3</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxa</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdir</span>, <span class="va">analysisDir</span>,</span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdirdata</span>, </span>
 <span>               inparallel <span class="op">=</span> <span class="cn">TRUE</span>, ipara <span class="op">=</span> <span class="va">ipara</span>, npara <span class="op">=</span> <span class="va">XX</span>, </span>
-<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, </span>
+<span>          AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
+<span>                 Sections <span class="op">=</span> <span class="va">Sections</span>, erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
 <span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
-<span>               minN <span class="op">=</span> <span class="va">minN</span>,  maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>,</span>
+<span>               minN <span class="op">=</span> <span class="va">minN</span>,  Global <span class="op">=</span>  <span class="va">Global</span>,</span>
+<span>               maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>, Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
 <span>               uncert_birth <span class="op">=</span> <span class="va">uncert_birth</span>, uncert_death<span class="op">=</span> <span class="va">uncert_death</span>,</span>
 <span>                        uncert_date <span class="op">=</span> <span class="va">uncert_date</span>,</span>
 <span>                        minInstitution <span class="op">=</span> <span class="va">minInstitution</span>, </span>
-<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>,</span>
+<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>, XMAX <span class="op">=</span> <span class="va">XMAX</span>,</span>
 <span>               minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
 <span>               Min_MLE <span class="op">=</span> <span class="va">Min_MLE</span>, MaxLE <span class="op">=</span>  <span class="va">MaxLE</span>,</span>
 <span>              models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
@@ -551,25 +536,46 @@
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
 <span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
 <span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
+<span>              minNlitter <span class="op">=</span> <span class="va">minNlitter</span>, Nday <span class="op">=</span> <span class="va">Nday</span>, </span>
 <span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
-<span>               model_gro <span class="op">=</span> <span class="va">model_gro</span></span>
+<span>               models_gro <span class="op">=</span> <span class="va">models_gro</span></span>
+<span>               </span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
-<h3 id="run-taxon-profiles-by-taxa-1">Run taxon profiles by taxa<a class="anchor" aria-label="anchor" href="#run-taxon-profiles-by-taxa-1"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="group-all-outputs-in-one-compressed-file">Group all outputs in one compressed file<a class="anchor" aria-label="anchor" href="#group-all-outputs-in-one-compressed-file"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="to-json">To Json<a class="anchor" aria-label="anchor" href="#to-json"></a>
+<h3 id="make-the-summary-tables">Make the summary tables<a class="anchor" aria-label="anchor" href="#make-the-summary-tables"></a>
 </h3>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># List of taxa to summarize -------------------------</span></span>
+<span><span class="va">taxaList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mammalia"</span>, <span class="st">"Aves"</span>, <span class="st">"Reptilia"</span>, <span class="st">"Amphibia"</span>, </span>
+<span>              <span class="st">"Chondrichthyes"</span>, <span class="st">"Actinopterygii"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sex categories ----------------------------------</span></span>
+<span><span class="va">BySex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
+<span>           Aves <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
+<span>           Reptilia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
+<span>           Amphibia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
+<span>           Chondrichthyes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
+<span>           Actinopterygii <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">SummTab</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/make_summary.html">make_summary</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, <span class="va">SaveDir</span>,</span>
+<span>               taxaList <span class="op">=</span> <span class="va">taxaList</span>,</span>
+<span>               BySex <span class="op">=</span> <span class="va">BySex</span> ,</span>
+<span>               Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>,<span class="st">"rep"</span>, <span class="st">'gro'</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="make-the-output-for-the-dev-team">Make the output for the Dev Team<a class="anchor" aria-label="anchor" href="#make-the-output-for-the-dev-team"></a>
+</h3>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/rjson/man/toJSON.html" class="external-link">toJSON</a></span><span class="op">(</span><span class="va">repout</span><span class="op">)</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"ISRdata/global/json/%s.json"</span>, </span>
 <span>                                     <span class="va">repout</span><span class="op">$</span><span class="va">general</span><span class="op">$</span><span class="va">speciesID</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="compress-the-output">Compress the output<a class="anchor" aria-label="anchor" href="#compress-the-output"></a>
+</h3>
 </div>
 </div>
 </div>

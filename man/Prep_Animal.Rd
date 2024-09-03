@@ -4,12 +4,12 @@
 \alias{Prep_Animal}
 \title{Prepare Animal data}
 \usage{
-Prep_Animal(Animal, minDate = "1900-01-01", extractDate)
+Prep_Animal(Animal, minBirthDate = "1900-01-01", extractDate)
 }
 \arguments{
 \item{Animal}{\code{data.frame} including at least the following columns \emph{AnimalAnonID},  \emph{BirthDate}, \emph{BirthDateEstimateType}, \emph{BirthDateEstimateStart}, \emph{BirthDateEstimateEnd}, \emph{BirthType}, \emph{FirstAcquisitionDate}, \emph{DeathDate}, \emph{DeathDateEstimateType}, \emph{DeathDateEstimateStart}, \emph{DeathDateEstimateEnd}, \emph{LastCommentEntryDate}, \emph{BirthObserved}, \emph{GlobalStatus}, and  \emph{LastTXDate}}
 
-\item{minDate}{\code{character}: Earlier possible date: date used when minimum birth or death date unknown}
+\item{minBirthDate}{\code{character}: Earlier possible date: date used when minimum birth or death date unknown}
 
 \item{extractDate}{\code{character}: Latest possible date in the data: date used when individuals are still alive}
 }
@@ -26,7 +26,8 @@ This function add the columns: MinBirthDate, MaxBirthDate, MinDeathDate, MaxDeat
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdirtest = dirname(file)
 
-data <- Load_Zimsdata	(taxa = "Reptilia",
+data <- Load_Zimsdata	(taxa = "Reptilia", 
+                       species = list(Reptilia = "All"),
                        ZIMSdir = ZIMSdirtest,
                        Animal = TRUE)
 

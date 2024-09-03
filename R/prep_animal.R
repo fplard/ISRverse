@@ -5,7 +5,7 @@
 #' Check dates and add needed columns to animal data
 #'
 #' @param Animal  \code{data.frame} including at least the following columns *AnimalAnonID*,  *BirthDate*, *BirthDateEstimateType*, *BirthDateEstimateStart*, *BirthDateEstimateEnd*, *BirthType*, *FirstAcquisitionDate*, *DeathDate*, *DeathDateEstimateType*, *DeathDateEstimateStart*, *DeathDateEstimateEnd*, *LastCommentEntryDate*, *BirthObserved*, *GlobalStatus*, and  *LastTXDate*
-#' @param minDate  \code{character}: Earlier possible date: date used when minimum birth or death date unknown
+#' @param minBirthDate  \code{character}: Earlier possible date: date used when minimum birth or death date unknown
 #' @param extractDate  \code{character}: Latest possible date in the data: date used when individuals are still alive
 #'
 #' @return The checked and prepared dataset
@@ -21,16 +21,17 @@
 #' file = system.file("sci_Animal.csv", package = 'ISRverse')
 #' ZIMSdirtest = dirname(file)
 #'
-#' data <- Load_Zimsdata	(taxa = "Reptilia",
+#' data <- Load_Zimsdata	(taxa = "Reptilia", 
+#'                        species = list(Reptilia = "All"),
 #'                        ZIMSdir = ZIMSdirtest,
 #'                        Animal = TRUE)
 #'
 #' Animal <- Prep_Animal(data$Reptilia$Animal, extractDate = lubridate::as_date("2023/12/23"))
 #'
 #' unlink(ZIMSdirtest, recursive = FALSE)
-Prep_Animal <- function(Animal, minDate = "1900-01-01",
+Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
                         extractDate) {
-  minDate = as.character(minDate)
+  minBirthDate = as.character(minBirthDate)
   extractDate = as.character(extractDate)
   
   assert_that(is.data.frame(Animal))
@@ -42,7 +43,7 @@ Prep_Animal <- function(Animal, minDate = "1900-01-01",
   Animal <- Animal%>%
     mutate(
       MinBirthDate = case_when(
-        BirthDateEstimateType == "ApproxBefore" ~ minDate,
+        BirthDateEstimateType == "ApproxBefore" ~ minBirthDate,
         BirthDateEstimateType == "ApproxAfter" ~ BirthDate,
         BirthDateEstimateType == "Undetermined" ~ BirthDateEstimateStart,
         BirthDateEstimateType == "Indeterminate" ~ BirthDateEstimateStart,
@@ -59,7 +60,7 @@ Prep_Animal <- function(Animal, minDate = "1900-01-01",
         BirthDateEstimateType == "" ~ BirthDateEstimateEnd
       ),
       MinDeathDate = case_when(
-        DeathDateEstimateType == "ApproxBefore" ~ minDate,
+        DeathDateEstimateType == "ApproxBefore" ~ minBirthDate,
         DeathDateEstimateType == "ApproxAfter" ~ DeathDate,
         DeathDateEstimateType == "Undetermined" ~ DeathDateEstimateStart,
         DeathDateEstimateType == "Indeterminate" ~ DeathDateEstimateStart,
@@ -90,10 +91,7 @@ Prep_Animal <- function(Animal, minDate = "1900-01-01",
       Death_Uncertainty =  MaxDeathDate-MinDeathDate)
   
   
-  #Correct Max birth dates with first acquisition Dates
-  ID = which (Animal$FirstAcquisitionDate < Animal$MaxBirthDate )
-  Animal$MaxBirthDate[ID] = Animal$FirstAcquisitionDate[ID]
-  
+   
   
   Animal <- Animal%>%
     filter ((BirthDate >= MinBirthDate)%>% replace_na(TRUE),
@@ -107,28 +105,30 @@ Prep_Animal <- function(Animal, minDate = "1900-01-01",
     mutate(EntryDate = FirstAcquisitionDate,
            EntryType = ifelse(BirthObserved == "NO", "T", "B"),
            DepartDate = ifelse(is.na(DeathDate), LastTXDate, DeathDate),
+           DepartDate = ifelse(GlobalStatus == "Alive", lubridate::as_date(extractDate), DepartDate),
            DepartType = ifelse(GlobalStatus == "Dead" | !is.na(DeathDate), "D", "C"),
            EntryDate = lubridate::as_date(EntryDate),
            DepartDate = lubridate::as_date( DepartDate))
   
-  #Correct Entry Dates
+  
+   #Correct Entry Dates
+  ID = which (Animal$EntryDate < Animal$BirthDate)
+  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  
   ID = which (Animal$EntryType == "B" & Animal$EntryDate != Animal$BirthDate)
-  Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
-  Animal$EntryType[ID][Animal$MaxBirthDate[ID] != Animal$BirthDate[ID]] = "T"
-  
+  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+ 
   ID = which (Animal$EntryType == "B" & is.na(Animal$EntryDate))
-  Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
-  Animal$EntryType[ID][Animal$MaxBirthDate[ID] != Animal$BirthDate[ID]] = "T"
-  
+  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+ 
   
   
   #Correct Depart Dates
   Animal$DepartDate[Animal$DepartType == "D" & is.na(Animal$DeathDate)] = Animal$LastTXDate[Animal$DepartType == "D" & is.na(Animal$DeathDate)]
   Animal$DepartType[Animal$DepartType == "D" & is.na(Animal$DeathDate)] = "C"
-  Animal$DepartDate[Animal$GloabStatus == "Alive"] = extractDate
-  
+ 
   ID = which(is.na(Animal$DepartDate))
-  Animal$DepartDate[ID] = Animal$LastCommentEntryDate
+  Animal$DepartDate[ID] = Animal$LastCommentEntryDate[ID]
   Animal$DepartType[ID] = "C"
   
   #check Chronology in dates
