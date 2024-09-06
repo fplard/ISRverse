@@ -22,7 +22,7 @@
 #' @export
 #' @examples
 #' data(weights)
-#' weights = Gro_remoutliers(weights, taxa = "Reptilia", ageMat = 10)
+#' weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Reptilia", ageMat = 10)
 #'
 #' p <- Gro_outplot(data = weights, 
 #'                  title = "Species A", ylimit = c(0,2000))

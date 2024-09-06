@@ -193,8 +193,9 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     m = min(length(id),(round(XMAX)+1))
     res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
     b = summary(lm(res~c(1:m)))
-    out$summary$Gof_KM_summ = b 
-   out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+     out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+     out$summary$Gof_KM_coeff =b$coefficients[2,1]
+  
    
     ##Test if the minimum life expectancy is below MaxLE years old
     if(min(out$relex$RemLExp)>= MaxLE){

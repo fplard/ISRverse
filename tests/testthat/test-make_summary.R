@@ -2,8 +2,8 @@
 
 
  test_that("make_summary works", {
-file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
-AnalysisDir  = dirname(file)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'\\Rdata')
 TempDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(TempDir,showWarnings =FALSE)
 

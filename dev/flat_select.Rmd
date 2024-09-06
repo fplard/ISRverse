@@ -112,7 +112,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                       Birth_Type = "Captive", 
                       parentProb = 80, minNlitter = 20,Nday = 7,
                       minNrepro = 100, minNparepro = 30, minNseas = 50, 
-                      minNgro =100,minNIgro = 50, MeasureType = NULL,
+                      minNgro =100,minNIgro = 50, MeasureType = "Live weight",
                       models_gro = "vonBertalanffy"
 ) {
   assert_that(is.character(taxa))

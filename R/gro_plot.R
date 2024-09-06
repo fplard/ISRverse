@@ -21,7 +21,8 @@
 #' AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
 #' MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
 #'                           rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
-#' dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
+#' dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+#'                  AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 #'
 #' out = Gro_analysis(dat, 
 #'                    all_mods = c("logistic", "vonBertalanffy", "gam"), 

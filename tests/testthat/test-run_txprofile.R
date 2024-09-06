@@ -10,7 +10,7 @@ test_that("run_txprofile works", {
   #This code run the survival analysis
   run_txprofile(taxa = "Reptilia", Species_list = "All",
                 ZIMSdir = ZIMSdir, AnalysisDir = ZIMSdir,
-                PlotDir = PlotDir,
+                PlotDir = PlotDir, MeasureType="Live weight",
                 extractDate = "",
                 minDate = "1980-01-01",
                 Sections = "sur",
@@ -18,7 +18,7 @@ test_that("run_txprofile works", {
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
   )
   
-  expect_true(file.exists(paste(ZIMSdir, "Testudo_hermanni.Rdata", sep = '\\')))
+  expect_true(file.exists(paste(ZIMSdir, "Rdata\\Testudo_hermanni.Rdata", sep = '\\')))
    unlink(PlotDir, recursive = TRUE)
   
 })

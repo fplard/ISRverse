@@ -270,7 +270,7 @@ extractDate = "2024-07-01"
 
 # List of taxa to analyze -------------------------
 taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-              "Chondrichthyes", "Actinopterygii")
+              "Chondrichthyes", " Osteichthyes")
 
 # Sex categories ----------------------------------
 BySex <- list(Mammalia = c("Male", "Female"), 
@@ -278,7 +278,7 @@ BySex <- list(Mammalia = c("Male", "Female"),
            Reptilia = c("Male", "Female", "All"), 
            Amphibia = c("Male", "Female", "All"), 
            Chondrichthyes = c("Male", "Female", "All"), 
-           Actinopterygii = "All")
+            Osteichthyes = "All")
 
 
 #Filters ----------------------------------
@@ -482,6 +482,40 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
                models_gro = models_gro
                
 )
+```
+
+### Find species with sex with 50-1000 individuals
+
+``` r
+minNsur = 10000000 #Minimum number of individuals
+for (taxa in 1:7){
+#Sections to run or to update
+Sections = c("sur")
+Species_list = "All"
+
+run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
+              AnalysisDir = analysisDir, PlotDir = plotDir,
+                 Sections = Sections, erase_previous = FALSE,
+               extractDate = extractDate, minDate = minDate,
+               sexCats = BySex[[taxaList[taxa]]], 
+               minN = minN,  Global =  Global,
+               maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
+               uncert_birth = uncert_birth, uncert_death= uncert_death,
+                        uncert_date = uncert_date,
+                        minInstitution = minInstitution, 
+               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
+               minlx = minlx, MinBirthKnown = MinBirthKnown, 
+               Min_MLE = Min_MLE, MaxLE =  MaxLE,
+              models_sur = models_sur, shape = shape,
+               niter = niter, burnin = burnin, thinning = thinning, 
+               nchain = nchain, ncpus = ncpus,
+               parentProb = parentProb, minNrepro = minNrepro, 
+               minNparepro = minNparepro, minNseas = minNseas, 
+              minNlitter = minNlitter, Nday = Nday, 
+               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
+               models_gro = models_gro
+)
+}
 ```
 
 ### Make the summary tables

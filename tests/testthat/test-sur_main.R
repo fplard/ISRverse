@@ -7,7 +7,7 @@ test_that("Sur_main works", {
                   models = "LO", shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
   expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5', 'L90'))
-  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_summ", "Gof_KM"))
+  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM", "Gof_KM_coeff"))
   expect_named(out$DICmods, c("models", "DIC"))
   expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
   expect_true(is.numeric(out$relex$Upper))

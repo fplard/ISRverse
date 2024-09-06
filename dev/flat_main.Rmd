@@ -363,7 +363,7 @@ dir.create(PlotDir)
 run_txprofile(taxa = "Reptilia", Species_list = "All",
               ZIMSdir = ZIMSdir, AnalysisDir = ZIMSdir,
               PlotDir = PlotDir,
-              extractDate = "",
+              extractDate = "", MeasureType="Live weight",
               minDate = "1980-01-01",
               Sections = c("sur",'rep',"gro"),
               sexCats = c('Male', 'Female'),
@@ -389,7 +389,7 @@ test_that("run_txprofile works", {
   #This code run the survival analysis
   run_txprofile(taxa = "Reptilia", Species_list = "All",
                 ZIMSdir = ZIMSdir, AnalysisDir = ZIMSdir,
-                PlotDir = PlotDir,
+                PlotDir = PlotDir, MeasureType="Live weight",
                 extractDate = "",
                 minDate = "1980-01-01",
                 Sections = "sur",
@@ -397,7 +397,7 @@ test_that("run_txprofile works", {
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
   )
   
-  expect_true(file.exists(paste(ZIMSdir, "Testudo_hermanni.Rdata", sep = '\\')))
+  expect_true(file.exists(paste(ZIMSdir, "Rdata\\Testudo_hermanni.Rdata", sep = '\\')))
    unlink(PlotDir, recursive = TRUE)
   
 })
@@ -498,7 +498,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                outLev = numeric(1),
                analyzed = logical(1), 
                Nerr = numeric(1), 
-               error = character(1))
+               error = character(1),
+               Gof_KM =logical(1),
+               Gof_KM_coeff = numeric(1))
     }else{tempsur = tibble()}
     
     if ("gro" %in% Sections){
@@ -749,13 +751,12 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   utils::write.csv(SummTab, file =  glue::glue("{SaveDir}/SRGs_Analyses{namefile}.csv"),
                    row.names = FALSE)
   return(SummTab)
-  
 }
 ```
 
 ```{r examples-make_summary}
-file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
-AnalysisDir  = dirname(file)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'\\Rdata')
 SaveDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(SaveDir)
 
@@ -772,8 +773,8 @@ unlink(SaveDir, recursive = TRUE)
 ```{r tests-make_summary}
 
  test_that("make_summary works", {
-file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
-AnalysisDir  = dirname(file)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'\\Rdata')
 TempDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(TempDir,showWarnings =FALSE)
 

@@ -3,7 +3,8 @@
 Age <- sample(c(0:10), 1000, replace = T)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
 AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 out = dat %>% Gro_analysis()
 
 test_that(

@@ -52,7 +52,7 @@ tx_report(
   minNseas = 50,
   minNgro = 100,
   minNIgro = 50,
-  MeasureType = NULL,
+  MeasureType = "Live weight",
   models_gro = "vonBertalanffy"
 )
 }

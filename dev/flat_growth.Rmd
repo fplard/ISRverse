@@ -457,8 +457,8 @@ test_that("Gro_cleanmeasures works", {
 # gro_remoutliers
 
 This function removes the outliers from a dataset of weights. This function takes as arguments:
-
-* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
+`
+* `data_weight` a data frame that must include at least the columns `MeasurementValue`, `MeasurementType`, and `Age`.
 * `taxa` the name of the taxa studied
 * `ageMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults
 * `maxweight`
@@ -484,7 +484,7 @@ The function returns the data frame including the column `KEEP` a numeric vector
 #'
 #'Takes a data frame including weight measures and Age and look for possible outliers
 #'
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric})
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *MeasurementType*,  *Age*  (\code{numeric})
 #' @param taxa  \code{character} the name of the taxa studied
 #' @param ageMat \code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults
 #' @param maxweight \code{numeric} the maximum weight allowed for the dataset
@@ -517,7 +517,8 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
                             IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
   assert_that(is.data.frame(data_weight))
-  assert_that(data_weight %has_name% c("MeasurementValue", "Age"))
+  assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
+  assert_that(length(unique(data_weight$MeasurementType))==1, msg = glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data must include only one Measurement Type"))
   assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                           "Chondrichthyes", "Actinopterygii"),
               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
@@ -657,11 +658,11 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
 
 ```{r examples-Gro_remoutliers}
 data(weights)
-weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
 ```
 
 
-```{r development_examples-Gro_remoutliers}
+```{r development-Gro_remoutliers}
 plot(MeasurementValue ~Age, data = weights, ylim = c(0,400), xlim = c(0,50))
 #Show the four steps used to remove outliers
 #1/ using maximum value
@@ -705,14 +706,14 @@ points(MeasurementValue ~Age, data = weights%>%
 ```{r tests-Gro_remoutliers}
 
 test_that("Gro_remoutliers errors", {
-  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10),
+  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5, MeasurementType ="Weight"), taxa = "Mammalia", ageMat = 10),
                msg = "data_weight does not have all of these name(s): 'MeasurementValue', 'Age'")
   expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "mammalia", ageMat = 10),
                msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Actinopterygii'")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3.3),
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5, MeasurementType ="Weight"), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3.3),
                msg = "min_Nmeasures should be an integer")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3),
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5, MeasurementType ="Weight"), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3),
                msg = "min_Nmeasures not greater than or equal to 5")
 })
 
@@ -720,6 +721,7 @@ test_that("Gro_remoutliers errors", {
 test_that("Gro_remoutliers works", {
   data = tibble(Age = c(rep(c(1:5),2),4),
                 MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
+                MeasurementType = "Weight",
                 AnimalAnonID = c(rep(1:2, each = 5),3))
   
   a= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
@@ -1036,7 +1038,7 @@ Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
 
 ```{r example-Gro_outplot}
 data(weights)
-weights = Gro_remoutliers(weights, taxa = "Reptilia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Reptilia", ageMat = 10)
 
 p <- Gro_outplot(data = weights, 
                  title = "Species A", ylimit = c(0,2000))
@@ -1047,7 +1049,8 @@ p
 ```{r tests-Gro_outplot}
 data = tibble(Age = c(rep(c(1:5),2),4),
               MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
-              AnimalAnonID = c(rep(1:2, each = 5),3))
+              AnimalAnonID = c(rep(1:2, each = 5),3),
+              MeasurementType = "Live weight")
 
 out= Gro_remoutliers(data, taxa = "Reptilia", ageMat = 10,
                      min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
@@ -1219,7 +1222,8 @@ Age <- sample(c(0:10), 100, replace = TRUE)
 AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
                           rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 out = Gro_analysis(dat, 
                    all_mods = c("logistic", "vonBertalanffy", "gam"), 
@@ -1231,7 +1235,8 @@ out = Gro_analysis(dat,
 Age <- sample(c(0:10), 1000, replace = T)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
 AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 test_that(
   "Gro_analysis error",
@@ -1668,7 +1673,8 @@ Age <- sample(c(0:10), 100, replace = TRUE)
 AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
                           rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 out = Gro_analysis(dat, 
                    all_mods = c("logistic", "vonBertalanffy", "gam"), 
@@ -1685,7 +1691,8 @@ p
 Age <- sample(c(0:10), 1000, replace = T)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
 AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, AnimalAnonID = AnimalAnonID)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 out = dat %>% Gro_analysis()
 
 test_that(

@@ -137,7 +137,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
     if("agemat" %in% Repsect){
       #Calculate reproductive age statistics
       out[["agemat"]] <- Rep_agemat(subfert)
-         out$summary$amat_analyzed = out$agemat$summary$analyzed
+         out$summary$amat_analyzed = TRUE
   }
     if("litter" %in% Repsect){
       #Calculate reproductive age statistics
@@ -158,12 +158,38 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
 
 
 ```{r examples-Rep_main}
-
+data(core)
+data(collection)
+data(parent)
+data(moves)
+out <- Rep_main (coresubset = core, collection, parent, moves,  
+          Repsect = c('agemat', 'litter'),
+          minNrep = 1, minNparep = 1,
+          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+         ) 
+  
 ```
 
 ```{r tests-Rep_main}
 test_that("Rep_main works", {
-  
+  data(core)
+  data(collection)
+  data(parent)
+  data(moves)
+  out <- Rep_main (coresubset = core, collection, parent, moves,  
+          Repsect = c('agemat', 'litter'),
+          minNrep = 1, minNparep = 1,
+          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+         ) 
+
+  expect_named(out, c("summary", "agemat", "litter"))
+  expect_named(out$summary, c("Nbirths", "Nadults", "NOffsp", "NParent", 
+                              "NOffsp_age", "NParent_age", "analyzed",
+                              "Nerr", "err", 'amat_analyzed', "litt_analyzed"))
+  expect_true(is.numeric(as.numeric(out$summary[1:6])))
+  expect_true(out$summary$analyzed)
+  expect_false(out$summary$litt_analyzed)
+  expect_true(out$summary$amat_analyzed)
 })
 ```
 

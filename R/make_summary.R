@@ -18,8 +18,8 @@
 #' @importFrom ggpubr ggarrange
 #' 
 #' @examples
-#' file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
-#' AnalysisDir  = dirname(file)
+#' file = system.file("sci_Animal.csv", package = 'ISRverse')
+#' AnalysisDir  = paste0(dirname(file),'\\Rdata')
 #' SaveDir = paste0(tempdir(check = TRUE),'\\temp')
 #' dir.create(SaveDir)
 #'
@@ -29,7 +29,6 @@
 #'                Sections = c("sur", 'gro')
 #' )
 #' list.files(SaveDir)
-#'
 #'
 #' unlink(SaveDir, recursive = TRUE)
 make_summary <- function (AnalysisDir, SaveDir, namefile = "",
@@ -95,7 +94,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                outLev = numeric(1),
                analyzed = logical(1), 
                Nerr = numeric(1), 
-               error = character(1))
+               error = character(1),
+               Gof_KM =logical(1),
+               Gof_KM_coeff = numeric(1))
     }else{tempsur = tibble()}
     
     if ("gro" %in% Sections){
@@ -346,5 +347,4 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   utils::write.csv(SummTab, file =  glue::glue("{SaveDir}/SRGs_Analyses{namefile}.csv"),
                    row.names = FALSE)
   return(SummTab)
-  
 }

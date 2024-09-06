@@ -33,8 +33,8 @@ It saves summary tables and plots for each Sections and a general summary table.
 Produce summary tables and plots of the demographic analyses made for all species
 }
 \examples{
-file = system.file("Testudo_hermanni.RData", package = 'ISRverse')
-AnalysisDir  = dirname(file)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'\\\\Rdata')
 SaveDir = paste0(tempdir(check = TRUE),'\\\\temp')
 dir.create(SaveDir)
 
@@ -44,7 +44,6 @@ SummTab <- make_summary(AnalysisDir, SaveDir,
                Sections = c("sur", 'gro')
 )
 list.files(SaveDir)
-
 
 unlink(SaveDir, recursive = TRUE)
 }

@@ -40,6 +40,17 @@
 #'  
 #'  
 #' @export
+#' @examples
+#' data(core)
+#' data(collection)
+#' data(parent)
+#' data(moves)
+#' out <- Rep_main (coresubset = core, collection, parent, moves,  
+#'           Repsect = c('agemat', 'litter'),
+#'           minNrep = 1, minNparep = 1,
+#'           BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+#'          ) 
+#'   
 Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat', 'litter'),
                       BirthType_parent = "Captive", BirthType_offspring = "Captive", 
                       Global = TRUE, minInstitution = 2, 
@@ -104,7 +115,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
     if("agemat" %in% Repsect){
       #Calculate reproductive age statistics
       out[["agemat"]] <- Rep_agemat(subfert)
-         out$summary$amat_analyzed = out$agemat$summary$analyzed
+         out$summary$amat_analyzed = TRUE
   }
     if("litter" %in% Repsect){
       #Calculate reproductive age statistics

@@ -5,7 +5,7 @@
 #'
 #'Takes a data frame including weight measures and Age and look for possible outliers
 #'
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric})
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *MeasurementType*,  *Age*  (\code{numeric})
 #' @param taxa  \code{character} the name of the taxa studied
 #' @param ageMat \code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults
 #' @param maxweight \code{numeric} the maximum weight allowed for the dataset
@@ -33,14 +33,15 @@
 #'
 #' @examples
 #' data(weights)
-#' weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+#' weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
 Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL, 
                             variableid = "AnimalAnonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
                             IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
   assert_that(is.data.frame(data_weight))
-  assert_that(data_weight %has_name% c("MeasurementValue", "Age"))
+  assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
+  assert_that(length(unique(data_weight$MeasurementType))==1, msg = glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data must include only one Measurement Type"))
   assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                           "Chondrichthyes", "Actinopterygii"),
               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 

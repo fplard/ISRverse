@@ -223,8 +223,9 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     m = min(length(id),(round(XMAX)+1))
     res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
     b = summary(lm(res~c(1:m)))
-    out$summary$Gof_KM_summ = b 
-   out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+     out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+     out$summary$Gof_KM_coeff =b$coefficients[2,1]
+  
    
     ##Test if the minimum life expectancy is below MaxLE years old
     if(min(out$relex$RemLExp)>= MaxLE){
@@ -267,7 +268,7 @@ test_that("Sur_main works", {
                   models = "LO", shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
   expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5', 'L90'))
-  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_summ", "Gof_KM"))
+  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM", "Gof_KM_coeff"))
   expect_named(out$DICmods, c("models", "DIC"))
   expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
   expect_true(is.numeric(out$relex$Upper))

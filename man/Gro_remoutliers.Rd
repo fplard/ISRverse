@@ -19,7 +19,7 @@ Gro_remoutliers(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric})}
+\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{MeasurementType},  \emph{Age}  (\code{numeric})}
 
 \item{taxa}{\code{character} the name of the taxa studied}
 
@@ -56,5 +56,5 @@ This function follow 4 different steps to highlight outliers:
 }
 \examples{
 data(weights)
-weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
 }

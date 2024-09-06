@@ -78,3 +78,15 @@ The output of a list including:
 \description{
 Run the age at sexual maturity analysis, the litter size analysis
 }
+\examples{
+data(core)
+data(collection)
+data(parent)
+data(moves)
+out <- Rep_main (coresubset = core, collection, parent, moves,  
+          Repsect = c('agemat', 'litter'),
+          minNrep = 1, minNparep = 1,
+          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+         ) 
+  
+}
