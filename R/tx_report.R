@@ -102,10 +102,6 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                       models_gro = "vonBertalanffy"
 ) {
   assert_that(is.character(taxa))
-  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                          "Chondrichthyes", "Actinopterygii"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
   assert_that(is.character(species))

@@ -47,7 +47,7 @@ Load_Zimsdata	<- function (taxa, ZIMSdir,
   assert_that(taxa %in% c(idtaxa, "All"),
               msg = glue::glue("taxa must one of {stringr::str_flatten_comma(idtaxa)}, or 'All'"))
   if (taxa == "All") taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                              "Chondrichthyes", "Actinopterygii")
+                              "Chondrichthyes", "Osteichthyes")
   assert_that(is.logical( silent))
     assert_that(is.list(species))
     assert_that (all(taxa %in% names(species)), 

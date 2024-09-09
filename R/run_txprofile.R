@@ -79,7 +79,7 @@
 #' )
 #'
 #' list.files(PlotDir)
-#' list.files(AnalysisDir)
+#' list.files(paste0(AnalysisDir,'\\temp\\Rdata'))
 #'
 #' unlink(AnalysisDir, recursive = TRUE)
 #' unlink(PlotDir, recursive = TRUE)
@@ -108,10 +108,6 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
 ){
   
   assert_that(is.character(taxa))
-  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                          "Chondrichthyes", "Actinopterygii"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
   assert_that(is.character(Species_list))
@@ -214,7 +210,8 @@ minDate = lubridate::as_date(minDate)
   # ==== Species List =====
   # ======================#
   if(all(Species_list == "All")){
-    spAll <- unique(data[[taxa]]$Animal$binSpecies)
+    spAll <- unique(data[[taxa]]$Animal$binSpecies)%>%
+      stringr::str_subset(pattern = ' sp.', negate = TRUE)
   }else{
      spAll <-Species_list
   }
@@ -267,7 +264,7 @@ minDate = lubridate::as_date(minDate)
     if(erase_previous){
       repout = list()
     }else{
-      if(length(list.files(glue::glue("{AnalysisDir}Rdata/"), glue::glue("{speciesname}.RData")))>0){
+      if(length(list.files(glue::glue("{AnalysisDir}Rdata/"), glue::glue("{taxa}_{speciesname}.RData")))>0){
         load(glue::glue("{AnalysisDir}Rdata/{speciesname}.RData"))
       }else{repout = list()}
     }
@@ -300,7 +297,7 @@ minDate = lubridate::as_date(minDate)
     # ---- Save results: ----
     # ----------------------- #
     # Save species list:
-    save("repout", file = glue::glue("{AnalysisDir}/Rdata/{speciesname}.RData"))
+    save("repout", file = glue::glue("{AnalysisDir}/Rdata/{taxa}_{speciesname}.RData"))
     cat(" done.\n")
   }
 }

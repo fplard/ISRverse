@@ -144,6 +144,7 @@ each species</p>
 <span><span class="va">AnalysisDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span>
 <span><span class="va">PlotDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp\\plot'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">AnalysisDir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp\\Rdata'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#This code run the survival analysis</span></span>
@@ -152,7 +153,7 @@ each species</p>
 <span>              PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span>
 <span>              extractDate <span class="op">=</span> <span class="st">""</span>,</span>
 <span>              minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
-<span>              Sections <span class="op">=</span> <span class="st">"sur"</span>,</span>
+<span>              Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span>,</span>
 <span>              sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>,</span>
 <span>              niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span>
@@ -165,13 +166,61 @@ each species</p>
 <span><span class="co">#&gt; =====================</span></span>
 <span><span class="co">#&gt; Species running...</span></span>
 <span><span class="co">#&gt; Survival Running --------------------------------------------</span></span>
-<span><span class="co">#&gt; Survival Running -------------------------------------------- done.</span></span>
+<span><span class="co">#&gt; Survival Running --------------------------------------------[1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 25.57 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; R Version:  R version 4.3.2 (2023-10-31 ucrt)</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; Warning: package 'BaSTA' was built under R version 4.3.3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 9.84 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; Convergence not reached for some parameters.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span>
+<span><span class="co">#&gt; [1] "more chains"</span></span>
+<span><span class="co">#&gt; [1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 26.41 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 40.28 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; All parameters converged properly.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt;  done.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Testudo_hermanni_Female_LongThres.pdf"</span></span>
-<span><span class="co">#&gt; [2] "Testudo_hermanni_Male_LongThres.pdf"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">AnalysisDir</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "plot"                   "Testudo_hermanni.RData"</span></span>
+<span><span class="co">#&gt; [2] "Testudo_hermanni_Femalesurcheck.pdf"  </span></span>
+<span><span class="co">#&gt; [3] "Testudo_hermanni_Femalesurplot.pdf"   </span></span>
+<span><span class="co">#&gt; [4] "Testudo_hermanni_Male_LongThres.pdf"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">AnalysisDir</span>,<span class="st">'\\temp\\Rdata'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; character(0)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -200,20 +249,21 @@ profile results: “sur”, “rep” and/or “gro”</li>
 </ul>
 <p>it returns the main summary table</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># file = system.file("gorilla gorilla.Rdata", package = 'ISRverse')</span></span>
-<span><span class="co"># AnalysisDir  = dirname(file)</span></span>
-<span><span class="co"># SaveDir = paste0(tempdir(check = TRUE),'\\temp')</span></span>
-<span><span class="co"># dir.create(SaveDir)</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># SummTab &lt;- make_summary (AnalysisDir, SaveDir,</span></span>
-<span><span class="co">#                           taxaList = "Mammalia", </span></span>
-<span><span class="co">#                           BySex = list(Mammalia = c("Male", "Female")) , </span></span>
-<span><span class="co">#                           Sections = c("sur", 'gro')</span></span>
-<span><span class="co"># )</span></span>
-<span><span class="co"># list.files(SaveDir)</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># unlink(SaveDir, recursive = TRUE)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span>
+<span><span class="va">AnalysisDir</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>,<span class="st">'\\Rdata'</span><span class="op">)</span></span>
+<span><span class="va">SaveDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">SaveDir</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">SummTab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_summary.html">make_summary</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, <span class="va">SaveDir</span>,</span>
+<span>               taxaList <span class="op">=</span> <span class="st">"Reptilia"</span>,</span>
+<span>               BySex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Reptilia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span> ,</span>
+<span>               Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">'gro'</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">SaveDir</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Growth_error.pdf"   "SRGs_Analyses.csv"  "SRGs_Growth.csv"   </span></span>
+<span><span class="co">#&gt; [4] "SRGs_Survival.csv"  "Survival_error.pdf"</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">SaveDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="load-zims-core-data">Load zims core data<a class="anchor" aria-label="anchor" href="#load-zims-core-data"></a>
@@ -239,10 +289,11 @@ loaded</li>
 <code class="sourceCode R"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span>
 <span><span class="va">ZIMSdirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/Split_Zimsdata.html">Split_Zimsdata</a></span>  <span class="op">(</span>ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirtest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Splitting Animal file.Splitting sci_AnimalCollection.csv.Splitting sci_AnimalContraception.csv.Splitting sci_AnimalParent.csv.Splitting sci_AnimalRelevantDeathInformation.csv.Splitting sci_AnimalWeight.csv. Done.</span></span>
+<span><span class="co">#&gt; Splitting Animal file.Splitting sci_AnimalCollection.csv.Splitting sci_AnimalContraception.csv.Splitting sci_AnimalMove.csv.Splitting sci_AnimalParent.csv.Splitting sci_AnimalRelevantDeathInformation.csv.Splitting sci_AnimalWeight.csv. Done.</span></span>
 <span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Load_Zimsdata.html">Load_Zimsdata</a></span>   <span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, </span>
 <span>                       ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirtest</span>, </span>
+<span>                       species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Reptilia <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span>,</span>
 <span>                       Animal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                       tables <span class="op">=</span> <span class="st">'Weight'</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; ReptiliaLoading Weight of Reptilia.Reptilia Done.</span></span>
@@ -32632,7 +32683,7 @@ MeasurementValue.</p>
 <span><span class="va">ZIMSdirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/Split_Zimsdata.html">Split_Zimsdata</a></span><span class="op">(</span>ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirtest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Splitting Animal file.Splitting sci_AnimalCollection.csv.Splitting sci_AnimalContraception.csv.Splitting sci_AnimalParent.csv.Splitting sci_AnimalRelevantDeathInformation.csv.Splitting sci_AnimalWeight.csv. Done.</span></span>
+<span><span class="co">#&gt; Splitting Animal file.Splitting sci_AnimalCollection.csv.Splitting sci_AnimalContraception.csv.Splitting sci_AnimalMove.csv.Splitting sci_AnimalParent.csv.Splitting sci_AnimalRelevantDeathInformation.csv.Splitting sci_AnimalWeight.csv. Done.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">ZIMSdirtest</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "data/Rdata.rdb"                                            </span></span>
@@ -32660,18 +32711,22 @@ MeasurementValue.</p>
 <span><span class="co">#&gt; [23] "R/ISRverse"                                                </span></span>
 <span><span class="co">#&gt; [24] "R/ISRverse.rdb"                                            </span></span>
 <span><span class="co">#&gt; [25] "R/ISRverse.rdx"                                            </span></span>
-<span><span class="co">#&gt; [26] "sci_Animal.csv"                                            </span></span>
-<span><span class="co">#&gt; [27] "sci_AnimalCollection.csv"                                  </span></span>
-<span><span class="co">#&gt; [28] "sci_AnimalContraception.csv"                               </span></span>
-<span><span class="co">#&gt; [29] "sci_AnimalParent.csv"                                      </span></span>
-<span><span class="co">#&gt; [30] "sci_AnimalRelevantDeathInformation.csv"                    </span></span>
-<span><span class="co">#&gt; [31] "sci_AnimalWeight.csv"                                      </span></span>
-<span><span class="co">#&gt; [32] "Split_Reptilia/Reptilia_Animal.csv"                        </span></span>
-<span><span class="co">#&gt; [33] "Split_Reptilia/Reptilia_AnimalCollection.csv"              </span></span>
-<span><span class="co">#&gt; [34] "Split_Reptilia/Reptilia_AnimalContraception.csv"           </span></span>
-<span><span class="co">#&gt; [35] "Split_Reptilia/Reptilia_AnimalParent.csv"                  </span></span>
-<span><span class="co">#&gt; [36] "Split_Reptilia/Reptilia_AnimalRelevantDeathInformation.csv"</span></span>
-<span><span class="co">#&gt; [37] "Split_Reptilia/Reptilia_AnimalWeight.csv"</span></span></code></pre></div>
+<span><span class="co">#&gt; [26] "Rdata/nodelete.txt"                                        </span></span>
+<span><span class="co">#&gt; [27] "Rdata/Testudo_hermanni.RData"                              </span></span>
+<span><span class="co">#&gt; [28] "sci_Animal.csv"                                            </span></span>
+<span><span class="co">#&gt; [29] "sci_AnimalCollection.csv"                                  </span></span>
+<span><span class="co">#&gt; [30] "sci_AnimalContraception.csv"                               </span></span>
+<span><span class="co">#&gt; [31] "sci_AnimalMove.csv"                                        </span></span>
+<span><span class="co">#&gt; [32] "sci_AnimalParent.csv"                                      </span></span>
+<span><span class="co">#&gt; [33] "sci_AnimalRelevantDeathInformation.csv"                    </span></span>
+<span><span class="co">#&gt; [34] "sci_AnimalWeight.csv"                                      </span></span>
+<span><span class="co">#&gt; [35] "Split_Reptilia/Reptilia_Animal.csv"                        </span></span>
+<span><span class="co">#&gt; [36] "Split_Reptilia/Reptilia_AnimalCollection.csv"              </span></span>
+<span><span class="co">#&gt; [37] "Split_Reptilia/Reptilia_AnimalContraception.csv"           </span></span>
+<span><span class="co">#&gt; [38] "Split_Reptilia/Reptilia_AnimalMove.csv"                    </span></span>
+<span><span class="co">#&gt; [39] "Split_Reptilia/Reptilia_AnimalParent.csv"                  </span></span>
+<span><span class="co">#&gt; [40] "Split_Reptilia/Reptilia_AnimalRelevantDeathInformation.csv"</span></span>
+<span><span class="co">#&gt; [41] "Split_Reptilia/Reptilia_AnimalWeight.csv"</span></span></code></pre></div>
 </div>
   </div>
 

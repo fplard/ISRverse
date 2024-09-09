@@ -41,10 +41,10 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
      return(x)
  }
   assert_that(is.character(taxaList))
-  assert_that(taxaList %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                              "Chondrichthyes", "Actinopterygii"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
+  # assert_that(taxaList %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+  #                             "Chondrichthyes", "Actinopterygii"),
+  #             msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+  #                         'Chondrichthyes', or 'Actinopterygii'")
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
   checkmate::assert_directory_exists(AnalysisDir)

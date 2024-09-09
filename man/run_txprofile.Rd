@@ -181,7 +181,7 @@ run_txprofile(taxa = "Reptilia", Species_list = "All",
 )
 
 list.files(PlotDir)
-list.files(AnalysisDir)
+list.files(paste0(AnalysisDir,'\\\\temp\\\\Rdata'))
 
 unlink(AnalysisDir, recursive = TRUE)
 unlink(PlotDir, recursive = TRUE)

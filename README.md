@@ -266,11 +266,11 @@ TAB
 
 ``` r
 # Data --------------------------------------------
-extractDate = "2024-07-01"
+extractDate = "2024-08-29"
 
 # List of taxa to analyze -------------------------
 taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-              "Chondrichthyes", " Osteichthyes")
+              "Chondrichthyes", "Osteichthyes")
 
 # Sex categories ----------------------------------
 BySex <- list(Mammalia = c("Male", "Female"), 
@@ -488,7 +488,7 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
 
 ``` r
 minNsur = 10000000 #Minimum number of individuals
-for (taxa in 1:7){
+for (taxa in 3:4){
 #Sections to run or to update
 Sections = c("sur")
 Species_list = "All"

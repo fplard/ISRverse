@@ -43,16 +43,17 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
   assert_that(length(unique(data_weight$MeasurementType))==1, msg = glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data must include only one Measurement Type"))
   assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                          "Chondrichthyes", "Actinopterygii"),
+                          "Chondrichthyes", "Osteichthyes"),
               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
+                          'Chondrichthyes', or 'Osteichthyes'")
   if(is.null(maxweight)){
+    maxweight = 10000000
     if(taxa == "Mammalia")       maxweight = 7000
     if(taxa == "Aves")           maxweight = 200
     if(taxa == "Reptilia")       maxweight = 1500
     if(taxa == "Amphibia")       maxweight = 100
     if(taxa == "Chondrichthyes") maxweight = 1000
-    if(taxa == "Actinopterygii") maxweight = 500
+    if(taxa == "Osteichthyes") maxweight = 500
   }
   assert_that(is.numeric(maxweight))
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")

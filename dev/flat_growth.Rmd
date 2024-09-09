@@ -469,7 +469,7 @@ This function removes the outliers from a dataset of weights. This function take
 * `perc_weight_max`  Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
 
 This function follow 4 different steps to highlight outliers:
-1/ It removes the measures higher than the argument `maxweight` (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).  In the default case, default values are in kilograms and are set at 7000kg for Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia, 1000kg for Chondrichthyes and 500kg for Actinopterygii.
+1/ It removes the measures higher than the argument `maxweight` (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).  In the default case, default values are in kilograms and are set at 7000kg for Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia, 1000kg for Chondrichthyes and 500kg for Osteichthyes.
 2/ Independently on adults and juveniles, it uses the function Gro_Rout_quan() to removes outliers based on percentiles on adults and juveniles. It uses sliding windows of age for juveniles. You can choose the number of intervals used for the sliding windows using the argument `Ninterval_juv`.
 3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
 4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
@@ -520,16 +520,17 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
   assert_that(length(unique(data_weight$MeasurementType))==1, msg = glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data must include only one Measurement Type"))
   assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                          "Chondrichthyes", "Actinopterygii"),
+                          "Chondrichthyes", "Osteichthyes"),
               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
+                          'Chondrichthyes', or 'Osteichthyes'")
   if(is.null(maxweight)){
+    maxweight = 10000000
     if(taxa == "Mammalia")       maxweight = 7000
     if(taxa == "Aves")           maxweight = 200
     if(taxa == "Reptilia")       maxweight = 1500
     if(taxa == "Amphibia")       maxweight = 100
     if(taxa == "Chondrichthyes") maxweight = 1000
-    if(taxa == "Actinopterygii") maxweight = 500
+    if(taxa == "Osteichthyes") maxweight = 500
   }
   assert_that(is.numeric(maxweight))
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
