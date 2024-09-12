@@ -30,39 +30,40 @@ Sur_ple <- function(sexData) {
   sexData <- sexData%>%
     rowwise()%>%
     mutate(idsame = entryAge == deparAge,
-           deparAge = ifelse(idsame, deparAge + 1/365.25, deparAge))%>%
+           deparAge = round(ifelse(idsame, deparAge + 1/365.25, deparAge),1))%>%
     arrange(deparAge)
   
   # Number of ages:
-  nage <- nrow(sexData)
+  nage <-unique(sexData$deparAge)
   
   # Cx and delta:
-  Cx <- rep(0, nage)
-  delx <- rep(0, nage)
+  Cx <- rep(0, length(nage))
+  delx <- rep(0, length(nage))
   
   # Fill up Cx and delta:
-  for (ii in 1:nage) {
-    agev = sexData$deparAge[ii]
-    idNx <-sexData %>%filter(entryAge <= agev,
+  ii = 0
+  for (agev in nage) {
+    ii = ii + 1
+   idNx <-sexData %>%filter(entryAge <= agev,
                              deparAge >= agev)
-    Cx[ii] <- nrow(idNx) / nage
-    if (sexData$DepartType[ii] == "D") delx[ii] <- 1
+     delx[ii] <- length(which(sexData$DepartType == "D"  & sexData$deparAge ==agev))
+     Cx[ii] <- 1- delx[ii]/nrow(idNx)
+   
   }
   
   # Calculate product limit estimator:
-  ple <- cumprod((1 - 1 / (nage * Cx))^delx)
+  ple <- cumprod(Cx)
   ple[ple<0]=0
   
   # Add age 0:
-  Ages <- sexData$deparAge
-  if (Ages[1] > 0) {
-    Ages <- c(0, Ages)
+  if (nage[1] > 0) {
+    nage <- c(0, nage)
     ple <- c(1, ple)
     delx<- c(0, delx)
   }
   
   # Output:
-  pleTab <- data.frame(Ages = Ages, ple = ple, event = delx)
+  pleTab <- data.frame(Ages = nage, ple = ple, event = delx)
   
   return(pleTab)
 }

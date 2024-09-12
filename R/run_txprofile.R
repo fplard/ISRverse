@@ -156,7 +156,8 @@ minDate = lubridate::as_date(minDate)
   assert_directory_exists(ZIMSdir)
   assert_directory_exists(AnalysisDir)
   assert_directory_exists(PlotDir)
-  
+  dir.create(file.path(PlotDir, taxa), showWarnings = FALSE)
+
   assert_that(all(Repsect %in% c("agemat", "litter")))
   assert_that(is.numeric(parentProb))
   assert_that(parentProb > 0)
@@ -224,17 +225,7 @@ minDate = lubridate::as_date(minDate)
   # ======================#
   # ==== RUN ANALYSES: ====
   # ======================#
-  # Start counter:
-  icount <- 0
-  
-  # Loop over species
-  for (isp in idsprun) {
-    # Extract species:
-    species <- spAll[isp]
-    
-    # # progress count:
-    icount <- icount + 1
-    
+    core <- Prep_Animal(data[[taxa]]$Animal, extractDate= extractDate,minBirthDate =minBirthDate )
     # #subset Tables
     if("sur" %in% Sections){
       DeathInformation <- data[[taxa]]$DeathInformation
@@ -251,12 +242,24 @@ minDate = lubridate::as_date(minDate)
     }else{
       parents =contraceptions = move = NULL
     }
+
+  # Start counter:
+  icount <- 0
+  
+  # Loop over species
+  for (isp in idsprun) {
+    # Extract species:
+    species <- spAll[isp]
     
+    # # progress count:
+    icount <- icount + 1
+    
+      
     # Report progress:
     cat("\n====================\nClass:   ", taxa, "\nSpecies: ", species, 
         "\nProgress:", round(icount / length(idsprun) * 100, 0), 
         "%\n=====================\n")
-    cat("Species running... ")
+    cat("Species running...\n ")
     
     speciesname = stringr::str_replace(species, " ", "_")
     
@@ -265,7 +268,7 @@ minDate = lubridate::as_date(minDate)
       repout = list()
     }else{
       if(length(list.files(glue::glue("{AnalysisDir}Rdata/"), glue::glue("{taxa}_{speciesname}.RData")))>0){
-        load(glue::glue("{AnalysisDir}Rdata/{speciesname}.RData"))
+        load(glue::glue("{AnalysisDir}Rdata/{taxa}_{speciesname}.RData"))
       }else{repout = list()}
     }
     if (species %in% spOutLev) maxOutl <- 99.9
@@ -273,8 +276,8 @@ minDate = lubridate::as_date(minDate)
     
     # Create report:
     repout <- tx_report(species, taxa, 
-                        data[[taxa]]$Animal, data[[taxa]]$Collection,  DeathInformation = DeathInformation,
-                        PlotDir = PlotDir, extractDate= extractDate, minBirthDate = minBirthDate,
+                        core, data[[taxa]]$Collection,  DeathInformation = DeathInformation,
+                        PlotDir = paste0(PlotDir,'/',taxa), extractDate= extractDate, minBirthDate = minBirthDate,
                         weights = weights, parents = parents, contraceptions = contraceptions, move = move,
                         repout = repout, Sections = Sections, Birth_Type = Birth_Type,
                         sexCats = sexCats, minN= minN, minDate= minDate, Global = Global,
@@ -297,8 +300,10 @@ minDate = lubridate::as_date(minDate)
     # ---- Save results: ----
     # ----------------------- #
     # Save species list:
+    print(glue::glue("STEP 5: {Sys.time()}"))
     save("repout", file = glue::glue("{AnalysisDir}/Rdata/{taxa}_{speciesname}.RData"))
     cat(" done.\n")
+    print(glue::glue("STEP 6: {Sys.time()}"))
   }
 }
 

@@ -179,7 +179,7 @@ assert_that(is.character(models))
         
         if(!is.null(PlotDir)){
           p1 <-Gro_outplot(data_weight, title = glue("{plotname}_{bt}"), ylimit = NULL, xlimit = NULL)
-          ggsave(p1, filename = glue("{PlotDir}/{plotname}_{bt}_outliers.png"))
+          ggsave(p1, filename = glue("{PlotDir}/{plotname}_{bt}_outliers.png"), height = 6, width = 6)
         }
         
         data_weight <- data_weight %>%filter(KEEP ==1)
@@ -203,8 +203,8 @@ assert_that(is.character(models))
               
               if(!is.null(PlotDir)){
                 p2 <-Gro_plot(data = datsub, data_percent = wAnalysis$percent,
-                              title =  glue("{species}_{bt}"))
-                ggsave(p2, filename = glue("{PlotDir}/{plotname}_{bt}_growth.png"))
+                              title =  glue("{plotname}_{bt}"))
+                ggsave(p2, filename = glue("{PlotDir}/{plotname}_{bt}_growth.png"), height = 6, width = 6)
               }
               
               #condition on model fit
@@ -1039,7 +1039,8 @@ Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
 
 ```{r example-Gro_outplot}
 data(weights)
-weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Reptilia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+                          taxa = "Reptilia", ageMat = 10)
 
 p <- Gro_outplot(data = weights, 
                  title = "Species A", ylimit = c(0,2000))
@@ -1650,7 +1651,8 @@ Gro_plot <- function(data, data_percent, title = "") {
   
   
   p <- ggplot(data, aes (x = Age))+
-    ggtitle(title)
+    ggtitle(title)+
+    geom_point(aes(y = MeasurementValue))
   
   if (length(percentiles)/2 == 1){
     colorrib ="grey80"
@@ -1660,10 +1662,9 @@ Gro_plot <- function(data, data_percent, title = "") {
     per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
     p <- p +
       geom_ribbon(data = data_percent,aes ( ymin = !!sym(per[1]), ymax = !!sym(per[2])),
-                  fill = colorrib[i])
+                  fill = colorrib[i], alpha = 0.25)
   }
   p <- p +
-    geom_point(aes(y = MeasurementValue))+
     geom_line(data = data_percent,aes ( y = percent50 ))   
   return(p)
 }
@@ -1709,7 +1710,7 @@ test_that(
   "Gro_plot",
   { 
     p<- dat %>% Gro_plot(out$percent)
-    expect_named(p$labels,c("title", "x", "ymin", "ymax", "y"))
+    expect_named(p$labels,c("title", "x", "y", "ymin", "ymax"))
     expect_length(p$layers,3)
   })
 

@@ -349,7 +349,7 @@ minNseas = 50  #Minimum number of births to run the seasonnality analysis
 
 #      Growth Models -----------------------------------
 #Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"
-models_gro <- c("vonBertalanffy") 
+models_gro <- c("vonBertalanffy", "gam") 
 
 # Measure type to select
 MeasureType = "Live weight"
@@ -416,18 +416,23 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
 
 ``` r
 
+list_surv= readxl::read_xlsx(glue("{analysisDir}Liste_Survival.xlsx"), sheet =1)%>%
+  filter(Class == "Mammalia")%>%
+  pull(Species)%>%unique()
+
 taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
-Species_list = c('Panthera leo', 'Panthera uncia', 'Panthera tigris')
+Species_list =list_surv
 
-run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
-              AnalysisDir = analysisDir, PlotDir = plotDir,
-                 Sections = Sections, erase_previous = FALSE,
-               extractDate = extractDate, minDate = minDate,
-               sexCats = BySex[[taxaList[taxa]]], 
+run_txprofile (taxa = taxaList[taxa], 
+               ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
+                  erase_previous = FALSE,Birth_Type = "Captive", 
+              sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
+              Species_list = Species_list,  Sections = Sections,  
+              extractDate = extractDate, minDate = minDate,
                minN = minN,  Global =  Global,
-               maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
+               maxOutl = maxOutl,  spOutLev = spOutLev, 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
                         uncert_date = uncert_date,
                         minInstitution = minInstitution, 
@@ -487,11 +492,13 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
 ### Find species with sex with 50-1000 individuals
 
 ``` r
+
+
 minNsur = 10000000 #Minimum number of individuals
-for (taxa in 3:4){
 #Sections to run or to update
 Sections = c("sur")
 Species_list = "All"
+for (taxa in 6:2){
 
 run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
               AnalysisDir = analysisDir, PlotDir = plotDir,
@@ -523,7 +530,7 @@ run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
 ``` r
 # List of taxa to summarize -------------------------
 taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-              "Chondrichthyes", "Actinopterygii")
+              "Chondrichthyes", "Osteichthyes")
 
 # Sex categories ----------------------------------
 BySex <- list(Mammalia = c("Male", "Female"), 
@@ -531,13 +538,14 @@ BySex <- list(Mammalia = c("Male", "Female"),
            Reptilia = c("Male", "Female", "All"), 
            Amphibia = c("Male", "Female", "All"), 
            Chondrichthyes = c("Male", "Female", "All"), 
-           Actinopterygii = "All")
+           Osteichthyes = "All")
 
 
-SummTab <- make_summary(AnalysisDir, SaveDir,
+SummTab <- make_summary(glue("{analysisDir}Rdata/"), 
+                        SaveDir = glue("{analysisDir}"),
                taxaList = taxaList,
                BySex = BySex ,
-               Sections = c("sur","rep", 'gro')
+               Sections = c("sur")
 )
 ```
 

@@ -112,14 +112,14 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
   
   
    #Correct Entry Dates
-  ID = which (Animal$EntryDate < Animal$BirthDate)
-  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  ID = which (Animal$EntryDate < Animal$MaxBirthDate)
+  Animal$MaxBirthDate[ID]= Animal$EntryDate[ID] 
   
   ID = which (Animal$EntryType == "B" & Animal$EntryDate != Animal$BirthDate)
-  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
  
   ID = which (Animal$EntryType == "B" & is.na(Animal$EntryDate))
-  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
  
   
   
@@ -134,6 +134,9 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
   #check Chronology in dates
   Animal <- Animal%>%
     filter ((BirthDate <= FirstAcquisitionDate)%>% replace_na(TRUE),
+            (FirstAcquisitionDate <= EntryDate)%>% replace_na(TRUE),
+            (EntryDate <= DepartDate)%>% replace_na(TRUE),
+            (DepartDate <= DeathDate)%>% replace_na(TRUE),
             (DeathDate >= LastTXDate)%>% replace_na(TRUE),
             (BirthDate <= DeathDate)%>% replace_na(TRUE),
             (DeathDate >= FirstAcquisitionDate)%>% replace_na(TRUE),

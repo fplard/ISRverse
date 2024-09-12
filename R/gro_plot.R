@@ -49,7 +49,8 @@ Gro_plot <- function(data, data_percent, title = "") {
   
   
   p <- ggplot(data, aes (x = Age))+
-    ggtitle(title)
+    ggtitle(title)+
+    geom_point(aes(y = MeasurementValue))
   
   if (length(percentiles)/2 == 1){
     colorrib ="grey80"
@@ -59,10 +60,9 @@ Gro_plot <- function(data, data_percent, title = "") {
     per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
     p <- p +
       geom_ribbon(data = data_percent,aes ( ymin = !!sym(per[1]), ymax = !!sym(per[2])),
-                  fill = colorrib[i])
+                  fill = colorrib[i], alpha = 0.25)
   }
   p <- p +
-    geom_point(aes(y = MeasurementValue))+
     geom_line(data = data_percent,aes ( y = percent50 ))   
   return(p)
 }

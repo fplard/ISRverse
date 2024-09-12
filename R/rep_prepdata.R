@@ -97,19 +97,8 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
   
   if(Global & nrow(ADULTS)>0){
     ADULTS <- ADULTS%>%
-      #paste collection for each individual and age
-      left_join(collection%>%as_tibble%>%
-                  select(AnimalAnonID, ScopeType, ChangeDate)%>% distinct(), 
-                by = "AnimalAnonID", relationship = "many-to-many")%>%
-      mutate(dist = purrr::map2_dbl(Date_age, ChangeDate, difftime)) %>%
-      filter(dist >= 0)%>%
-      group_by(AnimalAnonID, Age) %>%
-      mutate(maxtime = min(dist)) %>%
-      ungroup()%>%
-      filter(maxtime  == dist) %>%
-      dplyr::select(-maxtime , -dist, -ChangeDate, -n)%>%
-      filter(ScopeType == "Global")
-    
+      filter(AnyLocalCollectionFlag == 0)
+
     parent <- parent %>%
       filter(ParentCollectionScopeType == "Global",
              OffspringCollectionScopeType == "Global")

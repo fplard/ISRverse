@@ -20,7 +20,7 @@ test_that(
   "Gro_plot",
   { 
     p<- dat %>% Gro_plot(out$percent)
-    expect_named(p$labels,c("title", "x", "ymin", "ymax", "y"))
+    expect_named(p$labels,c("title", "x", "y", "ymin", "ymax"))
     expect_length(p$layers,3)
   })
 

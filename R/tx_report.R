@@ -65,12 +65,12 @@
 #'                        ZIMSdir = ZIMSdirtest,
 #'                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 #'
-#'
+#' Animal<- Prep_Animal(data[["Reptilia"]]$Animal, extractDate="2024/08/29"  )
 #' PlotDir = paste0(tempdir(check = TRUE),'\\temp')
 #' dir.create(PlotDir)
 #'
 #' out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-#'                  data$Reptilia$Animal, data$Reptilia$Collection, 
+#'                  Animal, data$Reptilia$Collection, 
 #'                  DeathInformation =data$Reptilia$DeathInformation,
 #'                  PlotDir = PlotDir,Sections = c('sur'),
 #'                  sexCats = c("Male", "Female"),
@@ -111,11 +111,12 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   
   assert_that(is.data.frame(Animal))
   assert_that(is.data.frame(collection))
-  assert_that(Animal  %has_name% c("AnimalAnonID", "binSpecies",  "BirthDate", "BirthDateEstimateType", "BirthDateEstimateStart", "BirthDateEstimateEnd",    
-                                   "BirthType", "FirstAcquisitionDate", "DeathDate", "DeathDateEstimateType", "DeathDateEstimateStart", 
-                                   "DeathDateEstimateEnd", "LastCommentEntryDate", "LastTXDate", "FirstHoldingInstitution", 
-                                   "LastTXDate", "LastHoldingInstitution","GlobalStatus",
-                                   "LastCollectionScopeType","FirstCollectionScopeType"))
+  assert_that(Animal  %has_name% c("AnimalAnonID", "binSpecies", "BirthDate", "DepartDate",
+                                       "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                       "MaxDeathDate", "MinDeathDate", "EntryType", "DepartType",
+                                       "LastTXDate", "DeathDate", "FirstHoldingInstitution", 
+                                       "LastHoldingInstitution","GlobalStatus",
+                                       "LastCollectionScopeType","FirstCollectionScopeType"))
   assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
                                        "ScopeType", "AnimalAnonID"))
   
@@ -205,15 +206,14 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-  core <- Prep_Animal(Animal, extractDate= extractDate,minBirthDate =minBirthDate )
-  
-  Dat <- select_species(species, core, collection,  uncert_birth = uncert_birth,
+   Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth,
                         minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
   speciesname = stringr::str_replace(species, " ", "_")
   
   if(nrow(Dat$data)>0){
   for (sx in sexCats){
+    cat(paste0(" ****************************  ",sx,"  ****************************\n"))
     sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
                                     PlotDir= PlotDir, minN = minN ,
                                     maintitle = glue::glue("{speciesname}_{sx}") )
@@ -224,7 +224,7 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # -------------------------- #
     # Run survival analyses:
     if ("sur" %in% Sections) {
-      cat("Survival Running --------------------------------------------")
+      cat("Survival Running ------------------------------------------------\n")
       repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
                                     Birth_Type = Birth_Type,
                                     PlotDir = PlotDir,XMAX = XMAX,
@@ -243,10 +243,12 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # ------------------------------ #
     # Reproduction module list:
     if ("rep" %in% Sections) {
-          cat("Reproduction Running --------------------------------------------")
+          cat("Reproduction Running ----------------------------------------\n")
   # Reproduction module list:
-      repout$repr <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
-                              Repsect = Repsect,
+      Repse = Repsect
+      if(sx == "Male"){Repse = Repsect%>%stringr::str_subset("litter", negate = T)}
+      repout$repr[[sx]] <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
+                              Repsect = Repse,
                               BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
                               Global = Global, minInstitution = minInstitution, 
                               minNrepro = minNrepro, minNparepro =  minNparepro,
@@ -259,11 +261,19 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # ----------------------------- #
     # Growth module list:
     if ("gro" %in% Sections) {
-          cat("Growth Running --------------------------------------------")
+          cat("Growth Running ----------------------------------------------\n")
+      #take age at maturity
+      agemat = NULL
+      if(length(repout$repr[[sx]])>0){
+        if(repout$repr[[sx]]$amat_analyzed){
+          agemat = repout$repr[[sx]]$amat$agemat
+        }
+      }
+      
   repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
                                     taxa = taxa, species = species,
                                     Birth_Type = Birth_Type, 
-                                    agemat = NULL, percentiles = c(2.5,97.5),
+                                    agemat = agemat, percentiles = c(2.5,97.5),
                                     PlotDir = PlotDir, type = "weight",
                                     uncert_date = uncert_date,
                                     MeasureType = MeasureType,

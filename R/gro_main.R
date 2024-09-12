@@ -129,7 +129,7 @@ assert_that(is.character(models))
         
         if(!is.null(PlotDir)){
           p1 <-Gro_outplot(data_weight, title = glue("{plotname}_{bt}"), ylimit = NULL, xlimit = NULL)
-          ggsave(p1, filename = glue("{PlotDir}/{plotname}_{bt}_outliers.png"))
+          ggsave(p1, filename = glue("{PlotDir}/{plotname}_{bt}_outliers.png"), height = 6, width = 6)
         }
         
         data_weight <- data_weight %>%filter(KEEP ==1)
@@ -153,8 +153,8 @@ assert_that(is.character(models))
               
               if(!is.null(PlotDir)){
                 p2 <-Gro_plot(data = datsub, data_percent = wAnalysis$percent,
-                              title =  glue("{species}_{bt}"))
-                ggsave(p2, filename = glue("{PlotDir}/{plotname}_{bt}_growth.png"))
+                              title =  glue("{plotname}_{bt}"))
+                ggsave(p2, filename = glue("{PlotDir}/{plotname}_{bt}_growth.png"), height = 6, width = 6)
               }
               
               #condition on model fit

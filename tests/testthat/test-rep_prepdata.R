@@ -12,7 +12,7 @@ test_that("Rep_prepdata works", {
   expect_named(Data, c("Adults", "Reprodata", "summary"))
   expect_named(Data$summary, c("Nbirths", "Nadults", "NOffsp", "NParent", "NOffsp_age", "NParent_age", "analyzed", "Nerr", "err"))
   expect_true(is.numeric(Data$summary[1:6]%>%as.numeric()))
-  expect_named(Data$Adults, c(names(core), "ageAds", "Age", "Date_age", "ScopeType"))
+  expect_named(Data$Adults, c(names(core), "ageAds", "n", "Age", "Date_age"))
   expect_named(Data$Reprodata, c("AnimalAnonID", "ParentOriginType", "ParentAnonID",                
                                  "ParentType", "OffspringCollectionScopeType", "ParentCollectionScopeType"   ,
                                  "Parent_BirthDate", "Parent_BirthType", "Offspring_BirthDate", "SexType", "Parent_Age", "currentInst",                 "Offspring_Inst", "Probability"))

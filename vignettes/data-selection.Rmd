@@ -48,12 +48,12 @@ data <- Load_Zimsdata	(taxa = "Reptilia",
                        ZIMSdir = ZIMSdirtest,
                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 
-
+Animal<- Prep_Animal(data[["Reptilia"]]$Animal, extractDate="2024/08/29"  )
 PlotDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(PlotDir)
 
 out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                 data$Reptilia$Animal, data$Reptilia$Collection, 
+                 Animal, data$Reptilia$Collection, 
                  DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),

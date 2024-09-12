@@ -6,11 +6,12 @@ test_that("tx_report works", {
   data <- Load_Zimsdata	(taxa = "Reptilia",
                           species = list(Reptilia = "All"), ZIMSdir = ZIMSdirtest,
                          Animal = TRUE, tables = c("Collection","DeathInformation", "Weight"))
-  PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+  Animal<- Prep_Animal(data[["Reptilia"]]$Animal, extractDate= "2024/08/29" )
+PlotDir = paste0(tempdir(check = TRUE),'\\temp')
   dir.create(PlotDir)
   
   out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                   data$Reptilia$Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,
+                  Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,minlx =0.4,minNIgro=40,
                    DeathInformation =data$Reptilia$DeathInformation, weights =data$Reptilia$Weight,
                    niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                    PlotDir = PlotDir, Sections = c('sur','gro'),
@@ -26,8 +27,8 @@ test_that("tx_report works", {
   expect_named(out$weig$Male$Captive, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$Captive, c('wSummar', "weightQ"))
   expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Femalesurcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Femalesurplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_surplot.pdf", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)

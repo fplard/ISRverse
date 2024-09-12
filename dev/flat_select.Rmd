@@ -125,11 +125,12 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   
   assert_that(is.data.frame(Animal))
   assert_that(is.data.frame(collection))
-  assert_that(Animal  %has_name% c("AnimalAnonID", "binSpecies",  "BirthDate", "BirthDateEstimateType", "BirthDateEstimateStart", "BirthDateEstimateEnd",    
-                                   "BirthType", "FirstAcquisitionDate", "DeathDate", "DeathDateEstimateType", "DeathDateEstimateStart", 
-                                   "DeathDateEstimateEnd", "LastCommentEntryDate", "LastTXDate", "FirstHoldingInstitution", 
-                                   "LastTXDate", "LastHoldingInstitution","GlobalStatus",
-                                   "LastCollectionScopeType","FirstCollectionScopeType"))
+  assert_that(Animal  %has_name% c("AnimalAnonID", "binSpecies", "BirthDate", "DepartDate",
+                                       "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                       "MaxDeathDate", "MinDeathDate", "EntryType", "DepartType",
+                                       "LastTXDate", "DeathDate", "FirstHoldingInstitution", 
+                                       "LastHoldingInstitution","GlobalStatus",
+                                       "LastCollectionScopeType","FirstCollectionScopeType"))
   assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
                                        "ScopeType", "AnimalAnonID"))
   
@@ -219,15 +220,14 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-  core <- Prep_Animal(Animal, extractDate= extractDate,minBirthDate =minBirthDate )
-  
-  Dat <- select_species(species, core, collection,  uncert_birth = uncert_birth,
+   Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth,
                         minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
   speciesname = stringr::str_replace(species, " ", "_")
   
   if(nrow(Dat$data)>0){
   for (sx in sexCats){
+    cat(paste0(" ****************************  ",sx,"  ****************************\n"))
     sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
                                     PlotDir= PlotDir, minN = minN ,
                                     maintitle = glue::glue("{speciesname}_{sx}") )
@@ -238,7 +238,7 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # -------------------------- #
     # Run survival analyses:
     if ("sur" %in% Sections) {
-      cat("Survival Running --------------------------------------------")
+      cat("Survival Running ------------------------------------------------\n")
       repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
                                     Birth_Type = Birth_Type,
                                     PlotDir = PlotDir,XMAX = XMAX,
@@ -257,10 +257,12 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # ------------------------------ #
     # Reproduction module list:
     if ("rep" %in% Sections) {
-          cat("Reproduction Running --------------------------------------------")
+          cat("Reproduction Running ----------------------------------------\n")
   # Reproduction module list:
-      repout$repr <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
-                              Repsect = Repsect,
+      Repse = Repsect
+      if(sx == "Male"){Repse = Repsect%>%stringr::str_subset("litter", negate = T)}
+      repout$repr[[sx]] <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
+                              Repsect = Repse,
                               BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
                               Global = Global, minInstitution = minInstitution, 
                               minNrepro = minNrepro, minNparepro =  minNparepro,
@@ -273,11 +275,19 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     # ----------------------------- #
     # Growth module list:
     if ("gro" %in% Sections) {
-          cat("Growth Running --------------------------------------------")
+          cat("Growth Running ----------------------------------------------\n")
+      #take age at maturity
+      agemat = NULL
+      if(length(repout$repr[[sx]])>0){
+        if(repout$repr[[sx]]$amat_analyzed){
+          agemat = repout$repr[[sx]]$amat$agemat
+        }
+      }
+      
   repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
                                     taxa = taxa, species = species,
                                     Birth_Type = Birth_Type, 
-                                    agemat = NULL, percentiles = c(2.5,97.5),
+                                    agemat = agemat, percentiles = c(2.5,97.5),
                                     PlotDir = PlotDir, type = "weight",
                                     uncert_date = uncert_date,
                                     MeasureType = MeasureType,
@@ -305,12 +315,12 @@ data <- Load_Zimsdata	(taxa = "Reptilia",
                        ZIMSdir = ZIMSdirtest,
                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 
-
+Animal<- Prep_Animal(data[["Reptilia"]]$Animal, extractDate="2024/08/29"  )
 PlotDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(PlotDir)
 
 out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                 data$Reptilia$Animal, data$Reptilia$Collection, 
+                 Animal, data$Reptilia$Collection, 
                  DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),
@@ -332,11 +342,12 @@ test_that("tx_report works", {
   data <- Load_Zimsdata	(taxa = "Reptilia",
                           species = list(Reptilia = "All"), ZIMSdir = ZIMSdirtest,
                          Animal = TRUE, tables = c("Collection","DeathInformation", "Weight"))
-  PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+  Animal<- Prep_Animal(data[["Reptilia"]]$Animal, extractDate= "2024/08/29" )
+PlotDir = paste0(tempdir(check = TRUE),'\\temp')
   dir.create(PlotDir)
   
   out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                   data$Reptilia$Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,
+                  Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,minlx =0.4,minNIgro=40,
                    DeathInformation =data$Reptilia$DeathInformation, weights =data$Reptilia$Weight,
                    niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                    PlotDir = PlotDir, Sections = c('sur','gro'),
@@ -352,8 +363,8 @@ test_that("tx_report works", {
   expect_named(out$weig$Male$Captive, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$Captive, c('wSummar', "weightQ"))
   expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Femalesurcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Femalesurplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_surplot.pdf", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)
@@ -472,14 +483,14 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
   
   
    #Correct Entry Dates
-  ID = which (Animal$EntryDate < Animal$BirthDate)
-  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  ID = which (Animal$EntryDate < Animal$MaxBirthDate)
+  Animal$MaxBirthDate[ID]= Animal$EntryDate[ID] 
   
   ID = which (Animal$EntryType == "B" & Animal$EntryDate != Animal$BirthDate)
-  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
  
   ID = which (Animal$EntryType == "B" & is.na(Animal$EntryDate))
-  Animal$EntryDate[ID] = Animal$BirthDate[ID]
+  Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
  
   
   
@@ -494,6 +505,9 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
   #check Chronology in dates
   Animal <- Animal%>%
     filter ((BirthDate <= FirstAcquisitionDate)%>% replace_na(TRUE),
+            (FirstAcquisitionDate <= EntryDate)%>% replace_na(TRUE),
+            (EntryDate <= DepartDate)%>% replace_na(TRUE),
+            (DepartDate <= DeathDate)%>% replace_na(TRUE),
             (DeathDate >= LastTXDate)%>% replace_na(TRUE),
             (BirthDate <= DeathDate)%>% replace_na(TRUE),
             (DeathDate >= FirstAcquisitionDate)%>% replace_na(TRUE),
@@ -803,9 +817,7 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
   
   if(nrow(coresex)>0){
     # Check longevities:
-    pdf(file = glue::glue("{PlotDir}\\{maintitle}_LongThres.pdf"), width = 3, height = 10)
-    par(mfrow = c(4,1))
-    
+   
     quant = quantile (coresubset$lifespans,c(0.95,0.99,0.999))
     
     coresex <-  coresex%>%
@@ -833,7 +845,8 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
       } else if (maxAlive > 50) {
         maxAlive <- 50
       }
-      
+       pdf(file = glue::glue("{PlotDir}/{maintitle}_LongThres.pdf"), width = 5, height = 5)
+   
       par(mar = c(4, 4, 1, 1))
       gaps <- find_gaps(corelong$lifespans, plot = T,
                         main = maintitle, 
@@ -866,26 +879,12 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
         }
       } else {
         outTab$GapThresh <-100
-        for (ll in 1:3) {
-          qlev <- c("99.9", "99", "95")[ll]
-          abcol <- sprintf("above%s", qlev)
-          plot(c(0, 1), c(0, 1), col = NA, axes = FALSE, xlab = "", 
-               ylab = "", main = paste(qlev, "%"))
-          text(0.5, 0.5, "No gaps", cex = 2)
-          box()
-        }
       }
       outTab$NThres <- nrow(coresex%>%filter())
       
       
       
-    } else {
-      par(mar = c(4, 4, 1, 1))
-      for (inpl in 1:4) {
-        plot(c(0, 1), c(0, 1), col = NA, axes = FALSE, xlab = "", ylab ="")
-        text(0.5, 0.5, "No data")
-      }
-    }
+    } 
     
     dev.off()
   }

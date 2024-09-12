@@ -163,23 +163,25 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     
     #Plots
     if(out$summary$analyzed && !is.null(PlotDir)){
-      pdf(file = paste0(PlotDir,"/", plotname, "surcheck.pdf", sep=""), width = 6, height = 9)
-      plot(out$bastaRes)
+      pdf(file = paste0(PlotDir,"/", plotname, "_surcheck.pdf", sep=""), width = 6, height = 6)
+      plot(out$bastaRes, main = plotname)
       plot(out$bastaRes, plot.type = 'demorates')
       plot(out$bastaRes, plot.type = 'gof')
       dev.off()
       
-      pdf(file = paste0(PlotDir,"/", plotname, "surplot.pdf", sep=""), width = 6, height = 9)
-      plot(out$relex$RemLExp~  out$relex$Age, main = 'Remaining life expectancy')
+      pdf(file = paste0(PlotDir,"/", plotname, "_surplot.pdf", sep=""), width = 6, height = 6)
+      plot(out$relex$RemLExp~  out$relex$Age, main = plotname, xlab = "Age (year)", ylab = "Remaining life expectancy")
       lines(out$relex$Lower ~  out$relex$Age, lty = 2)
       lines(out$relex$Upper ~  out$relex$Age, lty = 2)
       
-      plot(out$Sur1$Sur_1yr[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], main = 'Age-specific survival')
-      lines(out$Sur1$Lower[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
-      lines(out$Sur1$Upper[seq(1, xMax, 10)] ~  out$Sur1$Age[seq(1, xMax, 10)], lty = 2)
+      plot(out$Sur1$Sur_1yr ~  out$Sur1$Age, 
+           xlab = "Age (year)", ylab = 'Age-specific survival')
+      lines(out$Sur1$Lower ~  out$Sur1$Age, lty = 2)
+      lines(out$Sur1$Upper ~  out$Sur1$Age, lty = 2)
       
       
-      plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, main = 'p(survive 5 more years')
+      plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, 
+           xlab = "Age (year)", ylab = 'p(survive 5 more years)')
       lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
       lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
       
@@ -217,6 +219,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     }
     
   }
-  return(out)
+ print(glue::glue("STEP 4: {Sys.time()}"))
+ return(out)
 }
 
