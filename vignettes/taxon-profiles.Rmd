@@ -92,9 +92,9 @@ SaveDir = paste0(tempdir(check = TRUE),'\\temp')
 dir.create(SaveDir)
 
 SummTab <- make_summary(AnalysisDir, SaveDir,
-               taxaList = "Reptilia",
-               BySex = list(Reptilia = c("Male", "Female")) ,
-               Sections = c("sur", 'gro')
+                        taxaList = "Reptilia",
+                        BySex = list(Reptilia = c("Male", "Female")) ,
+                        Sections = c("sur", 'gro')
 )
 list.files(SaveDir)
 

@@ -131,11 +131,11 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
       }
       outTab$NThres <- nrow(coresex%>%filter())
       
-      
+         dev.off()
       
     } 
     
-    dev.off()
+ 
   }
   return(list(summar = outTab, data = coresex) )
 }

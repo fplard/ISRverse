@@ -61,7 +61,7 @@ Split_Zimsdata	<- function (ZIMSdir,
   #split Animal data and create sub_directory
   for (taxa in taxaList){
     dir.create(path = glue::glue("{ZIMSdir}/Split_{taxa}/"), showWarnings = FALSE)
-
+    
     
     Ani_taxa = Ani%>% filter(Class == taxa)
     write_delim(Ani_taxa, file = glue::glue("{ZIMSdir}/Split_{taxa}/{taxa}{extractDate}_Animal.csv"), delim = "@")

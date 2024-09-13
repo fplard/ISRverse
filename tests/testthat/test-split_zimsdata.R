@@ -7,5 +7,5 @@ test_that("Split_Zimsdata works", {
   Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
   expect_true(file.exists(glue::glue("{ZIMSdirtest}/Split_Reptilia/Reptilia_Animal.csv")))
   expect_true(file.exists(glue::glue("{ZIMSdirtest}/Split_Reptilia/Reptilia_AnimalParent.csv")))
-
+  
 })

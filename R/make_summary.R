@@ -24,9 +24,9 @@
 #' dir.create(SaveDir)
 #'
 #' SummTab <- make_summary(AnalysisDir, SaveDir,
-#'                taxaList = "Reptilia",
-#'                BySex = list(Reptilia = c("Male", "Female")) ,
-#'                Sections = c("sur", 'gro')
+#'                         taxaList = "Reptilia",
+#'                         BySex = list(Reptilia = c("Male", "Female")) ,
+#'                         Sections = c("sur", 'gro')
 #' )
 #' list.files(SaveDir)
 #'
@@ -37,9 +37,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                           Sections = c("sur", 'rep', 'gro')
 ){
   nullToNA <- function(x) {
-     x[sapply(x, is.null)] <- NA
-     return(x)
- }
+    x[sapply(x, is.null)] <- NA
+    return(x)
+  }
   assert_that(is.character(taxaList))
   # assert_that(taxaList %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
   #                             "Chondrichthyes", "Actinopterygii"),
@@ -58,7 +58,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   assert_that(length(SRGlist) > 0, 
               msg = glue::glue("There are no result file in {AnalysisDir}"))
   SRGsps <- gsub(".RData", "", SRGlist)
-   
+  
   
   # Start counter:
   icount <- 0
@@ -67,13 +67,13 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     SRGsps_ta = SRGsps%>%stringr::str_subset(taxa)
     SRGspecies <- SRGsps_ta%>%
       stringr::str_remove(pattern = paste0(taxa, '_'))%>%
-    stringr::str_replace("_", " ")
+      stringr::str_replace("_", " ")
     
     sexCats <- BySex [[taxa]]
     
     icount <- icount + 1
-
-        table<-tibble(Class = rep(taxa, length( SRGsps_ta )),
+    
+    table<-tibble(Class = rep(taxa, length( SRGsps_ta )),
                   Species = SRGspecies,
                   Sex = "All",
                   Nraw = numeric(1),
@@ -87,54 +87,67 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                   GapThresh = numeric(1),
                   NThres = numeric(1)
     )
-    
+    AnyAna<- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
+                        Species = rep(SRGspecies, each = length(sexCats)),
+                        Sex = rep(sexCats, length(SRGspecies)))
     # Taxa data table:
     if ("sur" %in% Sections){
       tempsur <- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
-                  Species = rep(SRGspecies, each = length(sexCats)),
-                  Sex = rep(sexCats, length(SRGspecies)),
-                  NGlobal = numeric(1), 
-               NBasta = numeric(1), 
-               Ndead = 0, 
-               lxMin = numeric(1),
-               maxAlive = numeric(1),
-               outLev = numeric(1),
-               analyzed = logical(1), 
-               Nerr = numeric(1), 
-               error = character(1),
-               Gof_KM =logical(1),
-               Gof_KM_coeff = numeric(1))
+                        Species = rep(SRGspecies, each = length(sexCats)),
+                        Sex = rep(sexCats, length(SRGspecies)),
+                        NGlobal = numeric(1), 
+                        NBasta = numeric(1), 
+                        Ndead = 0, 
+                        lxMin = numeric(1),
+                        maxAlive = numeric(1),
+                        outLev = numeric(1),
+                        analyzed = logical(1), 
+                        Nerr = numeric(1), 
+                        error = character(1),
+                        Gof_KM =logical(1),
+                        Gof_KM_coeff = numeric(1))
     }else{tempsur = tibble()}
     if ("gro" %in% Sections){
-      tempgro <-  tibble(Class = rep(taxa, length( SRGsps_ta )),
-                  Species = rep(SRGspecies, each = length(sexCats)),
-                  Sex = rep(sexCats, length(SRGspecies)),
-                  NWeight_raw = numeric(1), NInd_raw = numeric(1), 
-               NWeight_val = numeric(1), NInd_val = numeric(1), 
-               NWeight_age = numeric(1), NInd_age = numeric(1), 
-               agemat = numeric(1), 
-               NJuv = numeric(1),NJuv_keep = numeric(1),
-               NAd = numeric(1), NAd_keep = numeric(1),
-               NWeight = numeric(1), NInd = numeric(1), 
-               analyzed = logical(1), 
-               Nerr = numeric(1), error = character(1))
+      tempgro <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
+                         Species = rep(SRGspecies, each = length(sexCats)),
+                         Sex = rep(sexCats, length(SRGspecies)),
+                         NWeight_raw = numeric(1), NInd_raw = numeric(1), 
+                         NWeight_val = numeric(1), NInd_val = numeric(1), 
+                         NWeight_age = numeric(1), NInd_age = numeric(1), 
+                         agemat = numeric(1), 
+                         NJuv = numeric(1),NJuv_keep = numeric(1),
+                         NAd = numeric(1), NAd_keep = numeric(1),
+                         NWeight = numeric(1), NInd = numeric(1), 
+                         analyzed = logical(1), 
+                         Nerr = numeric(1), error = character(1))
     }else{tempgro = tibble()}
     if ("rep" %in% Sections){
-      temprep <-  tibble(Class = rep(taxa, length( SRGsps_ta )),
-                  Species = rep(SRGspecies, each = length(sexCats)),
-                  Sex = rep(sexCats, length(SRGspecies)))
+      temprep <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
+                         Species = rep(SRGspecies, each = length(sexCats)),
+                         Sex = rep(sexCats, length(SRGspecies)),
+                         Nbirths = numeric(1),
+                         Nadults= numeric(1),
+                         NOffsp= numeric(1),
+                         NParent= numeric(1),
+                         NOffsp_age=numeric(1),
+                         NParent_age=numeric(1),
+                         analyzed = logical(1),  
+                         Nerr= numeric(1),
+                         err= character(1),
+                         amat_analyzed = logical(1),  
+                         litt_analyzed = logical(1))
     }else{temprep = tibble()}
     i = 0
     # Loop over species
     for (isp in SRGsps_ta) {
       i = i+1
       specie =isp%>%
-      stringr::str_remove(pattern = paste0(taxa, '_'))%>%
-    stringr::str_replace("_", " ")
-    
+        stringr::str_remove(pattern = paste0(taxa, '_'))%>%
+        stringr::str_replace("_", " ")
+      
       cat("\n", taxa," -------Species: ", SRGspecies[i], "Progress:", round(i / length(SRGsps_ta) * 100, 1),"%")
-
-     # SRG file:
+      
+      # SRG file:
       load(glue::glue("{AnalysisDir}/{isp}.RData"))
       
       table = table%>%
@@ -145,39 +158,39 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
       # Fill up data list:
       for (sx in sexCats) {
         if(length(repout$summar[[sx]])>0){
-        table = table%>%
-          rows_update(repout$summar[[sx]]%>%nullToNA%>%as_tibble() %>% 
-                        mutate(Species = specie, Sex = sx), 
-                      by = c("Sex", "Species"), unmatched = "ignore")
+          table = table%>%
+            rows_update(repout$summar[[sx]]%>%nullToNA%>%as_tibble() %>% 
+                          mutate(Species = specie, Sex = sx), 
+                        by = c("Sex", "Species"), unmatched = "ignore")
         }
         if("sur" %in% Sections){
-            if(length(repout$surv[[sx]]$summary)>0){
-          tempsur <- tempsur%>%
-            rows_update(repout$surv[[sx]]$summary%>%nullToNA%>%
-                          as_tibble() %>% dplyr::select(-maxAge)%>%
-                          mutate(Species = specie, Sex = sx), 
-                        by = c("Sex", "Species"), unmatched = "ignore")
-        }}
+          if(length(repout$surv[[sx]]$summary)>0){
+            tempsur <- tempsur%>%
+              rows_update(repout$surv[[sx]]$summary%>%nullToNA%>%
+                            as_tibble() %>% dplyr::select(-maxAge)%>%
+                            mutate(Species = specie, Sex = sx), 
+                          by = c("Sex", "Species"), unmatched = "ignore")
+          }}
         
         if("gro" %in% Sections){
-            if(length(repout$weig[[sx]]$summary)>0){
-          tempgro <- tempgro%>%
-            rows_update(repout$weig[[sx]]$summary%>%as_tibble() %>% 
-                          mutate(Species = specie, Sex = sx), 
-                        by = c("Sex", "Species"), unmatched = "ignore")
-        }
+          if(length(repout$weig[[sx]]$Captive$wSummar)>0){
+            tempgro <- tempgro%>%
+              rows_update(repout$weig[[sx]]$Captive$wSummar%>%nullToNA%>%as_tibble() %>% 
+                            mutate(Species = specie, Sex = sx), 
+                          by = c("Sex", "Species"), unmatched = "ignore")
+          }
         }
         if("rep" %in% Sections){
-            if(length(repout$rep[[sx]]$summary)>0){
-          temprep <- temprep%>%
-            rows_update(repout$rep[[sx]]$summary%>%as_tibble() %>% 
-                          mutate(Species = specie, Sex = sx), 
-                        by = c("Sex", "Species"), unmatched = "ignore")
-        }}
+          if(length(repout$rep[[sx]]$summary)>0){
+            temprep <- temprep%>%
+              rows_update(repout$rep[[sx]]$summary%>%as_tibble() %>% 
+                            mutate(Species = specie, Sex = sx), 
+                          by = c("Sex", "Species"), unmatched = "ignore")
+          }}
       }
     }
     
-     if (icount == 1) {
+    if (icount == 1) {
       SummTab <-table
       SurTab <- tempsur
       RepTab <- temprep
@@ -192,7 +205,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   }
   
   if("sur" %in% Sections){  
-    SummTab <-SummTab%>%
+    AnyAna <-AnyAna%>%
       left_join(SurTab%>%
                   select(c(Species, Sex, NBasta, analyzed, error))%>%
                   rename(Surv_Ana = analyzed, Surv_error = error), 
@@ -221,7 +234,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   }
   
   # if("rep" %in% Sections){ 
-  #   SummTab <-SummTab%>%
+  #   AnyAna <-AnyAna%>%
   #     left_join(RepTab%>%
   #                 select(Species, Sex, NOffsp_raw, NParent_raw, NOffsp,NParent, 
   #                        NAdult_rep, Fert_Analyzed,Fert_error,
@@ -310,7 +323,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   # }          
   # 
   if("gro" %in% Sections){            
-    SummTab <-SummTab%>%
+    AnyAna <-AnyAna%>%
       left_join(GroTab%>%
                   select(Species, Sex, NWeight_raw , NWeight, analyzed,error)%>%
                   rename(Gro_Ana = analyzed, Gro_error = error), 
@@ -338,11 +351,13 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   }
   
   
-  SummTab <-SummTab%>%
+  AnyAna <-AnyAna%>%
     rowwise%>%
-    mutate( Any_Ana = any(across(ends_with("analyzed"))),
-            All_Ana = all(across(ends_with("analyzed"))))
-  
+    mutate( Any_Ana = any(across(ends_with("Ana"))),
+            All_Ana = all(across(ends_with("Ana"))))
+  utils::write.csv(AnyAna, file =  glue::glue("{SaveDir}/SRGs_Any_Ana{namefile}.csv"),
+                   row.names = FALSE)
+ 
   
   utils::write.csv(SummTab, file =  glue::glue("{SaveDir}/SRGs_Analyses{namefile}.csv"),
                    row.names = FALSE)

@@ -111,8 +111,8 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
   assert_that(is.character(Species_list))
-   assert_that(is.logical(Global))
-minDate = lubridate::as_date(minDate)
+  assert_that(is.logical(Global))
+  minDate = lubridate::as_date(minDate)
   extractDate = lubridate::as_date(extractDate)
   assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
   assert_that(is.logical( erase_previous))
@@ -157,7 +157,7 @@ minDate = lubridate::as_date(minDate)
   assert_directory_exists(AnalysisDir)
   assert_directory_exists(PlotDir)
   dir.create(file.path(PlotDir, taxa), showWarnings = FALSE)
-
+  
   assert_that(all(Repsect %in% c("agemat", "litter")))
   assert_that(is.numeric(parentProb))
   assert_that(parentProb > 0)
@@ -214,7 +214,7 @@ minDate = lubridate::as_date(minDate)
     spAll <- unique(data[[taxa]]$Animal$binSpecies)%>%
       stringr::str_subset(pattern = ' sp.', negate = TRUE)
   }else{
-     spAll <-Species_list
+    spAll <-Species_list
   }
   if (inparallel){
     # IDs of species to run per version:
@@ -225,24 +225,24 @@ minDate = lubridate::as_date(minDate)
   # ======================#
   # ==== RUN ANALYSES: ====
   # ======================#
-    core <- Prep_Animal(data[[taxa]]$Animal, extractDate= extractDate,minBirthDate =minBirthDate )
-    # #subset Tables
-    if("sur" %in% Sections){
-      DeathInformation <- data[[taxa]]$DeathInformation
-    }else{DeathInformation <- NULL}
-    if("gro" %in% Sections){
-      weights = data[[taxa]]$Weight
-    }else{
-      weights <-NULL
-    }
-    if("rep" %in% Sections){
-      parents = data[[taxa]]$Parent
-     move = data[[taxa]]$Move
-      contraceptions = data[[taxa]]$Contraception
-    }else{
-      parents =contraceptions = move = NULL
-    }
-
+  core <- Prep_Animal(data[[taxa]]$Animal, extractDate= extractDate,minBirthDate =minBirthDate )
+  # #subset Tables
+  if("sur" %in% Sections){
+    DeathInformation <- data[[taxa]]$DeathInformation
+  }else{DeathInformation <- NULL}
+  if("gro" %in% Sections){
+    weights = data[[taxa]]$Weight
+  }else{
+    weights <-NULL
+  }
+  if("rep" %in% Sections){
+    parents = data[[taxa]]$Parent
+    move = data[[taxa]]$Move
+    contraceptions = data[[taxa]]$Contraception
+  }else{
+    parents =contraceptions = move = NULL
+  }
+  
   # Start counter:
   icount <- 0
   
@@ -254,7 +254,7 @@ minDate = lubridate::as_date(minDate)
     # # progress count:
     icount <- icount + 1
     
-      
+    
     # Report progress:
     cat("\n====================\nClass:   ", taxa, "\nSpecies: ", species, 
         "\nProgress:", round(icount / length(idsprun) * 100, 0), 
@@ -300,10 +300,8 @@ minDate = lubridate::as_date(minDate)
     # ---- Save results: ----
     # ----------------------- #
     # Save species list:
-    print(glue::glue("STEP 5: {Sys.time()}"))
     save("repout", file = glue::glue("{AnalysisDir}/Rdata/{taxa}_{speciesname}.RData"))
     cat(" done.\n")
-    print(glue::glue("STEP 6: {Sys.time()}"))
   }
 }
 

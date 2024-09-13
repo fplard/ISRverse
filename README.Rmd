@@ -567,9 +567,9 @@ BySex <- list(Mammalia = c("Male", "Female"),
 
 SummTab <- make_summary(glue("{analysisDir}Rdata/"), 
                         SaveDir = glue("{analysisDir}"),
-               taxaList = taxaList,
+               taxaList = taxaList[1],
                BySex = BySex ,
-               Sections = c("sur")
+               Sections = c("sur", "rep", "gro")
 )
 ```
 

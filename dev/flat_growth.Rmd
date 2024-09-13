@@ -659,7 +659,8 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
 
 ```{r examples-Gro_remoutliers}
 data(weights)
-weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+                          taxa = "Mammalia", ageMat = 10)
 ```
 
 

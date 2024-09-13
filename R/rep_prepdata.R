@@ -127,7 +127,9 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
       rename(Offspring_BirthDate = BirthDate,
              Offspring_Inst = FirstHoldingInstitution)%>%
       mutate(Parent_Age = as.numeric(Offspring_BirthDate - 
-                                       Parent_BirthDate) / 365.25)%>%
+                                       Parent_BirthDate) / 365.25)
+    if(nrow(subpar)>0){
+    subpar <- subpar %>%
       left_join(moves%>%as_tibble%>%
                   select(AnimalAnonID, To, Date), 
                 by = c("ParentAnonID" = "AnimalAnonID"), relationship = "many-to-many")%>%
@@ -140,7 +142,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
       dplyr::select(-mintime , -dist, -Date)%>%
       rename(currentInst = To)%>%
       distinct()
-    
+    }
     
     # Number of births
     fertSumm$NOffsp <- length(unique(subpar$AnimalAnonID))

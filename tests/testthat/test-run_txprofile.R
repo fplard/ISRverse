@@ -19,7 +19,7 @@ test_that("run_txprofile works", {
   )
   
   expect_true(file.exists(paste(ZIMSdir, "Rdata\\Reptilia_Testudo_hermanni.Rdata", sep = '\\')))
-   unlink(PlotDir, recursive = TRUE)
+  unlink(PlotDir, recursive = TRUE)
   
 })
 

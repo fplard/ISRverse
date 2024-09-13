@@ -155,11 +155,12 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
                         shape = shape, ncpus = ncpus, 
                         ageMax = xMax, dage = 0.01, Nyear = 1)
     # Proba to live 5 year more:
+    if(xMax >=5){
     out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
                         model =out$bastaRes$modelSpecs["model"], 
                         shape = shape, ncpus = ncpus, 
                         ageMax = xMax,  dage = 0.01, Nyear = 5)
-    
+    }else{out$Sur5 = "Error : Age max lower than 5 years"}
     
     #Plots
     if(out$summary$analyzed && !is.null(PlotDir)){
@@ -219,7 +220,6 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     }
     
   }
- print(glue::glue("STEP 4: {Sys.time()}"))
  return(out)
 }
 

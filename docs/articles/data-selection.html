@@ -150,12 +150,12 @@ chapmanRichards, vonBertalanffy, polynomial. default =
 <span>                       Animal <span class="op">=</span> <span class="cn">TRUE</span>, tables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Collection"</span>,<span class="st">"DeathInformation"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ReptiliaLoading Collection of Reptilia.Loading DeathInformation of Reptilia.Reptilia Done.</span></span>
 <span></span>
-<span></span>
+<span><span class="va">Animal</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">data</span><span class="op">[[</span><span class="st">"Reptilia"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, extractDate<span class="op">=</span><span class="st">"2024/08/29"</span>  <span class="op">)</span></span>
 <span><span class="va">PlotDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tx_report.html">tx_report</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Testudo hermanni"</span>, taxa <span class="op">=</span> <span class="st">"Reptilia"</span>,</span>
-<span>                 <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Animal</span>, <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Collection</span>, </span>
+<span>                 <span class="va">Animal</span>, <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Collection</span>, </span>
 <span>                 DeathInformation <span class="op">=</span><span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">DeathInformation</span>,</span>
 <span>                 PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'sur'</span><span class="op">)</span>,</span>
 <span>                 sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
@@ -163,45 +163,20 @@ chapmanRichards, vonBertalanffy, polynomial. default =
 <span>                 models_gro <span class="op">=</span> <span class="st">"vonBertalanffy"</span>,</span>
 <span>                 niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Survival Running --------------------------------------------</span></span>
-<span><span class="co">#&gt; Survival Running --------------------------------------------[1] "GO"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 13.50 secs.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Multiple simulations started...</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; R Version:  R version 4.3.2 (2023-10-31 ucrt)</span></span>
-<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
-<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
-<span><span class="co">#&gt; Warning: package 'BaSTA' was built under R version 4.3.3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Stopping cluster</span></span>
-<span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 7.91 secs.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
-<span><span class="co">#&gt; All parameters converged properly.</span></span>
-<span><span class="co">#&gt; Constructing life table... done.</span></span>
-<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Stopping cluster</span></span>
-<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Stopping cluster</span></span>
-<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Stopping cluster</span></span>
-<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt;  ****************************  Male  ****************************</span></span>
+<span><span class="co">#&gt; Survival Running ------------------------------------------------</span></span>
+<span><span class="co">#&gt; STEP 0: 2024-09-13 12:29:09.416428</span></span>
+<span><span class="co">#&gt; STEP 1: 2024-09-13 12:29:10.504586</span></span>
+<span><span class="co">#&gt; STEP 4: 2024-09-13 12:29:10.505456</span></span>
+<span><span class="co">#&gt;  ****************************  Female  ****************************</span></span>
+<span><span class="co">#&gt; Survival Running ------------------------------------------------</span></span>
+<span><span class="co">#&gt; STEP 0: 2024-09-13 12:29:10.531585</span></span>
+<span><span class="co">#&gt; STEP 1: 2024-09-13 12:29:11.378408</span></span>
+<span><span class="co">#&gt; STEP 4: 2024-09-13 12:29:11.379145</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Testudo_hermanni_Female_LongThres.pdf"</span></span>
-<span><span class="co">#&gt; [2] "Testudo_hermanni_Femalesurcheck.pdf"  </span></span>
-<span><span class="co">#&gt; [3] "Testudo_hermanni_Femalesurplot.pdf"   </span></span>
-<span><span class="co">#&gt; [4] "Testudo_hermanni_Male_LongThres.pdf"</span></span>
+<span><span class="co">#&gt; [2] "Testudo_hermanni_Male_LongThres.pdf"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

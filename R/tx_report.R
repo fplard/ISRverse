@@ -265,8 +265,8 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
       #take age at maturity
       agemat = NULL
       if(length(repout$repr[[sx]])>0){
-        if(repout$repr[[sx]]$amat_analyzed){
-          agemat = repout$repr[[sx]]$amat$agemat
+        if(repout$repr[[sx]]$summary$amat_analyzed){
+          agemat = repout$repr[[sx]]$agemat$ageMat
         }
       }
       

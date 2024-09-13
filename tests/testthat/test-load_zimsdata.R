@@ -17,5 +17,5 @@ test_that("Load_Zimsdata works", {
   expect_true(is.data.frame(data$Reptilia$Weight))
   expect_named(data$Reptilia$Weight, c("AnimalAnonID", "RecordingInstitution", "MeasurementType", "RecordType", "MeasurementValue", "EstimatedMeasurement", "ExcludededFromNorms", "MeasurementDate", "MeasurementDateEstimateType", "MeasurementDateEstimateStart", "MeasurementDateEstimateEnd", "CollectionScopeType",  "AnimalAgeMonths", "AnimalAgeDays", "Age", "UnitOfMeasure")) 
   
- }
+}
 )

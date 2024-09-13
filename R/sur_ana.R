@@ -104,7 +104,6 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   #Find the minimum threshold for which lxmin  >.1
   summar$lxMin <- 1
   outLev2 = outlLev1
-  print(glue::glue("STEP 0: {Sys.time()}"))
   while(summar$lxMin > 0.1 & outLev2 >= 95){
     summar$outLev = outLev2
     if (summar$outLev ==100){
@@ -130,7 +129,6 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
     if( summar$outLev == 95){outLev2 = 90}
   }
   
-print(glue::glue("STEP 1: {Sys.time()}"))
 
   if (summar$lxMin <= minlx) {
     #raw median life expectancy
@@ -159,11 +157,9 @@ print(glue::glue("STEP 1: {Sys.time()}"))
         Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
         Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
         if(length(unique(c(Instb,Instl)))>=minInstitution){
-          print(glue::glue("STEP 2: {Sys.time()}"))
-          if (summar$NBasta >= minNsur) {
+           if (summar$NBasta >= minNsur) {
             if(summar$NBasta <= maxNsur){
-              print(glue::glue("STEP 3: {Sys.time()}"))
-              tempList <- list()
+               tempList <- list()
               DICmods <- tibble(models,
                                 DIC = 0)
               for (imod in 1:length(models)) {

@@ -414,7 +414,7 @@
 <span></span>
 <span><span class="co">#      Growth Models -----------------------------------</span></span>
 <span><span class="co">#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"</span></span>
-<span><span class="va">models_gro</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span><span class="op">)</span> </span>
+<span><span class="va">models_gro</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"gam"</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># Measure type to select</span></span>
 <span><span class="va">MeasureType</span> <span class="op">=</span> <span class="st">"Live weight"</span></span>
@@ -475,18 +475,23 @@
 </h4>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
+<span><span class="va">list_surv</span><span class="op">=</span> <span class="fu">readxl</span><span class="fu">::</span><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html" class="external-link">read_xlsx</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{analysisDir}Liste_Survival.xlsx"</span><span class="op">)</span>, sheet <span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Class</span> <span class="op">==</span> <span class="st">"Mammalia"</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Species</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
-<span><span class="va">Species_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Panthera leo'</span>, <span class="st">'Panthera uncia'</span>, <span class="st">'Panthera tigris'</span><span class="op">)</span></span>
+<span><span class="va">Species_list</span> <span class="op">=</span><span class="va">list_surv</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="va">Species_list</span>, <span class="va">ZIMSdirdata</span>,</span>
-<span>              AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
-<span>                 Sections <span class="op">=</span> <span class="va">Sections</span>, erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
-<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, </span>
+<span>               ZIMSdir <span class="op">=</span><span class="va">ZIMSdirdata</span>,AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
+<span>                  erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
+<span>              sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>              Species_list <span class="op">=</span> <span class="va">Species_list</span>,  Sections <span class="op">=</span> <span class="va">Sections</span>,  </span>
+<span>              extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
 <span>               minN <span class="op">=</span> <span class="va">minN</span>,  Global <span class="op">=</span>  <span class="va">Global</span>,</span>
-<span>               maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>, Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
+<span>               maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>, </span>
 <span>               uncert_birth <span class="op">=</span> <span class="va">uncert_birth</span>, uncert_death<span class="op">=</span> <span class="va">uncert_death</span>,</span>
 <span>                        uncert_date <span class="op">=</span> <span class="va">uncert_date</span>,</span>
 <span>                        minInstitution <span class="op">=</span> <span class="va">minInstitution</span>, </span>
@@ -547,11 +552,13 @@
 <h3 id="find-species-with-sex-with-50-1000-individuals">Find species with sex with 50-1000 individuals<a class="anchor" aria-label="anchor" href="#find-species-with-sex-with-50-1000-individuals"></a>
 </h3>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">minNsur</span> <span class="op">=</span> <span class="fl">10000000</span> <span class="co">#Minimum number of individuals</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">taxa</span> <span class="kw">in</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">{</span></span>
+<code class="sourceCode R"><span></span>
+<span></span>
+<span><span class="va">minNsur</span> <span class="op">=</span> <span class="fl">10000000</span> <span class="co">#Minimum number of individuals</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
 <span><span class="va">Species_list</span> <span class="op">=</span> <span class="st">"All"</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">taxa</span> <span class="kw">in</span> <span class="fl">6</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span><span class="op">{</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="va">Species_list</span>, <span class="va">ZIMSdirdata</span>,</span>
 <span>              AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
@@ -583,7 +590,7 @@
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List of taxa to summarize -------------------------</span></span>
 <span><span class="va">taxaList</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mammalia"</span>, <span class="st">"Aves"</span>, <span class="st">"Reptilia"</span>, <span class="st">"Amphibia"</span>, </span>
-<span>              <span class="st">"Chondrichthyes"</span>, <span class="st">"Actinopterygii"</span><span class="op">)</span></span>
+<span>              <span class="st">"Chondrichthyes"</span>, <span class="st">"Osteichthyes"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Sex categories ----------------------------------</span></span>
 <span><span class="va">BySex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>, </span>
@@ -591,13 +598,14 @@
 <span>           Reptilia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
 <span>           Amphibia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
 <span>           Chondrichthyes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"All"</span><span class="op">)</span>, </span>
-<span>           Actinopterygii <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span></span>
+<span>           Osteichthyes <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">SummTab</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/make_summary.html">make_summary</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, <span class="va">SaveDir</span>,</span>
+<span><span class="va">SummTab</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/make_summary.html">make_summary</a></span><span class="op">(</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{analysisDir}Rdata/"</span><span class="op">)</span>, </span>
+<span>                        SaveDir <span class="op">=</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{analysisDir}"</span><span class="op">)</span>,</span>
 <span>               taxaList <span class="op">=</span> <span class="va">taxaList</span>,</span>
 <span>               BySex <span class="op">=</span> <span class="va">BySex</span> ,</span>
-<span>               Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>,<span class="st">"rep"</span>, <span class="st">'gro'</span><span class="op">)</span></span>
+<span>               Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">

@@ -42,17 +42,17 @@ Load_Zimsdata	<- function (taxa, ZIMSdir,
   checkmate::assert_directory_exists(ZIMSdir)
   assert_that(is.character(taxa))
   
-   idtaxa <- list.files(glue::glue("{ZIMSdir}/"), "Split")%>%
-     stringr::str_remove("Split_")
+  idtaxa <- list.files(glue::glue("{ZIMSdir}/"), "Split")%>%
+    stringr::str_remove("Split_")
   assert_that(taxa %in% c(idtaxa, "All"),
               msg = glue::glue("taxa must one of {stringr::str_flatten_comma(idtaxa)}, or 'All'"))
   if (taxa == "All") taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                               "Chondrichthyes", "Osteichthyes")
   assert_that(is.logical( silent))
-    assert_that(is.list(species))
-    assert_that (all(taxa %in% names(species)), 
-                 msg = "species must be a list with the different taxa as names")
-    if(length(tables)>0){  
+  assert_that(is.list(species))
+  assert_that (all(taxa %in% names(species)), 
+               msg = "species must be a list with the different taxa as names")
+  if(length(tables)>0){  
     assert_that(is.character(tables))
     assert_that(all(tables %in%  c("Contraception", "HealthStatus", 
                                    "Institution","InstitutionAssociation", 
