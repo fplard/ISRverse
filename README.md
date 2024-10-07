@@ -174,31 +174,31 @@ Nday = 7  #Group all offspring born within this interval of days in one litter
 
 Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdirdata, 
                       species = List_species,
-            Animal = TRUE,
-              tables= c('Collection', 'Parent', 'Move')) 
+                      Animal = TRUE,
+                      tables= c('Collection', 'Parent', 'Move')) 
 Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = lubridate::as_date("2024/08/29"))
-  
+
 TAB = tibble()
 for (species in List_species[[taxa]]){
   print(species)
   Dataspe <- select_species(species, Animal, Data[[taxa]]$Collection, uncert_birth = uncert_birth,
-                         minDate = minDate , extractDate = extractDate,
-                         Global = Global) 
-
-    #prepare Reproduction data
-    Datarep <- Rep_prepdata(coresubset =   Dataspe$data, 
-                         Data[[taxa]]$Collection, Data[[taxa]]$Parent, Data[[taxa]]$Move,
-                         BirthType_parent = "Captive", BirthType_offspring = "Captive",
-                         minNrep=minNrepro, minNparep =minNparepro, Global = Global)
-    if(nrow(Datarep$Reprodata)>0){
+                            minDate = minDate , extractDate = extractDate,
+                            Global = Global) 
+  
+  #prepare Reproduction data
+  Datarep <- Rep_prepdata(coresubset =   Dataspe$data, 
+                          Data[[taxa]]$Collection, Data[[taxa]]$Parent, Data[[taxa]]$Move,
+                          BirthType_parent = "Captive", BirthType_offspring = "Captive",
+                          minNrep=minNrepro, minNparep =minNparepro, Global = Global)
+  if(nrow(Datarep$Reprodata)>0){
     #Litter sizes
     out <- Rep_littersize(Datarep$Reprodata, perAge = FALSE,
-                      Nday = Nday, parentProb = parentProb,  minNlitter =minNlitter)
+                          Nday = Nday, parentProb = parentProb,  minNlitter =minNlitter)
     
-      df = out$littSizeDf%>%mutate(Species = species)
+    df = out$littSizeDf%>%mutate(Species = species)
     
     TAB <- rbind(TAB, df)
-    }
+  }
 }
 
 TAB
@@ -232,32 +232,138 @@ for (species in List_species[[taxa]]){
   Dataspe <- select_species(species, Animal, Data[[taxa]]$Collection, uncert_birth = uncert_birth,
                             minDate = minDate , extractDate = extractDate,
                             Global = Global) 
- if(nrow(Dataspe$data)>0){
-  for (sx in c("Male", "Female", "All")){
-   print(sx)
-    if(sx != "All"){
-      coresubset <- Dataspe$data%>%filter(SexType == sx)
-    }else{coresubset <- Dataspe$data}
-     if(nrow(coresubset)>0){
-    #prepare Reproduction data
-    Datarep <- Rep_prepdata(coresubset = coresubset, 
-                         Data[[taxa]]$Collection, Data[[taxa]]$Parent, Data[[taxa]]$Move,
-                         BirthType_parent = "Captive", BirthType_offspring = "Captive",
-                         minNrep=minNrepro, minNparep =minNparepro, Global = Global)
-    if(nrow(Datarep$Reprodata)>0){
-    #Calculate reproductive age statistics
-    out <- Rep_agemat(Datarep$Reprodata)%>%
-      mutate(Species = species,
-             Class = taxa,
-             Sex = sx)
-    
-    TAB <- rbind(TAB, out)
-  }}
+  if(nrow(Dataspe$data)>0){
+    for (sx in c("Male", "Female", "All")){
+      print(sx)
+      if(sx != "All"){
+        coresubset <- Dataspe$data%>%filter(SexType == sx)
+      }else{coresubset <- Dataspe$data}
+      if(nrow(coresubset)>0){
+        #prepare Reproduction data
+        Datarep <- Rep_prepdata(coresubset = coresubset, 
+                                Data[[taxa]]$Collection, Data[[taxa]]$Parent, Data[[taxa]]$Move,
+                                BirthType_parent = "Captive", BirthType_offspring = "Captive",
+                                minNrep=minNrepro, minNparep =minNparepro, Global = Global)
+        if(nrow(Datarep$Reprodata)>0){
+          #Calculate reproductive age statistics
+          out <- Rep_agemat(Datarep$Reprodata)%>%
+            mutate(Species = species,
+                   Class = taxa,
+                   Sex = sx)
+          
+          TAB <- rbind(TAB, out)
+        }}
+    }
   }
- }
 }
 
 TAB
+```
+
+## Tutorial for growth
+
+``` r
+#Directory where to save results
+SaveDir = glue ("{analysisDir}savegrowth")
+PlotDir = glue ("{analysisDir}plotgrowth")
+extractDate ="2024-08-29"
+
+
+taxa = "Mammalia"
+List_species = list(Mammalia = c("Panthera leo", "Panthera onca","Panthera uncia", "Panthera tigris", "Panthera pardus"))
+sexCats = c("Female", "Male", "All")
+
+#Filters
+# Earliest date to include records
+minDate <- "1980-01-01"
+# Earliest birth date to include records
+minBirthDate <- "1900-01-01"
+#Whether to include only Global individuals
+Global = TRUE
+#Birth Type of Animals: "Captive", "Wild" or "All"
+Birth_Type = "Captive"
+# Maximum threshold in the longevity distribution to use
+maxOutl <- 99 
+#Maximum uncertainty accepted for birth dates, in days
+uncert_birth = 365
+#Maximum uncertainty accepted for measurement dates: weight, in days
+uncert_date = 365
+
+
+#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "gam", and/or "polynomial"
+models_gro <- c("vonBertalanffy", "gompertz") 
+
+# Measure type to select
+MeasureType = "Live weight"
+
+# Conditions to run the growth analysis
+minNgro = 100 #Minimum number of weights
+minNIgro = 50 #Minimum number of individuals
+
+
+# Conditions to estimate age at sexual maturity
+minNrepro = 100   #Minimum number of birth records
+minNparepro = 30  #Minimum number of unique parent records
+
+
+Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdirdata, 
+                      species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', "Weight", 'Parent', 'Move')) 
+Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = extractDate, minBirthDate =minBirthDate)
+
+for (species in List_species[[taxa]]){
+  print(species)
+  Dataspe <- select_species(species, Animal, Data[[taxa]]$Collection, uncert_birth = uncert_birth,
+                            minDate = minDate , extractDate = extractDate,
+                            Global = Global) 
+  
+  if(nrow(Dataspe$data)>0){
+    repr = weig = list()
+    for (sx in sexCats){
+      cat(paste0(" ****************************  ",sx,"  ****************************\n"))
+      #Let's see later if we need to set a threshold for the longevity distribution
+      # sexDat <- select_Longthreshold( Dataspe$data,  sexCats = sx, 
+      #                                 PlotDir= PlotDir, minN = minN,
+      #                                 maintitle = glue::glue("{species}_{sx}") )
+       if(sx != "All"){
+        coresubset <- Dataspe$data%>%filter(SexType == sx)
+      }else{coresubset <- Dataspe$data}
+      if(nrow(coresubset)>0){
+        #Estimate age at sexual maturity
+        repr[[sx]] <- Rep_main(coresubset= coresubset, Data[[taxa]]$Collection, 
+                               Data[[taxa]]$Parent, Data[[taxa]]$Move,  
+                               Repsect = "agemat",
+                               BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
+                               Global = Global, 
+                               minNrepro = minNrepro, minNparepro =  minNparepro
+        )
+        
+        agemat = NULL
+        if(length(repr[[sx]])>0){
+          if(repr[[sx]]$summary$amat_analyzed){
+            agemat =repr[[sx]]$agemat$ageMat
+          }
+        }
+        
+        weig[[sx]] <- Gro_Main(data = Data[[taxa]]$Weight, coresubse = coresubset,
+                               taxa = taxa, species = species,
+                               Birth_Type = Birth_Type, 
+                               agemat = agemat, percentiles = c(2.5,97.5),
+                               PlotDir = PlotDir, type = "weight",
+                               uncert_date = uncert_date,
+                               MeasureType = MeasureType,
+                               minNgro = minNgro, minNIgro = minNIgro, 
+                               models = models_gro,
+                               mindate = minDate, plotname = glue("{species}_{sx}") )
+        
+       }
+    }
+    save(weig, file = glue("{SaveDir}/{species}_growth.Rdata"))   
+  }      
+ 
+}
+#Look at what is in "weig" and we will work on additional code to make the analysis of several species easier to save and to compare results
 ```
 
 ## Tutorial to run Taxon profiles
@@ -274,16 +380,18 @@ taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia",
 
 # Sex categories ----------------------------------
 BySex <- list(Mammalia = c("Male", "Female"), 
-           Aves = c("Male", "Female"), 
-           Reptilia = c("Male", "Female", "All"), 
-           Amphibia = c("Male", "Female", "All"), 
-           Chondrichthyes = c("Male", "Female", "All"), 
-            Osteichthyes = "All")
+              Aves = c("Male", "Female"), 
+              Reptilia = c("Male", "Female", "All"), 
+              Amphibia = c("Male", "Female", "All"), 
+              Chondrichthyes = c("Male", "Female", "All"), 
+              Osteichthyes = "All")
 
 
 #Filters ----------------------------------
 # Earliest date to include records
 minDate <- "1980-01-01"
+# Earliest birth date to include records
+minBirthDate <- "1900-01-01"
 #Whether to include only Global individuals
 Global = TRUE
 #Birth Type of Animals: "Captive", "Wild" or "All"
@@ -355,8 +463,8 @@ models_gro <- c("vonBertalanffy", "gam")
 MeasureType = "Live weight"
 
 # Conditions to run the growth analysis
-minNgro = 100 #Minimum number of individuals
-minNIgro = 50 #Minimum number of weights
+minNgro = 100 #Minimum number of weights
+minNIgro = 30 #Minimum number of individuals
 ```
 
 ### Other Inputs
@@ -388,24 +496,24 @@ taxa <- 1
 Sections = c("sur", "rep", "gro")
 
 run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata, 
-                AnalysisDir = analysisDir, PlotDir = plotDir,
-                 Sections = Sections, erase_previous = FALSE,
+               AnalysisDir = analysisDir, PlotDir = plotDir,
+               Sections = Sections, erase_previous = FALSE,
                extractDate = extractDate, minDate = minDate,
                sexCats = BySex[[taxaList[taxa]]], 
                minN = minN,  Global =  Global,
                maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,
-                        minInstitution = minInstitution, 
+               uncert_date = uncert_date,
+               minInstitution = minInstitution, 
                minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
                minlx = minlx, MinBirthKnown = MinBirthKnown, 
                Min_MLE = Min_MLE, MaxLE =  MaxLE,
-              models_sur = models_sur, shape = shape,
+               models_sur = models_sur, shape = shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
                parentProb = parentProb, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
-              minNlitter = minNlitter, Nday = Nday, 
+               minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
                models_gro = models_gro
                
@@ -423,28 +531,28 @@ list_surv= readxl::read_xlsx(glue("{analysisDir}Liste_Survival.xlsx"), sheet =1)
 taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
-Species_list =list_surv
+Species_list =list_surv[300:400]
 
 run_txprofile (taxa = taxaList[taxa], 
                ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
-                  erase_previous = FALSE,Birth_Type = "Captive", 
-              sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
-              Species_list = Species_list,  Sections = Sections,  
-              extractDate = extractDate, minDate = minDate,
-               minN = minN,  Global =  Global,
+               erase_previous = FALSE,Birth_Type = "Captive", 
+               sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
+               Species_list = Species_list,  Sections = Sections,  
+               extractDate = extractDate, minDate = minDate, 
+               minBirthDate = minBirthDate, minN = minN,  Global =  Global,
                maxOutl = maxOutl,  spOutLev = spOutLev, 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,
-                        minInstitution = minInstitution, 
+               uncert_date = uncert_date,
+               minInstitution = minInstitution, 
                minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
                minlx = minlx, MinBirthKnown = MinBirthKnown, 
                Min_MLE = Min_MLE, MaxLE =  MaxLE,
-              models_sur = models_sur, shape = shape,
+               models_sur = models_sur, shape = shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
                parentProb = parentProb, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
-              minNlitter = minNlitter, Nday = Nday, 
+               minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
                models_gro = models_gro
 )
@@ -465,24 +573,24 @@ Sections = c("sur", "rep", "gro")
 
 run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata, 
                inparallel = TRUE, ipara = ipara, npara = XX, 
-          AnalysisDir = analysisDir, PlotDir = plotDir,
-                 Sections = Sections, erase_previous = FALSE,
+               AnalysisDir = analysisDir, PlotDir = plotDir,
+               Sections = Sections, erase_previous = FALSE,
                extractDate = extractDate, minDate = minDate,
                sexCats = BySex[[taxaList[taxa]]], 
                minN = minN,  Global =  Global,
                maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,
-                        minInstitution = minInstitution, 
+               uncert_date = uncert_date,
+               minInstitution = minInstitution, 
                minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
                minlx = minlx, MinBirthKnown = MinBirthKnown, 
                Min_MLE = Min_MLE, MaxLE =  MaxLE,
-              models_sur = models_sur, shape = shape,
+               models_sur = models_sur, shape = shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
                parentProb = parentProb, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
-              minNlitter = minNlitter, Nday = Nday, 
+               minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
                models_gro = models_gro
                
@@ -499,29 +607,29 @@ minNsur = 10000000 #Minimum number of individuals
 Sections = c("sur")
 Species_list = "All"
 for (taxa in 6:2){
-
-run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
-              AnalysisDir = analysisDir, PlotDir = plotDir,
+  
+  run_txprofile (taxaList[taxa], Species_list = Species_list, ZIMSdirdata,
+                 AnalysisDir = analysisDir, PlotDir = plotDir,
                  Sections = Sections, erase_previous = FALSE,
-               extractDate = extractDate, minDate = minDate,
-               sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  Global =  Global,
-               maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
-               uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,
-                        minInstitution = minInstitution, 
-               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
-               minlx = minlx, MinBirthKnown = MinBirthKnown, 
-               Min_MLE = Min_MLE, MaxLE =  MaxLE,
-              models_sur = models_sur, shape = shape,
-               niter = niter, burnin = burnin, thinning = thinning, 
-               nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
-               minNparepro = minNparepro, minNseas = minNseas, 
-              minNlitter = minNlitter, Nday = Nday, 
-               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               models_gro = models_gro
-)
+                 extractDate = extractDate, minDate = minDate,
+                 sexCats = BySex[[taxaList[taxa]]], 
+                 minN = minN,  Global =  Global,
+                 maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
+                 uncert_birth = uncert_birth, uncert_death= uncert_death,
+                 uncert_date = uncert_date,
+                 minInstitution = minInstitution, 
+                 minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
+                 minlx = minlx, MinBirthKnown = MinBirthKnown, 
+                 Min_MLE = Min_MLE, MaxLE =  MaxLE,
+                 models_sur = models_sur, shape = shape,
+                 niter = niter, burnin = burnin, thinning = thinning, 
+                 nchain = nchain, ncpus = ncpus,
+                 parentProb = parentProb, minNrepro = minNrepro, 
+                 minNparepro = minNparepro, minNseas = minNseas, 
+                 minNlitter = minNlitter, Nday = Nday, 
+                 minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
+                 models_gro = models_gro
+  )
 }
 ```
 
@@ -534,18 +642,18 @@ taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia",
 
 # Sex categories ----------------------------------
 BySex <- list(Mammalia = c("Male", "Female"), 
-           Aves = c("Male", "Female"), 
-           Reptilia = c("Male", "Female", "All"), 
-           Amphibia = c("Male", "Female", "All"), 
-           Chondrichthyes = c("Male", "Female", "All"), 
-           Osteichthyes = "All")
+              Aves = c("Male", "Female"), 
+              Reptilia = c("Male", "Female", "All"), 
+              Amphibia = c("Male", "Female", "All"), 
+              Chondrichthyes = c("Male", "Female", "All"), 
+              Osteichthyes = "All")
 
 
-SummTab <- make_summary(glue("{analysisDir}Rdata/"), 
+SummTab <- make_summary(glue("{analysisDir}Rdata/Analyser"), 
                         SaveDir = glue("{analysisDir}"),
-               taxaList = taxaList[1],
-               BySex = BySex ,
-               Sections = c("sur", "rep", "gro")
+                        taxaList = taxaList[1],
+                        BySex = BySex ,
+                        Sections = c("sur", "rep", "gro")
 )
 ```
 

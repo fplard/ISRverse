@@ -86,12 +86,10 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
       MinBirthDate = coalesce(MinBirthDate, BirthDate),
       MaxBirthDate = coalesce(MaxBirthDate, BirthDate),
       MinDeathDate = coalesce(MinDeathDate, DeathDate),
-      MaxDeathDate = coalesce(MaxDeathDate, DeathDate),
-      Birth_Uncertainty =  MaxBirthDate-MinBirthDate,
-      Death_Uncertainty =  MaxDeathDate-MinDeathDate)
+      MaxDeathDate = coalesce(MaxDeathDate, DeathDate))
   
   
-   
+  
   
   Animal <- Animal%>%
     filter ((BirthDate >= MinBirthDate)%>% replace_na(TRUE),
@@ -111,22 +109,22 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
            DepartDate = lubridate::as_date( DepartDate))
   
   
-   #Correct Entry Dates
+  #Correct Entry Dates
   ID = which (Animal$EntryDate < Animal$MaxBirthDate)
   Animal$MaxBirthDate[ID]= Animal$EntryDate[ID] 
   
   ID = which (Animal$EntryType == "B" & Animal$EntryDate != Animal$BirthDate)
   Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
- 
+  
   ID = which (Animal$EntryType == "B" & is.na(Animal$EntryDate))
   Animal$EntryDate[ID] = Animal$MaxBirthDate[ID]
- 
+  
   
   
   #Correct Depart Dates
   Animal$DepartDate[Animal$DepartType == "D" & is.na(Animal$DeathDate)] = Animal$LastTXDate[Animal$DepartType == "D" & is.na(Animal$DeathDate)]
   Animal$DepartType[Animal$DepartType == "D" & is.na(Animal$DeathDate)] = "C"
- 
+  
   ID = which(is.na(Animal$DepartDate))
   Animal$DepartDate[ID] = Animal$LastCommentEntryDate[ID]
   Animal$DepartType[ID] = "C"
@@ -142,7 +140,9 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
             (DeathDate >= FirstAcquisitionDate)%>% replace_na(TRUE),
             (BirthDate <= LastTXDate)%>% replace_na(TRUE),
             (FirstAcquisitionDate <= LastTXDate)%>% replace_na(TRUE))%>%
-    dplyr::select (-c(DeathDateEstimateStart, DeathDateEstimateEnd, BirthDateEstimateEnd, BirthDateEstimateStart)) 
+    dplyr::select (-c(DeathDateEstimateStart, DeathDateEstimateEnd, BirthDateEstimateEnd, BirthDateEstimateStart)) %>%
+    mutate(Birth_Uncertainty =  MaxBirthDate-MinBirthDate,
+           Death_Uncertainty =  MaxDeathDate-MinDeathDate)
   
   return(Animal)
 }

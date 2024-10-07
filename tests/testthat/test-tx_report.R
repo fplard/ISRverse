@@ -4,14 +4,14 @@ test_that("tx_report works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSdirtest = dirname(file)
   data <- Load_Zimsdata	(taxa = "Reptilia",
-                          species = list(Reptilia = "All"), ZIMSdir = ZIMSdirtest,
+                         species = list(Reptilia = "All"), ZIMSdir = ZIMSdirtest,
                          Animal = TRUE, tables = c("Collection","DeathInformation", "Weight"))
   Animal<- Prep_Animal(data[["Reptilia"]]$Animal, extractDate= "2024/08/29" )
-PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+  PlotDir = paste0(tempdir(check = TRUE),'\\temp')
   dir.create(PlotDir)
   
   out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                  Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,minlx =0.4,minNIgro=40,
+                   Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,minlx =0.5,minNIgro=40,
                    DeathInformation =data$Reptilia$DeathInformation, weights =data$Reptilia$Weight,
                    niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                    PlotDir = PlotDir, Sections = c('sur','gro'),
@@ -26,10 +26,10 @@ PlotDir = paste0(tempdir(check = TRUE),'\\temp')
   expect_named(out$weig, c('Male', "Female"))
   expect_named(out$weig$Male$Captive, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$Captive, c('wSummar', "weightQ"))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_surplot.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\Reptilia_Testudo_hermanni_Male_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\Reptilia_Testudo_hermanni_Male_surplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)
 })

@@ -134,14 +134,14 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_main.html">Sur_main</a></span><span class="op">(</span><span class="va">core</span>, DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>                models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
 <span>                niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; STEP 0: 2024-09-13 12:29:31.407405</span></span>
-<span><span class="co">#&gt; STEP 1: 2024-09-13 12:29:34.836175</span></span>
-<span><span class="co">#&gt; STEP 2: 2024-09-13 12:29:34.855339</span></span>
-<span><span class="co">#&gt; STEP 3: 2024-09-13 12:29:34.856041</span></span>
+<span><span class="co">#&gt; STEP 0: 2024-10-07 13:20:34.700103</span></span>
+<span><span class="co">#&gt; STEP 1: 2024-10-07 13:20:39.987644</span></span>
+<span><span class="co">#&gt; STEP 2: 2024-10-07 13:20:40.01341</span></span>
+<span><span class="co">#&gt; STEP 3: 2024-10-07 13:20:40.014254</span></span>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 13.03 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 20.89 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -153,7 +153,7 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 7.46 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 10.87 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -170,7 +170,7 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
-<span><span class="co">#&gt; STEP 4: 2024-09-13 12:30:19.260048</span></span></code></pre></div>
+<span><span class="co">#&gt; STEP 4: 2024-10-07 13:21:45.355528</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="survival-analysis">Survival Analysis<a class="anchor" aria-label="anchor" href="#survival-analysis"></a>
@@ -205,14 +205,14 @@ models</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_ana.html">Sur_ana</a></span><span class="op">(</span><span class="va">core</span>,  DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
 <span>               niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; STEP 0: 2024-09-13 12:30:19.357458</span></span>
-<span><span class="co">#&gt; STEP 1: 2024-09-13 12:30:22.799719</span></span>
-<span><span class="co">#&gt; STEP 2: 2024-09-13 12:30:22.814387</span></span>
-<span><span class="co">#&gt; STEP 3: 2024-09-13 12:30:22.815101</span></span>
+<span><span class="co">#&gt; STEP 0: 2024-10-07 13:21:45.458793</span></span>
+<span><span class="co">#&gt; STEP 1: 2024-10-07 13:21:49.576018</span></span>
+<span><span class="co">#&gt; STEP 2: 2024-10-07 13:21:49.592615</span></span>
+<span><span class="co">#&gt; STEP 3: 2024-10-07 13:21:49.593414</span></span>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 12.44 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 18.21 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
@@ -221,7 +221,7 @@ models</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 7.63 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 8.75 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>

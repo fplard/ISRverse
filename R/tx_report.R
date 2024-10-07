@@ -112,11 +112,11 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   assert_that(is.data.frame(Animal))
   assert_that(is.data.frame(collection))
   assert_that(Animal  %has_name% c("AnimalAnonID", "binSpecies", "BirthDate", "DepartDate",
-                                       "EntryDate", "MaxBirthDate", "MinBirthDate",
-                                       "MaxDeathDate", "MinDeathDate", "EntryType", "DepartType",
-                                       "LastTXDate", "DeathDate", "FirstHoldingInstitution", 
-                                       "LastHoldingInstitution","GlobalStatus",
-                                       "LastCollectionScopeType","FirstCollectionScopeType"))
+                                   "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                   "MaxDeathDate", "MinDeathDate", "EntryType", "DepartType",
+                                   "LastTXDate", "DeathDate", "FirstHoldingInstitution", 
+                                   "LastHoldingInstitution","GlobalStatus",
+                                   "LastCollectionScopeType","FirstCollectionScopeType"))
   assert_that(collection  %has_name% c("RecordingInstitution", "ChangeDate", 
                                        "ScopeType", "AnimalAnonID"))
   
@@ -137,8 +137,8 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
     assert_that(is.data.frame(parents))
     assert_that(is.data.frame(move))
     assert_that(is.data.frame(contraceptions))
-     assert_that(moves %has_name% c("AnimalAnonID", "To", "Date"))
-assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
+    assert_that(moves %has_name% c("AnimalAnonID", "To", "Date"))
+    assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
     assert_that(parent %has_name% c("ParentAnonID", "ParentCollectionScopeType", 
                                     "OffspringCollectionScopeType", "AnimalAnonID",
                                     "ParentOriginType", "Probability"))
@@ -206,84 +206,95 @@ assert_that(collection %has_name% c("AnimalAnonID", "ScopeType", "ChangeDate"))
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-   Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth,
+  Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth,
                         minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
   speciesname = stringr::str_replace(species, " ", "_")
   
   if(nrow(Dat$data)>0){
-  for (sx in sexCats){
-    cat(paste0(" ****************************  ",sx,"  ****************************\n"))
-    sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
-                                    PlotDir= PlotDir, minN = minN ,
-                                    maintitle = glue::glue("{speciesname}_{sx}") )
-    repout$summary[[sx]] = sexDat$summar
-    if(nrow(sexDat$data)>0){
-    # -------------------------- #
-    # ---- Survival Module: ----
-    # -------------------------- #
-    # Run survival analyses:
-    if ("sur" %in% Sections) {
-      cat("Survival Running ------------------------------------------------\n")
-      repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
-                                    Birth_Type = Birth_Type,
-                                    PlotDir = PlotDir,XMAX = XMAX,
-                                    models = models_sur, shape= shape, 
-                                    outlLev1 = sexDat$summar$GapThresh,
-                                    Min_MLE = Min_MLE, MaxLE =  MaxLE,
-                                    mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
-                                    minInstitution = minInstitution,uncert_death= uncert_death,
-                                    minlx = minlx , MinBirthKnown = MinBirthKnown, 
-                                    niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
-                                    ncpus = ncpus, plotname = glue("{speciesname}_{sx}") )
+    for (sx in sexCats){
+      cat(paste0(" ****************************  ",sx,"  ****************************\n"))
+       dir.create(file.path(PlotDir, "Long_dist"), showWarnings = FALSE)
+ sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
+                                      PlotDir= glue::glue("{PlotDir}/Long_dist/"), minN = minN ,
+                                      maintitle = glue::glue("{taxa}_{speciesname}_{sx}") )
+      repout$summary[[sx]] = sexDat$summar
+      outlLev1 = min(sexDat$summar$GapThresh,maxOutl)
+       if (outlLev1 ==100){
+      data_sel <-  sexDat$data
+    }else{
+      data_sel <-  sexDat$data%>%
+        filter(!!sym(paste0("above", outlLev1))==0)
     }
-    
-    # ------------------------------ #
-    # ---- Reproduction module: ----
-    # ------------------------------ #
-    # Reproduction module list:
-    if ("rep" %in% Sections) {
-          cat("Reproduction Running ----------------------------------------\n")
-  # Reproduction module list:
-      Repse = Repsect
-      if(sx == "Male"){Repse = Repsect%>%stringr::str_subset("litter", negate = T)}
-      repout$repr[[sx]] <- Rep_main(coresubset= sexDat$data, collection, parent, move,  
-                              Repsect = Repse,
-                              BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
-                              Global = Global, minInstitution = minInstitution, 
-                              minNrepro = minNrepro, minNparepro =  minNparepro,
-                              parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
-                              minNseas =  minNseas)
-    }
-    
-    # ----------------------------- #
-    # ---- Body weight module: ----
-    # ----------------------------- #
-    # Growth module list:
-    if ("gro" %in% Sections) {
-          cat("Growth Running ----------------------------------------------\n")
-      #take age at maturity
-      agemat = NULL
-      if(length(repout$repr[[sx]])>0){
-        if(repout$repr[[sx]]$summary$amat_analyzed){
-          agemat = repout$repr[[sx]]$agemat$ageMat
+      if(nrow(data_sel)>0){
+        # -------------------------- #
+        # ---- Survival Module: ----
+        # -------------------------- #
+        # Run survival analyses:
+        if ("sur" %in% Sections) {
+            dir.create(file.path(PlotDir, "Survival"), showWarnings = FALSE)
+cat("Survival Running ------------------------------------------------\n")
+          repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
+                                        Birth_Type = Birth_Type,
+                                        PlotDir = glue::glue("{PlotDir}/Survival/"),XMAX = XMAX,
+                                        models = models_sur, shape= shape, 
+                                        outlLev1 =outlLev1,
+                                        Min_MLE = Min_MLE, MaxLE =  MaxLE,
+                                        mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
+                                        minInstitution = minInstitution,uncert_death= uncert_death,
+                                        minlx = minlx , MinBirthKnown = MinBirthKnown, 
+                                        niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
+                                        ncpus = ncpus, plotname = glue("{taxa}_{speciesname}_{sx}") )
+          print(repout$surv[[sx]]$summary$error)
         }
+        
+        # ------------------------------ #
+        # ---- Reproduction module: ----
+        # ------------------------------ #
+        # Reproduction module list:
+        if ("rep" %in% Sections) {
+          cat("Reproduction Running ----------------------------------------\n")
+          # Reproduction module list:
+          Repse = Repsect
+          if(sx == "Male"){Repse = Repsect%>%stringr::str_subset("litter", negate = T)}
+          repout$repr[[sx]] <- Rep_main(coresubset= data_sel, collection, parent, move,  
+                                        Repsect = Repse,
+                                        BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
+                                        Global = Global, minInstitution = minInstitution, 
+                                        minNrepro = minNrepro, minNparepro =  minNparepro,
+                                        parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
+                                        minNseas =  minNseas)
+        }
+        
+        # ----------------------------- #
+        # ---- Body weight module: ----
+        # ----------------------------- #
+        # Growth module list:
+        if ("gro" %in% Sections) {
+                dir.create(file.path(PlotDir, "Growth"), showWarnings = FALSE)
+cat("Growth Running ----------------------------------------------\n")
+          #take age at maturity
+          agemat = NULL
+          if(length(repout$repr[[sx]])>0){
+            if(repout$repr[[sx]]$summary$amat_analyzed){
+              agemat = repout$repr[[sx]]$agemat$ageMat
+            }
+          }
+          repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = data_sel,
+                                        taxa = taxa, species = species,
+                                        Birth_Type = Birth_Type, 
+                                        agemat = agemat, percentiles = c(2.5,97.5),
+                                        PlotDir = glue::glue("{PlotDir}/Growth/"), type = "weight",
+                                        uncert_date = uncert_date,
+                                        MeasureType = MeasureType,
+                                        minInstitution = minInstitution,
+                                        minNgro = minNgro, minNIgro = minNIgro, 
+                                        models = models_gro,
+                                        mindate = minDate, plotname = glue("{taxa}_{speciesname}_{sx}") )
+          print(repout$weig[[sx]]$Captive$wSummar$error)
+       }
       }
-      
-  repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = sexDat$data,
-                                    taxa = taxa, species = species,
-                                    Birth_Type = Birth_Type, 
-                                    agemat = agemat, percentiles = c(2.5,97.5),
-                                    PlotDir = PlotDir, type = "weight",
-                                    uncert_date = uncert_date,
-                                    MeasureType = MeasureType,
-                                    minInstitution = minInstitution,
-                                    minNgro = minNgro, minNIgro = minNIgro, 
-                                    models = models_gro,
-                                    mindate = minDate, plotname = glue("{speciesname}_{sx}") )
     }
-    }
-  }
   }else{
     warnings(glue::glue("No data for {species}"))
   }

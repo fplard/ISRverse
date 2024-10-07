@@ -9,7 +9,7 @@ test_that("select_species works", {
   expect_named(out, c("summary",  "data"))
   expect_named(out$summary, c("Nraw", "Ndate", "Nglobal", "Nalive",    "firstDate", "maxAgeraw", "extractdate"))
   expect_equal(out$summary$Nraw,1000)
-  expect_equal(out$summary$Ndate,942)
+  expect_equal(out$summary$Ndate,996)
   expect_equal(out$summary$Nalive,0)
   expect_named(out$data, names(core))
   expect_equal(nrow(out$data),out$summary$Nglobal)

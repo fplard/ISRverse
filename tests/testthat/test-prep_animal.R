@@ -5,11 +5,11 @@ test_that("Prep_Animal works", {
   ZIMSdirtest = dirname(file)
   
   data <- Load_Zimsdata	(taxa = "Reptilia",
-                          species = list(Reptilia = "All"),
+                         species = list(Reptilia = "All"),
                          ZIMSdir = ZIMSdirtest,
                          Animal = TRUE)
   
   Animal <- Prep_Animal(data$Reptilia$Animal, extractDate = "2023/12/23")
-  expect_named(Animal, c("AnimalAnonID", "GAN", "Class", "Order", "Family", 'SpeciesName', "CommonName", "IUCNRedList", "CITES", "CITESE", "FirstHoldingInstitution", "FirstCollectionScopeType", "LastHoldingInstitution", "LastCollectionScopeType", "AnyLocalCollectionFlag", "LatitudeZone", "BirthDate", "BirthDateEstimateType", "BirthType", "BirthObserved", "FirstAcquisitionDate", "SexType", "PhysicalMoveCount", "DeathDate", "DeathDateEstimateType", "GlobalStatus", "AnimalType", "LastCommentEntryDate", "LastTXDate", 'binSpecies', "MinBirthDate", "MaxBirthDate", "MinDeathDate", "MaxDeathDate", "Birth_Uncertainty", "Death_Uncertainty", "EntryDate", "EntryType", "DepartDate", "DepartType"))
+  expect_named(Animal, c("AnimalAnonID", "Class", "Order", "Family", 'SpeciesName', "CommonName", "IUCNRedList", "CITES", "CITESE", "FirstHoldingInstitution", "FirstCollectionScopeType", "LastHoldingInstitution", "LastCollectionScopeType", "AnyLocalCollectionFlag", "LatitudeZone", "BirthDate", "BirthDateEstimateType", "BirthType", "BirthObserved", "FirstAcquisitionDate", "SexType", "PhysicalMoveCount", "DeathDate", "DeathDateEstimateType", "GlobalStatus", "AnimalType", "LastCommentEntryDate", "LastTXDate", 'binSpecies', "MinBirthDate", "MaxBirthDate", "MinDeathDate", "MaxDeathDate",  "EntryDate", "EntryType", "DepartDate", "DepartType", "Birth_Uncertainty", "Death_Uncertainty"))
   
 })

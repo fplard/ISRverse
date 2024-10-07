@@ -66,7 +66,7 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
   
   if(nrow(coresex)>0){
     # Check longevities:
-   
+    
     quant = quantile (coresubset$lifespans,c(0.95,0.99,0.999))
     
     coresex <-  coresex%>%
@@ -94,8 +94,8 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
       } else if (maxAlive > 50) {
         maxAlive <- 50
       }
-       pdf(file = glue::glue("{PlotDir}/{maintitle}_LongThres.pdf"), width = 5, height = 5)
-   
+      pdf(file = glue::glue("{PlotDir}/{maintitle}_LongThres.pdf"), width = 5, height = 5)
+      
       par(mar = c(4, 4, 1, 1))
       gaps <- find_gaps(corelong$lifespans, plot = T,
                         main = maintitle, 
@@ -129,13 +129,13 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
       } else {
         outTab$GapThresh <-100
       }
-      outTab$NThres <- nrow(coresex%>%filter())
+      outTab$NThres <- nrow(coresex)
       
-         dev.off()
+      dev.off()
       
     } 
     
- 
+    
   }
   return(list(summar = outTab, data = coresex) )
 }

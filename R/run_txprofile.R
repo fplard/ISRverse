@@ -190,11 +190,11 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   # ======================#
   cat("Loading Data\n")
   tables = c("Collection")
-  if("sur" %in% Sections){
-    tables = c(tables, "DeathInformation")
+   if("sur" %in% Sections){
+  tables = c(tables, "DeathInformation")
   }
   if("gro" %in% Sections){
-    tables = c(tables, "Weight")
+     tables = c(tables, "Weight")
   }
   if("rep" %in% Sections){
     tables = c(tables, "Parent", "Contraception", "Move")
@@ -276,8 +276,9 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
     
     # Create report:
     repout <- tx_report(species, taxa, 
-                        core, data[[taxa]]$Collection,  DeathInformation = DeathInformation,
-                        PlotDir = paste0(PlotDir,'/',taxa), extractDate= extractDate, minBirthDate = minBirthDate,
+                       Animal =  core, collection = data[[taxa]]$Collection, 
+                        DeathInformation = DeathInformation,
+                        PlotDir = PlotDir, extractDate= extractDate, minBirthDate = minBirthDate,
                         weights = weights, parents = parents, contraceptions = contraceptions, move = move,
                         repout = repout, Sections = Sections, Birth_Type = Birth_Type,
                         sexCats = sexCats, minN= minN, minDate= minDate, Global = Global,

@@ -50,7 +50,7 @@ Split_Zimsdata	<- function (ZIMSdir,
     cat(glue::glue("Splitting Animal file.\n"))
   }
   Ani <- read.csv(glue::glue("{ZIMSdir}/{idfilesAni}"), sep = "@",  header = T, skipNul = TRUE)
-  Ani <- Ani%>%filter(AnimalType == "Individual")
+  Ani <- Ani%>%filter(AnimalType == "Individual")%>%select(-GAN)
   
   temp= stringr::str_split(Ani$SpeciesName, " ", simplify = T)
   temp2 = temp[,2]

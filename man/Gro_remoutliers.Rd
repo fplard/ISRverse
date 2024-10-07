@@ -56,5 +56,6 @@ This function follow 4 different steps to highlight outliers:
 }
 \examples{
 data(weights)
-weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+                          taxa = "Mammalia", ageMat = 10)
 }

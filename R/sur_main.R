@@ -120,7 +120,6 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     sexData<- data.core %>%
       filter(stringr::str_detect(BirthType, pattern = Birth_Type))
   }else{sexData<- data.core}
-  
   # Survival Analysis
   out<- Sur_ana(sexData, DeathInformation = DeathInformation, outlLev1 = outlLev1, models = models, shape = shape,
                 mindate = mindate,      uncert_death = uncert_death,
@@ -171,21 +170,22 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
       dev.off()
       
       pdf(file = paste0(PlotDir,"/", plotname, "_surplot.pdf", sep=""), width = 6, height = 6)
-      plot(out$relex$RemLExp~  out$relex$Age, main = plotname, xlab = "Age (year)", ylab = "Remaining life expectancy")
+      plot(out$relex$RemLExp~  out$relex$Age, main = plotname, xlab = "Age (year)", 
+           ylab = "Remaining life expectancy", type = "l")
       lines(out$relex$Lower ~  out$relex$Age, lty = 2)
       lines(out$relex$Upper ~  out$relex$Age, lty = 2)
       
       plot(out$Sur1$Sur_1yr ~  out$Sur1$Age, 
-           xlab = "Age (year)", ylab = 'Age-specific survival')
+           xlab = "Age (year)", ylab = 'Age-specific survival', type = "l")
       lines(out$Sur1$Lower ~  out$Sur1$Age, lty = 2)
       lines(out$Sur1$Upper ~  out$Sur1$Age, lty = 2)
       
-      
+       if(xMax >=5){
       plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, 
-           xlab = "Age (year)", ylab = 'p(survive 5 more years)')
+           xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
       lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
       lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
-      
+       }
       dev.off()
       
     }
@@ -193,7 +193,8 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     # Goodness of fit tests
     ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
     id = which(out$bastaRes$x %in% c(0:round(XMAX)))
-    m = min(length(id),(round(XMAX)+1))
+    m = min(length(id),(round(XMAX)+1), length(out$bastaRes$lifeTable$noCov$Mean$lx))
+    if(length(id)>m){ id = which(out$bastaRes$x %in% c(0:max(out$bastaRes$lifeTable$noCov$Mean$Ages)))}
     res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
     b = summary(lm(res~c(1:m)))
      out$summary$Gof_KM = b$coefficients[2,4] > 0.01

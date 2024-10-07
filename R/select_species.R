@@ -53,8 +53,7 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
   
   # Subset by min date
   coresubset1 <- coresubset0%>%
-    filter(DepartDate >= minDate,
-           BirthDate >= minDate)
+    filter(DepartDate >= minDate)
   
   summar = list(Nraw = nrow(coresubset0),
                 Ndate = nrow(coresubset1),

@@ -50,7 +50,6 @@ The function returns a list including an analysis by sex and by birth type as in
 * A summary with the number of individuals and weight used for the analysis:
 - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
-- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 - NJuv= 0 and NAd indicate the number of weights of juveniles and adults selected
 - NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing outliers
 - NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
@@ -126,7 +125,8 @@ The function returns the data frame including the column `KEEP` a numeric vector
 
 ```{r examples-Gro_remoutliers}
 data(weights)
-weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+                          taxa = "Mammalia", ageMat = 10)
 ```
 
 ## Remove outliers from percentiles

@@ -68,7 +68,6 @@ A list including an analysis by sex and by birth type as included in the input. 
 \itemize{
 \item NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 \item NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid  measurment from Husbandry have been selected
-\item NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 \item NJuv= 0 and NAd indicate the number of weights of juveniles and adults selected
 \item NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing
 outliers

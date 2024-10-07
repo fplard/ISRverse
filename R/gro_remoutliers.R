@@ -33,7 +33,8 @@
 #'
 #' @examples
 #' data(weights)
-#' weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], taxa = "Mammalia", ageMat = 10)
+#' weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+#'                           taxa = "Mammalia", ageMat = 10)
 Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL, 
                             variableid = "AnimalAnonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
