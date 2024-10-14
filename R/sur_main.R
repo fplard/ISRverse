@@ -38,7 +38,7 @@
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the survival analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
 #'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
@@ -155,10 +155,10 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
                         ageMax = xMax, dage = 0.01, Nyear = 1)
     # Proba to live 5 year more:
     if(xMax >=5){
-    out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
-                        model =out$bastaRes$modelSpecs["model"], 
-                        shape = shape, ncpus = ncpus, 
-                        ageMax = xMax,  dage = 0.01, Nyear = 5)
+      out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
+                          model =out$bastaRes$modelSpecs["model"], 
+                          shape = shape, ncpus = ncpus, 
+                          ageMax = xMax,  dage = 0.01, Nyear = 5)
     }else{out$Sur5 = "Error : Age max lower than 5 years"}
     
     #Plots
@@ -180,35 +180,37 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
       lines(out$Sur1$Lower ~  out$Sur1$Age, lty = 2)
       lines(out$Sur1$Upper ~  out$Sur1$Age, lty = 2)
       
-       if(xMax >=5){
-      plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, 
-           xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
-      lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
-      lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
-       }
+      if(xMax >=5){
+        plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, 
+             xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
+        lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
+        lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
+      }
       dev.off()
       
     }
     
     # Goodness of fit tests
     ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
-    id = which(out$bastaRes$x %in% c(0:round(XMAX)))
+    id = which(out$bastaRes$x %in% seq(0,round(XMAX)),0.5)
     m = min(length(id),(round(XMAX)+1), length(out$bastaRes$lifeTable$noCov$Mean$lx))
-    if(length(id)>m){ id = which(out$bastaRes$x %in% c(0:max(out$bastaRes$lifeTable$noCov$Mean$Ages)))}
+    if(length(id)>m){ id = which(out$bastaRes$x %in% out$bastaRes$lifeTable$noCov$Mean$Ages)}
     res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
     b = summary(lm(res~c(1:m)))
-     out$summary$Gof_KM = b$coefficients[2,4] > 0.01
-     out$summary$Gof_KM_coeff =b$coefficients[2,1]
-  
-   
-    ##Test if the minimum life expectancy is below MaxLE years old
-    if(min(out$relex$RemLExp)>= MaxLE){
+    out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+    out$summary$Gof_KM_coeff =b$coefficients[2,1]
+    
+    xmaxobs = max(out$bastaRes$lifeTable$noCov$Mean$Ages)
+    ##Test if the life expectancy at max age observed is below MaxLE years old
+    idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
+    if(out$relex$RemLExp[idxmax]>= MaxLE){
       out$summary$error = "Min(Life_exp) >= MaxLE"
       out$summary$Nerr=8
       out$summary$analyzed <- FALSE 
       out$bastaRes <- list() }
     
     ##Test if the survivorship at mean life expectancy is higher than Min_MLE
+    if(out$summary$analyzed){
     lx <-out$bastaRes$lifeTable$noCov$Mean$lx
     #age for mle
     dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
@@ -219,8 +221,9 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
       out$summary$Nerr = 9
       out$bastaRes <- list()   
     }
+    }
     
   }
- return(out)
+  return(out)
 }
 

@@ -73,7 +73,7 @@ It return a list per sex category including:
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the survival analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
 #'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
@@ -185,10 +185,10 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
                         ageMax = xMax, dage = 0.01, Nyear = 1)
     # Proba to live 5 year more:
     if(xMax >=5){
-    out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
-                        model =out$bastaRes$modelSpecs["model"], 
-                        shape = shape, ncpus = ncpus, 
-                        ageMax = xMax,  dage = 0.01, Nyear = 5)
+      out$Sur5 <- Sur_age(theMat = out$bastaRes$params, 
+                          model =out$bastaRes$modelSpecs["model"], 
+                          shape = shape, ncpus = ncpus, 
+                          ageMax = xMax,  dage = 0.01, Nyear = 5)
     }else{out$Sur5 = "Error : Age max lower than 5 years"}
     
     #Plots
@@ -210,35 +210,37 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
       lines(out$Sur1$Lower ~  out$Sur1$Age, lty = 2)
       lines(out$Sur1$Upper ~  out$Sur1$Age, lty = 2)
       
-       if(xMax >=5){
-      plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, 
-           xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
-      lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
-      lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
-       }
+      if(xMax >=5){
+        plot(out$Sur5$Sur_5yr ~  out$Sur5$Age, 
+             xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
+        lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
+        lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
+      }
       dev.off()
       
     }
     
     # Goodness of fit tests
     ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
-    id = which(out$bastaRes$x %in% c(0:round(XMAX)))
+    id = which(out$bastaRes$x %in% seq(0,round(XMAX)),0.5)
     m = min(length(id),(round(XMAX)+1), length(out$bastaRes$lifeTable$noCov$Mean$lx))
-    if(length(id)>m){ id = which(out$bastaRes$x %in% c(0:max(out$bastaRes$lifeTable$noCov$Mean$Ages)))}
+    if(length(id)>m){ id = which(out$bastaRes$x %in% out$bastaRes$lifeTable$noCov$Mean$Ages)}
     res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
     b = summary(lm(res~c(1:m)))
-     out$summary$Gof_KM = b$coefficients[2,4] > 0.01
-     out$summary$Gof_KM_coeff =b$coefficients[2,1]
-  
-   
-    ##Test if the minimum life expectancy is below MaxLE years old
-    if(min(out$relex$RemLExp)>= MaxLE){
+    out$summary$Gof_KM = b$coefficients[2,4] > 0.01
+    out$summary$Gof_KM_coeff =b$coefficients[2,1]
+    
+    xmaxobs = max(out$bastaRes$lifeTable$noCov$Mean$Ages)
+    ##Test if the life expectancy at max age observed is below MaxLE years old
+    idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
+    if(out$relex$RemLExp[idxmax]>= MaxLE){
       out$summary$error = "Min(Life_exp) >= MaxLE"
       out$summary$Nerr=8
       out$summary$analyzed <- FALSE 
       out$bastaRes <- list() }
     
     ##Test if the survivorship at mean life expectancy is higher than Min_MLE
+    if(out$summary$analyzed){
     lx <-out$bastaRes$lifeTable$noCov$Mean$lx
     #age for mle
     dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
@@ -249,9 +251,10 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
       out$summary$Nerr = 9
       out$bastaRes <- list()   
     }
+    }
     
   }
- return(out)
+  return(out)
 }
 
 ```
@@ -281,12 +284,12 @@ test_that("Sur_main works", {
   expect_true(is.numeric(out$relex$Lower))
   expect_true(out$relex$Lower[1]<out$relex$RemLExp[1])
   expect_true(out$relex$RemLExp[1]<out$relex$Upper[1])
-    expect_named(out$Sur5, c("Age", "Lower",  "Upper", "Sur_5yr"))
+  expect_named(out$Sur5, c("Age", "Lower",  "Upper", "Sur_5yr"))
   expect_true(is.numeric(out$Sur5$Lower))
   expect_true(is.numeric(out$Sur5$Sur_5yr))
-   expect_named(out$L90, c("L90", "Lower",  "Upper"))
+  expect_named(out$L90, c("L90", "Lower",  "Upper"))
   expect_true(out$L90$L90 >5)
- })
+})
 ```
 
 # Survival Analysis
@@ -340,7 +343,7 @@ It return a list including:
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the growth analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data; 2/lxMin > minlx; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur; 2/lxMin > minlx; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #' 
@@ -404,127 +407,131 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   #Remove individuals with uncertainty in death date
   sexData <- sexData%>%
     filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE))
-  
-  #Find the minimum threshold for which lxmin  >.1
-  summar$lxMin <- 1
-  outLev2 = outlLev1
-  while(summar$lxMin > 0.1 & outLev2 >= 95){
-    summar$outLev = outLev2
-    if (summar$outLev ==100){
-      data_sel <-  sexData
-    }else{
-      data_sel <-  sexData%>%
-        filter(!!sym(paste0("above", summar$outLev))==0)
+  if(nrow(sexData)> minNsur){
+    #Find the minimum threshold for which lxmin  >.1
+    summar$lxMin <- 1
+    outLev2 = outlLev1
+    while(summar$lxMin > 0.1 & outLev2 >= 95){
+      summar$outLev = outLev2
+      if (summar$outLev ==100){
+        data_sel <-  sexData
+      }else{
+        data_sel <-  sexData%>%
+          filter(!!sym(paste0("above", summar$outLev))==0)
+      }
+      data_sel <- data_sel%>%
+        mutate(
+          deparAge = (DepartDate - BirthDate) / 365.25,
+          entryAge = (EntryDate - BirthDate) / 365.25
+        )
+      
+      if (!all(data_sel$DepartType == "C")) {
+        rawPLE <- Sur_ple(data_sel)
+        # Minimum value of lx:
+        summar$lxMin <- rawPLE$ple[nrow(rawPLE)-1]
+      }
+      if( summar$outLev == 100){outLev2 = 99.9}
+      if( summar$outLev == 99.9){outLev2 = 99}
+      if( summar$outLev == 99){outLev2 = 95}
+      if( summar$outLev == 95){outLev2 = 90}
     }
-    data_sel <- data_sel%>%
-      mutate(
-        deparAge = (DepartDate - BirthDate) / 365.25,
-        entryAge = (EntryDate - BirthDate) / 365.25
-      )
     
-    if (!all(data_sel$DepartType == "C")) {
-      rawPLE <- Sur_ple(data_sel)
-      # Minimum value of lx:
-      summar$lxMin <- min(rawPLE$ple)
-    }
-    if( summar$outLev == 100){outLev2 = 99.9}
-    if( summar$outLev == 99.9){outLev2 = 99}
-    if( summar$outLev == 99){outLev2 = 95}
-    if( summar$outLev == 95){outLev2 = 90}
-  }
-  
-
-  if (summar$lxMin <= minlx) {
-    #raw median life expectancy
-    # summar$MedLE = median(deparAge[deparType == "D"])
     
-    # Extract BaSTA table:
-    bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
-                             excludeStillbirth = TRUE)
-    bastatab <- bastalist%>%
-      mutate(
-        bdun = Max.Birth.Date-Min.Birth.Date,
-        aliveTime = (Depart.Date - Entry.Date) / 365.25)
-    
-    summar$NGlobal <- nrow(data_sel)
-    summar$NBasta <- nrow(bastatab)
-    summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
-    summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
-    summar$maxAlive <- as.numeric(max(bastatab$Depart.Date - bastatab$Entry.Date, na.rm = TRUE))
-    
-    if(summar$NBasta>0){
-      #Check the percentage of individuals with known births
-      Perbirthknown =  length(which(bastatab$bdun<32 & bastatab$Entry.Type=="B")) / 
-        summar$NBasta
-      if(Perbirthknown >= MinBirthKnown){
-        #Check that we have more than 1 institution
-        Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
-        Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
-        if(length(unique(c(Instb,Instl)))>=minInstitution){
-           if (summar$NBasta >= minNsur) {
-            if(summar$NBasta <= maxNsur){
-               tempList <- list()
-              DICmods <- tibble(models,
-                                DIC = 0)
-              for (imod in 1:length(models)) {
-                print(models[imod])
-                tempList[[models[imod]]] <- BaSTA::basta(
-                  bastatab, dataType = "census", shape = shape, 
-                  model = models[imod], parallel = TRUE, 
-                  ncpus = ncpus, nsim = nchain,
-                  niter = niter, burnin = burnin, thinning = thinning)
-                
-                if (!is.na( tempList[[models[imod]]]$DIC[1])) {
-                  DICmods$DIC[imod] <-  tempList[[models[imod]]]$DIC["DIC"]
-                }
-              }
-              if (all(DICmods$DIC == 0)) {
-                print("more chains")
+    if (summar$lxMin <= minlx) {
+      #raw median life expectancy
+      # summar$MedLE = median(deparAge[deparType == "D"])
+      
+      # Extract BaSTA table:
+      bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
+                               excludeStillbirth = TRUE)
+      bastatab <- bastalist%>%
+        mutate(
+          bdun = Max.Birth.Date-Min.Birth.Date,
+          aliveTime = (Depart.Date - Entry.Date) / 365.25)
+      
+      summar$NGlobal <- nrow(data_sel)
+      summar$NBasta <- nrow(bastatab)
+      summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
+      summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
+      summar$maxAlive <- as.numeric(max(bastatab$Depart.Date - bastatab$Entry.Date, na.rm = TRUE))
+      
+      if(summar$NBasta>0){
+        #Check the percentage of individuals with known births
+        Perbirthknown =  length(which(bastatab$bdun<32 & bastatab$Entry.Type=="B")) / 
+          summar$NBasta
+        if(Perbirthknown >= MinBirthKnown){
+          #Check that we have more than 1 institution
+          Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
+          Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
+          if(length(unique(c(Instb,Instl)))>=minInstitution){
+            if (summar$NBasta >= minNsur) {
+              if(summar$NBasta <= maxNsur){
+                tempList <- list()
+                DICmods <- tibble(models,
+                                  DIC = 0)
                 for (imod in 1:length(models)) {
                   print(models[imod])
                   tempList[[models[imod]]] <- BaSTA::basta(
-                    bastatab, dataType = "census", shape = shape,
-                    ncpus = ncpus, nsim = nchain, 
-                    niter = niter*4, burnin = burnin*4-3, thinning = thinning)
-                  if (!is.na(tempList[[models[imod]]]$DIC[1])) {
-                    DICmods$DIC[imod] <-tempList[[models[imod]]]$DIC["DIC"]
+                    bastatab, dataType = "census", shape = shape, 
+                    model = models[imod], parallel = TRUE, 
+                    ncpus = ncpus, nsim = nchain,
+                    niter = niter, burnin = burnin, thinning = thinning)
+                  
+                  if (!is.na( tempList[[models[imod]]]$DIC[1])) {
+                    DICmods$DIC[imod] <-  tempList[[models[imod]]]$DIC["DIC"]
                   }
-                  
-                  
-                } 
-              }
-              
-              # BaSTA outputs:
-              if (any(DICmods$DIC != 0)) {
-                idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
-                bastaRes <- tempList[[idModSel]]
-                summar$analyzed = TRUE
+                }
+                if (all(DICmods$DIC == 0)) {
+                  print("more chains")
+                  for (imod in 1:length(models)) {
+                    print(models[imod])
+                    tempList[[models[imod]]] <- BaSTA::basta(
+                      bastatab, dataType = "census", shape = shape,
+                      ncpus = ncpus, nsim = nchain, 
+                      niter = niter*4, burnin = burnin*4-3, thinning = thinning)
+                    if (!is.na(tempList[[models[imod]]]$DIC[1])) {
+                      DICmods$DIC[imod] <-tempList[[models[imod]]]$DIC["DIC"]
+                    }
+                    
+                    
+                  } 
+                }
+                
+                # BaSTA outputs:
+                if (any(DICmods$DIC != 0)) {
+                  idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
+                  bastaRes <- tempList[[idModSel]]
+                  summar$analyzed = TRUE
+                } else {
+                  summar$error = 'no DIC from Basta'
+                  summar$Nerr = 8
+                }
               } else {
-                summar$error = 'no DIC from Basta'
-                summar$Nerr = 8
+                summar$error = "Nbasta > maxNsur"
+                summar$Nerr = 7
+              }} else {
+                summar$error = "Nbasta < minNsur"
+                summar$Nerr = 6
               }
-            } else {
-              summar$error = "Nbasta > maxNsur"
-              summar$Nerr = 7
-            }} else {
-              summar$error = "Nbasta < minNsur"
-              summar$Nerr = 6
-            }
-        }else{
-          summar$error = "Data from 1 Institution"
-          summar$Nerr = 5
+          }else{
+            summar$error = "Data from 1 Institution"
+            summar$Nerr = 5
+          }
+        }else{ 
+          summar$error = "%known births < MinBirthKnown"
+          summar$Nerr = 4
         }
-      }else{ 
-        summar$error = "%known births < MinBirthKnown"
-        summar$Nerr = 4
+      }else{
+        summar$error = "NBasta = 0"
+        summar$Nerr = 3
       }
-    }else{
-      summar$error = "NBasta = 0"
-      summar$Nerr = 3
+    } else {
+      summar$ error = "lxMin > minlx"
+      summar$ Nerr = 2
     }
   } else {
-    summar$ error = "lxMin > minlx"
-    summar$ Nerr = 2
+    summar$ error = "Nglobal < minNsur"
+    summar$ Nerr = 1
   }
   
   return(list(summary = summar, bastaRes = bastaRes, DICmods = DICmods))
@@ -751,11 +758,11 @@ Sur_ple <- function(sexData) {
   ii = 0
   for (agev in nage) {
     ii = ii + 1
-   idNx <-sexData %>%filter(entryAge <= agev,
+    idNx <-sexData %>%filter(entryAge <= agev,
                              deparAge >= agev)
-     delx[ii] <- length(which(sexData$DepartType == "D"  & sexData$deparAge ==agev))
-     Cx[ii] <- 1- delx[ii]/nrow(idNx)
-   
+    delx[ii] <- length(which(sexData$DepartType == "D"  & sexData$deparAge ==agev))
+    Cx[ii] <- 1- delx[ii]/nrow(idNx)
+    
   }
   
   # Calculate product limit estimator:

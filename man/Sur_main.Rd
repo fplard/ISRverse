@@ -91,7 +91,7 @@ The output of a list including per sex categories:
 \item lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of  time spent alive: 100\%, 99.9, 99 or 95\%
 \item a logical indicated if the survival analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin > minlx 3/NBasta = 0 4/ \%known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur and 2/lxMin > minlx 3/NBasta = 0 4/ \%known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
 \item A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 }
 \itemize{

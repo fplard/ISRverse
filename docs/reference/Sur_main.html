@@ -203,7 +203,7 @@
 <li><p>lxMin:Minimum survivorship reached with the raw Kaplan-Meier model</p></li>
 <li><p>OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%</p></li>
 <li><p>a logical indicated if the survival analysis was performed</p></li>
-<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin &gt; minlx 3/NBasta = 0 4/ %known births &lt; MinBirthKnown 5/Data from 1 Institution 6/Nbasta &lt; minNsur, 7/no DIC from Basta.</p></li>
+<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal &lt; minNsur and 2/lxMin &gt; minlx 3/NBasta = 0 4/ %known births &lt; MinBirthKnown 5/Data from 1 Institution 6/Nbasta &lt; minNsur, 7/no DIC from Basta.</p></li>
 <li><p>A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator</p></li>
 </ul><ul><li><p>the basta fit of the best model</p></li>
 <li><p>the DIC table comparing the different fit of the models</p></li>
@@ -221,14 +221,14 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Sur_main</span><span class="op">(</span><span class="va">core</span>, DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span></span>
 <span class="r-in"><span>                models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span></span>
 <span class="r-in"><span>                niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 0: 2024-10-07 13:18:34.699766</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 1: 2024-10-07 13:18:39.024627</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 2: 2024-10-07 13:18:39.042371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 3: 2024-10-07 13:18:39.043181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 0: 2024-10-14 16:25:12.268792</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 1: 2024-10-14 16:25:16.484832</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 2: 2024-10-14 16:25:16.504448</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 3: 2024-10-14 16:25:16.505323</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 17.06 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 16.08 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -238,7 +238,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 10.31 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 10.01 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
@@ -255,7 +255,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 4: 2024-10-07 13:19:41.296158</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 4: 2024-10-14 16:26:10.784499</span>
 </code></pre></div>
     </div>
   </div>

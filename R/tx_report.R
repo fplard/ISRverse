@@ -219,7 +219,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                                       PlotDir= glue::glue("{PlotDir}/Long_dist/"), minN = minN ,
                                       maintitle = glue::glue("{taxa}_{speciesname}_{sx}") )
       repout$summary[[sx]] = sexDat$summar
-      outlLev1 = min(sexDat$summar$GapThresh,maxOutl)
+      outlLev1 = min(sexDat$summar$GapThresh,maxOutl, na.rm = T)
        if (outlLev1 ==100){
       data_sel <-  sexDat$data
     }else{

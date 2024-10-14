@@ -44,11 +44,11 @@ Sur_ple <- function(sexData) {
   ii = 0
   for (agev in nage) {
     ii = ii + 1
-   idNx <-sexData %>%filter(entryAge <= agev,
+    idNx <-sexData %>%filter(entryAge <= agev,
                              deparAge >= agev)
-     delx[ii] <- length(which(sexData$DepartType == "D"  & sexData$deparAge ==agev))
-     Cx[ii] <- 1- delx[ii]/nrow(idNx)
-   
+    delx[ii] <- length(which(sexData$DepartType == "D"  & sexData$deparAge ==agev))
+    Cx[ii] <- 1- delx[ii]/nrow(idNx)
+    
   }
   
   # Calculate product limit estimator:

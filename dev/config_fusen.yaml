@@ -106,6 +106,7 @@ flat_survival.Rmd:
   path: dev/flat_survival.Rmd
   state: active
   R:
+  - R/sur_90.R
   - R/sur_age.R
   - R/sur_ana.R
   - R/sur_main.R
@@ -119,6 +120,7 @@ flat_survival.Rmd:
   - tests/testthat/test-sur_ple.R
   - tests/testthat/test-sur_relex.R
   - tests/testthat/test-sur_age.R
+  - tests/testthat/test-sur_90.R
   vignettes: vignettes/survival.Rmd
   inflate:
     flat_file: dev/flat_survival.Rmd

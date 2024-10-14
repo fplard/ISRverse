@@ -531,7 +531,8 @@ list_surv= readxl::read_xlsx(glue("{analysisDir}Liste_Survival.xlsx"), sheet =1)
 taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
-Species_list =list_surv[300:400]
+# Sections = c("sur")
+Species_list =list_surv[327:400]
 
 run_txprofile (taxa = taxaList[taxa], 
                ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
@@ -597,7 +598,9 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
 )
 ```
 
-### Find species with sex with 50-1000 individuals
+### Check
+
+#### Find species with sex with 50-1000 individuals
 
 ``` r
 
@@ -632,6 +635,70 @@ for (taxa in 6:2){
   )
 }
 ```
+
+#### Check of the species with issues reported
+
+Issues reported in document “Taxon Profile Version2 CSA
+Documentation_October 2023”
+
+List of species : Kihansi spray toad, Hellbender, Tufted capuchin,
+Guianan squirrel monkey, Green woodhoopoe, Green and black poison frog,
+Rock eagle owl, Plains-wanderer
+
+``` r
+Spec_list  = list(Amphibia = c("Nectophrynoides asperginis", "Cryptobranchus alleganiensis", "Dendrobates auratus"),
+Mammalia = c("Sapajus apella", "Saimiri sciureus"),
+Aves = c("Phoeniculus purpureus", "Bubo bengalensis", 'Pedionomus torquatus'))
+
+for (taxa in c(4)){
+#Sections to run or to update
+Sections = c("sur", "rep", "gro")
+
+run_txprofile (taxa = taxaList[taxa], 
+               ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
+               erase_previous = FALSE,Birth_Type = "Captive", 
+               sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
+               Species_list = Spec_list[[taxaList[taxa]]],  Sections = Sections,  
+               extractDate = extractDate, minDate = minDate, 
+               minBirthDate = minBirthDate, minN = minN,  Global =  Global,
+               maxOutl = maxOutl,  spOutLev = spOutLev, 
+               uncert_birth = uncert_birth, uncert_death= uncert_death,
+               uncert_date = uncert_date,
+               minInstitution = minInstitution, 
+               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
+               minlx = minlx, MinBirthKnown = MinBirthKnown, 
+               Min_MLE = Min_MLE, MaxLE =  MaxLE,
+               models_sur = models_sur, shape = shape,
+               niter = niter, burnin = burnin, thinning = thinning, 
+               nchain = nchain, ncpus = ncpus,
+               parentProb = parentProb, minNrepro = minNrepro, 
+               minNparepro = minNparepro, minNseas = minNseas, 
+               minNlitter = minNlitter, Nday = Nday, 
+               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
+               models_gro = models_gro
+)
+}
+```
+
+Tufted capuchin: \* Male = \>1000 individuals \* Female : a lot of
+undead individuals so we have a high life expectancy compared to what
+observed but the model seems to fit ok
+
+Guianan squirrel monkey \* Male = \>1000 individuals \* Female = \>1000
+individuals
+
+Green woodhoopoe \* Male \* Female
+
+Rock eagle owl \* Male “lxMin \> minlx” \* FeMale “lxMin \> minlx”
+
+Plains-wanderer \* Male “lxMin \> minlx” \* FeMale “lxMin \> minlx”
+
+Kihansi spray toad \* Male “Nglobal \< minNsur” \* Female “Nglobal \<
+minNsur”
+
+Hellbender \* Male lxMin \> minlx” \* Female “lxMin \> minlx”
+
+Green and black poison frog \* Male \* Female
 
 ### Make the summary tables
 

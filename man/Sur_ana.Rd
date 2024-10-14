@@ -73,7 +73,7 @@ The output of a list including:
 \item lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of  time spent alive: 100\%, 99.9, 99 or 95\%
 \item a logical indicated if the growth analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data; 2/lxMin > minlx; 3/NBasta = 0; 4/ \%known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
+\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur; 2/lxMin > minlx; 3/NBasta = 0; 4/ \%known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
 }
 \itemize{
 \item the basta fit of the best model
