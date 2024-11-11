@@ -48,7 +48,7 @@ data(core)
 data(deathinformation)
 out<- surv_Bastab(core, DeathInformation = deathinformation,
                   earliestDate = '1990-01-01', latestDate = '2020-12-31', 
-                  otherCovars = NA, excludeStillbirth = TRUE)
+                  otherCovars = "SexType", excludeStillbirth = TRUE)
 
 
 }

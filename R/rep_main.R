@@ -46,17 +46,17 @@
 #' data(parent)
 #' data(moves)
 #' out <- Rep_main (coresubset = core, collection, parent, moves,  
-#'           Repsect = c('agemat', 'litter'),
-#'           minNrep = 1, minNparep = 1,
-#'           BirthType_parent = "Captive", BirthType_offspring = "Captive", 
-#'          ) 
-#'   
+#'                  Repsect = c('agemat', 'litter'),
+#'                  minNrep = 1, minNparep = 1,
+#'                  BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+#' ) 
+#'
 Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat', 'litter'),
                       BirthType_parent = "Captive", BirthType_offspring = "Captive", 
                       Global = TRUE, minInstitution = 2, 
                       minNrepro = 100,minNparepro = 30,
                       parentProb = 80, minNlitter = 20, Nday = 7,
-                       minNseas = 50) {
+                      minNseas = 50) {
   
   assert_that(is.data.frame(coresubset))
   assert_that(is.data.frame(collection))
@@ -105,30 +105,30 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
   out[["summary"]] <- Datarep$summary
   out$summary$litt_analyzed =  out$summary$amat_analyzed = FALSE
   if(nrow(Datarep$Reprodata)>0){
-  if(length(unique(Datarep$Reprodata$currentInst))>=minInstitution){
-    #remove curretn inst to avoid duplicated lines
-    subfert <- Datarep$Reprodata%>%
-      select(-currentInst)%>%
-      distinct() 
-    
-    
-    if("agemat" %in% Repsect){
-      #Calculate reproductive age statistics
-      out[["agemat"]] <- Rep_agemat(subfert)
-         out$summary$amat_analyzed = TRUE
-  }
-    if("litter" %in% Repsect){
-      #Calculate reproductive age statistics
-      out[["litter"]] <- Rep_littersize(subfert, perAge = TRUE,
-                                        Nday = Nday, parentProb = parentProb,  
-                                        minNlitter =minNlitter)
-       out$summary$litt_analyzed = out$litter$summary$analyzed
+    if(length(unique(Datarep$Reprodata$currentInst))>=minInstitution){
+      #remove curretn inst to avoid duplicated lines
+      subfert <- Datarep$Reprodata%>%
+        select(-currentInst)%>%
+        distinct() 
+      
+      
+      if("agemat" %in% Repsect){
+        #Calculate reproductive age statistics
+        out[["agemat"]] <- Rep_agemat(subfert)
+        out$summary$amat_analyzed = TRUE
+      }
+      if("litter" %in% Repsect){
+        #Calculate reproductive age statistics
+        out[["litter"]] <- Rep_littersize(subfert, perAge = TRUE,
+                                          Nday = Nday, parentProb = parentProb,  
+                                          minNlitter =minNlitter)
+        out$summary$litt_analyzed = out$litter$summary$analyzed
+      }
+    }else{
+      outsummary$error = glue::glue("Data from {length(unique(Datarep$Reprodata$currentInst)} Institution(s)")
+      outsummary$Nerr = 3
+      outsummary$analyzed = FALSE
     }
-  }else{
-          outsummary$error = glue::glue("Data from {length(unique(Datarep$Reprodata$currentInst)} Institution(s)")
-          outsummary$Nerr = 3
-          outsummary$analyzed = FALSE
-  }
   }
   return(out)
 }

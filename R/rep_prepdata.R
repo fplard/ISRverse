@@ -98,7 +98,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
   if(Global & nrow(ADULTS)>0){
     ADULTS <- ADULTS%>%
       filter(AnyLocalCollectionFlag == 0)
-
+    
     parent <- parent %>%
       filter(ParentCollectionScopeType == "Global",
              OffspringCollectionScopeType == "Global")
@@ -129,19 +129,19 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
       mutate(Parent_Age = as.numeric(Offspring_BirthDate - 
                                        Parent_BirthDate) / 365.25)
     if(nrow(subpar)>0){
-    subpar <- subpar %>%
-      left_join(moves%>%as_tibble%>%
-                  select(AnimalAnonID, To, Date), 
-                by = c("ParentAnonID" = "AnimalAnonID"), relationship = "many-to-many")%>%
-      mutate(dist = purrr::map2_dbl(Offspring_BirthDate , Date, difftime)) %>%
-      filter(dist >= 0)%>%
-      group_by(AnimalAnonID) %>%
-      mutate(mintime = min(dist)) %>%
-      ungroup()%>%
-      filter(mintime  == dist) %>%
-      dplyr::select(-mintime , -dist, -Date)%>%
-      rename(currentInst = To)%>%
-      distinct()
+      subpar <- subpar %>%
+        left_join(moves%>%as_tibble%>%
+                    select(AnimalAnonID, To, Date), 
+                  by = c("ParentAnonID" = "AnimalAnonID"), relationship = "many-to-many")%>%
+        mutate(dist = purrr::map2_dbl(Offspring_BirthDate , Date, difftime)) %>%
+        filter(dist >= 0)%>%
+        group_by(AnimalAnonID) %>%
+        mutate(mintime = min(dist)) %>%
+        ungroup()%>%
+        filter(mintime  == dist) %>%
+        dplyr::select(-mintime , -dist, -Date)%>%
+        rename(currentInst = To)%>%
+        distinct()
     }
     
     # Number of births

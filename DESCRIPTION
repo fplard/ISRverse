@@ -28,6 +28,7 @@ Imports:
     paramDemo,
     purrr,
     readr,
+    rjson,
     snowfall,
     stats,
     stringr,

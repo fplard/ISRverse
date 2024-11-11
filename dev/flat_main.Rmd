@@ -74,8 +74,11 @@ The result files are saved using the following directory \code{{analysisDir}\{ta
 #' @param XMAX \code{numeric} Maximum possible age. Default = 120
 #' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
 #' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
+#' @param firstyear \code{logical} Whether to do the analysis only on first year. Default = FALSE
 #' @param models_sur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param lastdead  \code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE
 #' @param niter  \code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000
 #' @param burnin  \code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. Default = 5001
 #' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20
@@ -107,12 +110,12 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
                           uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
                           minNsur = 50, maxNsur = NULL, minInstitution = 2,
                           minlx = 0.1, MinBirthKnown = 0.3, XMAX =120,
-                          Min_MLE = 0.1, MaxLE = 2, 
+                          Min_MLE = 0.1, MaxLE = 2, minAge = 0,firstyear =FALSE,
                           models_sur = "GO", shape = "bathtub",
                           niter = 25000, burnin = 5001, thinning = 20, 
                           nchain = 3, ncpus = 2,
                           Repsect = c('agemat', 'litter'),
-                          Birth_Type = "Captive", 
+                          Birth_Type = "Captive", lastdead = FALSE,
                           parentProb = 80, minNlitter = 20,Nday = 7,
                           minNrepro = 100, minNparepro = 30, minNseas = 50, 
                           minNgro =100,minNIgro = 50, MeasureType = "Live weight",
@@ -134,6 +137,9 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_that(is.numeric( npara))
   assert_that(ipara <= npara)
   assert_that(is.numeric( maxOutl))
+  assert_that(is.numeric(minAge))
+  assert_that(minAge>=0)
+  assert_that(is.logical(firstyear))
   assert_that( maxOutl <= 100)
   assert_that(is.numeric(uncert_birth))
   assert_that(is.numeric(uncert_death))
@@ -169,8 +175,7 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_directory_exists(ZIMSdir)
   assert_directory_exists(AnalysisDir)
   assert_directory_exists(PlotDir)
-  dir.create(file.path(PlotDir, taxa), showWarnings = FALSE)
-  
+
   assert_that(all(Repsect %in% c("agemat", "litter")))
   assert_that(is.numeric(parentProb))
   assert_that(parentProb > 0)
@@ -203,11 +208,11 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   # ======================#
   cat("Loading Data\n")
   tables = c("Collection")
-   if("sur" %in% Sections){
-  tables = c(tables, "DeathInformation")
+  if("sur" %in% Sections){
+    tables = c(tables, "DeathInformation")
   }
   if("gro" %in% Sections){
-     tables = c(tables, "Weight")
+    tables = c(tables, "Weight")
   }
   if("rep" %in% Sections){
     tables = c(tables, "Parent", "Contraception", "Move")
@@ -284,23 +289,24 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
         load(glue::glue("{AnalysisDir}Rdata/{taxa}_{speciesname}.RData"))
       }else{repout = list()}
     }
-    if (species %in% spOutLev) maxOutl <- 99.9
+    if (species %in% spOutLev) {maxOutl1 <- 99.9
+    }else{maxOutl1 <- maxOutl}
     
     
     # Create report:
     repout <- tx_report(species, taxa, 
-                       Animal =  core, collection = data[[taxa]]$Collection, 
+                        Animal =  core, collection = data[[taxa]]$Collection, 
                         DeathInformation = DeathInformation,
                         PlotDir = PlotDir, extractDate= extractDate, minBirthDate = minBirthDate,
                         weights = weights, parents = parents, contraceptions = contraceptions, move = move,
                         repout = repout, Sections = Sections, Birth_Type = Birth_Type,
                         sexCats = sexCats, minN= minN, minDate= minDate, Global = Global,
                         uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,
-                        maxOutl = maxOutl, minlx = minlx, minInstitution = minInstitution,
+                        uncert_date = uncert_date,minAge =minAge,firstyear = firstyear,
+                        maxOutl = maxOutl1, minlx = minlx, minInstitution = minInstitution,
                         minNsur = minNsur, maxNsur = maxNsur, MinBirthKnown = MinBirthKnown,
                         Min_MLE = Min_MLE, MaxLE =  MaxLE,XMAX = XMAX,
-                        models_sur = models_sur, shape = shape,
+                        models_sur = models_sur, shape = shape,lastdead = lastdead,
                         niter = niter, burnin =  burnin, thinning = thinning,
                         nchain = nchain,  ncpus = ncpus,
                         Repsect = Repsect, parentProb = parentProb, minNrepro = minNrepro,
@@ -363,7 +369,7 @@ dir.create(PlotDir)
 #This code run the survival analysis
 run_txprofile(taxa = "Reptilia", Species_list = "All",
               ZIMSdir = ZIMSdir, AnalysisDir = ZIMSdir,
-              PlotDir = PlotDir,
+              PlotDir = PlotDir,minlx=0.4,
               extractDate = "", MeasureType="Live weight",
               minDate = "1980-01-01",
               Sections = c("sur",'rep',"gro"),
@@ -372,15 +378,12 @@ run_txprofile(taxa = "Reptilia", Species_list = "All",
 )
 
 list.files(PlotDir)
-
 unlink(PlotDir, recursive = TRUE)
-
 ```
 
 
 
 ```{r tests-run_txprofile}
-
 test_that("run_txprofile works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSdir = dirname(file)
@@ -391,7 +394,7 @@ test_that("run_txprofile works", {
   run_txprofile(taxa = "Reptilia", Species_list = "All",
                 ZIMSdir = ZIMSdir, AnalysisDir = ZIMSdir,
                 PlotDir = PlotDir, MeasureType="Live weight",
-                extractDate = "",
+                extractDate = "",minlx=0.4,
                 minDate = "1980-01-01",
                 Sections = "sur",
                 sexCats = c('Male', 'Female'),
@@ -428,6 +431,8 @@ it returns the main summary table
 #' @param taxaList \code{vector of character} names of the taxa studied. Default= "Mammalia"
 #' @param BySex \code{list} of the taxa names indicating the sexes analyzed. Default=list(Mammalia = c("Male", "Female"))
 #' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
+#' @param firstyear \code{logical} Whether to do the analysis only on first year. Default = FALSE
 #'
 #' @return It saves summary tables and plots for each Sections and a general summary table. It returns the main summary table
 #' @export
@@ -439,7 +444,7 @@ it returns the main summary table
 make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                           taxaList = "Mammalia", 
                           BySex = list(Mammalia = c("Male", "Female")) , 
-                          Sections = c("sur", 'rep', 'gro')
+                          Sections = c("sur", 'rep', 'gro'), minAge = 0, firstyear = FALSE
 ){
   nullToNA <- function(x) {
     x[sapply(x, is.null)] <- NA
@@ -457,7 +462,10 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   assert_that(is.character(namefile))
   assert_that(is.list(BySex))
   assert_that(all(taxaList %in% names(BySex)), msg = "BySex should be a list with names identical to taxaList")
-  
+   assert_that(is.numeric(minAge))
+  assert_that(minAge>=0)
+  assert_that(is.logical(firstyear))
+
   # List of available SRGs:
   SRGlist <- list.files(AnalysisDir, pattern = ".RData")
   assert_that(length(SRGlist) > 0, 
@@ -478,9 +486,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     icount <- icount + 1
     
-    table<-tibble(Class = rep(taxa, length(SRGsps_ta)*3),
-                  Species = rep(SRGspecies, each = 3),
-                  Sex = c("Male", "Female", "All"),
+    table<-tibble(Class = rep(taxa, length(SRGsps_ta)),
+                  Species = SRGspecies,
+                  Sex = "All",
                   Nraw = numeric(1),
                   Ndate = numeric(1),
                   Nglobal = numeric(1),
@@ -488,29 +496,44 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                   firstDate = as.Date(x = integer(1), origin = "1980-01-01"),
                   maxAgeraw = numeric(1),
                   extractdate =  as.Date(x = integer(1), origin = "1980-01-01"),
-                  Nlifespan = numeric(1),
-                  GapThresh = numeric(1),
-                  NThres = numeric(1)
+                  
     )
     AnyAna<- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
-                        Species = rep(SRGspecies, each = length(sexCats)),
-                        Sex = rep(sexCats, length(SRGspecies)))
+                    Species = rep(SRGspecies, each = length(sexCats)),
+                    Sex = rep(sexCats, length(SRGspecies)),
+                    Nglobal = numeric(1),
+                    Nlifespan = numeric(1),
+                    GapThresh = numeric(1),
+                    NThres = numeric(1))
     # Taxa data table:
     if ("sur" %in% Sections){
-      tempsur <- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
-                        Species = rep(SRGspecies, each = length(sexCats)),
-                        Sex = rep(sexCats, length(SRGspecies)),
+      models = paste0("from", minAge)
+      if(firstyear) models = c(models, "firstyear")
+      tempsur <- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)*length(models)),
+                        Species = rep(SRGspecies, each = length(sexCats)*length(models)),
+                        Sex = rep(rep(sexCats,each = length(models)), length(SRGspecies)),
+                        model = rep(models, length(SRGspecies)*length(sexCats)),
                         NGlobal = numeric(1), 
                         NBasta = numeric(1), 
                         Ndead = 0, 
                         lxMin = numeric(1),
                         maxAlive = numeric(1),
                         outLev = numeric(1),
-                        analyzed = logical(1), 
-                        Nerr = numeric(1), 
-                        error = character(1),
+                        analyzed = FALSE, 
+                        Nerr = 1, 
+                        error = "Nraw < minN",
                         Gof_KM =logical(1),
                         Gof_KM_coeff = numeric(1))
+      Finsur =  tibble( Species = character(0),
+                        Sex = character(0),
+                        model = character(0),
+                        Life_expe = numeric(0), 
+                        Remex0 = numeric(0), 
+                        # Remex1 = numeric(0), 
+                        L50 = numeric(0), 
+                        L90 = numeric(0)
+      )
+      
     }else{tempsur = tibble()}
     if ("gro" %in% Sections){
       tempgro <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
@@ -522,8 +545,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                          NJuv = numeric(1),NJuv_keep = numeric(1),
                          NAd = numeric(1), NAd_keep = numeric(1),
                          NWeight = numeric(1), NInd = numeric(1), 
-                         analyzed = logical(1), 
-                         Nerr = numeric(1), error = character(1))
+                        analyzed = FALSE, 
+                        Nerr = 1, 
+                        error = "Nraw < minN",)
     }else{tempgro = tibble()}
     if ("rep" %in% Sections){
       temprep <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
@@ -535,9 +559,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                          NParent= numeric(1),
                          NOffsp_age=numeric(1),
                          NParent_age=numeric(1),
-                         analyzed = logical(1),  
-                         Nerr= numeric(1),
-                         err= character(1),
+                          analyzed = FALSE, 
+                        Nerr = 1, 
+                        error = "Nraw < minN",
                          amat_analyzed = logical(1),  
                          litt_analyzed = logical(1))
     }else{temprep = tibble()}
@@ -562,20 +586,30 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
       # Fill up data list:
       for (sx in sexCats) {
         if(length(repout$summar[[sx]])>0){
-          table = table%>%
+          AnyAna = AnyAna%>%
             rows_update(repout$summar[[sx]]%>%nullToNA%>%as_tibble() %>% 
                           mutate(Species = specie, Sex = sx), 
                         by = c("Sex", "Species"), unmatched = "ignore")
         }
         if("sur" %in% Sections){
-          if(length(repout$surv[[sx]]$summary)>0){
-            tempsur <- tempsur%>%
-              rows_update(repout$surv[[sx]]$summary%>%nullToNA%>%
-                            as_tibble() %>% dplyr::select(-maxAge)%>%
-                            mutate(Species = specie, Sex = sx), 
-                          by = c("Sex", "Species"), unmatched = "ignore")
-          }}
-        
+          nam = names(repout$surv[[sx]])
+          for( n in 1:length(nam)){
+            if(length(repout$surv[[sx]][[n]]$summary)>0){
+              tempsur <- tempsur%>%
+                rows_update(repout$surv[[sx]][[n]]$summary%>%nullToNA%>%
+                              as_tibble() %>% dplyr::select(-maxAge)%>%
+                              mutate(Species = specie, Sex = sx, model = nam[[n]]), 
+                            by = c("Sex", "Species", "model"), unmatched = "ignore")
+              
+              MLE = tibble( Species = specie, Sex = sx, model = nam[[n]],
+                            Life_expe= repout$surv[[sx]][[n]]$bastaRes$PS$nocov$PS[1,1], 
+                            Remex0 = repout$surv[[sx]][[n]]$relex$RemLExp[c(1)], 
+                            # Remex1 = repout$surv[[sx]][[n]]$relex$RemLExp[c(101)],
+                            L50 = repout$surv[[sx]][[n]]$L50$L, L90 = repout$surv[[sx]][[n]]$L90$L)  
+              Finsur = Finsur%>%rows_append(MLE)
+              
+            }}
+        }
         if("gro" %in% Sections){
           if(length(repout$weig[[sx]]$Captive$wSummar)>0){
             tempgro <- tempgro%>%
@@ -593,7 +627,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
           }}
       }
     }
-    
+    tempsur <- tempsur%>%
+      left_join(  Finsur, by = c("Sex", "Species", "model") )
     if (icount == 1) {
       SummTab <-table
       SurTab <- tempsur
@@ -617,15 +652,17 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     utils::write.csv(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}.csv"),
                      row.names = FALSE)
+   readr::write_excel_csv2(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}2.csv"))
     
     Surtabsum <- SurTab %>% 
       mutate(error =ifelse(error =="", "Analyzed",error),
-             error = factor(error, levels = c('Analyzed','NThres == 0', 
-                                              "Nglobal = 0", "%known births < 0.3",
-                                              "Data from 1 Institution",
-                                              "Nbasta < minNsur", "lxMin > minlx",
-                                              "no DIC from Basta", "lx[MLE]<0.1",
-                                              "Min(Life_exp)>2"), 
+             error = factor(error, levels = c('Analyzed','Nraw < minN', 
+                                              "NBasta = 0", "%known births < MinBirthKnown",
+                                              "Data from 1 Institution","Nbasta > maxNsur",
+                                              "Nbasta < minNsur","Nglobal < minNsur", 
+                                              "lxMin > minlx",
+                                              "no DIC from Basta", "lx[MLE] < Min_MLE",
+                                              "Min(Life_exp) >= MaxLE", "Kaplan-Meier does not fit"), 
                             ordered = T)) %>% 
       group_by(Class, Sex, error)%>% summarize(N = n())
     p<- ggplot(data = Surtabsum, aes(x = error, y = N, fill = Sex)) +
@@ -761,7 +798,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
             All_Ana = all(across(ends_with("Ana"))))
   utils::write.csv(AnyAna, file =  glue::glue("{SaveDir}/SRGs_Any_Ana{namefile}.csv"),
                    row.names = FALSE)
- 
+  
   
   utils::write.csv(SummTab, file =  glue::glue("{SaveDir}/SRGs_Analyses{namefile}.csv"),
                    row.names = FALSE)
@@ -804,7 +841,7 @@ test_that("make_summary works", {
   expect_true(file.exists(paste(TempDir, 'SRGs_Growth.csv', sep = '\\')))
   expect_true(file.exists(paste(TempDir, 'SRGs_Analyses.csv', sep = '\\')))
   expect_named(SummTab , c("Class", "Species", "Sex", "Nraw", "Ndate", "Nglobal", "Nalive", "firstDate", "maxAgeraw",
-                           "extractdate", "Nlifespan", "GapThresh", "NThres"))
+                           "extractdate"))
   
   unlink(TempDir, recursive = TRUE)
 })
@@ -1106,10 +1143,149 @@ test_that("Split_Zimsdata works", {
 ```
 
 
+# Output for Dev team
+
+`make_summary()` produces summary tables and plots of the demographic analyses made for all species. It uses the following arguments:
+
+* `SpeciesTable` Data frame including 2 columns: *Class* and *Species*
+* `AnalysisDir` directory where to find the .Rdata files
+* `SaveDir` directory where to save summary plots and tables
+* `taxaList` names of the taxa studied.
+* `BySex` list of the taxa names indicating the sexes analyzed. 
+* `Sections` names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro"
+
+it returns the main summary table
+
+```{r function-Tx_devout}
+#' Summarize taxon profiles analyses
+#' 
+#' Produce summary tables and plots of the demographic analyses made for all species
+#'
+#' @param SpeciesTable \code{Data.frame} including 2 columns: *Class* and *Species*
+#' @param AnalysisDir  \code{character} directory where to find the .Rdata files
+#' @param SaveDir  \code{character} directory where to save the json files
+#' @param namefile \code{character} Suffix to add to the name of files produced if needed. Default = ""
+#' @param taxaList \code{vector of characters} name of the taxa studied. Default= "Mammalia"
+#' @param BySex \code{List} indicating the sexes analyzed. Default= list(Mammalia= c("Male", "Female"))
+#' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
+#'
+#' @return It saves summary tables and plots for each Sections and a general summary table. It returns the main summary table
+#' @export
+#' 
+#' @importFrom ggplot2 ggplot scale_fill_brewer facet_wrap geom_bar labs position_dodge coord_flip
+#' @importFrom ggpubr ggarrange
+#' 
+#' @examples
+Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
+                       taxaList = "Mammalia",
+                       BySex = list(Mammalia= c("Male", "Female")) , 
+                       Sections = c("sur", 'rep', 'gro')
+){
+  
+  assert_that(is.data.frame(SpeciesTable))
+  
+  assert_that(SpeciesTable  %has_name% c("Class", "Species"))
+  assert_that(is.character(taxaList))
+  # assert_that(taxaList %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+  #                             "Chondrichthyes", "Actinopterygii"),
+  #             msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+  #                         'Chondrichthyes', or 'Actinopterygii'")
+  assert_that(is.character(Sections))
+  assert_that(all(Sections %in% c("sur", "gro", "rep")))
+  checkmate::assert_directory_exists(AnalysisDir)
+  checkmate::assert_directory_exists(SaveDir)
+  assert_that(is.character(namefile))
+  assert_that(is.list(BySex))
+  assert_that(all(taxaList %in% names(BySex)), msg = "BySex should be a list with names identical to taxaList")
+  
+  # List of available SRGs:
+  SRGlist <- list.files(AnalysisDir, pattern = ".RData")
+  assert_that(length(SRGlist) > 0, 
+              msg = glue::glue("There are no result file in {AnalysisDir}"))
+
+  for (taxa in taxaList) {
+    
+      SRGspecies = SpeciesTable%>%filter(Class==taxa)%>%pull(Species)
+     SRGspeciesta = SRGspecies %>%stringr::str_replace(" ", "_")
+i = 0
+    # Loop over species
+    for (isp in SRGspeciesta) {
+      i = i+1
+      specie =isp%>%
+        stringr::str_remove(pattern = paste0(taxa, '_'))%>%
+        stringr::str_replace("_", " ")
+      
+      cat("\n", taxa," -------Species: ", SRGspecies[i], "Progress:", round(i / length(SRGspecies) * 100, 1),"%")
+      
+      # SRG file:
+      load(file = glue::glue("{AnalysisDir}/{taxa}_{isp}.RData"))
+      TPout = list()
+      
+      # Fill up data list:
+      for (sx in  BySex[[taxa]]) {
+        if("sur" %in% Sections){
+          TPout$survival[[sx]]$Nbasta = repout$surv[[sx]]$from0$summary$NBasta
+          TPout$survival[[sx]]$Lx = cbind(Age = repout$surv[[sx]]$from0$bastaRes$x, t(repout$surv[[sx]]$from0$bastaRes$surv$nocov))
+          TPout$survival[[sx]]$relex = repout$surv[[sx]]$from0$relex
+          TPout$survival[[sx]]$Sur1= repout$surv[[sx]]$from0$Sur1
+          
+        }
+        
+      }
+      write(rjson::toJSON(TPout), file = glue("{SaveDir}/{namefile}{taxa}_{isp}.json"))
+     }
+    
+    if("gro" %in% Sections){
+      print("There is no growth output for now")
+    }
+    if("rep" %in% Sections){
+      print("There is no reproduction output for now")
+      
+    }
+  }
+}
+```
+
+```{r examples-Tx_devout}
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'\\Rdata')
+SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+dir.create(SaveDir)
+SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
+Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
+                        taxaList = "Reptilia",
+                        BySex = list(Reptilia = c("Male", "Female")) ,
+                        Sections = c("sur", 'gro')
+)
+list.files(SaveDir)
+unlink(SaveDir, recursive = TRUE)
+```
+
+```{r tests-Tx_devout}
+test_that("Tx_devout works", {
+  file = system.file("sci_Animal.csv", package = 'ISRverse')
+  AnalysisDir  = paste0(dirname(file),'\\Rdata')
+  TempDir = paste0(tempdir(check = TRUE),'\\temp')
+  dir.create(TempDir,showWarnings =FALSE)
+  SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
+Tx_devout(SpeciesTable, AnalysisDir, SaveDir =TempDir ,
+                        taxaList = "Reptilia",
+                        BySex = list(Reptilia = c("Male", "Female")) ,
+                        Sections = c("sur", 'gro')
+)
+  expect_true(file.exists(paste(TempDir, 'Reptilia_Testudo_hermanni.json', sep = '\\')))
+
+  unlink(TempDir, recursive = TRUE)
+})
+```
+
+
 ```{r development-inflate, eval=FALSE}
 # Run but keep eval=FALSE to avoid infinite loop
 # Execute in the console directly
 fusen::inflate(flat_file = "dev/flat_main.Rmd", vignette_name = "Taxon profiles")
 ```
+
+
 
 

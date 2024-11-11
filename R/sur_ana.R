@@ -9,6 +9,7 @@
 #' @param outlLev1 \code{numeric} Start threshold used to selected for the data: 100%, 99.9, 99 or 95%
 #' @param models \code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param minAge \code{numeric} Age at which the analysis should start.  see ?basta for more information. Default = 0
 #' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
 #' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death date, in days
 #' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
@@ -21,6 +22,7 @@
 #' @param thinning  \code{numeric} Number of iteration to run before saving a set of parameters. see ?basta for more information. Default = 20
 #' @param nchain  \code{numeric} Number of chains to run. Default = 5001
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
+#' @param lastdead  \code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE
 #'
 #' @return The output of a list including:
 #' * a summary of the data used:
@@ -44,8 +46,8 @@
 #' out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
 #'                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", shape = "simple",
-                    mindate = "1980-01-01", minNsur = 50,maxNsur = NULL, uncert_death=365,
-                    minlx = 0.1, MinBirthKnown = 0.3, minInstitution = 1,
+                    minAge = 0, mindate = "1980-01-01", minNsur = 50,maxNsur = NULL, uncert_death=365,
+                    minlx = 0.1, MinBirthKnown = 0.3, minInstitution = 1,lastdead = FALSE,
                     niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
   
   mindate = lubridate::as_date(mindate)
@@ -86,6 +88,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   assert_that(all(models %in% c("GO", "EX", "LO", "WE")))
   assert_that(is.character(shape))
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
+  assert_that(is.logical(lastdead))
   
   
   #Initialize
@@ -129,10 +132,11 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
       if( summar$outLev == 95){outLev2 = 90}
     }
     
+    #raw median life expectancy
+    # summar$MedLE = median(deparAge[deparType == "D"])
     
     if (summar$lxMin <= minlx) {
-      #raw median life expectancy
-      # summar$MedLE = median(deparAge[deparType == "D"])
+      
       
       # Extract BaSTA table:
       bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
@@ -141,6 +145,11 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
         mutate(
           bdun = Max.Birth.Date-Min.Birth.Date,
           aliveTime = (Depart.Date - Entry.Date) / 365.25)
+      
+      if(lastdead){
+        bastatab$Depart.Type[bastatab$aliveTime == max(bastatab$aliveTime)]="D"
+      }
+      
       
       summar$NGlobal <- nrow(data_sel)
       summar$NBasta <- nrow(bastatab)
@@ -165,7 +174,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
                 for (imod in 1:length(models)) {
                   print(models[imod])
                   tempList[[models[imod]]] <- BaSTA::basta(
-                    bastatab, dataType = "census", shape = shape, 
+                    bastatab, dataType = "census", shape = shape, minAge = minAge, 
                     model = models[imod], parallel = TRUE, 
                     ncpus = ncpus, nsim = nchain,
                     niter = niter, burnin = burnin, thinning = thinning)
@@ -179,7 +188,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
                   for (imod in 1:length(models)) {
                     print(models[imod])
                     tempList[[models[imod]]] <- BaSTA::basta(
-                      bastatab, dataType = "census", shape = shape,
+                      bastatab, dataType = "census", shape = shape, minAge = minAge, 
                       ncpus = ncpus, nsim = nchain, 
                       niter = niter*4, burnin = burnin*4-3, thinning = thinning)
                     if (!is.na(tempList[[models[imod]]]$DIC[1])) {
@@ -192,39 +201,44 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
                 
                 # BaSTA outputs:
                 if (any(DICmods$DIC != 0)) {
-                  idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
+                  a = which(DICmods$DIC == 0)
+                   DICmods2 = DICmods
+                  if(length(a)>0){
+                    DICmods2 = DICmods2[-a,]
+                  }
+                  idModSel <- which(DICmods$DIC == min(DICmods2$DIC, na.rm = TRUE))
                   bastaRes <- tempList[[idModSel]]
                   summar$analyzed = TRUE
                 } else {
                   summar$error = 'no DIC from Basta'
-                  summar$Nerr = 8
+                  summar$Nerr = 9
                 }
               } else {
                 summar$error = "Nbasta > maxNsur"
-                summar$Nerr = 7
+                summar$Nerr = 8
               }} else {
                 summar$error = "Nbasta < minNsur"
-                summar$Nerr = 6
+                summar$Nerr = 7
               }
           }else{
             summar$error = "Data from 1 Institution"
-            summar$Nerr = 5
+            summar$Nerr = 6
           }
         }else{ 
           summar$error = "%known births < MinBirthKnown"
-          summar$Nerr = 4
+          summar$Nerr = 5
         }
       }else{
         summar$error = "NBasta = 0"
-        summar$Nerr = 3
+        summar$Nerr = 4
       }
     } else {
       summar$ error = "lxMin > minlx"
-      summar$ Nerr = 2
+      summar$ Nerr = 3
     }
   } else {
     summar$ error = "Nglobal < minNsur"
-    summar$ Nerr = 1
+    summar$ Nerr = 2
   }
   
   return(list(summary = summar, bastaRes = bastaRes, DICmods = DICmods))

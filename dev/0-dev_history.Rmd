@@ -84,20 +84,23 @@ usethis::use_package_doc()
 ## Use everytime needed
 
 ```{r, eval=FALSE}
-# Simulate package installation
-pkgload::load_all()
+# Add a new flat template
+fusen::add_flat_template("add")
 
 #inflate without check
 fusen::inflate_all_no_check()
+
+# Simulate package installation
+pkgload::load_all()
 
 # Generate documentation and deal with dependencies
 attachment::att_amend_desc()
 
 # Check the package
 devtools::check()
+ # build the tar.gz with vignettes to share with others
+devtools::build(vignettes = TRUE)
 
-# Add a new flat template
-fusen::add_flat_template("add")
 ```
 
 # Share the package
@@ -112,8 +115,7 @@ pkgdown::build_articles()
 pkgdown:::build_reference()
 pkgdown::build_news()
 
-# build the tar.gz with vignettes to share with others
-devtools::build(vignettes = TRUE)
+
 
 # Share your package and its documentation on GitHub
 # usethis::create_github_token()

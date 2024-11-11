@@ -6,11 +6,11 @@ test_that("Rep_main works", {
   data(parent)
   data(moves)
   out <- Rep_main (coresubset = core, collection, parent, moves,  
-          Repsect = c('agemat', 'litter'),
-          minNrep = 1, minNparep = 1,
-          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
-         ) 
-
+                   Repsect = c('agemat', 'litter'),
+                   minNrep = 1, minNparep = 1,
+                   BirthType_parent = "Captive", BirthType_offspring = "Captive", 
+  ) 
+  
   expect_named(out, c("summary", "agemat", "litter"))
   expect_named(out$summary, c("Nbirths", "Nadults", "NOffsp", "NParent", 
                               "NOffsp_age", "NParent_age", "analyzed",

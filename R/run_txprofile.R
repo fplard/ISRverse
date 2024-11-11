@@ -34,8 +34,11 @@
 #' @param XMAX \code{numeric} Maximum possible age. Default = 120
 #' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
 #' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
+#' @param firstyear \code{logical} Whether to do the analysis only on first year. Default = FALSE
 #' @param models_sur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param lastdead  \code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE
 #' @param niter  \code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000
 #' @param burnin  \code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. Default = 5001
 #' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20
@@ -94,12 +97,12 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
                           uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
                           minNsur = 50, maxNsur = NULL, minInstitution = 2,
                           minlx = 0.1, MinBirthKnown = 0.3, XMAX =120,
-                          Min_MLE = 0.1, MaxLE = 2, 
+                          Min_MLE = 0.1, MaxLE = 2, minAge = 0,firstyear =FALSE,
                           models_sur = "GO", shape = "bathtub",
                           niter = 25000, burnin = 5001, thinning = 20, 
                           nchain = 3, ncpus = 2,
                           Repsect = c('agemat', 'litter'),
-                          Birth_Type = "Captive", 
+                          Birth_Type = "Captive", lastdead = FALSE,
                           parentProb = 80, minNlitter = 20,Nday = 7,
                           minNrepro = 100, minNparepro = 30, minNseas = 50, 
                           minNgro =100,minNIgro = 50, MeasureType = "Live weight",
@@ -121,6 +124,9 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_that(is.numeric( npara))
   assert_that(ipara <= npara)
   assert_that(is.numeric( maxOutl))
+  assert_that(is.numeric(minAge))
+  assert_that(minAge>=0)
+  assert_that(is.logical(firstyear))
   assert_that( maxOutl <= 100)
   assert_that(is.numeric(uncert_birth))
   assert_that(is.numeric(uncert_death))
@@ -156,8 +162,7 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_directory_exists(ZIMSdir)
   assert_directory_exists(AnalysisDir)
   assert_directory_exists(PlotDir)
-  dir.create(file.path(PlotDir, taxa), showWarnings = FALSE)
-  
+
   assert_that(all(Repsect %in% c("agemat", "litter")))
   assert_that(is.numeric(parentProb))
   assert_that(parentProb > 0)
@@ -190,11 +195,11 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   # ======================#
   cat("Loading Data\n")
   tables = c("Collection")
-   if("sur" %in% Sections){
-  tables = c(tables, "DeathInformation")
+  if("sur" %in% Sections){
+    tables = c(tables, "DeathInformation")
   }
   if("gro" %in% Sections){
-     tables = c(tables, "Weight")
+    tables = c(tables, "Weight")
   }
   if("rep" %in% Sections){
     tables = c(tables, "Parent", "Contraception", "Move")
@@ -271,23 +276,24 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
         load(glue::glue("{AnalysisDir}Rdata/{taxa}_{speciesname}.RData"))
       }else{repout = list()}
     }
-    if (species %in% spOutLev) maxOutl <- 99.9
+    if (species %in% spOutLev) {maxOutl1 <- 99.9
+    }else{maxOutl1 <- maxOutl}
     
     
     # Create report:
     repout <- tx_report(species, taxa, 
-                       Animal =  core, collection = data[[taxa]]$Collection, 
+                        Animal =  core, collection = data[[taxa]]$Collection, 
                         DeathInformation = DeathInformation,
                         PlotDir = PlotDir, extractDate= extractDate, minBirthDate = minBirthDate,
                         weights = weights, parents = parents, contraceptions = contraceptions, move = move,
                         repout = repout, Sections = Sections, Birth_Type = Birth_Type,
                         sexCats = sexCats, minN= minN, minDate= minDate, Global = Global,
                         uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,
-                        maxOutl = maxOutl, minlx = minlx, minInstitution = minInstitution,
+                        uncert_date = uncert_date,minAge =minAge,firstyear = firstyear,
+                        maxOutl = maxOutl1, minlx = minlx, minInstitution = minInstitution,
                         minNsur = minNsur, maxNsur = maxNsur, MinBirthKnown = MinBirthKnown,
                         Min_MLE = Min_MLE, MaxLE =  MaxLE,XMAX = XMAX,
-                        models_sur = models_sur, shape = shape,
+                        models_sur = models_sur, shape = shape,lastdead = lastdead,
                         niter = niter, burnin =  burnin, thinning = thinning,
                         nchain = nchain,  ncpus = ncpus,
                         Repsect = Repsect, parentProb = parentProb, minNrepro = minNrepro,

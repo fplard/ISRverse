@@ -53,7 +53,7 @@
 #       if (fertRate > 1) {
 #         if(Vfert>0){
 #           fertSE <-sqrt(Vfert / Npar)
-#         }else{ fertSE <- 0}
+#         } else{ fertSE <- 0}
 #       } else {
 #         fertSE <- sqrt(fertRate * (1 - fertRate) / 
 #                          Npar)

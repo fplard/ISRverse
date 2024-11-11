@@ -11,6 +11,7 @@
 #' @param ncpus  \code{numeric} Number of core to use
 #' @param xMax \code{numeric} Maximum age in years Default = 120
 #' @param dx \code{numeric} precision for age Default = 0.01
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
 #'
 #' @return a data frame including age, the mean and 95% credible interval of the remaining life expectancy
 #' 
@@ -27,7 +28,7 @@
 #' out <- Sur_relex(theMat, model = 'GO', shape = 'simple', ncpus = 2,
 #'                  xMax = 50, dx = 0.1)
 Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
-                      xMax = 120, dx = 0.01) {
+                      xMax = 120, dx = 0.01,minAge = 0) {
   
   assert_that(is.array(theMat))
   assert_that(is.numeric(xMax))
@@ -68,7 +69,7 @@ Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
     }
   }
   
-  exQuants <- data.frame(Age = xv[which(xv <= xMax)], 
+  exQuants <- data.frame(Age = xv[which(xv <= xMax)] + minAge, 
                          RemLExp = apply(exMat, 2, mean), 
                          Lower = apply(exMat, 2, quantile, 0.025),
                          Upper = apply(exMat, 2, quantile, 0.975))

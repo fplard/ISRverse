@@ -10,6 +10,8 @@
 #' @param taxaList \code{vector of character} names of the taxa studied. Default= "Mammalia"
 #' @param BySex \code{list} of the taxa names indicating the sexes analyzed. Default=list(Mammalia = c("Male", "Female"))
 #' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
+#' @param firstyear \code{logical} Whether to do the analysis only on first year. Default = FALSE
 #'
 #' @return It saves summary tables and plots for each Sections and a general summary table. It returns the main summary table
 #' @export
@@ -34,7 +36,7 @@
 make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                           taxaList = "Mammalia", 
                           BySex = list(Mammalia = c("Male", "Female")) , 
-                          Sections = c("sur", 'rep', 'gro')
+                          Sections = c("sur", 'rep', 'gro'), minAge = 0, firstyear = FALSE
 ){
   nullToNA <- function(x) {
     x[sapply(x, is.null)] <- NA
@@ -52,7 +54,10 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   assert_that(is.character(namefile))
   assert_that(is.list(BySex))
   assert_that(all(taxaList %in% names(BySex)), msg = "BySex should be a list with names identical to taxaList")
-  
+   assert_that(is.numeric(minAge))
+  assert_that(minAge>=0)
+  assert_that(is.logical(firstyear))
+
   # List of available SRGs:
   SRGlist <- list.files(AnalysisDir, pattern = ".RData")
   assert_that(length(SRGlist) > 0, 
@@ -73,9 +78,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     icount <- icount + 1
     
-    table<-tibble(Class = rep(taxa, length(SRGsps_ta)*3),
-                  Species = rep(SRGspecies, each = 3),
-                  Sex = c("Male", "Female", "All"),
+    table<-tibble(Class = rep(taxa, length(SRGsps_ta)),
+                  Species = SRGspecies,
+                  Sex = "All",
                   Nraw = numeric(1),
                   Ndate = numeric(1),
                   Nglobal = numeric(1),
@@ -83,29 +88,44 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                   firstDate = as.Date(x = integer(1), origin = "1980-01-01"),
                   maxAgeraw = numeric(1),
                   extractdate =  as.Date(x = integer(1), origin = "1980-01-01"),
-                  Nlifespan = numeric(1),
-                  GapThresh = numeric(1),
-                  NThres = numeric(1)
+                  
     )
     AnyAna<- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
-                        Species = rep(SRGspecies, each = length(sexCats)),
-                        Sex = rep(sexCats, length(SRGspecies)))
+                    Species = rep(SRGspecies, each = length(sexCats)),
+                    Sex = rep(sexCats, length(SRGspecies)),
+                    Nglobal = numeric(1),
+                    Nlifespan = numeric(1),
+                    GapThresh = numeric(1),
+                    NThres = numeric(1))
     # Taxa data table:
     if ("sur" %in% Sections){
-      tempsur <- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
-                        Species = rep(SRGspecies, each = length(sexCats)),
-                        Sex = rep(sexCats, length(SRGspecies)),
+      models = paste0("from", minAge)
+      if(firstyear) models = c(models, "firstyear")
+      tempsur <- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)*length(models)),
+                        Species = rep(SRGspecies, each = length(sexCats)*length(models)),
+                        Sex = rep(rep(sexCats,each = length(models)), length(SRGspecies)),
+                        model = rep(models, length(SRGspecies)*length(sexCats)),
                         NGlobal = numeric(1), 
                         NBasta = numeric(1), 
                         Ndead = 0, 
                         lxMin = numeric(1),
                         maxAlive = numeric(1),
                         outLev = numeric(1),
-                        analyzed = logical(1), 
-                        Nerr = numeric(1), 
-                        error = character(1),
+                        analyzed = FALSE, 
+                        Nerr = 1, 
+                        error = "Nraw < minN",
                         Gof_KM =logical(1),
                         Gof_KM_coeff = numeric(1))
+      Finsur =  tibble( Species = character(0),
+                        Sex = character(0),
+                        model = character(0),
+                        Life_expe = numeric(0), 
+                        Remex0 = numeric(0), 
+                        # Remex1 = numeric(0), 
+                        L50 = numeric(0), 
+                        L90 = numeric(0)
+      )
+      
     }else{tempsur = tibble()}
     if ("gro" %in% Sections){
       tempgro <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
@@ -117,8 +137,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                          NJuv = numeric(1),NJuv_keep = numeric(1),
                          NAd = numeric(1), NAd_keep = numeric(1),
                          NWeight = numeric(1), NInd = numeric(1), 
-                         analyzed = logical(1), 
-                         Nerr = numeric(1), error = character(1))
+                        analyzed = FALSE, 
+                        Nerr = 1, 
+                        error = "Nraw < minN",)
     }else{tempgro = tibble()}
     if ("rep" %in% Sections){
       temprep <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
@@ -130,9 +151,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                          NParent= numeric(1),
                          NOffsp_age=numeric(1),
                          NParent_age=numeric(1),
-                         analyzed = logical(1),  
-                         Nerr= numeric(1),
-                         err= character(1),
+                          analyzed = FALSE, 
+                        Nerr = 1, 
+                        error = "Nraw < minN",
                          amat_analyzed = logical(1),  
                          litt_analyzed = logical(1))
     }else{temprep = tibble()}
@@ -157,20 +178,30 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
       # Fill up data list:
       for (sx in sexCats) {
         if(length(repout$summar[[sx]])>0){
-          table = table%>%
+          AnyAna = AnyAna%>%
             rows_update(repout$summar[[sx]]%>%nullToNA%>%as_tibble() %>% 
                           mutate(Species = specie, Sex = sx), 
                         by = c("Sex", "Species"), unmatched = "ignore")
         }
         if("sur" %in% Sections){
-          if(length(repout$surv[[sx]]$summary)>0){
-            tempsur <- tempsur%>%
-              rows_update(repout$surv[[sx]]$summary%>%nullToNA%>%
-                            as_tibble() %>% dplyr::select(-maxAge)%>%
-                            mutate(Species = specie, Sex = sx), 
-                          by = c("Sex", "Species"), unmatched = "ignore")
-          }}
-        
+          nam = names(repout$surv[[sx]])
+          for( n in 1:length(nam)){
+            if(length(repout$surv[[sx]][[n]]$summary)>0){
+              tempsur <- tempsur%>%
+                rows_update(repout$surv[[sx]][[n]]$summary%>%nullToNA%>%
+                              as_tibble() %>% dplyr::select(-maxAge)%>%
+                              mutate(Species = specie, Sex = sx, model = nam[[n]]), 
+                            by = c("Sex", "Species", "model"), unmatched = "ignore")
+              
+              MLE = tibble( Species = specie, Sex = sx, model = nam[[n]],
+                            Life_expe= repout$surv[[sx]][[n]]$bastaRes$PS$nocov$PS[1,1], 
+                            Remex0 = repout$surv[[sx]][[n]]$relex$RemLExp[c(1)], 
+                            # Remex1 = repout$surv[[sx]][[n]]$relex$RemLExp[c(101)],
+                            L50 = repout$surv[[sx]][[n]]$L50$L, L90 = repout$surv[[sx]][[n]]$L90$L)  
+              Finsur = Finsur%>%rows_append(MLE)
+              
+            }}
+        }
         if("gro" %in% Sections){
           if(length(repout$weig[[sx]]$Captive$wSummar)>0){
             tempgro <- tempgro%>%
@@ -188,7 +219,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
           }}
       }
     }
-    
+    tempsur <- tempsur%>%
+      left_join(  Finsur, by = c("Sex", "Species", "model") )
     if (icount == 1) {
       SummTab <-table
       SurTab <- tempsur
@@ -212,15 +244,17 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     utils::write.csv(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}.csv"),
                      row.names = FALSE)
+   readr::write_excel_csv2(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}2.csv"))
     
     Surtabsum <- SurTab %>% 
       mutate(error =ifelse(error =="", "Analyzed",error),
-             error = factor(error, levels = c('Analyzed','NThres == 0', 
-                                              "Nglobal = 0", "%known births < 0.3",
-                                              "Data from 1 Institution",
-                                              "Nbasta < minNsur", "lxMin > minlx",
-                                              "no DIC from Basta", "lx[MLE]<0.1",
-                                              "Min(Life_exp)>2"), 
+             error = factor(error, levels = c('Analyzed','Nraw < minN', 
+                                              "NBasta = 0", "%known births < MinBirthKnown",
+                                              "Data from 1 Institution","Nbasta > maxNsur",
+                                              "Nbasta < minNsur","Nglobal < minNsur", 
+                                              "lxMin > minlx",
+                                              "no DIC from Basta", "lx[MLE] < Min_MLE",
+                                              "Min(Life_exp) >= MaxLE", "Kaplan-Meier does not fit"), 
                             ordered = T)) %>% 
       group_by(Class, Sex, error)%>% summarize(N = n())
     p<- ggplot(data = Surtabsum, aes(x = error, y = N, fill = Sex)) +
@@ -356,7 +390,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
             All_Ana = all(across(ends_with("Ana"))))
   utils::write.csv(AnyAna, file =  glue::glue("{SaveDir}/SRGs_Any_Ana{namefile}.csv"),
                    row.names = FALSE)
- 
+  
   
   utils::write.csv(SummTab, file =  glue::glue("{SaveDir}/SRGs_Analyses{namefile}.csv"),
                    row.names = FALSE)

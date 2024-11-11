@@ -35,6 +35,7 @@ tx_report(
   XMAX = 120,
   Min_MLE = 0.1,
   MaxLE = 2,
+  firstyear = FALSE,
   models_sur = "GO",
   shape = "bathtub",
   niter = 25000,
@@ -42,6 +43,8 @@ tx_report(
   thinning = 20,
   nchain = 3,
   ncpus = 2,
+  minAge = 0,
+  lastdead = FALSE,
   Repsect = c("agemat", "litter"),
   Birth_Type = "Captive",
   parentProb = 80,
@@ -117,6 +120,8 @@ tx_report(
 
 \item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
 
+\item{firstyear}{\code{logical} Whether to do the analysis only on first year. Default = FALSE}
+
 \item{models_sur}{\code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
 
 \item{shape}{\code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
@@ -130,6 +135,10 @@ tx_report(
 \item{nchain}{\code{numeric} Number of chains to run the survival model. Default = 5001}
 
 \item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
+
+\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
+
+\item{lastdead}{\code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE}
 
 \item{Repsect}{\code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...}
 

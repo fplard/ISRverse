@@ -30,7 +30,7 @@
 #' data(deathinformation)
 #' out<- surv_Bastab(core, DeathInformation = deathinformation,
 #'                   earliestDate = '1990-01-01', latestDate = '2020-12-31', 
-#'                   otherCovars = NA, excludeStillbirth = TRUE)
+#'                   otherCovars = "SexType", excludeStillbirth = TRUE)
 #'
 #'
 surv_Bastab <- function (coresubset, DeathInformation, earliestDate = NA, latestDate = NA, 
@@ -48,18 +48,23 @@ surv_Bastab <- function (coresubset, DeathInformation, earliestDate = NA, latest
   if (!is.na(otherCovars)) {
     assert_that(coresubset %has_name% otherCovars)
     inclcols <- c(inclcols, otherCovars)
-    ncolnames <- c(ncolnames, otherCovars)
-  }
+   }
   
   bastadat <- coresubset[, inclcols]%>%
     left_join(DeathInformation%>%select(AnimalAnonID, RelevantDeathInformationType)%>%
                 filter(RelevantDeathInformationType %in% c("Stillborn","Fetal death")), by = "AnimalAnonID")
-  
+  if (!is.na(otherCovars)) {
   colnames(bastadat) <- c("AnimalAnonID", "binSpecies", "Class", 
                           "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", 
                           "Max.Birth.Date", "Entry.Date", "Depart.Date", "Entry.Type", 
-                          "Depart.Type", "RelevantDeathInformationType")
-  
+                          "Depart.Type",otherCovars, "RelevantDeathInformationType")
+  }else{
+     colnames(bastadat) <- c("AnimalAnonID", "binSpecies", "Class", 
+                          "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", 
+                          "Max.Birth.Date", "Entry.Date", "Depart.Date", "Entry.Type", 
+                          "Depart.Type","RelevantDeathInformationType")
+
+  }
   
   #Earliest and latest dates
   if (is.na(earliestDate)) {

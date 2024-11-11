@@ -2,14 +2,16 @@
 
 #' Maximum Longevity
 #' 
-#' Estimate L90: age at which 90% of the population died
+#' Estimate Lxx: age at which xx% of the population is still alive
 #' 
 #' @param theMat \code{array} including the posteriors estimates of the model parameter
 #' @param model \code{character} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param xx  \code{numeric} % of the population still alive
 #' @param ncpus  \code{numeric} Number of core to use
 #' @param ageMax \code{numeric} Maximum age in years Default = 120
 #' @param dage \code{numeric} precision  for age Default = 0.01
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
 #'
 #' @return a data frame including age, the mean and 95% credible interval of the L90
 #' 
@@ -23,18 +25,21 @@
 #'                                b1= rnorm(10, 0.1, 0.01)))
 #'
 #'
-#' out <- Sur_90(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-#'               ageMax = 50, dage = 0.1)
-Sur_90 <- function(theMat,  model = 'GO', shape = 'bathtub', ncpus = 1,
-                   ageMax = 120, dage = 0.01) {
+#' out <- Sur_xx(theMat, model = 'GO', shape = 'simple', ncpus = 2,
+#'               ageMax = 50, dage = 0.1, xx = 0.1)
+Sur_xx <- function(theMat,  model = 'GO', shape = 'bathtub', ncpus = 1,
+                   ageMax = 120, dage = 0.01, xx = 0.5, minAge =0) {
   
   assert_that(is.array(theMat))
   assert_that(is.numeric(ageMax))
-  assert_that(ageMax > 1)
+  assert_that(ageMax >= 1)
   assert_that(is.numeric(dage))
   assert_that(dage > 0)
   assert_that(is.numeric(ncpus))
   assert_that(ncpus > 0)
+  assert_that(is.numeric(xx))
+  assert_that(xx > 0)
+  assert_that(xx <1)
   assert_that(is.character(model))
   assert_that(all(model %in% c("GO", "EX", "LO", "WE")))
   assert_that(is.character(shape))
@@ -46,9 +51,9 @@ Sur_90 <- function(theMat,  model = 'GO', shape = 'bathtub', ncpus = 1,
   # run parallel estimation:
   sfInit(parallel = TRUE, cpus = ncpus)
   # Run parallel function:
-  exparal <- sfClusterApplyLB(1:ncpus, Sur_90_0, theMat = theMat,
+  exparal <- sfClusterApplyLB(1:ncpus, Sur_xx_0, theMat = theMat,
                               model = model, shape = shape,  
-                              iseq = iseq,  xv = xv )
+                              iseq = iseq,  xv = xv , xx=xx)
   # Stop application:
   sfStop()
   
@@ -61,22 +66,22 @@ Sur_90 <- function(theMat,  model = 'GO', shape = 'bathtub', ncpus = 1,
     }
   }
   
-  out <- list(L90 = mean(exMat), Lower = quantile(exMat,0.025), Upper =  quantile(exMat,0.975))
+  out <- list(L = mean(exMat+minAge), Lower = quantile(exMat+minAge,0.025), Upper =  quantile(exMat+minAge,0.975))
   
   return(out)
 }
 
 
-#' Age at which 90% of the population have died
+#' Age at which xx% of the population still alive
 #'
-#' @return L90
+#' @return Lxx
 #' 
 #' @importFrom paramDemo CalcSurv
 #' 
 #'
 #' @noRd
-Sur_90_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',  
-                     iseq = 1:nrow(theMat), 
+Sur_xx_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',  
+                     iseq = 1:nrow(theMat), xx =0.5,
                      xv = seq(0, 50, by = 0.01)
 ) {
   
@@ -84,8 +89,8 @@ Sur_90_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',
   surage <- t(sapply(idseq, function(ith) {
     theta <- theMat[ith, ]
     Sx <- paramDemo::CalcSurv(theta = theta, x = xv, model = model, shape = shape)
-    L90 <- xv[max(which(Sx>=0.1))]
-    return(L90)
+    Lxx <- xv[max(which(Sx>=xx))]
+    return(Lxx)
   }))
   return(surage)
 }

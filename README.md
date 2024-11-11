@@ -55,6 +55,7 @@ Use the correct directories to find data and run the analyses
 #### On your own computer
 
 ``` r
+library(glue)
 # Path to the ZIMSdata directory:
 ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/"
 
@@ -66,9 +67,12 @@ RdataDir <-  glue ("{analysisDir}Rdata/")
 # directory to save Json for the dev team:
 JsonDir <-  glue ("{analysisDir}Json/")
 # Plot directory:
-plotDir <- glue ("{analysisDir}Plot/")
+plotDir <- glue ("{ZIMSdir}Plot/")
 
 setwd(analysisDir)
+library(ISRverse)
+library(tidyverse)
+library(rjson)
 ```
 
 #### On Ucloud
@@ -133,7 +137,6 @@ Download the needed libraries
 ``` r
 library(ISRverse)
 library(tidyverse)
-library(rjson)
 ```
 
 ## Split Science extract per taxa
@@ -150,6 +153,117 @@ columns: Age in years, UnitOfMeasure and MeasurementValue
 # Path to the ZIMSdata directory:
 extractDate ="2024-08-29"
 Split_Zimsdata  (ZIMSdir = ZIMSdirdata, extractDate = extractDate) 
+```
+
+## Tutorial for survival
+
+``` r
+extractDate ="2024-08-29"
+taxa = "Mammalia"
+List_species = list(Mammalia = c("Capra sibirica", "Cuon alpinus", "Nanger granti"))
+
+#Filters ----------------------------------
+# Earliest date to include records
+minDate <- "1980-01-01"
+# Earliest birth date to include records
+minBirthDate <- "1900-01-01"
+#Whether to include only Global individuals
+Global = TRUE
+#Birth Type of Animals: "Captive", "Wild" or "All"
+Birth_Type = "Captive"
+# Minimum number of individuals to run the taxon profile
+minN <- 50
+# Maximum threshold in the longevity distribution to use
+maxOutl <- 99 
+# Conditions to run all analyses
+minInstitution = 2 
+#Maximum uncertainty accepted for birth dates, in days
+uncert_birth = 365
+#Maximum uncertainty accepted for death dates, in days
+uncert_death = 365
+# Maximum possible age
+XMAX = 120
+#Age when to start the analysis
+minAge =c(0)
+#Whether to run the first year survival analysis
+firstyear = F
+
+
+#      Survival Models --------------------------------
+# Survival Models to run: "GO", "LO", "EX" or/and "WE"
+models_sur <- c("GO", "LO")
+#Shape of the survival model: "simple", "bathtub" or "Makeham"
+shape = "bathtub"
+
+# Number of CPUS:
+ncpus <- 4
+
+# MCMC settings:
+niter <- 10000
+burnin <- 3001
+thinning <- 20
+nchain <- 3
+
+# Conditions to run the survival analysis
+minNsur = 50 #Minimum number of individuals
+maxNsur = 1000 #Maximum number of individuals
+minlx = 0.1  #Minimum survivorship reach by raw life table
+MinBirthKnown = 0.3 #Minimum proportions of known birth date (within a month)
+#Goodness of fit
+Min_MLE = 0.1 #Minimum survivorship at Mean life expectancy
+MaxLE = 2     #Maximum remaining life expectancy at max age
+
+# Table with species that require rerruning with higher outlier level:
+maxOutLev <- read.csv(glue("{analysisDir}maxOutlierLevel.csv"), header = TRUE,
+                      stringsAsFactors = FALSE)
+spOutLev <- maxOutLev$Specie
+
+#Load Data
+Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdirdata, 
+                      species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', 'DeathInformation')) 
+Animal <- Prep_Animal(Data[[taxa]]$Animal, extractDate = lubridate::as_date("2024/08/29"))
+
+for (species in List_species[[taxa]]){
+  print(species)
+  if (species %in% spOutLev) {maxOutl1 <- 99.9
+  }else{maxOutl1 <- maxOutl}
+  Dataspe <- select_species(species, Animal, Data[[taxa]]$Collection, uncert_birth = uncert_birth,
+                            minDate = minDate , extractDate = extractDate,
+                            Global = Global) 
+  if(nrow(Dataspe$data)>0){
+    out = list()
+    for (sx in c("Male", "Female")){
+      print(sx)
+      sexDat <- select_Longthreshold( Dataspe$data,  sexCats = sx, 
+                                      PlotDir= glue::glue("{plotDir}test2/"),
+                                      minN = minN ,
+                                      maintitle = glue::glue("{taxa}_{species}_{sx}") )
+      outlLev1 = min(sexDat$summar$GapThresh,maxOutl, na.rm = T)
+      
+  
+      if(nrow(sexDat$data)>0){ 
+        #Calculate reproductive age statistics
+        out[[sx]] <-  Sur_main(data.core = sexDat$data,  DeathInformation =  Data[[taxa]]$DeathInformation,
+                               Birth_Type = Birth_Type, lastdead = T,
+                               PlotDir = glue::glue("{plotDir}test2/"),
+                               XMAX = XMAX,
+                               models = models_sur, shape= shape, 
+                               outlLev1 =outlLev1,
+                               Min_MLE = Min_MLE, MaxLE =  MaxLE,
+                               mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
+                               minInstitution = minInstitution,uncert_death= uncert_death,
+                               minlx = minlx , MinBirthKnown = MinBirthKnown, 
+                               niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
+                               ncpus = ncpus, plotname = glue("{taxa}_{species}_{sx}") )
+        print(out$summary$error)
+      }
+    }
+  }
+}
+
+plot(out$bastaRes, plot.type = 'gof')
 ```
 
 ## Tutorial for reproduction
@@ -271,6 +385,7 @@ extractDate ="2024-08-29"
 
 taxa = "Mammalia"
 List_species = list(Mammalia = c("Panthera leo", "Panthera onca","Panthera uncia", "Panthera tigris", "Panthera pardus"))
+List_species = list(Mammalia = c("Cervus elaphus"))
 sexCats = c("Female", "Male", "All")
 
 #Filters
@@ -326,7 +441,7 @@ for (species in List_species[[taxa]]){
       # sexDat <- select_Longthreshold( Dataspe$data,  sexCats = sx, 
       #                                 PlotDir= PlotDir, minN = minN,
       #                                 maintitle = glue::glue("{species}_{sx}") )
-       if(sx != "All"){
+      if(sx != "All"){
         coresubset <- Dataspe$data%>%filter(SexType == sx)
       }else{coresubset <- Dataspe$data}
       if(nrow(coresubset)>0){
@@ -357,11 +472,11 @@ for (species in List_species[[taxa]]){
                                models = models_gro,
                                mindate = minDate, plotname = glue("{species}_{sx}") )
         
-       }
+      }
     }
     save(weig, file = glue("{SaveDir}/{species}_growth.Rdata"))   
   }      
- 
+  
 }
 #Look at what is in "weig" and we will work on additional code to make the analysis of several species easier to save and to compare results
 ```
@@ -412,6 +527,13 @@ uncert_date = 365
 # Maximum possible age
 XMAX = 120
 
+#Age when to start the analysis
+minAge =c(0)
+#Whether to run the first year survival analysis
+firstyear = TRUE
+#Whether the oldest individuals should be considered as dead by the model
+lastdead = T
+
 
 #      Survival Models --------------------------------
 # Survival Models to run: "GO", "LO", "EX" or/and "WE"
@@ -423,8 +545,8 @@ shape = "bathtub"
 ncpus <- 4
 
 # MCMC settings:
-niter <- 25000
-burnin <- 5001
+niter <- 10000
+burnin <- 3001
 thinning <- 20
 nchain <- 3
 
@@ -494,6 +616,7 @@ profile results: “sur”, “rep” and/or “gro”
 taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
+Sections = c("sur")
 
 run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata, 
                AnalysisDir = analysisDir, PlotDir = plotDir,
@@ -532,7 +655,8 @@ taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
 # Sections = c("sur")
-Species_list =list_surv[327:400]
+# Species_list =list_surv
+Species_list =c("Panthera onca", "Loris_tardigradus", "Pteropus_livingstonii")
 
 run_txprofile (taxa = taxaList[taxa], 
                ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
@@ -540,6 +664,7 @@ run_txprofile (taxa = taxaList[taxa],
                sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
                Species_list = Species_list,  Sections = Sections,  
                extractDate = extractDate, minDate = minDate, 
+               minAge = minAge, firstyear = firstyear,lastdead =lastdead,
                minBirthDate = minBirthDate, minN = minN,  Global =  Global,
                maxOutl = maxOutl,  spOutLev = spOutLev, 
                uncert_birth = uncert_birth, uncert_death= uncert_death,
@@ -562,11 +687,12 @@ run_txprofile (taxa = taxaList[taxa],
 #### Option 3: Run all species from one taxa in parallel on different computers
 
 ``` r
-#Run this code changing ipara on each different computer
-XX = 3
 # for example on the first computer:
 ipara = 1
 
+
+#Run this code changing ipara on each different computer
+XX = 5
 taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
@@ -576,7 +702,8 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
                inparallel = TRUE, ipara = ipara, npara = XX, 
                AnalysisDir = analysisDir, PlotDir = plotDir,
                Sections = Sections, erase_previous = FALSE,
-               extractDate = extractDate, minDate = minDate,
+               minAge = minAge, firstyear = firstyear,lastdead =lastdead,
+              extractDate = extractDate, minDate = minDate,
                sexCats = BySex[[taxaList[taxa]]], 
                minN = minN,  Global =  Global,
                maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
@@ -596,6 +723,7 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
                models_gro = models_gro
                
 )
+save(ipara, file = glue("{analysisDir}/{ipara}finished.Rdata"))
 ```
 
 ### Check
@@ -647,49 +775,51 @@ Rock eagle owl, Plains-wanderer
 
 ``` r
 Spec_list  = list(Amphibia = c("Nectophrynoides asperginis", "Cryptobranchus alleganiensis", "Dendrobates auratus"),
-Mammalia = c("Sapajus apella", "Saimiri sciureus"),
-Aves = c("Phoeniculus purpureus", "Bubo bengalensis", 'Pedionomus torquatus'))
+                  Mammalia = c("Sapajus apella", "Saimiri sciureus"),
+                  Aves = c("Phoeniculus purpureus", "Bubo bengalensis", 'Pedionomus torquatus'))
 
-for (taxa in c(4)){
-#Sections to run or to update
-Sections = c("sur", "rep", "gro")
-
-run_txprofile (taxa = taxaList[taxa], 
-               ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
-               erase_previous = FALSE,Birth_Type = "Captive", 
-               sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
-               Species_list = Spec_list[[taxaList[taxa]]],  Sections = Sections,  
-               extractDate = extractDate, minDate = minDate, 
-               minBirthDate = minBirthDate, minN = minN,  Global =  Global,
-               maxOutl = maxOutl,  spOutLev = spOutLev, 
-               uncert_birth = uncert_birth, uncert_death= uncert_death,
-               uncert_date = uncert_date,
-               minInstitution = minInstitution, 
-               minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
-               minlx = minlx, MinBirthKnown = MinBirthKnown, 
-               Min_MLE = Min_MLE, MaxLE =  MaxLE,
-               models_sur = models_sur, shape = shape,
-               niter = niter, burnin = burnin, thinning = thinning, 
-               nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
-               minNparepro = minNparepro, minNseas = minNseas, 
-               minNlitter = minNlitter, Nday = Nday, 
-               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               models_gro = models_gro
-)
+for (taxa in c(1,2,4)){
+  #Sections to run or to update
+  Sections = c("sur", "rep", "gro")
+  
+  run_txprofile (taxa = taxaList[taxa], 
+                 ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
+                 erase_previous = FALSE,Birth_Type = "Captive", 
+                 sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
+                 Species_list = Spec_list[[taxaList[taxa]]],  Sections = Sections,  
+                 extractDate = extractDate, minDate = minDate, 
+                 minBirthDate = minBirthDate, minN = minN,  Global =  Global,
+                 maxOutl = maxOutl,  spOutLev = spOutLev, 
+                 uncert_birth = uncert_birth, uncert_death= uncert_death,
+                 uncert_date = uncert_date,
+                 minInstitution = minInstitution, 
+                 minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
+                 minlx = minlx, MinBirthKnown = MinBirthKnown, 
+                 Min_MLE = Min_MLE, MaxLE =  MaxLE,
+                 models_sur = models_sur, shape = shape,
+                 niter = niter, burnin = burnin, thinning = thinning, 
+                 nchain = nchain, ncpus = ncpus,
+                 parentProb = parentProb, minNrepro = minNrepro, 
+                 minNparepro = minNparepro, minNseas = minNseas, 
+                 minNlitter = minNlitter, Nday = Nday, 
+                 minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
+                 models_gro = models_gro
+  )
 }
 ```
 
 Tufted capuchin: \* Male = \>1000 individuals \* Female : a lot of
 undead individuals so we have a high life expectancy compared to what
-observed but the model seems to fit ok
+observed but the model seems to fit ok “Min(Life_exp) \>= MaxLE”
 
 Guianan squirrel monkey \* Male = \>1000 individuals \* Female = \>1000
 individuals
 
-Green woodhoopoe \* Male \* Female
+Green woodhoopoe \* Male “Min(Life_exp) \>= MaxLE” \* Female
+“Min(Life_exp) \>= MaxLE”
 
-Rock eagle owl \* Male “lxMin \> minlx” \* FeMale “lxMin \> minlx”
+Rock eagle owl \* Male “Nglobal \< minNsur” \* FeMale “Nglobal \<
+minNsur”
 
 Plains-wanderer \* Male “lxMin \> minlx” \* FeMale “lxMin \> minlx”
 
@@ -698,7 +828,8 @@ minNsur”
 
 Hellbender \* Male lxMin \> minlx” \* Female “lxMin \> minlx”
 
-Green and black poison frog \* Male \* Female
+Green and black poison frog \* Male “Min(Life_exp) \>= MaxLE” \* Female
+“Min(Life_exp) \>= MaxLE”
 
 ### Make the summary tables
 
@@ -716,7 +847,7 @@ BySex <- list(Mammalia = c("Male", "Female"),
               Osteichthyes = "All")
 
 
-SummTab <- make_summary(glue("{analysisDir}Rdata/Analyser"), 
+SummTab <- make_summary(AnalysisDir=glue("{analysisDir}Rdata"), 
                         SaveDir = glue("{analysisDir}"),
                         taxaList = taxaList[1],
                         BySex = BySex ,

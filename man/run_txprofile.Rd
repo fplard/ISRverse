@@ -34,6 +34,8 @@ run_txprofile(
   XMAX = 120,
   Min_MLE = 0.1,
   MaxLE = 2,
+  minAge = 0,
+  firstyear = FALSE,
   models_sur = "GO",
   shape = "bathtub",
   niter = 25000,
@@ -43,6 +45,7 @@ run_txprofile(
   ncpus = 2,
   Repsect = c("agemat", "litter"),
   Birth_Type = "Captive",
+  lastdead = FALSE,
   parentProb = 80,
   minNlitter = 20,
   Nday = 7,
@@ -114,6 +117,10 @@ run_txprofile(
 
 \item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
 
+\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
+
+\item{firstyear}{\code{logical} Whether to do the analysis only on first year. Default = FALSE}
+
 \item{models_sur}{\code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
 
 \item{shape}{\code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
@@ -131,6 +138,8 @@ run_txprofile(
 \item{Repsect}{\code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...}
 
 \item{Birth_Type}{\code{character} Captive, Wild, or All. Default =  "Captive"}
+
+\item{lastdead}{\code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE}
 
 \item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
 

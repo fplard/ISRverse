@@ -10,7 +10,8 @@ Sur_relex(
   shape = "bathtub",
   ncpus = 1,
   xMax = 120,
-  dx = 0.01
+  dx = 0.01,
+  minAge = 0
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ Sur_relex(
 \item{xMax}{\code{numeric} Maximum age in years Default = 120}
 
 \item{dx}{\code{numeric} precision for age Default = 0.01}
+
+\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
 }
 \value{
 a data frame including age, the mean and 95\% credible interval of the remaining life expectancy

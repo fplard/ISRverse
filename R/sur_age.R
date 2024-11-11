@@ -12,6 +12,7 @@
 #' @param ncpus  \code{numeric} Number of core to use
 #' @param ageMax \code{numeric} Maximum age in years Default = 120
 #' @param dage \code{numeric} precision  for age Default = 0.01
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
 #'
 #' @return a data frame including age, the mean and 95% credible interval of the remaining life expectancy
 #' 
@@ -28,11 +29,11 @@
 #' out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
 #'                ageMax = 50, dage = 0.1, Nyear = 5)
 Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 1,
-                    ageMax = 120, dage = 0.01) {
+                    ageMax = 120, dage = 0.01,minAge = 0) {
   
   assert_that(is.array(theMat))
   assert_that(is.numeric(ageMax))
-  assert_that(ageMax > 1)
+  assert_that(ageMax >= 1)
   assert_that(is.numeric(Nyear))
   assert_that(Nyear > 0)
   assert_that(is.numeric(dage))
@@ -71,11 +72,10 @@ Sur_age <- function(theMat, Nyear = 1, model = 'GO', shape = 'bathtub', ncpus = 
     }
   }
   exMat[is.nan(exMat)]=0
-  Sur = paste0("Sur_",Nyear,"yr")
-  exQuants <- tibble(Age = xv[1:ncol(exMat)], 
+  exQuants <- tibble(Age = xv[1:ncol(exMat)]+minAge , 
                      Lower = apply(exMat, 2, quantile, 0.025),
                      Upper = apply(exMat, 2, quantile, 0.975))%>%
-    mutate({{Sur}} := apply(exMat, 2, mean))
+    mutate(Sur = apply(exMat, 2, mean))
   return(exQuants)
 }
 

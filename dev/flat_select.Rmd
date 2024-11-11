@@ -62,6 +62,8 @@ pkgload::load_all(export_all = FALSE)
 #' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
 #' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the analyses. Default = 2
+#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
+#' @param firstyear \code{logical} Whether to do the analysis only on first year. Default = FALSE
 #' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth dates, in days
 #' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death dates, in days. Default = 365
 #' @param uncert_date \code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days. Default = 365
@@ -75,6 +77,7 @@ pkgload::load_all(export_all = FALSE)
 #' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
 #' @param models_sur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
 #' @param shape \code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
+#' @param lastdead  \code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE
 #' @param niter  \code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000
 #' @param burnin  \code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. Default = 5001
 #' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20
@@ -94,6 +97,9 @@ pkgload::load_all(export_all = FALSE)
 #' 
 #' @return a list including the results and summary of each analysis
 #' @export
+#' 
+#' @importFrom grDevices rgb
+#' @importFrom graphics polygon
 #'
 #' @examples
 tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
@@ -104,10 +110,10 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                       extractDate = NULL, uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
                       minNsur = 50,maxNsur = NULL, minInstitution = 2, 
                       minlx = 0.1, MinBirthKnown = 0.3, maxOutl = 100,XMAX =120,
-                      Min_MLE = 0.1, MaxLE = 2, 
+                      Min_MLE = 0.1, MaxLE = 2, firstyear =FALSE,
                       models_sur = "GO", shape = "bathtub",
                       niter = 25000, burnin = 5001, thinning = 20, nchain = 3, 
-                      ncpus = 2,
+                      ncpus = 2, minAge = 0,lastdead = FALSE,
                       Repsect = c('agemat', 'litter'),
                       Birth_Type = "Captive", 
                       parentProb = 80, minNlitter = 20,Nday = 7,
@@ -228,85 +234,102 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   if(nrow(Dat$data)>0){
     for (sx in sexCats){
       cat(paste0(" ****************************  ",sx,"  ****************************\n"))
-       dir.create(file.path(PlotDir, "Long_dist"), showWarnings = FALSE)
- sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
+      dir.create(file.path(PlotDir, "Long_dist"), showWarnings = FALSE)
+      sexDat <- select_Longthreshold( Dat$data,  sexCats = sx, 
                                       PlotDir= glue::glue("{PlotDir}/Long_dist/"), minN = minN ,
                                       maintitle = glue::glue("{taxa}_{speciesname}_{sx}") )
+      
       repout$summary[[sx]] = sexDat$summar
-      outlLev1 = min(sexDat$summar$GapThresh,maxOutl, na.rm = T)
-       if (outlLev1 ==100){
-      data_sel <-  sexDat$data
-    }else{
-      data_sel <-  sexDat$data%>%
-        filter(!!sym(paste0("above", outlLev1))==0)
-    }
-      if(nrow(data_sel)>0){
-        # -------------------------- #
-        # ---- Survival Module: ----
-        # -------------------------- #
-        # Run survival analyses:
-        if ("sur" %in% Sections) {
+      if(nrow(sexDat$data)>0){
+        outlLev1 = min(sexDat$summar$GapThresh,maxOutl, na.rm = T)
+        if (outlLev1 ==100){
+          data_sel <-  sexDat$data
+        }else{
+          data_sel <-  sexDat$data%>%
+            filter(!!sym(paste0("above", outlLev1))==0)
+        }
+        if(nrow(data_sel)>0){
+          # -------------------------- #
+          # ---- Survival Module: ----
+          # -------------------------- #
+          # Run survival analyses:
+          if ("sur" %in% Sections) {
             dir.create(file.path(PlotDir, "Survival"), showWarnings = FALSE)
-cat("Survival Running ------------------------------------------------\n")
-          repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
-                                        Birth_Type = Birth_Type,
-                                        PlotDir = glue::glue("{PlotDir}/Survival/"),XMAX = XMAX,
-                                        models = models_sur, shape= shape, 
-                                        outlLev1 =outlLev1,
-                                        Min_MLE = Min_MLE, MaxLE =  MaxLE,
-                                        mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
-                                        minInstitution = minInstitution,uncert_death= uncert_death,
-                                        minlx = minlx , MinBirthKnown = MinBirthKnown, 
-                                        niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
-                                        ncpus = ncpus, plotname = glue("{taxa}_{speciesname}_{sx}") )
-          print(repout$surv[[sx]]$summary$error)
-        }
-        
-        # ------------------------------ #
-        # ---- Reproduction module: ----
-        # ------------------------------ #
-        # Reproduction module list:
-        if ("rep" %in% Sections) {
-          cat("Reproduction Running ----------------------------------------\n")
-          # Reproduction module list:
-          Repse = Repsect
-          if(sx == "Male"){Repse = Repsect%>%stringr::str_subset("litter", negate = T)}
-          repout$repr[[sx]] <- Rep_main(coresubset= data_sel, collection, parent, move,  
-                                        Repsect = Repse,
-                                        BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
-                                        Global = Global, minInstitution = minInstitution, 
-                                        minNrepro = minNrepro, minNparepro =  minNparepro,
-                                        parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
-                                        minNseas =  minNseas)
-        }
-        
-        # ----------------------------- #
-        # ---- Body weight module: ----
-        # ----------------------------- #
-        # Growth module list:
-        if ("gro" %in% Sections) {
-                dir.create(file.path(PlotDir, "Growth"), showWarnings = FALSE)
-cat("Growth Running ----------------------------------------------\n")
-          #take age at maturity
-          agemat = NULL
-          if(length(repout$repr[[sx]])>0){
-            if(repout$repr[[sx]]$summary$amat_analyzed){
-              agemat = repout$repr[[sx]]$agemat$ageMat
+            cat("Survival Running ------------------------------------------------\n")
+            repout$surv[[sx]] <- Sur_main(data.core = sexDat$data,  DeathInformation = DeathInformation,
+                                          Birth_Type = Birth_Type,
+                                          PlotDir = glue::glue("{PlotDir}/Survival/"),XMAX = XMAX,
+                                          models = models_sur, shape= shape, 
+                                          outlLev1 =outlLev1,minAge =minAge,firstyear = firstyear,
+                                          Min_MLE = Min_MLE, MaxLE =  MaxLE,lastdead = lastdead,
+                                          mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
+                                          minInstitution = minInstitution,uncert_death= uncert_death,
+                                          minlx = minlx , MinBirthKnown = MinBirthKnown, 
+                                          niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
+                                          ncpus = ncpus, plotname = glue("{taxa}_{speciesname}_{sx}") )
+            if(sx == "Female" && length(repout$surv$Male$from0$summary$analyzed)==1){
+              if(!is.null(PlotDir) & repout$surv$Male$from0$summary$analyzed& repout$surv$Female$from0$summary$analyzed ){
+                pdf(file = paste0(PlotDir,"/Survival/",taxa,"_", speciesname,"_surMF.pdf", sep=""), width = 6, height = 6)
+                plot(NULL, main = glue("{taxa}_{speciesname}"), 
+                     ylim = c(min(repout$surv$Male$from0$bastaRes$surv$nocov, repout$surv$Female$from0$bastaRes$surv$nocov),
+                              max(repout$surv$Male$from0$bastaRes$surv$nocov, repout$surv$Female$from0$bastaRes$surv$nocov)) , 
+                     xlim = c(min(repout$surv$Male$from0$bastaRes$x, repout$surv$Female$from0$bastaRes$x),
+                              max(repout$surv$Male$from0$relex$Age, repout$surv$Female$from0$relex$Age)),
+                     xlab = 'Age', ylab = "Survivorship")
+                polygon(y = c(repout$surv$Female$from0$bastaRes$surv$nocov[2,], rev(repout$surv$Female$from0$bastaRes$surv$nocov[3,])), x =c(repout$surv$Female$from0$bastaRes$x, rev(repout$surv$Female$from0$bastaRes$x)), col=rgb(1, 0, 0,0.5))
+                polygon(y = c(repout$surv$Male$from0$bastaRes$surv$nocov[2,], rev(repout$surv$Male$from0$bastaRes$surv$nocov[3,])), x = c(repout$surv$Male$from0$bastaRes$x, rev(repout$surv$Male$from0$bastaRes$x)), col=rgb(0, 0, 1,0.25))
+                dev.off()
+              }
             }
+            # print(repout$surv[[sx]]$summary$error)
+            
           }
-          repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = data_sel,
-                                        taxa = taxa, species = species,
-                                        Birth_Type = Birth_Type, 
-                                        agemat = agemat, percentiles = c(2.5,97.5),
-                                        PlotDir = glue::glue("{PlotDir}/Growth/"), type = "weight",
-                                        uncert_date = uncert_date,
-                                        MeasureType = MeasureType,
-                                        minInstitution = minInstitution,
-                                        minNgro = minNgro, minNIgro = minNIgro, 
-                                        models = models_gro,
-                                        mindate = minDate, plotname = glue("{taxa}_{speciesname}_{sx}") )
-          print(repout$weig[[sx]]$Captive$wSummar$error)
-       }
+          # ------------------------------ #
+          # ---- Reproduction module: ----
+          # ------------------------------ #
+          # Reproduction module list:
+          if ("rep" %in% Sections) {
+            cat("Reproduction Running ----------------------------------------\n")
+            # Reproduction module list:
+            Repse = Repsect
+            if(sx == "Male"){Repse = Repsect%>%stringr::str_subset("litter", negate = T)}
+            repout$repr[[sx]] <- Rep_main(coresubset= data_sel, collection, parent, move,  
+                                          Repsect = Repse,
+                                          BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
+                                          Global = Global, minInstitution = minInstitution, 
+                                          minNrepro = minNrepro, minNparepro =  minNparepro,
+                                          parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
+                                          minNseas =  minNseas)
+          }
+          
+          # ----------------------------- #
+          # ---- Body weight module: ----
+          # ----------------------------- #
+          # Growth module list:
+          if ("gro" %in% Sections) {
+            dir.create(file.path(PlotDir, "Growth"), showWarnings = FALSE)
+            cat("Growth Running ----------------------------------------------\n")
+            #take age at maturity
+            agemat = NULL
+            if(length(repout$repr[[sx]])>0){
+              if(repout$repr[[sx]]$summary$amat_analyzed){
+                agemat = repout$repr[[sx]]$agemat$ageMat
+              }
+            }
+            repout$weig[[sx]] <- Gro_Main(data = weights, coresubse = data_sel,
+                                          taxa = taxa, species = species,
+                                          Birth_Type = Birth_Type, 
+                                          agemat = agemat, percentiles = c(2.5,97.5),
+                                          PlotDir = glue::glue("{PlotDir}/Growth/"), type = "weight",
+                                          uncert_date = uncert_date,
+                                          MeasureType = MeasureType,
+                                          minInstitution = minInstitution,
+                                          minNgro = minNgro, minNIgro = minNIgro, 
+                                          models = models_gro,
+                                          mindate = minDate, plotname = glue("{taxa}_{speciesname}_{sx}") )
+            print(repout$weig[[sx]]$Captive$wSummar$error)
+          }
+        }
       }
     }
   }else{
@@ -369,13 +392,14 @@ test_that("tx_report works", {
   expect_named(out, c('general', "summary", 'surv', 'weig'))
   expect_named(out$general, c("Nraw", "Ndate", "Nglobal", "Nalive", "firstDate", "maxAgeraw", "extractdate"))
   expect_named(out$sur, c('Male', "Female"))
-  expect_named(out$sur$Male, c("summary", "bastaRes", "DICmods", "relex", "Sur1", "Sur5", 'L90'))
+  expect_named(out$sur$Male, c("from0"))
+  expect_named(out$sur$Male$from0, c("summary", "bastaRes", "DICmods", "relex", "Sur1", "Sur5", 'L90', 'L50'))
   expect_named(out$weig, c('Male', "Female"))
   expect_named(out$weig$Male$Captive, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$Captive, c('wSummar', "weightQ"))
   expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\Reptilia_Testudo_hermanni_Male_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\Reptilia_Testudo_hermanni_Male_surplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\8_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\8_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)

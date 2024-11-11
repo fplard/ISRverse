@@ -10,7 +10,9 @@ Sur_main(
   Birth_Type = "All",
   models = "GO",
   shape = "simple",
+  firstyear = FALSE,
   outlLev1 = NA,
+  minAge = 0,
   mindate = "1980-01-01",
   minNsur = 50,
   maxNsur = NULL,
@@ -21,6 +23,7 @@ Sur_main(
   Min_MLE = 0.1,
   MaxLE = 2,
   XMAX = 120,
+  lastdead = FALSE,
   niter = 25000,
   burnin = 5001,
   thinning = 20,
@@ -41,7 +44,11 @@ Sur_main(
 
 \item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
 
+\item{firstyear}{\code{logical} Whether to do the analysis only on first year. Default = FALSE}
+
 \item{outlLev1}{\code{numeric} Start threshold used to selected for the data: 100\%, 99.9, 99 or 95\%}
+
+\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
 
 \item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
@@ -62,6 +69,8 @@ Sur_main(
 \item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
 
 \item{XMAX}{\code{numeric} Maximum possible age. Default = 120}
+
+\item{lastdead}{\code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE}
 
 \item{niter}{\code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000}
 

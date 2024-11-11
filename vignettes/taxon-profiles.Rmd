@@ -150,3 +150,32 @@ Split_Zimsdata(ZIMSdir = ZIMSdirtest)
 list.files(ZIMSdirtest, recursive = TRUE)
 ```
 
+# Output for Dev team
+
+`make_summary()` produces summary tables and plots of the demographic analyses made for all species. It uses the following arguments:
+
+* `SpeciesTable` Data frame including 2 columns: *Class* and *Species*
+* `AnalysisDir` directory where to find the .Rdata files
+* `SaveDir` directory where to save summary plots and tables
+* `taxaList` names of the taxa studied.
+* `BySex` list of the taxa names indicating the sexes analyzed. 
+* `Sections` names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro"
+
+it returns the main summary table
+
+
+```{r examples-Tx_devout}
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'\\Rdata')
+SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+dir.create(SaveDir)
+SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
+Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
+                        taxaList = "Reptilia",
+                        BySex = list(Reptilia = c("Male", "Female")) ,
+                        Sections = c("sur", 'gro')
+)
+list.files(SaveDir)
+unlink(SaveDir, recursive = TRUE)
+```
+

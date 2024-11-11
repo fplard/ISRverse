@@ -70,6 +70,56 @@ out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape 
                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 ```
 
+# First-year survival Analysis
+
+This functions runs survival basta models on the first year after checking conditions for correct convergence of the models. It includes the following arguments:
+* `sexData`including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*.
+* `DeathInformation` data.frame including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
+* `models` names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
+* `uncert_death` Maximum uncertainty accepted for death date, in days
+* `uncert_birth` Maximum uncertainty accepted for birth date, in days
+* ` minNsur` Minimum number of individual records needed to run the survival analysis
+* `maxNsur` Maximum number of individual records to run the survival analysis
+* `minInstitution` Minimum number of institutions that should hold records to run the survival analysis
+
+It return a list including:
+* a summary of the data used
+* the basta fit of the best model
+* the DIC table comparing the different fit of the models
+
+
+```{r examples-Sur_ana1}
+data(core)
+data(deathinformation)
+out <- Sur_ana1(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+```
+
+# Outputs for survival analysis
+
+`Sur_out()` return plot for the survival models and the remaining life expectancy . It includes the following arguments:
+
+* `out`: The output of the survival analysis
+* `PlotDir`: Directory to save the plots of the best models
+
+It return the output of the survival analysis including:
+* the remaining life expectancy per age
+* L50: The age at which 50% of the population died
+* L90: The age at which 90% of the population died
+* Age-specific survival
+* Probability to live five years more
+It creates the associated plot
+
+
+```{r examples-Sur_out}
+data(core)
+data(deathinformation)
+out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+
+out <- Sur_out(out, shape = "simple", ncpus = 3)
+```
+
 # Create Basta data frame
 
 This functions format the data prior to run basta models. It checks column names and the succession of dates for each individual. It includes the following arguments:
@@ -97,7 +147,7 @@ data(core)
 data(deathinformation)
 out<- surv_Bastab(core, DeathInformation = deathinformation,
                   earliestDate = '1990-01-01', latestDate = '2020-12-31', 
-                  otherCovars = NA, excludeStillbirth = TRUE)
+                  otherCovars = "SexType", excludeStillbirth = TRUE)
 
 
 ```
@@ -160,11 +210,12 @@ out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
 
 # Maximum Longveity
 
-`Sur_90()` estimate the age when 90% of the population died. It includes the following arguments: 
+`Sur_xx()` estimate the age at which xx% of the population is still alive. It includes the following arguments: 
 
 * `theMat` including the posteriors estimates of the model parameter
 * `model` names of the basta models to run: "G0", "EX", "LO" and/or "WE".
 * `shape` character shape of the basta model: "simple", "Makeham", "bathtub". 
+* `xx`  % of the population still alive
 * `xMax` Maximum age in years
 * `ncpus`; the number of core to use
 
@@ -174,7 +225,7 @@ theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
                                b1= rnorm(10, 0.1, 0.01)))
 
 
-out <- Sur_90(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-              ageMax = 50, dage = 0.1)
+out <- Sur_xx(theMat, model = 'GO', shape = 'simple', ncpus = 2,
+              ageMax = 50, dage = 0.1, xx = 0.1)
 ```
 
