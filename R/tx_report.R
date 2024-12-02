@@ -47,7 +47,8 @@
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
 #' @param Repsect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
 #' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
@@ -77,6 +78,7 @@
 #'
 #' out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
 #'                  Animal, data$Reptilia$Collection, 
+#'                  Birth_Type = "All", uncert_birth = 3500,uncert_death = 3500, 
 #'                  DeathInformation =data$Reptilia$DeathInformation,
 #'                  PlotDir = PlotDir,Sections = c('sur'),
 #'                  sexCats = c("Male", "Female"),
@@ -89,7 +91,8 @@
 #' unlink(PlotDir, recursive = TRUE)
 #'
 tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
-                      weights = NULL,parents = NULL, move= NULL, contraceptions = NULL, DeathInformation = NULL,
+                      weights = NULL,parents = NULL, move= NULL, 
+                      contraceptions = NULL, DeathInformation = NULL,
                       repout = list(), Sections = c('sur', 'rep', 'gro'),
                       sexCats = c("Male", "Female"), minN= 50, minDate= "1980-01-01",
                       Global = TRUE,minBirthDate = "1900-01-01",
@@ -102,7 +105,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                       ncpus = 2, minAge = 0,lastdead = FALSE,
                       Repsect = c('agemat', 'litter'),
                       Birth_Type = "Captive", 
-                      parentProb = 80, minNlitter = 20,Nday = 7,
+                      parentProb_Dam = 80,  parentProb_Sire = 80, minNlitter = 20,Nday = 7,
                       minNrepro = 100, minNparepro = 30, minNseas = 50, 
                       minNgro =100,minNIgro = 50, MeasureType = "Live weight",
                       models_gro = "vonBertalanffy"
@@ -168,7 +171,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   assert_that(minlx > 0)
   assert_that(minlx < 1)
   assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown > 0)
+  assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
@@ -189,8 +192,10 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   checkmate::assert_directory_exists(PlotDir)
   
   assert_that(all(Repsect %in% c("agemat", "litter")))
-  assert_that(is.numeric(parentProb))
-  assert_that(parentProb > 0)
+  assert_that(is.numeric(parentProb_Dam))
+  assert_that(parentProb_Dam > 0)
+  assert_that(is.numeric(parentProb_Sire))
+  assert_that(parentProb_Sire > 0)
   assert_that(is.numeric(minNrepro))
   assert_that(minNrepro > 0)
   assert_that(is.numeric(minNparepro))
@@ -212,7 +217,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-  Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth,
+  Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth, Birth_Type = Birth_Type,
                         minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
   speciesname = stringr::str_replace(species, " ", "_")
@@ -246,7 +251,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                                           Birth_Type = Birth_Type,
                                           PlotDir = glue::glue("{PlotDir}/Survival/"),XMAX = XMAX,
                                           models = models_sur, shape= shape, 
-                                          outlLev1 =outlLev1,minAge =minAge,firstyear = firstyear,
+                                          minAge =minAge,firstyear = firstyear,
                                           Min_MLE = Min_MLE, MaxLE =  MaxLE,lastdead = lastdead,
                                           mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
                                           minInstitution = minInstitution,uncert_death= uncert_death,
@@ -284,7 +289,9 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                                           BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
                                           Global = Global, minInstitution = minInstitution, 
                                           minNrepro = minNrepro, minNparepro =  minNparepro,
-                                          parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
+                                          parentProb_Dam = parentProb_Dam, 
+                                          parentProb_Sire = parentProb_Sire,
+                                          minNlitter = minNlitter, Nday = Nday,
                                           minNseas =  minNseas)
           }
           

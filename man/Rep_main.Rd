@@ -16,7 +16,8 @@ Rep_main(
   minInstitution = 2,
   minNrepro = 100,
   minNparepro = 30,
-  parentProb = 80,
+  parentProb_Sire = 80,
+  parentProb_Dam = 80,
   minNlitter = 20,
   Nday = 7,
   minNseas = 50
@@ -45,7 +46,9 @@ Rep_main(
 
 \item{minNparepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30}
 
-\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+\item{parentProb_Sire}{\code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80}
+
+\item{parentProb_Dam}{\code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80}
 
 \item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
 

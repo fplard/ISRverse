@@ -46,7 +46,8 @@ run_txprofile(
   Repsect = c("agemat", "litter"),
   Birth_Type = "Captive",
   lastdead = FALSE,
-  parentProb = 80,
+  parentProb_Sire = 80,
+  parentProb_Dam = 80,
   minNlitter = 20,
   Nday = 7,
   minNrepro = 100,
@@ -141,7 +142,9 @@ run_txprofile(
 
 \item{lastdead}{\code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE}
 
-\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+\item{parentProb_Sire}{\code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80}
+
+\item{parentProb_Dam}{\code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80}
 
 \item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
 

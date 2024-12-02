@@ -54,10 +54,10 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
   assert_that(is.character(namefile))
   assert_that(is.list(BySex))
   assert_that(all(taxaList %in% names(BySex)), msg = "BySex should be a list with names identical to taxaList")
-   assert_that(is.numeric(minAge))
+  assert_that(is.numeric(minAge))
   assert_that(minAge>=0)
   assert_that(is.logical(firstyear))
-
+  
   # List of available SRGs:
   SRGlist <- list.files(AnalysisDir, pattern = ".RData")
   assert_that(length(SRGlist) > 0, 
@@ -84,6 +84,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                   Nraw = numeric(1),
                   Ndate = numeric(1),
                   Nglobal = numeric(1),
+                  Nbirthtype = numeric(1),
+                  Nuncertbirth = numeric(1),
                   Nalive = numeric(1),
                   firstDate = as.Date(x = integer(1), origin = "1980-01-01"),
                   maxAgeraw = numeric(1),
@@ -93,7 +95,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     AnyAna<- tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
                     Species = rep(SRGspecies, each = length(sexCats)),
                     Sex = rep(sexCats, length(SRGspecies)),
-                    Nglobal = numeric(1),
+                    Nselect = numeric(1),
                     Nlifespan = numeric(1),
                     GapThresh = numeric(1),
                     NThres = numeric(1))
@@ -105,7 +107,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                         Species = rep(SRGspecies, each = length(sexCats)*length(models)),
                         Sex = rep(rep(sexCats,each = length(models)), length(SRGspecies)),
                         model = rep(models, length(SRGspecies)*length(sexCats)),
-                        NGlobal = numeric(1), 
+                        NSelect  = numeric(1), 
+                        NUncertdeath = numeric(1), 
                         NBasta = numeric(1), 
                         Ndead = 0, 
                         lxMin = numeric(1),
@@ -113,9 +116,11 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                         outLev = numeric(1),
                         analyzed = FALSE, 
                         Nerr = 1, 
-                        error = "Nraw < minN",
+                        error = "Nselect < minN",
                         Gof_KM =logical(1),
-                        Gof_KM_coeff = numeric(1))
+                        Gof_KM_coeff1 = numeric(1),
+                        Gof_KM_coeff2 = numeric(1),
+                        Gof_mort_coeff= numeric(1))
       Finsur =  tibble( Species = character(0),
                         Sex = character(0),
                         model = character(0),
@@ -137,9 +142,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                          NJuv = numeric(1),NJuv_keep = numeric(1),
                          NAd = numeric(1), NAd_keep = numeric(1),
                          NWeight = numeric(1), NInd = numeric(1), 
-                        analyzed = FALSE, 
-                        Nerr = 1, 
-                        error = "Nraw < minN",)
+                         analyzed = FALSE, 
+                         Nerr = 1, 
+                         error = "Nselect < minN",)
     }else{tempgro = tibble()}
     if ("rep" %in% Sections){
       temprep <-  tibble(Class = rep(taxa, length( SRGsps_ta )*length(sexCats)),
@@ -151,9 +156,9 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                          NParent= numeric(1),
                          NOffsp_age=numeric(1),
                          NParent_age=numeric(1),
-                          analyzed = FALSE, 
-                        Nerr = 1, 
-                        error = "Nraw < minN",
+                         analyzed = FALSE, 
+                         Nerr = 1, 
+                         error = "Nselect < minN",
                          amat_analyzed = logical(1),  
                          litt_analyzed = logical(1))
     }else{temprep = tibble()}
@@ -165,7 +170,7 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
         stringr::str_remove(pattern = paste0(taxa, '_'))%>%
         stringr::str_replace("_", " ")
       
-      cat("\n", taxa," -------Species: ", SRGspecies[i], "Progress:", round(i / length(SRGsps_ta) * 100, 1),"%")
+      cat("\n", taxa,": ", SRGspecies[i], "--", round(i / length(SRGsps_ta) * 100, 1),"%")
       
       # SRG file:
       load(glue::glue("{AnalysisDir}/{isp}.RData"))
@@ -244,17 +249,20 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     utils::write.csv(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}.csv"),
                      row.names = FALSE)
-   readr::write_excel_csv2(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}2.csv"))
+    readr::write_excel_csv2(SurTab, file = glue::glue("{SaveDir}/SRGs_Survival{namefile}2.csv"))
     
     Surtabsum <- SurTab %>% 
       mutate(error =ifelse(error =="", "Analyzed",error),
-             error = factor(error, levels = c('Analyzed','Nraw < minN', 
+             error = factor(error, levels = c('Analyzed','Nselect < minN','Nuncertdeath < minN', 
                                               "NBasta = 0", "%known births < MinBirthKnown",
                                               "Data from 1 Institution","Nbasta > maxNsur",
-                                              "Nbasta < minNsur","Nglobal < minNsur", 
+                                              "Nbasta < minNsur",
                                               "lxMin > minlx",
-                                              "no DIC from Basta", "lx[MLE] < Min_MLE",
-                                              "Min(Life_exp) >= MaxLE", "Kaplan-Meier does not fit"), 
+                                              "no DIC from Basta", 
+                                              "Kaplan-Meier does not fit",
+                                              "Motality does not fit",
+                                              "lx[MLE] < Min_MLE",
+                                              "Min(Life_exp) >= MaxLE"), 
                             ordered = T)) %>% 
       group_by(Class, Sex, error)%>% summarize(N = n())
     p<- ggplot(data = Surtabsum, aes(x = error, y = N, fill = Sex)) +

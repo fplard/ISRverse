@@ -19,18 +19,18 @@
 #' @importFrom ggpubr ggarrange
 #' 
 #' @examples
-#' file = system.file("sci_Animal.csv", package = 'ISRverse')
-#' AnalysisDir  = paste0(dirname(file),'\\Rdata')
-#' SaveDir = paste0(tempdir(check = TRUE),'\\temp')
-#' dir.create(SaveDir)
-#' SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
-#' Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
-#'                         taxaList = "Reptilia",
-#'                         BySex = list(Reptilia = c("Male", "Female")) ,
-#'                         Sections = c("sur", 'gro')
-#' )
-#' list.files(SaveDir)
-#' unlink(SaveDir, recursive = TRUE)
+#' # file = system.file("sci_Animal.csv", package = 'ISRverse')
+#' # AnalysisDir  = paste0(dirname(file),'\\Rdata')
+#' # SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+#' # dir.create(SaveDir)
+#' # SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
+#' # Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
+#' #                         taxaList = "Reptilia",
+#' #                         BySex = list(Reptilia = c("Male", "Female")) ,
+#' #                         Sections = c("sur", 'gro')
+#' # )
+#' # list.files(SaveDir)
+#' # unlink(SaveDir, recursive = TRUE)
 Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
                        taxaList = "Mammalia",
                        BySex = list(Mammalia= c("Male", "Female")) , 
@@ -57,12 +57,12 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
   SRGlist <- list.files(AnalysisDir, pattern = ".RData")
   assert_that(length(SRGlist) > 0, 
               msg = glue::glue("There are no result file in {AnalysisDir}"))
-
+  
   for (taxa in taxaList) {
     
-      SRGspecies = SpeciesTable%>%filter(Class==taxa)%>%pull(Species)
-     SRGspeciesta = SRGspecies %>%stringr::str_replace(" ", "_")
-i = 0
+    SRGspecies = SpeciesTable%>%filter(Class==taxa)%>%pull(Species)
+    SRGspeciesta = SRGspecies %>%stringr::str_replace(" ", "_")
+    i = 0
     # Loop over species
     for (isp in SRGspeciesta) {
       i = i+1
@@ -88,7 +88,7 @@ i = 0
         
       }
       write(rjson::toJSON(TPout), file = glue("{SaveDir}/{namefile}{taxa}_{isp}.json"))
-     }
+    }
     
     if("gro" %in% Sections){
       print("There is no growth output for now")

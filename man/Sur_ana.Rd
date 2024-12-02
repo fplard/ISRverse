@@ -71,7 +71,8 @@ The output of a list including:
 \item a summary of the data used:
 }
 \itemize{
-\item NGlobal: Number of captive born individuals selected from global collections
+\item NSelect: Number of individuals selected from filters
+\item NUncertdeath: Number of individuals selected after filter uncertainty in death
 \item NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
 \item Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
 \item maxAge: Maximum age of known age individuals
@@ -79,7 +80,7 @@ The output of a list including:
 \item lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of  time spent alive: 100\%, 99.9, 99 or 95\%
 \item a logical indicated if the growth analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur; 2/lxMin > minlx; 3/NBasta = 0; 4/ \%known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
+\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta.
 }
 \itemize{
 \item the basta fit of the best model

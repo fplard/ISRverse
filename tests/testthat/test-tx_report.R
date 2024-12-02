@@ -11,7 +11,8 @@ test_that("tx_report works", {
   dir.create(PlotDir)
   
   out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                   Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,minlx =0.5,minNIgro=40,
+                   Animal, data$Reptilia$Collection, MinBirthKnown = 0,minlx =0.5,minNIgro=40,
+                   Birth_Type = "All", uncert_birth = 3500,uncert_death = 3500, 
                    DeathInformation =data$Reptilia$DeathInformation, weights =data$Reptilia$Weight,
                    niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                    PlotDir = PlotDir, Sections = c('sur','gro'),
@@ -20,17 +21,17 @@ test_that("tx_report works", {
                    models_gro = "vonBertalanffy"
   )
   expect_named(out, c('general', "summary", 'surv', 'weig'))
-  expect_named(out$general, c("Nraw", "Ndate", "Nglobal", "Nalive", "firstDate", "maxAgeraw", "extractdate"))
+  expect_named(out$general, c('Nraw', 'Ndate', 'Nglobal', 'Nbirthtype', 'Nuncertbirth', 'Nalive', 'firstDate', 'maxAgeraw', 'extractdate'))
   expect_named(out$sur, c('Male', "Female"))
   expect_named(out$sur$Male, c("from0"))
   expect_named(out$sur$Male$from0, c("summary", "bastaRes", "DICmods", "relex", "Sur1", "Sur5", 'L90', 'L50'))
   expect_named(out$weig, c('Male', "Female"))
-  expect_named(out$weig$Male$Captive, c('wSummar', "weightQ"))
-  expect_named(out$weig$Female$Captive, c('wSummar', "weightQ"))
+  expect_named(out$weig$Male$All, c('wSummar', "weightQ"))
+  expect_named(out$weig$Female$All, c('wSummar', "weightQ"))
   expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\8_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\8_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)
 })

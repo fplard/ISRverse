@@ -7,7 +7,8 @@
 #' @param Reprodata \code{data frame} including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
 #' @param perAge \code{logical} Whether to estimate litter size per mother age. Default = FALSE
 #' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #'
 #' @return A list including:
@@ -43,7 +44,7 @@
 #' out
 Rep_littersize <- function(Reprodata, perAge = FALSE,
                            Nday = 7, 
-                           parentProb = 80,  minNlitter =30
+                           parentProb_Dam = 80,parentProb_Sire = 80,  minNlitter =30
 ) {
   
   assert_that(is.data.frame(Reprodata))
@@ -55,7 +56,8 @@ Rep_littersize <- function(Reprodata, perAge = FALSE,
   assert_that(is.logical(perAge))
   if(perAge){  assert_that(Reprodata %has_name%  "Parent_Age")}
   assert_that(is.numeric(Nday))
-  assert_that(is.numeric(parentProb))
+  assert_that(is.numeric(parentProb_Dam))
+ assert_that(is.numeric(parentProb_Sire))
   assert_that(is.numeric(minNlitter))
   
   
@@ -66,15 +68,24 @@ Rep_littersize <- function(Reprodata, perAge = FALSE,
   littSizeDf <- tibble()
   littSizeTab <- NULL
   littSizeperAge <- NULL
+    subpar_sire <- Reprodata %>%
+    filter(ParentType == "Parentage_Sire",
+           Probability >= parentProb_Sire)%>%
+    select("ParentAnonID", "AnimalAnonID")%>%
+    group_by(AnimalAnonID)%>%
+    summarize(FatherAnonID = toString(ParentAnonID))
   
   subpar <- Reprodata %>%
     filter(ParentType == "Parentage_Dam",
-           Probability >= parentProb)
+           Probability >= parentProb_Dam)%>%
+    left_join(subpar_sire, by = "AnimalAnonID")
+
+
   
   littSumm$NOffsp_prob <- length(unique(subpar$AnimalAnonID))
   littSumm$NParent_prob <- length(unique(subpar$ParentAnonID))
   
-  col = c("ParentAnonID", "AnimalAnonID", "Offspring_BirthDate", "Offspring_Inst")
+  col = c("ParentAnonID", "AnimalAnonID", "Offspring_BirthDate", "Offspring_Inst", "FatherAnonID")
   if(perAge){ col = c(col, "Parent_Age")}
   
   
@@ -103,15 +114,16 @@ Rep_littersize <- function(Reprodata, perAge = FALSE,
         mutate(Parent_Age = round(Parent_Age))%>%
         group_by (ParentAnonID, Offspring_Inst, Parent_Age, litter)%>%
         summarize(litterSize = n(),
-                  MeanBirthDate = mean(Offspring_BirthDate))%>%
-        ungroup()%>%
+                  MeanBirthDate = mean(Offspring_BirthDate),
+                  FatherAnonID = toString(FatherAnonID))%>%
+        # ungroup()%>%
         dplyr::select(-litter)%>%
         rename(MotherAnonID = ParentAnonID,
                InstitutionAnonID = Offspring_Inst)
       
       littSizeDf <- rbind(littSizeDf, parid)
     }
-    
+
     
     if (nrow(littSizeDf)>= minNlitter)  {
       littSizeTab <- littSizeDf%>%

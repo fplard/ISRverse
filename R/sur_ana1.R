@@ -78,18 +78,7 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
   assert_that(all(models %in% c("GO", "EX", "LO", "WE")))
   assert_that(is.character(shape))
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
-  
-  
-  #Initialize
-  summar = list(
-    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
-    maxAge = NULL, maxAlive = NULL, 
-    lxMin = NULL, outLev = NULL, 
-    analyzed = FALSE, Nerr = 0,  error ="")
-  bastaRes = NULL
-  DICmods = NULL
-  
-  #Remove individuals with uncertainty in death date
+    #Remove individuals with uncertainty in death date
   sexData <- sexData%>%
     filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE),
            (Birth_Uncertainty < uncert_birth)%>% replace_na(TRUE))%>%
@@ -100,9 +89,20 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
     )%>%
     filter(entryAge <= 365)
   sexData$DepartDate= as.Date(sexData$DepartDate)
-  sexData$DepartDate[sexData$deparAge>365.25]= as.Date(sexData$EntryDate)[sexData$deparAge>365.25]+ 365
+  sexData$DepartDate[sexData$deparAge>365.25]= as.Date(sexData$EntryDate)[sexData$deparAge>365.25]+ 366
   
-  if(nrow(sexData)> minNsur){
+
+  
+  #Initialize
+  summar = list(
+    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
+    maxAge = NULL, maxAlive = NULL, 
+    lxMin = NULL, outLev = NULL, 
+    analyzed = FALSE, Nerr = 0,  error ="")
+  bastaRes = NULL
+  DICmods = NULL
+  
+  if(nrow(sexData)>= minNsur){
     
     # Extract BaSTA table:
     bastalist <- surv_Bastab(sexData, DeathInformation = DeathInformation, earliestDate = mindate,
@@ -112,7 +112,7 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
         bdun = Max.Birth.Date-Min.Birth.Date,
         aliveTime = (Depart.Date - Entry.Date) / 365.25)
     
-    summar$NGlobal <- nrow(sexData)
+ 
     summar$NBasta <- nrow(bastatab)
     summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
     summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
@@ -160,36 +160,41 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
             
             # BaSTA outputs:
             if (any(DICmods$DIC != 0)) {
-              idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
+                       a = which(DICmods$DIC == 0)
+                   DICmods2 = DICmods
+                   if(length(a)>0){
+                     DICmods2 = DICmods2[-a,]
+                   }
+idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
               bastaRes <- tempList[[idModSel]]
               summar$analyzed = TRUE
             } else {
               summar$error = 'no DIC from Basta'
-              summar$Nerr = 7
+              summar$Nerr = 9
             }
           } else {
             summar$error = "Nbasta > maxNsur"
-            summar$Nerr = 6
+            summar$Nerr = 8
           }
         } else {
           summar$error = "Nbasta < minNsur"
-          summar$Nerr = 5
+          summar$Nerr = 7
         }
       }else{
         summar$error = "Data from 1 Institution"
-        summar$Nerr = 4
+        summar$Nerr = 6
       }
     }else{
       summar$error = "Ndead = 0"
-      summar$Nerr = 3
+      summar$Nerr = 5
     }
   }else{
       summar$error = "NBasta = 0"
-      summar$Nerr = 2
+      summar$Nerr = 4
     }
     } else {
     summar$ error = "Nglobal < minNsur"
-    summar$ Nerr = 1
+    summar$ Nerr = 2
   }
   
   return(list(summary = summar, bastaRes = bastaRes, DICmods = DICmods))

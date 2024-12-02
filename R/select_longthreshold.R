@@ -14,7 +14,7 @@
 #' * the data with the selected sex and additional columns showing which individuals are above the percentiles 95%, 99% and 99.9%
 #' * A summary list with:
 #' - Sex = the sex selected
-#' - Nglobal: the number of individuals of this sex
+#' - Nselect: the number of individuals of this sex
 #' - Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
 #' - GapThresh : The threshold value selected for the distribution of longevity
 #' - NThres : the number of individuals selected using this threshold
@@ -54,7 +54,7 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
   # Output table:
   outTab <- tibble( 
     Sex = sexCats,
-    Nglobal = nrow(coresubset),
+    Nselect = nrow(coresubset),
     Nlifespan = 0,
     GapThresh = NA, 
     NThres = 0

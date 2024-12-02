@@ -85,7 +85,8 @@ pkgload::load_all(export_all = FALSE)
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
 #' @param Repsect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
 #' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
@@ -103,7 +104,8 @@ pkgload::load_all(export_all = FALSE)
 #'
 #' @examples
 tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
-                      weights = NULL,parents = NULL, move= NULL, contraceptions = NULL, DeathInformation = NULL,
+                      weights = NULL,parents = NULL, move= NULL, 
+                      contraceptions = NULL, DeathInformation = NULL,
                       repout = list(), Sections = c('sur', 'rep', 'gro'),
                       sexCats = c("Male", "Female"), minN= 50, minDate= "1980-01-01",
                       Global = TRUE,minBirthDate = "1900-01-01",
@@ -116,7 +118,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                       ncpus = 2, minAge = 0,lastdead = FALSE,
                       Repsect = c('agemat', 'litter'),
                       Birth_Type = "Captive", 
-                      parentProb = 80, minNlitter = 20,Nday = 7,
+                      parentProb_Dam = 80,  parentProb_Sire = 80, minNlitter = 20,Nday = 7,
                       minNrepro = 100, minNparepro = 30, minNseas = 50, 
                       minNgro =100,minNIgro = 50, MeasureType = "Live weight",
                       models_gro = "vonBertalanffy"
@@ -182,7 +184,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   assert_that(minlx > 0)
   assert_that(minlx < 1)
   assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown > 0)
+  assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
@@ -203,8 +205,10 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   checkmate::assert_directory_exists(PlotDir)
   
   assert_that(all(Repsect %in% c("agemat", "litter")))
-  assert_that(is.numeric(parentProb))
-  assert_that(parentProb > 0)
+  assert_that(is.numeric(parentProb_Dam))
+  assert_that(parentProb_Dam > 0)
+  assert_that(is.numeric(parentProb_Sire))
+  assert_that(parentProb_Sire > 0)
   assert_that(is.numeric(minNrepro))
   assert_that(minNrepro > 0)
   assert_that(is.numeric(minNparepro))
@@ -226,7 +230,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
   # ---- Prep. data: ----
   # --------------------- #
   ## Extract Data
-  Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth,
+  Dat <- select_species(species, Animal, collection,  uncert_birth = uncert_birth, Birth_Type = Birth_Type,
                         minDate = minDate , extractDate = extractDate, Global = Global) 
   repout$general = Dat$summary
   speciesname = stringr::str_replace(species, " ", "_")
@@ -260,7 +264,7 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                                           Birth_Type = Birth_Type,
                                           PlotDir = glue::glue("{PlotDir}/Survival/"),XMAX = XMAX,
                                           models = models_sur, shape= shape, 
-                                          outlLev1 =outlLev1,minAge =minAge,firstyear = firstyear,
+                                          minAge =minAge,firstyear = firstyear,
                                           Min_MLE = Min_MLE, MaxLE =  MaxLE,lastdead = lastdead,
                                           mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
                                           minInstitution = minInstitution,uncert_death= uncert_death,
@@ -298,7 +302,9 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                                           BirthType_parent = Birth_Type, BirthType_offspring = Birth_Type, 
                                           Global = Global, minInstitution = minInstitution, 
                                           minNrepro = minNrepro, minNparepro =  minNparepro,
-                                          parentProb = parentProb, minNlitter = minNlitter, Nday = Nday,
+                                          parentProb_Dam = parentProb_Dam, 
+                                          parentProb_Sire = parentProb_Sire,
+                                          minNlitter = minNlitter, Nday = Nday,
                                           minNseas =  minNseas)
           }
           
@@ -355,6 +361,7 @@ dir.create(PlotDir)
 
 out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
                  Animal, data$Reptilia$Collection, 
+                 Birth_Type = "All", uncert_birth = 3500,uncert_death = 3500, 
                  DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),
@@ -381,7 +388,8 @@ test_that("tx_report works", {
   dir.create(PlotDir)
   
   out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
-                   Animal, data$Reptilia$Collection, MinBirthKnown = 0.1,minlx =0.5,minNIgro=40,
+                   Animal, data$Reptilia$Collection, MinBirthKnown = 0,minlx =0.5,minNIgro=40,
+                   Birth_Type = "All", uncert_birth = 3500,uncert_death = 3500, 
                    DeathInformation =data$Reptilia$DeathInformation, weights =data$Reptilia$Weight,
                    niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                    PlotDir = PlotDir, Sections = c('sur','gro'),
@@ -390,18 +398,18 @@ test_that("tx_report works", {
                    models_gro = "vonBertalanffy"
   )
   expect_named(out, c('general', "summary", 'surv', 'weig'))
-  expect_named(out$general, c("Nraw", "Ndate", "Nglobal", "Nalive", "firstDate", "maxAgeraw", "extractdate"))
+  expect_named(out$general, c('Nraw', 'Ndate', 'Nglobal', 'Nbirthtype', 'Nuncertbirth', 'Nalive', 'firstDate', 'maxAgeraw', 'extractdate'))
   expect_named(out$sur, c('Male', "Female"))
   expect_named(out$sur$Male, c("from0"))
   expect_named(out$sur$Male$from0, c("summary", "bastaRes", "DICmods", "relex", "Sur1", "Sur5", 'L90', 'L50'))
   expect_named(out$weig, c('Male', "Female"))
-  expect_named(out$weig$Male$Captive, c('wSummar', "weightQ"))
-  expect_named(out$weig$Female$Captive, c('wSummar', "weightQ"))
+  expect_named(out$weig$Male$All, c('wSummar', "weightQ"))
+  expect_named(out$weig$Female$All, c('wSummar', "weightQ"))
   expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\8_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\8_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_outliers.png", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_Captive_growth.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)
 })
 ```
@@ -596,6 +604,7 @@ This function extracts the data of the specified species that fill the condition
 * `coresubset`data.frame including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate*, *EntryType*, *DepartType*, *DepartFrom*, *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 * `collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 * `uncert_birth` Maximum uncertainty accepted for birth date, in days
+* `Birth_Type` Captive, Wild, or All
 * `minDate`: Earlier date to include data
 * `extractDate`: Date of data extraction
 * `Global` Whether only individuals belonging to global collections should be used.
@@ -622,7 +631,8 @@ The output is a list including:
 #' @param coresubset  \code{data.frame} including at least the following columns *AnimalAnonID*, *binSpecies*, *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate* (\code{date}), *MaxDeathDate* (\code{date}), *MinDeathDate* (\code{date}), *EntryType*, *DepartType*,  *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 #' @param collection \code{data.frame} including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 #' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth date, in days
+#' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth dates, in days
+#' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
 #'
@@ -631,6 +641,8 @@ The output is a list including:
 #'- Nraw : Raw number of individuals selected from global collections
 #'- Ndate : Number of individuals with an entry date posterior to the minimum date
 #'- Nglobal: Number of individuals selected from global collections
+#'- Nbirthtype: Number of individuals selected from birth type
+#'- Nuncertbirth: Number of individuals selected from uncertainty in birth
 #'- Nalive: Number of individuals still alive
 #'- firstDate: Date of first record
 #'- maxAgeraw: Maximum observed age
@@ -638,12 +650,13 @@ The output is a list including:
 #' @export
 #'
 #' @examples
-select_species <- function(speciesname, coresubset, collection, uncert_birth = 365,
+select_species <- function(speciesname, coresubset, collection, uncert_birth = 365,                                     Birth_Type = "Captive",
                            minDate, extractDate, Global = TRUE) {
   
   minDate = lubridate::as_date(minDate)
   extractDate = lubridate::as_date(extractDate)
-  
+  assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
+  assert_that(is.numeric(uncert_birth))
   assert_that(is.data.frame(coresubset))
   assert_that(is.data.frame(collection))
   assert_that(coresubset  %has_name% c("AnimalAnonID", "binSpecies", "BirthDate", "DepartDate",
@@ -663,9 +676,12 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
   coresubset1 <- coresubset0%>%
     filter(DepartDate >= minDate)
   
+  
   summar = list(Nraw = nrow(coresubset0),
                 Ndate = nrow(coresubset1),
                 Nglobal = 0,
+                Nbirthtype = 0,
+                Nuncertbirth = 0,
                 Nalive = 0,
                 firstDate = NULL,
                 maxAgeraw = NULL,
@@ -715,23 +731,35 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
       data_sel <- coresubset1%>%
         rows_update(indloc, by="AnimalAnonID")%>%
         mutate()%>%
-        filter(FirstCollectionScopeType == "Global",
-               Birth_Uncertainty <= uncert_birth)
+        filter(FirstCollectionScopeType == "Global")
       summar$Nglobal = nrow(data_sel)
     }else { data_sel <- coresubset1}
     
     
-    if (summar$Nglobal > 0) {
+    if (summar$Nglobal > 0) {  
+       # Subset by birth type
+      if (Birth_Type != "All"){
+        data_sel <- data_sel  %>%
+          filter(stringr::str_detect(BirthType, pattern = Birth_Type))
+      }
+      summar$Nbirthtype = nrow( data_sel)
+      
+      # Subset by uncertainty in birth
+      data_sel1 <- data_sel %>%
+        tidyr::drop_na(BirthDate)%>%
+        filter((Birth_Uncertainty <= uncert_birth)%>% replace_na(TRUE))
+      summar$Nuncertbirth = nrow( data_sel1)
+      
       # Number alive by extraction date:
-      summar$Nalive <- nrow(data_sel%>%
+      summar$Nalive <- nrow(data_sel1%>%
                               filter(DepartDate == extractDate , 
                                      DepartType == "C"))
       
       # First record:
-      summar$firstDate <- min(data_sel$EntryDate)
+      summar$firstDate <- min(data_sel1$EntryDate)
       
       # Max Ages:
-      data_age <- data_sel%>%
+      data_age <- data_sel1%>%
         mutate(tempAges = as.numeric(DepartDate - BirthDate) / 365.25,
                tempAlive = as.numeric(DepartDate - EntryDate) / 365.25)
       
@@ -739,10 +767,10 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
       summar$maxAgeraw <- max(c(data_age$tempAges,data_age$tempAlive))
     } 
     
-  }else{data_sel = tibble()}
+  }else{data_sel1 = tibble()}
   
   
-  sexDat <- list(summary = summar, data = data_sel)
+  sexDat <- list(summary = summar, data = data_sel1)
   
   return(sexDat)
 }
@@ -765,12 +793,12 @@ test_that("select_species works", {
                         coresubset = core, collection,
                         minDate = "1980-01-01", extractDate = "2023-01-01")
   expect_named(out, c("summary",  "data"))
-  expect_named(out$summary, c("Nraw", "Ndate", "Nglobal", "Nalive",    "firstDate", "maxAgeraw", "extractdate"))
+  expect_named(out$summary, c('Nraw', 'Ndate', 'Nglobal', 'Nbirthtype', 'Nuncertbirth', 'Nalive', 'firstDate', 'maxAgeraw', 'extractdate'))
   expect_equal(out$summary$Nraw,1000)
   expect_equal(out$summary$Ndate,996)
   expect_equal(out$summary$Nalive,0)
   expect_named(out$data, names(core))
-  expect_equal(nrow(out$data),out$summary$Nglobal)
+  expect_equal(nrow(out$data),out$summary$Nuncertbirth)
   expect_true(is.numeric(out$summary$maxAgeraw))
   expect_true(is.date(out$summary$firstDate))
   
@@ -807,7 +835,7 @@ and a summary list including the threshold value selected for the distribution o
 #' * the data with the selected sex and additional columns showing which individuals are above the percentiles 95%, 99% and 99.9%
 #' * A summary list with:
 #' - Sex = the sex selected
-#' - Nglobal: the number of individuals of this sex
+#' - Nselect: the number of individuals of this sex
 #' - Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
 #' - GapThresh : The threshold value selected for the distribution of longevity
 #' - NThres : the number of individuals selected using this threshold
@@ -839,7 +867,7 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
   # Output table:
   outTab <- tibble( 
     Sex = sexCats,
-    Nglobal = nrow(coresubset),
+    Nselect = nrow(coresubset),
     Nlifespan = 0,
     GapThresh = NA, 
     NThres = 0
@@ -952,9 +980,9 @@ test_that("select_Longthreshold works", {
   unlink(TempDir, recursive = TRUE)
   expect_named(out, c("summar",  "data"))
   expect_true("above95" %in% names(out$data))
-  expect_named(out$summar, c("Sex", "Nglobal", "Nlifespan", "GapThresh", "NThres"))
+  expect_named(out$summar, c("Sex", 'Nselect', "Nlifespan", "GapThresh", "NThres"))
   expect_true(out$summar$Sex == "All" )
-  expect_equal(out$summar$Nglobal, nrow(core))
+  expect_equal(out$summar$Nselect, nrow(core))
   unlink(TempDir, recursive = TRUE)
 })
 ```

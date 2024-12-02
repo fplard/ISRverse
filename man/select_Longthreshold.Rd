@@ -31,7 +31,7 @@ A list including
 }
 \itemize{
 \item Sex = the sex selected
-\item Nglobal: the number of individuals of this sex
+\item Nselect: the number of individuals of this sex
 \item Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
 \item GapThresh : The threshold value selected for the distribution of longevity
 \item NThres : the number of individuals selected using this threshold

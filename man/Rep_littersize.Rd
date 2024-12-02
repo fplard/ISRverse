@@ -8,7 +8,8 @@ Rep_littersize(
   Reprodata,
   perAge = FALSE,
   Nday = 7,
-  parentProb = 80,
+  parentProb_Dam = 80,
+  parentProb_Sire = 80,
   minNlitter = 30
 )
 }
@@ -19,7 +20,9 @@ Rep_littersize(
 
 \item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
 
-\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+\item{parentProb_Dam}{\code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80}
+
+\item{parentProb_Sire}{\code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80}
 
 \item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
 }

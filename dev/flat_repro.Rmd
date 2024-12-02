@@ -47,7 +47,8 @@ It return a list per sex category including:
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = #'
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
@@ -77,7 +78,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
                       BirthType_parent = "Captive", BirthType_offspring = "Captive", 
                       Global = TRUE, minInstitution = 2, 
                       minNrepro = 100,minNparepro = 30,
-                      parentProb = 80, minNlitter = 20, Nday = 7,
+                      parentProb_Sire = 80,parentProb_Dam = 80, minNlitter = 20, Nday = 7,
                       minNseas = 50) {
   
   assert_that(is.data.frame(coresubset))
@@ -103,8 +104,10 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
   assert_that(is.logical(Global))
   assert_that(all(Repsect %in% c("agemat", "litter")))
   
-  assert_that(is.numeric(parentProb))
-  assert_that(parentProb > 0)
+  assert_that(is.numeric(parentProb_Dam))
+  assert_that(parentProb_Dam > 0)
+ assert_that(is.numeric(parentProb_Sire))
+  assert_that(parentProb_Sire > 0)
   assert_that(is.numeric(minNrepro))
   assert_that(minNrepro > 0)
   assert_that(is.numeric(minNparepro))
@@ -142,7 +145,8 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
       if("litter" %in% Repsect){
         #Calculate reproductive age statistics
         out[["litter"]] <- Rep_littersize(subfert, perAge = TRUE,
-                                          Nday = Nday, parentProb = parentProb,  
+                                          Nday = Nday, parentProb_Dam = parentProb_Dam,  
+                                          parentProb_Sire = parentProb_Sire,  
                                           minNlitter =minNlitter)
         out$summary$litt_analyzed = out$litter$summary$analyzed
       }
@@ -169,6 +173,7 @@ out <- Rep_main (coresubset = core, collection, parent, moves,
 ) 
 
 ```
+
 
 ```{r tests-Rep_main}
 test_that("Rep_main works", {
@@ -327,7 +332,8 @@ It returns a list including:
 #' @param Reprodata \code{data frame} including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
 #' @param perAge \code{logical} Whether to estimate litter size per mother age. Default = FALSE
 #' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #'
 #' @return A list including:
@@ -350,7 +356,7 @@ It returns a list including:
 #' @examples
 Rep_littersize <- function(Reprodata, perAge = FALSE,
                            Nday = 7, 
-                           parentProb = 80,  minNlitter =30
+                           parentProb_Dam = 80,parentProb_Sire = 80,  minNlitter =30
 ) {
   
   assert_that(is.data.frame(Reprodata))
@@ -362,7 +368,8 @@ Rep_littersize <- function(Reprodata, perAge = FALSE,
   assert_that(is.logical(perAge))
   if(perAge){  assert_that(Reprodata %has_name%  "Parent_Age")}
   assert_that(is.numeric(Nday))
-  assert_that(is.numeric(parentProb))
+  assert_that(is.numeric(parentProb_Dam))
+ assert_that(is.numeric(parentProb_Sire))
   assert_that(is.numeric(minNlitter))
   
   
@@ -373,15 +380,24 @@ Rep_littersize <- function(Reprodata, perAge = FALSE,
   littSizeDf <- tibble()
   littSizeTab <- NULL
   littSizeperAge <- NULL
+    subpar_sire <- Reprodata %>%
+    filter(ParentType == "Parentage_Sire",
+           Probability >= parentProb_Sire)%>%
+    select("ParentAnonID", "AnimalAnonID")%>%
+    group_by(AnimalAnonID)%>%
+    summarize(FatherAnonID = toString(ParentAnonID))
   
   subpar <- Reprodata %>%
     filter(ParentType == "Parentage_Dam",
-           Probability >= parentProb)
+           Probability >= parentProb_Dam)%>%
+    left_join(subpar_sire, by = "AnimalAnonID")
+
+
   
   littSumm$NOffsp_prob <- length(unique(subpar$AnimalAnonID))
   littSumm$NParent_prob <- length(unique(subpar$ParentAnonID))
   
-  col = c("ParentAnonID", "AnimalAnonID", "Offspring_BirthDate", "Offspring_Inst")
+  col = c("ParentAnonID", "AnimalAnonID", "Offspring_BirthDate", "Offspring_Inst", "FatherAnonID")
   if(perAge){ col = c(col, "Parent_Age")}
   
   
@@ -410,15 +426,16 @@ Rep_littersize <- function(Reprodata, perAge = FALSE,
         mutate(Parent_Age = round(Parent_Age))%>%
         group_by (ParentAnonID, Offspring_Inst, Parent_Age, litter)%>%
         summarize(litterSize = n(),
-                  MeanBirthDate = mean(Offspring_BirthDate))%>%
-        ungroup()%>%
+                  MeanBirthDate = mean(Offspring_BirthDate),
+                  FatherAnonID = toString(FatherAnonID))%>%
+        # ungroup()%>%
         dplyr::select(-litter)%>%
         rename(MotherAnonID = ParentAnonID,
                InstitutionAnonID = Offspring_Inst)
       
       littSizeDf <- rbind(littSizeDf, parid)
     }
-    
+
     
     if (nrow(littSizeDf)>= minNlitter)  {
       littSizeTab <- littSizeDf%>%
@@ -498,11 +515,11 @@ test_that("Rep_littersize works", {
   expect_named(out$summary, c("NOffsp_prob",  "NParent_prob", "NReprEvent",   "analyzed","error", "Nerr",
                               "MeanLittSize", "MedLittSize",  "SdLittSize"))
   expect_named(out$littSizeTab, c("litterSize", "N", "prop"))
-  expect_named(out$littSizeDf, c("MotherAnonID", "InstitutionAnonID", "Parent_Age", "litterSize", "MeanBirthDate" ))
+  expect_named(out$littSizeDf, c("MotherAnonID", "InstitutionAnonID", "Parent_Age", "litterSize", "MeanBirthDate", 'FatherAnonID' ))
   expect_named(out$littSizeperAge, c("Age", "MeanlittSize", "SDlittSize", "Nlitter"))
   expect_equal(round(out$summary$MeanLittSize,2), 1.2)
   expect_equal(out$summary$NReprEvent, 5)
-  expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
+expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
   expect_equal(nrow(out$littSizeTab), 2)
   expect_equal(nrow(out$littSizeperAge), 5)
 })

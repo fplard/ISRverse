@@ -9,6 +9,7 @@ select_species(
   coresubset,
   collection,
   uncert_birth = 365,
+  Birth_Type = "Captive",
   minDate,
   extractDate,
   Global = TRUE
@@ -21,7 +22,9 @@ select_species(
 
 \item{collection}{\code{data.frame} including at least the following columns\emph{RecordingInstitution}, \emph{ChangeDate}, \emph{ScopeType}, and \emph{AnimalAnonID}.}
 
-\item{uncert_birth}{\code{numeric}: Maximum uncertainty accepted for birth date, in days}
+\item{uncert_birth}{\code{numeric}: Maximum uncertainty accepted for birth dates, in days}
+
+\item{Birth_Type}{\code{character} Captive, Wild, or All. Default =  "Captive"}
 
 \item{minDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
@@ -38,6 +41,8 @@ The output of a list including:
 \item Nraw : Raw number of individuals selected from global collections
 \item Ndate : Number of individuals with an entry date posterior to the minimum date
 \item Nglobal: Number of individuals selected from global collections
+\item Nbirthtype: Number of individuals selected from birth type
+\item Nuncertbirth: Number of individuals selected from uncertainty in birth
 \item Nalive: Number of individuals still alive
 \item firstDate: Date of first record
 \item maxAgeraw: Maximum observed age

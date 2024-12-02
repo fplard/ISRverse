@@ -112,7 +112,7 @@ Sur_out <- function(out, shape= "simple",
   idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
   if(out$relex$RemLExp[idxmax]>= MaxLE){
     out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=10
+    out$summary$Nerr=12
     # out$summary$analyzed <- FALSE 
     # out$bastaRes <- list()
   }
@@ -124,11 +124,46 @@ Sur_out <- function(out, shape= "simple",
     if(lx[which(dif == min(dif))]< Min_MLE){
       # out$summary$analyzed <- FALSE
       out$summary$error = "lx[MLE] < Min_MLE"
-      out$summary$Nerr = 11
+      out$summary$Nerr = 13
       # out$bastaRes <- list()   
     }
   }  
  
+     
+  #test if mortality is within the estimated 95CI
+  Lx= tibble(Meann = out$bastaRes$mort$nocov[1,],
+             Lower = out$bastaRes$mort$nocov[2,],
+             Upper = out$bastaRes$mort$nocov[3,],
+             Ages =out$bastaRes$x )%>%
+    filter(Ages >=minAge)
+
+  Mo = out$bastaRes$lifeTable$noCov$Mean%>%
+    mutate(Ages = round(Ages/0.05)*0.05)%>%
+    filter(Ages >minAge,qx<1)%>%
+    group_by(Ages)%>%
+    summarise(mux = mean(2*(-log(1-qx))),
+              Sqx = sum(qx))%>%
+    left_join(Lx)%>%
+    tidyr::drop_na(Lower, Upper)%>%
+    mutate(check = (mux <= Upper & mux >= Lower),
+           residual = Meann - mux,
+           sign = ifelse(residual <0, -1,1),
+           diff = 0)
+Mo$diff[2:nrow(Mo)] =ifelse(Mo$sign[1:(nrow(Mo)-1)] == Mo$sign[2:nrow(Mo)], 0,1)
+Mo$diff = cumsum(Mo$diff)
+
+v <- Mo%>%
+  group_by(diff)%>%
+  summarise(resi = abs(sum (residual)),
+            Sqx = sum(Sqx))
+  if(v$Sqx[nrow(v)]==0){v = v[-nrow(v),]}
+  out$summary$Gof_mort_coeff =max(v$resi)
+
+ if(max(v$resi)>=1.75){
+    out$summary$error = "Motality does not fit"
+      out$summary$Nerr = 11
+    }
+
   ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
   # id = which(out$bastaRes$x %in% seq(0,round(XMAX)),0.5)
   # m = min(length(id),(round(XMAX)+1), length(out$bastaRes$lifeTable$noCov$Mean$lx))
@@ -174,16 +209,17 @@ v <- LT%>%
   out$summary$Gof_KM_coeff1 =check
   out$summary$Gof_KM_coeff2 =max(v$resi)
     out$summary$Gof_KM = TRUE
- if(max(v$resi)>=2){
-    out$summary$Gof_KM = FALSE
-    out$summary$error = "Kaplan-Meier does not fit:2"
-      out$summary$Nerr = 9
-    }
+ # if(max(v$resi)>=1.75){
+ #    out$summary$Gof_KM = FALSE
+ #    out$summary$error = "Kaplan-Meier does not fit:2"
+ #      out$summary$Nerr = 11
+ #    }
   if(check < 0.8){
      out$summary$Gof_KM = FALSE
-   out$summary$error = "Kaplan-Meier does not fit:1"
-      out$summary$Nerr = 8
+   out$summary$error = "Kaplan-Meier does not fit"
+      out$summary$Nerr = 10
     }
+
 
 
  

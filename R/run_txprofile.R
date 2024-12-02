@@ -46,7 +46,8 @@
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
 #' @param Repsect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
 #' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
@@ -103,7 +104,7 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
                           nchain = 3, ncpus = 2,
                           Repsect = c('agemat', 'litter'),
                           Birth_Type = "Captive", lastdead = FALSE,
-                          parentProb = 80, minNlitter = 20,Nday = 7,
+                          parentProb_Sire = 80, parentProb_Dam = 80, minNlitter = 20,Nday = 7,
                           minNrepro = 100, minNparepro = 30, minNseas = 50, 
                           minNgro =100,minNIgro = 50, MeasureType = "Live weight",
                           models_gro = "vonBertalanffy"
@@ -141,7 +142,7 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_that(minlx > 0)
   assert_that(minlx < 1)
   assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown > 0)
+  assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
@@ -162,10 +163,12 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_directory_exists(ZIMSdir)
   assert_directory_exists(AnalysisDir)
   assert_directory_exists(PlotDir)
-
+  
   assert_that(all(Repsect %in% c("agemat", "litter")))
-  assert_that(is.numeric(parentProb))
-  assert_that(parentProb > 0)
+  assert_that(is.numeric(parentProb_Dam))
+  assert_that(parentProb_Dam > 0)
+  assert_that(is.numeric(parentProb_Sire))
+  assert_that(parentProb_Sire > 0)
   assert_that(is.numeric(minNrepro))
   assert_that(minNrepro > 0)
   assert_that(is.numeric(minNparepro))
@@ -296,7 +299,8 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
                         models_sur = models_sur, shape = shape,lastdead = lastdead,
                         niter = niter, burnin =  burnin, thinning = thinning,
                         nchain = nchain,  ncpus = ncpus,
-                        Repsect = Repsect, parentProb = parentProb, minNrepro = minNrepro,
+                        Repsect = Repsect, parentProb_Dam = parentProb_Dam,
+                        parentProb_Sire = parentProb_Sire, minNrepro = minNrepro,
                         minNlitter = minNlitter, Nday = Nday,
                         minNparepro = minNparepro, minNseas = minNseas, 
                         minNgro =minNgro,minNIgro = minNIgro, 

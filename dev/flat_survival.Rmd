@@ -76,7 +76,7 @@ It return a list per sex category including:
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the survival analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur and 2/lxMin > minlx 3/NBasta = 0 4/ %known births < MinBirthKnown 5/Data from 1 Institution 6/Nbasta < minNsur, 7/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Motality does not fit; 12/Min(Life_exp) >= MaxLE; 13/lx[MLE] < Min_MLE.
 #'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
@@ -164,8 +164,6 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
   out[[paste0("from",minAge[j])]] <- append( out[[paste0("from",minAge[j])]], 
                                              list(relex = NULL, Sur1 = NULL, Sur5 = NULL, L90 = NULL, L50 = NULL))
   
-  out[[paste0("from",minAge[j])]]$summary <- append( out[[paste0("from",minAge[j])]]$summary, 
-                                                     list(Gof_KM_coeff1 = NULL, Gof_KM_coeff2 = NULL, Gof_KM = NULL))
   
   if (out[[paste0("from",minAge[j])]]$summary$analyzed) {
     
@@ -216,7 +214,7 @@ test_that("Sur_main works", {
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
   expect_named(out, c("from0"))
   expect_named(out$from0, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5', 'L90', 'L50'))
-  expect_named(out$from0$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_coeff1", "Gof_KM_coeff2", "Gof_KM"))
+  expect_named(out$from0$summary, c("NSelect", 'NUncertdeath', "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error","Gof_mort_coeff", "Gof_KM_coeff1", "Gof_KM_coeff2", "Gof_KM"))
   expect_named(out$from0$DICmods, c("models", "DIC"))
 })
 ```
@@ -266,7 +264,8 @@ It return a list including:
 #'
 #' @return The output of a list including:
 #' * a summary of the data used:
-#'- NGlobal: Number of captive born individuals selected from global collections
+#'- NSelect: Number of individuals selected from filters
+#'- NUncertdeath: Number of individuals selected after filter uncertainty in death
 #'- NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
 #'- Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
 #'- maxAge: Maximum age of known age individuals
@@ -274,7 +273,7 @@ It return a list including:
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the growth analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur; 2/lxMin > minlx; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta.
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #' 
@@ -306,7 +305,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   assert_that(minlx > 0)
   assert_that(minlx <1)
   assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown > 0)
+  assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
@@ -325,24 +324,29 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   assert_that(is.character(shape))
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
   assert_that(is.logical(lastdead))
-  
-  
-  #Initialize
+   
+   #Initialize
   summar = list(
-    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
+    NSelect =  nrow(sexData), NUncertdeath = 0,  NBasta = 0, Ndead = 0, 
     maxAge = NULL, maxAlive = NULL, 
     lxMin = NULL, outLev = NULL, 
     analyzed = FALSE, Nerr = 0,  error ="")
   bastaRes = NULL
   DICmods = NULL
   
-  #Remove individuals with uncertainty in death date
+   #Remove individuals with uncertainty in death date
   sexData <- sexData%>%
     filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE))
-  if(nrow(sexData)> minNsur){
+summar$NUncertdeath =nrow(sexData)
+
+  
+   if(nrow(sexData)> minNsur){
+sexDat <- select_Longthreshold( sexData, minN = minNsur )
+ outlLev = sexDat$summar$GapThresh
+ 
     #Find the minimum threshold for which lxmin  >.1
     summar$lxMin <- 1
-    outLev2 = outlLev1
+    outLev2 = min(outlLev1, outlLev)
     while(summar$lxMin > 0.1 & outLev2 >= 95){
       summar$outLev = outLev2
       if (summar$outLev ==100){
@@ -387,7 +391,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
       }
       
       
-      summar$NGlobal <- nrow(data_sel)
+
       summar$NBasta <- nrow(bastatab)
       summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
       summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
@@ -473,7 +477,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
       summar$ Nerr = 3
     }
   } else {
-    summar$ error = "Nglobal < minNsur"
+    summar$ error = "Nuncertdeath < minNsur"
     summar$ Nerr = 2
   }
   
@@ -497,9 +501,9 @@ test_that("Sur_ana works", {
   expect_named(out, c("summary",  "bastaRes", "DICmods"))
   expect_named(out$DICmods, c("models",  "DIC"))
   expect_equal(nrow(out$DICmods),1)
-  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin",    "outLev", "analyzed", "Nerr", "error"))
+  expect_named(out$summary, c("NSelect","NUncertdeath", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin",    "outLev", "analyzed", "Nerr", "error"))
   # expect_true(out$summary$analyzed )
-  expect_true(is.numeric(out$summary$NGlobal ))
+  expect_true(is.numeric(out$summary$NSelect ))
   expect_true(is.numeric(out$summary$NBasta ))
   expect_true(is.numeric(out$summary$Ndead ))
   expect_true(is.numeric(out$summary$maxAge ))
@@ -606,18 +610,7 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
   assert_that(all(models %in% c("GO", "EX", "LO", "WE")))
   assert_that(is.character(shape))
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
-  
-  
-  #Initialize
-  summar = list(
-    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
-    maxAge = NULL, maxAlive = NULL, 
-    lxMin = NULL, outLev = NULL, 
-    analyzed = FALSE, Nerr = 0,  error ="")
-  bastaRes = NULL
-  DICmods = NULL
-  
-  #Remove individuals with uncertainty in death date
+    #Remove individuals with uncertainty in death date
   sexData <- sexData%>%
     filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE),
            (Birth_Uncertainty < uncert_birth)%>% replace_na(TRUE))%>%
@@ -628,9 +621,20 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
     )%>%
     filter(entryAge <= 365)
   sexData$DepartDate= as.Date(sexData$DepartDate)
-  sexData$DepartDate[sexData$deparAge>365.25]= as.Date(sexData$EntryDate)[sexData$deparAge>365.25]+ 365
+  sexData$DepartDate[sexData$deparAge>365.25]= as.Date(sexData$EntryDate)[sexData$deparAge>365.25]+ 366
   
-  if(nrow(sexData)> minNsur){
+
+  
+  #Initialize
+  summar = list(
+    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
+    maxAge = NULL, maxAlive = NULL, 
+    lxMin = NULL, outLev = NULL, 
+    analyzed = FALSE, Nerr = 0,  error ="")
+  bastaRes = NULL
+  DICmods = NULL
+  
+  if(nrow(sexData)>= minNsur){
     
     # Extract BaSTA table:
     bastalist <- surv_Bastab(sexData, DeathInformation = DeathInformation, earliestDate = mindate,
@@ -640,7 +644,7 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
         bdun = Max.Birth.Date-Min.Birth.Date,
         aliveTime = (Depart.Date - Entry.Date) / 365.25)
     
-    summar$NGlobal <- nrow(sexData)
+ 
     summar$NBasta <- nrow(bastatab)
     summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
     summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
@@ -688,36 +692,41 @@ Sur_ana1 <- function(sexData, DeathInformation, models = "GO", shape = "simple",
             
             # BaSTA outputs:
             if (any(DICmods$DIC != 0)) {
-              idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
+                       a = which(DICmods$DIC == 0)
+                   DICmods2 = DICmods
+                   if(length(a)>0){
+                     DICmods2 = DICmods2[-a,]
+                   }
+idModSel <- which(DICmods$DIC == min(DICmods$DIC, na.rm = TRUE))
               bastaRes <- tempList[[idModSel]]
               summar$analyzed = TRUE
             } else {
               summar$error = 'no DIC from Basta'
-              summar$Nerr = 7
+              summar$Nerr = 9
             }
           } else {
             summar$error = "Nbasta > maxNsur"
-            summar$Nerr = 6
+            summar$Nerr = 8
           }
         } else {
           summar$error = "Nbasta < minNsur"
-          summar$Nerr = 5
+          summar$Nerr = 7
         }
       }else{
         summar$error = "Data from 1 Institution"
-        summar$Nerr = 4
+        summar$Nerr = 6
       }
     }else{
       summar$error = "Ndead = 0"
-      summar$Nerr = 3
+      summar$Nerr = 5
     }
   }else{
       summar$error = "NBasta = 0"
-      summar$Nerr = 2
+      summar$Nerr = 4
     }
     } else {
     summar$ error = "Nglobal < minNsur"
-    summar$ Nerr = 1
+    summar$ Nerr = 2
   }
   
   return(list(summary = summar, bastaRes = bastaRes, DICmods = DICmods))
@@ -877,7 +886,7 @@ Sur_out <- function(out, shape= "simple",
   idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
   if(out$relex$RemLExp[idxmax]>= MaxLE){
     out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=10
+    out$summary$Nerr=12
     # out$summary$analyzed <- FALSE 
     # out$bastaRes <- list()
   }
@@ -889,11 +898,46 @@ Sur_out <- function(out, shape= "simple",
     if(lx[which(dif == min(dif))]< Min_MLE){
       # out$summary$analyzed <- FALSE
       out$summary$error = "lx[MLE] < Min_MLE"
-      out$summary$Nerr = 11
+      out$summary$Nerr = 13
       # out$bastaRes <- list()   
     }
   }  
  
+     
+  #test if mortality is within the estimated 95CI
+  Lx= tibble(Meann = out$bastaRes$mort$nocov[1,],
+             Lower = out$bastaRes$mort$nocov[2,],
+             Upper = out$bastaRes$mort$nocov[3,],
+             Ages =out$bastaRes$x )%>%
+    filter(Ages >=minAge)
+
+  Mo = out$bastaRes$lifeTable$noCov$Mean%>%
+    mutate(Ages = round(Ages/0.05)*0.05)%>%
+    filter(Ages >minAge,qx<1)%>%
+    group_by(Ages)%>%
+    summarise(mux = mean(2*(-log(1-qx))),
+              Sqx = sum(qx))%>%
+    left_join(Lx)%>%
+    tidyr::drop_na(Lower, Upper)%>%
+    mutate(check = (mux <= Upper & mux >= Lower),
+           residual = Meann - mux,
+           sign = ifelse(residual <0, -1,1),
+           diff = 0)
+Mo$diff[2:nrow(Mo)] =ifelse(Mo$sign[1:(nrow(Mo)-1)] == Mo$sign[2:nrow(Mo)], 0,1)
+Mo$diff = cumsum(Mo$diff)
+
+v <- Mo%>%
+  group_by(diff)%>%
+  summarise(resi = abs(sum (residual)),
+            Sqx = sum(Sqx))
+  if(v$Sqx[nrow(v)]==0){v = v[-nrow(v),]}
+  out$summary$Gof_mort_coeff =max(v$resi)
+
+ if(max(v$resi)>=1.75){
+    out$summary$error = "Motality does not fit"
+      out$summary$Nerr = 11
+    }
+
   ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
   # id = which(out$bastaRes$x %in% seq(0,round(XMAX)),0.5)
   # m = min(length(id),(round(XMAX)+1), length(out$bastaRes$lifeTable$noCov$Mean$lx))
@@ -939,16 +983,17 @@ v <- LT%>%
   out$summary$Gof_KM_coeff1 =check
   out$summary$Gof_KM_coeff2 =max(v$resi)
     out$summary$Gof_KM = TRUE
- if(max(v$resi)>=2){
-    out$summary$Gof_KM = FALSE
-    out$summary$error = "Kaplan-Meier does not fit:2"
-      out$summary$Nerr = 9
-    }
+ # if(max(v$resi)>=1.75){
+ #    out$summary$Gof_KM = FALSE
+ #    out$summary$error = "Kaplan-Meier does not fit:2"
+ #      out$summary$Nerr = 11
+ #    }
   if(check < 0.8){
      out$summary$Gof_KM = FALSE
-   out$summary$error = "Kaplan-Meier does not fit:1"
-      out$summary$Nerr = 8
+   out$summary$error = "Kaplan-Meier does not fit"
+      out$summary$Nerr = 10
     }
+
 
 
  
@@ -1021,7 +1066,7 @@ test_that("Sur_out works", {
   
   out <- Sur_out(out, shape = "simple", ncpus = 3)
   expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'L90', 'L50', 'Sur5', 'Sur1'))
-  expect_named(out$summary, c("NGlobal", "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_coeff1", "Gof_KM_coeff2", "Gof_KM"))
+  expect_named(out$summary, c('NSelect', 'NUncertdeath',  "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error","Gof_mort_coeff", "Gof_KM_coeff1", "Gof_KM_coeff2", "Gof_KM"))
   expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
   expect_true(is.numeric(out$relex$Upper))
   expect_true(is.numeric(out$relex$Age))

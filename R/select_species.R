@@ -8,7 +8,8 @@
 #' @param coresubset  \code{data.frame} including at least the following columns *AnimalAnonID*, *binSpecies*, *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate* (\code{date}), *MaxDeathDate* (\code{date}), *MinDeathDate* (\code{date}), *EntryType*, *DepartType*,  *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 #' @param collection \code{data.frame} including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 #' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth date, in days
+#' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth dates, in days
+#' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
 #'
@@ -17,6 +18,8 @@
 #'- Nraw : Raw number of individuals selected from global collections
 #'- Ndate : Number of individuals with an entry date posterior to the minimum date
 #'- Nglobal: Number of individuals selected from global collections
+#'- Nbirthtype: Number of individuals selected from birth type
+#'- Nuncertbirth: Number of individuals selected from uncertainty in birth
 #'- Nalive: Number of individuals still alive
 #'- firstDate: Date of first record
 #'- maxAgeraw: Maximum observed age
@@ -30,12 +33,13 @@
 #'                      minDate = "1980-01-01", extractDate = "2023-01-01")
 #' out$summary
 #' out$data
-select_species <- function(speciesname, coresubset, collection, uncert_birth = 365,
+select_species <- function(speciesname, coresubset, collection, uncert_birth = 365,                                     Birth_Type = "Captive",
                            minDate, extractDate, Global = TRUE) {
   
   minDate = lubridate::as_date(minDate)
   extractDate = lubridate::as_date(extractDate)
-  
+  assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
+  assert_that(is.numeric(uncert_birth))
   assert_that(is.data.frame(coresubset))
   assert_that(is.data.frame(collection))
   assert_that(coresubset  %has_name% c("AnimalAnonID", "binSpecies", "BirthDate", "DepartDate",
@@ -55,9 +59,12 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
   coresubset1 <- coresubset0%>%
     filter(DepartDate >= minDate)
   
+  
   summar = list(Nraw = nrow(coresubset0),
                 Ndate = nrow(coresubset1),
                 Nglobal = 0,
+                Nbirthtype = 0,
+                Nuncertbirth = 0,
                 Nalive = 0,
                 firstDate = NULL,
                 maxAgeraw = NULL,
@@ -107,23 +114,35 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
       data_sel <- coresubset1%>%
         rows_update(indloc, by="AnimalAnonID")%>%
         mutate()%>%
-        filter(FirstCollectionScopeType == "Global",
-               Birth_Uncertainty <= uncert_birth)
+        filter(FirstCollectionScopeType == "Global")
       summar$Nglobal = nrow(data_sel)
     }else { data_sel <- coresubset1}
     
     
-    if (summar$Nglobal > 0) {
+    if (summar$Nglobal > 0) {  
+       # Subset by birth type
+      if (Birth_Type != "All"){
+        data_sel <- data_sel  %>%
+          filter(stringr::str_detect(BirthType, pattern = Birth_Type))
+      }
+      summar$Nbirthtype = nrow( data_sel)
+      
+      # Subset by uncertainty in birth
+      data_sel1 <- data_sel %>%
+        tidyr::drop_na(BirthDate)%>%
+        filter((Birth_Uncertainty <= uncert_birth)%>% replace_na(TRUE))
+      summar$Nuncertbirth = nrow( data_sel1)
+      
       # Number alive by extraction date:
-      summar$Nalive <- nrow(data_sel%>%
+      summar$Nalive <- nrow(data_sel1%>%
                               filter(DepartDate == extractDate , 
                                      DepartType == "C"))
       
       # First record:
-      summar$firstDate <- min(data_sel$EntryDate)
+      summar$firstDate <- min(data_sel1$EntryDate)
       
       # Max Ages:
-      data_age <- data_sel%>%
+      data_age <- data_sel1%>%
         mutate(tempAges = as.numeric(DepartDate - BirthDate) / 365.25,
                tempAlive = as.numeric(DepartDate - EntryDate) / 365.25)
       
@@ -131,10 +150,10 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
       summar$maxAgeraw <- max(c(data_age$tempAges,data_age$tempAlive))
     } 
     
-  }else{data_sel = tibble()}
+  }else{data_sel1 = tibble()}
   
   
-  sexDat <- list(summary = summar, data = data_sel)
+  sexDat <- list(summary = summar, data = data_sel1)
   
   return(sexDat)
 }

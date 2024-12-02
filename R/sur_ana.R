@@ -26,7 +26,8 @@
 #'
 #' @return The output of a list including:
 #' * a summary of the data used:
-#'- NGlobal: Number of captive born individuals selected from global collections
+#'- NSelect: Number of individuals selected from filters
+#'- NUncertdeath: Number of individuals selected after filter uncertainty in death
 #'- NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
 #'- Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
 #'- maxAge: Maximum age of known age individuals
@@ -34,7 +35,7 @@
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the growth analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nglobal < minNsur; 2/lxMin > minlx; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta < maxNsur; 8/no DIC from Basta.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta.
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
 #' 
@@ -70,7 +71,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   assert_that(minlx > 0)
   assert_that(minlx <1)
   assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown > 0)
+  assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
@@ -89,24 +90,29 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   assert_that(is.character(shape))
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
   assert_that(is.logical(lastdead))
-  
-  
-  #Initialize
+   
+   #Initialize
   summar = list(
-    NGlobal =  nrow(sexData), NBasta = 0, Ndead = 0, 
+    NSelect =  nrow(sexData), NUncertdeath = 0,  NBasta = 0, Ndead = 0, 
     maxAge = NULL, maxAlive = NULL, 
     lxMin = NULL, outLev = NULL, 
     analyzed = FALSE, Nerr = 0,  error ="")
   bastaRes = NULL
   DICmods = NULL
   
-  #Remove individuals with uncertainty in death date
+   #Remove individuals with uncertainty in death date
   sexData <- sexData%>%
     filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE))
-  if(nrow(sexData)> minNsur){
+summar$NUncertdeath =nrow(sexData)
+
+  
+   if(nrow(sexData)> minNsur){
+sexDat <- select_Longthreshold( sexData, minN = minNsur )
+ outlLev = sexDat$summar$GapThresh
+ 
     #Find the minimum threshold for which lxmin  >.1
     summar$lxMin <- 1
-    outLev2 = outlLev1
+    outLev2 = min(outlLev1, outlLev)
     while(summar$lxMin > 0.1 & outLev2 >= 95){
       summar$outLev = outLev2
       if (summar$outLev ==100){
@@ -151,7 +157,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
       }
       
       
-      summar$NGlobal <- nrow(data_sel)
+
       summar$NBasta <- nrow(bastatab)
       summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
       summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
@@ -237,7 +243,7 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
       summar$ Nerr = 3
     }
   } else {
-    summar$ error = "Nglobal < minNsur"
+    summar$ error = "Nuncertdeath < minNsur"
     summar$ Nerr = 2
   }
   

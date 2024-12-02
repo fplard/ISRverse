@@ -14,11 +14,11 @@ test_that("Rep_littersize works", {
   expect_named(out$summary, c("NOffsp_prob",  "NParent_prob", "NReprEvent",   "analyzed","error", "Nerr",
                               "MeanLittSize", "MedLittSize",  "SdLittSize"))
   expect_named(out$littSizeTab, c("litterSize", "N", "prop"))
-  expect_named(out$littSizeDf, c("MotherAnonID", "InstitutionAnonID", "Parent_Age", "litterSize", "MeanBirthDate" ))
+  expect_named(out$littSizeDf, c("MotherAnonID", "InstitutionAnonID", "Parent_Age", "litterSize", "MeanBirthDate", 'FatherAnonID' ))
   expect_named(out$littSizeperAge, c("Age", "MeanlittSize", "SDlittSize", "Nlitter"))
   expect_equal(round(out$summary$MeanLittSize,2), 1.2)
   expect_equal(out$summary$NReprEvent, 5)
-  expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
+expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
   expect_equal(nrow(out$littSizeTab), 2)
   expect_equal(nrow(out$littSizeperAge), 5)
 })

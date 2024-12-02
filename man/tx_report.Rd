@@ -47,7 +47,8 @@ tx_report(
   lastdead = FALSE,
   Repsect = c("agemat", "litter"),
   Birth_Type = "Captive",
-  parentProb = 80,
+  parentProb_Dam = 80,
+  parentProb_Sire = 80,
   minNlitter = 20,
   Nday = 7,
   minNrepro = 100,
@@ -144,7 +145,9 @@ tx_report(
 
 \item{Birth_Type}{\code{character} Captive, Wild, or All. Default =  "Captive"}
 
-\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+\item{parentProb_Dam}{\code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80}
+
+\item{parentProb_Sire}{\code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80}
 
 \item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
 
@@ -184,6 +187,7 @@ dir.create(PlotDir)
 
 out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
                  Animal, data$Reptilia$Collection, 
+                 Birth_Type = "All", uncert_birth = 3500,uncert_death = 3500, 
                  DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),

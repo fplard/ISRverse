@@ -54,6 +54,7 @@ dir.create(PlotDir)
 
 out <- tx_report(species = "Testudo hermanni", taxa = "Reptilia",
                  Animal, data$Reptilia$Collection, 
+                 Birth_Type = "All", uncert_birth = 3500,uncert_death = 3500, 
                  DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
                  sexCats = c("Male", "Female"),
@@ -97,6 +98,7 @@ This function extracts the data of the specified species that fill the condition
 * `coresubset`data.frame including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate*, *EntryType*, *DepartType*, *DepartFrom*, *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 * `collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 * `uncert_birth` Maximum uncertainty accepted for birth date, in days
+* `Birth_Type` Captive, Wild, or All
 * `minDate`: Earlier date to include data
 * `extractDate`: Date of data extraction
 * `Global` Whether only individuals belonging to global collections should be used.

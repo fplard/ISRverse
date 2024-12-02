@@ -17,8 +17,9 @@ test_that("make_summary works", {
   expect_true(file.exists(paste(TempDir, 'Growth_error.pdf', sep = '\\')))
   expect_true(file.exists(paste(TempDir, 'SRGs_Growth.csv', sep = '\\')))
   expect_true(file.exists(paste(TempDir, 'SRGs_Analyses.csv', sep = '\\')))
-  expect_named(SummTab , c("Class", "Species", "Sex", "Nraw", "Ndate", "Nglobal", "Nalive", "firstDate", "maxAgeraw",
-                           "extractdate"))
+  expect_named(SummTab , c("Class", "Species", "Sex", "Nraw", "Ndate", "Nglobal", 
+                           "Nbirthtype", "Nuncertbirth","Nalive", "firstDate", 
+                           "maxAgeraw","extractdate"))
   
   unlink(TempDir, recursive = TRUE)
 })

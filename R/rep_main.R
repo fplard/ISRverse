@@ -15,7 +15,8 @@
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = #'
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
+#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
+#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
 #' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
 #' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
 #' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
@@ -55,7 +56,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
                       BirthType_parent = "Captive", BirthType_offspring = "Captive", 
                       Global = TRUE, minInstitution = 2, 
                       minNrepro = 100,minNparepro = 30,
-                      parentProb = 80, minNlitter = 20, Nday = 7,
+                      parentProb_Sire = 80,parentProb_Dam = 80, minNlitter = 20, Nday = 7,
                       minNseas = 50) {
   
   assert_that(is.data.frame(coresubset))
@@ -81,8 +82,10 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
   assert_that(is.logical(Global))
   assert_that(all(Repsect %in% c("agemat", "litter")))
   
-  assert_that(is.numeric(parentProb))
-  assert_that(parentProb > 0)
+  assert_that(is.numeric(parentProb_Dam))
+  assert_that(parentProb_Dam > 0)
+ assert_that(is.numeric(parentProb_Sire))
+  assert_that(parentProb_Sire > 0)
   assert_that(is.numeric(minNrepro))
   assert_that(minNrepro > 0)
   assert_that(is.numeric(minNparepro))
@@ -120,7 +123,8 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
       if("litter" %in% Repsect){
         #Calculate reproductive age statistics
         out[["litter"]] <- Rep_littersize(subfert, perAge = TRUE,
-                                          Nday = Nday, parentProb = parentProb,  
+                                          Nday = Nday, parentProb_Dam = parentProb_Dam,  
+                                          parentProb_Sire = parentProb_Sire,  
                                           minNlitter =minNlitter)
         out$summary$litt_analyzed = out$litter$summary$analyzed
       }
