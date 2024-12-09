@@ -265,12 +265,14 @@ tx_report <- function(species, taxa,  Animal, collection, PlotDir = NULL,
                                           PlotDir = glue::glue("{PlotDir}/Survival/"),XMAX = XMAX,
                                           models = models_sur, shape= shape, 
                                           minAge =minAge,firstyear = firstyear,
+                                          outlLev1 =outlLev1, 
                                           Min_MLE = Min_MLE, MaxLE =  MaxLE,lastdead = lastdead,
                                           mindate = minDate, minNsur = minNsur, maxNsur = maxNsur, 
                                           minInstitution = minInstitution,uncert_death= uncert_death,
                                           minlx = minlx , MinBirthKnown = MinBirthKnown, 
-                                          niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
-                                          ncpus = ncpus, plotname = glue("{taxa}_{speciesname}_{sx}") )
+                                          niter = niter, burnin = burnin, thinning = thinning, 
+                                          nchain = nchain, ncpus = ncpus,
+                                          plotname = glue("{taxa}_{speciesname}_{sx}") )
             if(sx == "Female" && length(repout$surv$Male$from0$summary$analyzed)==1){
               if(!is.null(PlotDir) & repout$surv$Male$from0$summary$analyzed& repout$surv$Female$from0$summary$analyzed ){
                 pdf(file = paste0(PlotDir,"/Survival/",taxa,"_", speciesname,"_surMF.pdf", sep=""), width = 6, height = 6)

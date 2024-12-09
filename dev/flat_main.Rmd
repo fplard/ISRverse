@@ -529,10 +529,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
                         analyzed = FALSE, 
                         Nerr = 1, 
                         error = "Nselect < minN",
-                        Gof_KM =logical(1),
                         Gof_KM_coeff1 = numeric(1),
-                        Gof_KM_coeff2 = numeric(1),
-                        Gof_mort_coeff= numeric(1))
+                        Gof_KM_coeff2 = numeric(1))
       Finsur =  tibble( Species = character(0),
                         Sex = character(0),
                         model = character(0),
@@ -665,16 +663,16 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
     
     Surtabsum <- SurTab %>% 
       mutate(error =ifelse(error =="", "Analyzed",error),
-             error = factor(error, levels = c('Analyzed','Nselect < minN','Nuncertdeath < minN', 
+             error = factor(error, levels = c('Analyzed','Nselect < minN','Nuncertdeath < minNsur', 
                                               "NBasta = 0", "%known births < MinBirthKnown",
                                               "Data from 1 Institution","Nbasta > maxNsur",
                                               "Nbasta < minNsur",
                                               "lxMin > minlx",
                                               "no DIC from Basta", 
                                               "Kaplan-Meier does not fit",
-                                              "Motality does not fit",
                                               "lx[MLE] < Min_MLE",
-                                              "Min(Life_exp) >= MaxLE"), 
+                                              "Min(Life_exp) >= MaxLE",
+                                              "Kaplan-Meier does not fit:2"), 
                             ordered = T)) %>% 
       group_by(Class, Sex, error)%>% summarize(N = n())
     p<- ggplot(data = Surtabsum, aes(x = error, y = N, fill = Sex)) +

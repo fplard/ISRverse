@@ -8,7 +8,7 @@ test_that("Sur_out works", {
   
   out <- Sur_out(out, shape = "simple", ncpus = 3)
   expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'L90', 'L50', 'Sur5', 'Sur1'))
-  expect_named(out$summary, c('NSelect', 'NUncertdeath',  "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error","Gof_mort_coeff", "Gof_KM_coeff1", "Gof_KM_coeff2", "Gof_KM"))
+  expect_named(out$summary, c('NSelect', 'NUncertdeath',  "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_coeff1", "Gof_KM_coeff2"))
   expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
   expect_true(is.numeric(out$relex$Upper))
   expect_true(is.numeric(out$relex$Age))

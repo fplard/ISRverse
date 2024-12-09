@@ -137,11 +137,10 @@ the output for the litter size if the analysis is selected</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_main.html">Rep_main</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>,  </span>
-<span>          Repsect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'agemat'</span>, <span class="st">'litter'</span><span class="op">)</span>,</span>
-<span>          minNrep <span class="op">=</span> <span class="fl">1</span>, minNparep <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>          BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>, </span>
-<span>         <span class="op">)</span> </span>
-<span>  </span></code></pre></div>
+<span>                 Repsect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'agemat'</span>, <span class="st">'litter'</span><span class="op">)</span>,</span>
+<span>                 minNrep <span class="op">=</span> <span class="fl">1</span>, minNparep <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                 BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>, </span>
+<span><span class="op">)</span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="age-at-first-reproduction">Age at first reproduction<a class="anchor" aria-label="anchor" href="#age-at-first-reproduction"></a>
@@ -205,6 +204,7 @@ age</p>
 <span><span class="co">#Estimate litter size</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span>, perAge <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                      Nday <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Adding missing grouping variables: `Parent_Age`</span></span>
 <span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; $summary</span></span>
@@ -237,14 +237,16 @@ age</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $littSizeDf</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
-<span><span class="co">#&gt;   MotherAnonID InstitutionAnonID litterSize MeanBirthDate</span></span>
-<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>      3<span style="text-decoration: underline;">752</span>015            <span style="text-decoration: underline;">125</span>738          1 1992-08-11   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>      1<span style="text-decoration: underline;">378</span>072             <span style="text-decoration: underline;">87</span>126          1 2008-07-01   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>      1<span style="text-decoration: underline;">378</span>072             <span style="text-decoration: underline;">87</span>126          2 2011-07-10   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>      1<span style="text-decoration: underline;">552</span>859            <span style="text-decoration: underline;">108</span>112          1 1997-01-25   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>      4<span style="text-decoration: underline;">224</span>544            <span style="text-decoration: underline;">114</span>122          1 2002-06-22   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Groups:   MotherAnonID, InstitutionAnonID, Parent_Age [4]</span></span></span>
+<span><span class="co">#&gt;   Parent_Age MotherAnonID InstitutionAnonID litterSize MeanBirthDate</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>          0      3<span style="text-decoration: underline;">752</span>015            <span style="text-decoration: underline;">125</span>738          1 1992-08-11   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>          0      1<span style="text-decoration: underline;">378</span>072             <span style="text-decoration: underline;">87</span>126          1 2008-07-01   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>          0      1<span style="text-decoration: underline;">378</span>072             <span style="text-decoration: underline;">87</span>126          2 2011-07-10   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>          0      1<span style="text-decoration: underline;">552</span>859            <span style="text-decoration: underline;">108</span>112          1 1997-01-25   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>          0      4<span style="text-decoration: underline;">224</span>544            <span style="text-decoration: underline;">114</span>122          1 2002-06-22   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: FatherAnonID &lt;chr&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $littSizeTab</span></span>
 <span><span class="co">#&gt; NULL</span></span>

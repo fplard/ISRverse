@@ -134,14 +134,10 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_main.html">Sur_main</a></span><span class="op">(</span><span class="va">core</span>, DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>                models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
 <span>                niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; STEP 0: 2024-10-14 16:26:48.1332</span></span>
-<span><span class="co">#&gt; STEP 1: 2024-10-14 16:26:51.877711</span></span>
-<span><span class="co">#&gt; STEP 2: 2024-10-14 16:26:51.898793</span></span>
-<span><span class="co">#&gt; STEP 3: 2024-10-14 16:26:51.899542</span></span>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 15.48 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 17.04 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -153,7 +149,7 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 6.58 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 8.93 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -170,7 +166,10 @@ different fit of the models * the remaining life expectancy per age</p>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
-<span><span class="co">#&gt; STEP 4: 2024-10-14 16:27:39.053829</span></span></code></pre></div>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(Ages)`</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="survival-analysis">Survival Analysis<a class="anchor" aria-label="anchor" href="#survival-analysis"></a>
@@ -205,14 +204,10 @@ models</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_ana.html">Sur_ana</a></span><span class="op">(</span><span class="va">core</span>,  DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
 <span>               niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; STEP 0: 2024-10-14 16:27:39.152449</span></span>
-<span><span class="co">#&gt; STEP 1: 2024-10-14 16:27:43.499097</span></span>
-<span><span class="co">#&gt; STEP 2: 2024-10-14 16:27:43.521813</span></span>
-<span><span class="co">#&gt; STEP 3: 2024-10-14 16:27:43.523071</span></span>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 18.19 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 15.52 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
@@ -221,11 +216,119 @@ models</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 8.37 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 7.99 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
 <span><span class="co">#&gt; Constructing life table... done.</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="first-year-survival-analysis">First-year survival Analysis<a class="anchor" aria-label="anchor" href="#first-year-survival-analysis"></a>
+</h2>
+<p>This functions runs survival basta models on the first year after
+checking conditions for correct convergence of the models. It includes
+the following arguments: * <code>sexData</code>including at least the
+following columns <em>AnimalAnonID</em>, <em>BirthDate</em>,
+<em>DepartDate</em>, <em>EntryDate</em>, <em>MaxBirthDate</em>,
+<em>MinBirthDate</em>, <em>EntryType</em>, <em>DepartType</em>,
+<em>FirstHoldingInstitution</em>, <em>LastHoldingInstitution</em>,
+<em>SexType</em>, and <em>BirthType</em>. *
+<code>DeathInformation</code> data.frame including at least the
+following columns <em>AnimalAnonID</em> and
+<em>RelevantDeathInformationType</em> * <code>models</code> names of the
+basta models to run: “G0”, “EX”, “LO” and/or “WE”. see ?basta for more
+information. Default = “GO” * <code>uncert_death</code> Maximum
+uncertainty accepted for death date, in days * <code>uncert_birth</code>
+Maximum uncertainty accepted for birth date, in days *
+<code>minNsur</code> Minimum number of individual records needed to run
+the survival analysis * <code>maxNsur</code> Maximum number of
+individual records to run the survival analysis *
+<code>minInstitution</code> Minimum number of institutions that should
+hold records to run the survival analysis</p>
+<p>It return a list including: * a summary of the data used * the basta
+fit of the best model * the DIC table comparing the different fit of the
+models</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_ana1.html">Sur_ana1</a></span><span class="op">(</span><span class="va">core</span>,  DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
+<span>                niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 11.19 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 6.20 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; All parameters converged properly.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="outputs-for-survival-analysis">Outputs for survival analysis<a class="anchor" aria-label="anchor" href="#outputs-for-survival-analysis"></a>
+</h2>
+<p><code><a href="../reference/Sur_out.html">Sur_out()</a></code> return plot for the survival models and the
+remaining life expectancy . It includes the following arguments:</p>
+<ul>
+<li>
+<code>out</code>: The output of the survival analysis</li>
+<li>
+<code>PlotDir</code>: Directory to save the plots of the best
+models</li>
+</ul>
+<p>It return the output of the survival analysis including: * the
+remaining life expectancy per age * L50: The age at which 50% of the
+population died * L90: The age at which 90% of the population died *
+Age-specific survival * Probability to live five years more It creates
+the associated plot</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_ana.html">Sur_ana</a></span><span class="op">(</span><span class="va">core</span>,  DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, models <span class="op">=</span> <span class="st">"GO"</span>, shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
+<span>               niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 16.07 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 9.92 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; All parameters converged properly.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span>
+<span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_out.html">Sur_out</a></span><span class="op">(</span><span class="va">out</span>, shape <span class="op">=</span> <span class="st">"simple"</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(Ages)`</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="create-basta-data-frame">Create Basta data frame<a class="anchor" aria-label="anchor" href="#create-basta-data-frame"></a>
@@ -264,12 +367,12 @@ Depart date do not follow one another. * Still born if required * with
 depart date anterior to earliest date * with entry date posterior to
 latest date * Depart date posterior to latest date are changed to latest
 date. These individuals are considered as right-censored.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
 <span><span class="va">out</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/surv_Bastab.html">surv_Bastab</a></span><span class="op">(</span><span class="va">core</span>, DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>,</span>
 <span>                  earliestDate <span class="op">=</span> <span class="st">'1990-01-01'</span>, latestDate <span class="op">=</span> <span class="st">'2020-12-31'</span>, </span>
-<span>                  otherCovars <span class="op">=</span> <span class="cn">NA</span>, excludeStillbirth <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>                  otherCovars <span class="op">=</span> <span class="st">"SexType"</span>, excludeStillbirth <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="estimate-raw-survivorship-from-life-table">Estimate raw survivorship from life table<a class="anchor" aria-label="anchor" href="#estimate-raw-survivorship-from-life-table"></a>
@@ -277,7 +380,7 @@ date. These individuals are considered as right-censored.</p>
 <p>This function takes sexData, a data frame including at least the
 following columns <em>deparAge</em>, <em>entryAge</em> (), and
 <em>DepartType</em></p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">entryAge</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, <span class="fl">200</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  entryAge <span class="op">=</span> <span class="va">entryAge</span>,</span>
@@ -307,7 +410,7 @@ parameter</li>
 <li>
 <code>ncpus</code>; the number of core to use</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theMat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span> b0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="op">-</span><span class="fl">6</span>, <span class="fl">0.01</span><span class="op">)</span>,</span>
 <span>                               b1<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -338,7 +441,7 @@ parameter</li>
 <li>
 <code>ncpus</code>; the number of core to use</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theMat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span> b0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="op">-</span><span class="fl">6</span>, <span class="fl">0.01</span><span class="op">)</span>,</span>
 <span>                               b1<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -352,8 +455,8 @@ parameter</li>
 <div class="section level2">
 <h2 id="maximum-longveity">Maximum Longveity<a class="anchor" aria-label="anchor" href="#maximum-longveity"></a>
 </h2>
-<p><code><a href="../reference/Sur_90.html">Sur_90()</a></code> estimate the age when 90% of the population
-died. It includes the following arguments:</p>
+<p><code><a href="../reference/Sur_xx.html">Sur_xx()</a></code> estimate the age at which xx% of the population
+is still alive. It includes the following arguments:</p>
 <ul>
 <li>
 <code>theMat</code> including the posteriors estimates of the model
@@ -365,17 +468,19 @@ parameter</li>
 <code>shape</code> character shape of the basta model: “simple”,
 “Makeham”, “bathtub”.</li>
 <li>
+<code>xx</code> % of the population still alive</li>
+<li>
 <code>xMax</code> Maximum age in years</li>
 <li>
 <code>ncpus</code>; the number of core to use</li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theMat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span> b0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="op">-</span><span class="fl">6</span>, <span class="fl">0.01</span><span class="op">)</span>,</span>
 <span>                               b1<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_90.html">Sur_90</a></span><span class="op">(</span><span class="va">theMat</span>, model <span class="op">=</span> <span class="st">'GO'</span>, shape <span class="op">=</span> <span class="st">'simple'</span>, ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>              ageMax <span class="op">=</span> <span class="fl">50</span>, dage <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Sur_xx.html">Sur_xx</a></span><span class="op">(</span><span class="va">theMat</span>, model <span class="op">=</span> <span class="st">'GO'</span>, shape <span class="op">=</span> <span class="st">'simple'</span>, ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>              ageMax <span class="op">=</span> <span class="fl">50</span>, dage <span class="op">=</span> <span class="fl">0.1</span>, xx <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 2 CPUs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span></code></pre></div>

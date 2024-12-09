@@ -8,6 +8,6 @@ test_that("Sur_main works", {
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
   expect_named(out, c("from0"))
   expect_named(out$from0, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5', 'L90', 'L50'))
-  expect_named(out$from0$summary, c("NSelect", 'NUncertdeath', "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error","Gof_mort_coeff", "Gof_KM_coeff1", "Gof_KM_coeff2", "Gof_KM"))
+  expect_named(out$from0$summary, c("NSelect", 'NUncertdeath', "NBasta", "Ndead", "maxAge", "maxAlive", "lxMin", "outLev", "analyzed", "Nerr", "error", "Gof_KM_coeff1", "Gof_KM_coeff2"))
   expect_named(out$from0$DICmods, c("models", "DIC"))
 })

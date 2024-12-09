@@ -24,7 +24,7 @@
 # Set growth model parameters:
 Gro_ModSettings <- function(data, model = "vonBertalanffy") {
   
-  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "vonBertalanffy_re", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c('logx', 'logz'))
   assert_that(is.numeric(data$logx))
@@ -174,6 +174,43 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma)
+    
+  
+    } else if (model == "vonBertalanffy_re") {
+    growthMod <- vbGrowthtest 
+    np <- 4
+    namesCoef <- c("z0", "zinf", "gamma", "sigma")
+    lowCoef <- rep(0, np)
+    # Find starting z0 parameter:
+    logxLow <- min(logx) + c(0, logxDiff * 0.01)
+    id0 <- which(logx >= logxLow[1] & logx < logxLow[2])
+    z0 <- mean(logz[id0], na.rm = TRUE)
+    
+    # Find starting zInf parameter:
+    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
+    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
+    zInf <- mean(logz[idInf], na.rm = TRUE) - z0
+    
+    if (zInf <= 0) {
+      zInf <- z0 + diff(range(logz))
+    }
+    # find starting gamma:
+    nGams <- 5
+    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
+    dxInts <- logxInts[2] - logxInts[1]
+    logzMeans <- sapply(1:5, function(ii) {
+      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
+      logzmean <- mean(logz[idint])
+      return(logzmean)
+    })
+    inlog <- 1 - (logzMeans - z0) / zInf
+    idkeep <- which(inlog > 0)
+    gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
+    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
+      gamma <- 0.5
+    }
+    # Fill-up gamStart:
+    gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma, sigma = 0)
     
   } else if (model == "polynomial") {
     growthMod <- polyGrowth

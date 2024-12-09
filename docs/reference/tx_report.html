@@ -100,6 +100,7 @@
 <span>  XMAX <span class="op">=</span> <span class="fl">120</span>,</span>
 <span>  Min_MLE <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  MaxLE <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  firstyear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  models_sur <span class="op">=</span> <span class="st">"GO"</span>,</span>
 <span>  shape <span class="op">=</span> <span class="st">"bathtub"</span>,</span>
 <span>  niter <span class="op">=</span> <span class="fl">25000</span>,</span>
@@ -107,9 +108,12 @@
 <span>  thinning <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  nchain <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  minAge <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  lastdead <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  Repsect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"agemat"</span>, <span class="st">"litter"</span><span class="op">)</span>,</span>
 <span>  Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>,</span>
-<span>  parentProb <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  parentProb_Dam <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  parentProb_Sire <span class="op">=</span> <span class="fl">80</span>,</span>
 <span>  minNlitter <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  Nday <span class="op">=</span> <span class="fl">7</span>,</span>
 <span>  minNrepro <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -244,6 +248,10 @@
 <dd><p><code>numeric</code> Goodness of fit: Maximum remaining life expectancy at max age</p></dd>
 
 
+<dt>firstyear</dt>
+<dd><p><code>logical</code> Whether to do the analysis only on first year. Default = FALSE</p></dd>
+
+
 <dt>models_sur</dt>
 <dd><p><code>vector of characters</code> names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"</p></dd>
 
@@ -272,6 +280,14 @@
 <dd><p><code>numeric</code> Number of computer core to use. Default = 2</p></dd>
 
 
+<dt>minAge</dt>
+<dd><p><code>numeric</code> Ages at which the analyses should start.  see ?basta for more information. Default = 0</p></dd>
+
+
+<dt>lastdead</dt>
+<dd><p><code>logical</code> Whether the longest lived individuals should be considered dead. Default = FALSE</p></dd>
+
+
 <dt>Repsect</dt>
 <dd><p><code>character</code> names of the reproductive analyses to run: "agemat", "litter" and/or ...</p></dd>
 
@@ -280,8 +296,12 @@
 <dd><p><code>character</code> Captive, Wild, or All. Default =  "Captive"</p></dd>
 
 
-<dt>parentProb</dt>
-<dd><p><code>numeric</code> Minimum percentage of parentage probability to include. Default = 80</p></dd>
+<dt>parentProb_Dam</dt>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include for Dam. Default = 80</p></dd>
+
+
+<dt>parentProb_Sire</dt>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include for Sire. Default = 80</p></dd>
 
 
 <dt>minNlitter</dt>
@@ -343,6 +363,7 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">tx_report</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Testudo hermanni"</span>, taxa <span class="op">=</span> <span class="st">"Reptilia"</span>,</span></span>
 <span class="r-in"><span>                 <span class="va">Animal</span>, <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Collection</span>, </span></span>
+<span class="r-in"><span>                 Birth_Type <span class="op">=</span> <span class="st">"All"</span>, uncert_birth <span class="op">=</span> <span class="fl">3500</span>,uncert_death <span class="op">=</span> <span class="fl">3500</span>, </span></span>
 <span class="r-in"><span>                 DeathInformation <span class="op">=</span><span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">DeathInformation</span>,</span></span>
 <span class="r-in"><span>                 PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'sur'</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                 sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span></span>
@@ -352,18 +373,11 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ****************************  Male  ****************************</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running ------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 0: 2024-10-14 16:26:14.798036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 1: 2024-10-14 16:26:16.12837</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 4: 2024-10-14 16:26:16.129199</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ****************************  Female  ****************************</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running ------------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 0: 2024-10-14 16:26:16.153644</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 1: 2024-10-14 16:26:17.174495</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> STEP 4: 2024-10-14 16:26:17.175457</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Testudo_hermanni_Female_LongThres.pdf"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "Testudo_hermanni_Male_LongThres.pdf"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Long_dist" "Survival" </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
