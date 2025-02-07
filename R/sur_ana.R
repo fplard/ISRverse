@@ -15,7 +15,6 @@
 #' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
 #' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
 #' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 1
-#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
 #' @param niter  \code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000
 #' @param burnin  \code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001
@@ -48,7 +47,7 @@
 #'                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", shape = "simple",
                     minAge = 0, mindate = "1980-01-01", minNsur = 50,maxNsur = NULL, uncert_death=365,
-                    minlx = 0.1, MinBirthKnown = 0.3, minInstitution = 1,lastdead = FALSE,
+                    MinBirthKnown = 0.3, minInstitution = 1,lastdead = FALSE,
                     niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
   
   mindate = lubridate::as_date(mindate)
@@ -67,9 +66,6 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
     assert_that(is.numeric(maxNsur))
   }else{maxNsur = nrow(sexData)}
   assert_that(minNsur > 0)
-  assert_that(is.numeric(minlx))
-  assert_that(minlx > 0)
-  assert_that(minlx <1)
   assert_that(is.numeric(MinBirthKnown))
   assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
@@ -141,9 +137,7 @@ sexDat <- select_Longthreshold( sexData, minN = minNsur )
     #raw median life expectancy
     # summar$MedLE = median(deparAge[deparType == "D"])
     
-    if (summar$lxMin <= minlx) {
-      
-      
+ 
       # Extract BaSTA table:
       bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
                                excludeStillbirth = TRUE)
@@ -217,31 +211,27 @@ sexDat <- select_Longthreshold( sexData, minN = minNsur )
                   summar$analyzed = TRUE
                 } else {
                   summar$error = 'no DIC from Basta'
-                  summar$Nerr = 9
+                  summar$Nerr = 8
                 }
               } else {
                 summar$error = "Nbasta > maxNsur"
-                summar$Nerr = 8
+                summar$Nerr = 7
               }} else {
                 summar$error = "Nbasta < minNsur"
-                summar$Nerr = 7
+                summar$Nerr = 6
               }
           }else{
             summar$error = "Data from 1 Institution"
-            summar$Nerr = 6
+            summar$Nerr = 5
           }
         }else{ 
           summar$error = "%known births < MinBirthKnown"
-          summar$Nerr = 5
+          summar$Nerr = 4
         }
       }else{
         summar$error = "NBasta = 0"
-        summar$Nerr = 4
+        summar$Nerr = 3
       }
-    } else {
-      summar$ error = "lxMin > minlx"
-      summar$ Nerr = 3
-    }
   } else {
     summar$ error = "Nuncertdeath < minNsur"
     summar$ Nerr = 2

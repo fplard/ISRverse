@@ -224,7 +224,7 @@ for (species in List_species[[taxa]]){
   if (species %in% spOutLev) {maxOutl1 <- 99.9
   }else{maxOutl1 <- maxOutl}
   Dataspe <- select_species(species, Animal, Data[[taxa]]$Collection, uncert_birth = uncert_birth,
-                             Birth_Type = Birth_Type,uncert_death= uncert_death,
+                             Birth_Type = Birth_Type,
                             minDate = minDate , extractDate = extractDate,
                             Global = Global) 
   if(nrow(Dataspe$data)>0){
@@ -275,13 +275,14 @@ List_species = list(Mammalia = c("Panthera leo", "Panthera onca","Panthera uncia
 
 # Conditions to run the reproduction analyses
 uncert_birth = 365  #Maximum uncertainty accepted for birth dates, in days
+uncert_death = 10000
 minNrepro = 100   #Minimum number of birth records
 minNparepro = 30  #Minimum number of unique parent records
 minNlitter = 30 #Minimum number of litter sizes
 parentProb_Dam = 80 #Minimum parentage probability for Dam
 parentProb_Sire = 80 #Minimum parentage probability for Sire
 Nday = 7  #Group all offspring born within this interval of days in one litter
-
+Birth_Type = "All"
 Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = ZIMSdirdata, 
                       species = List_species,
                       Animal = TRUE,
@@ -292,7 +293,7 @@ TAB = tibble()
 for (species in List_species[[taxa]]){
   print(species)
   Dataspe <- select_species(species, Animal, Data[[taxa]]$Collection, uncert_birth = uncert_birth,
-                               Birth_Type = Birth_Type,uncert_death= uncert_death,
+                               Birth_Type = Birth_Type,
                             minDate = minDate , extractDate = extractDate,
                             Global = Global) 
   
@@ -303,8 +304,10 @@ for (species in List_species[[taxa]]){
                           minNrep=minNrepro, minNparep =minNparepro, Global = Global)
   if(nrow(Datarep$Reprodata)>0){
     #Litter sizes
-    out <- Rep_littersize(Datarep$Reprodata, perAge = FALSE,
-                          Nday = Nday, parentProb = parentProb,  minNlitter =minNlitter)
+    out <- Rep_littersize(Datarep$Reprodata, 
+                          Nday = Nday, parentProb_Dam = parentProb_Dam,
+                          parentProb_Sire = parentProb_Sire,  
+                          minNlitter =minNlitter)
     
     df = out$littSizeDf%>%mutate(Species = species)
     
@@ -827,6 +830,55 @@ save(ipara, file = glue("{analysisDir}/finished_{taxaList[taxa]}{ipara}.Rdata"))
 
 ### Check
 
+#### Run again species with error lxmin\>0.1
+
+``` r
+# directory to save Rdata:
+analysisDir <-  glue ("{analysisDir}lxmin/")
+# Plot directory:
+plotDir <- glue ("{analysisDir}Plot/")
+
+lxmin_species <- readxl::read_xlsx(glue("{analysisDir}/lxmin_species.xlsx"))%>%distinct
+
+minlx =0.99
+#Sections to run or to update
+Sections = c("sur")
+Spec_list  = list(Amphibia = lxmin_species%>%
+                    filter(Taxa=="Amphiba")%>%pull(Species),
+                  Mammalia = lxmin_species%>%
+                    filter(Taxa=="Mammalia")%>%pull(Species),
+                  Aves = lxmin_species%>%
+                    filter(Taxa=="Aves")%>%pull(Species),
+                  Reptilia = lxmin_species%>%
+                    filter(Taxa=="Reptilia")%>%pull(Species),
+                  Chondrichthyes = lxmin_species%>%
+                    filter(Taxa=="Chondrichthyes")%>%pull(Species),
+                  Osteichthyes = lxmin_species%>%
+                    filter(Taxa=="Osteichthyes")%>%pull(Species))
+
+for (taxa in c(3)){
+  run_txprofile (taxaList[taxa], Species_list = Spec_list[[taxaList[taxa]]][264], ZIMSdirdata,
+                 AnalysisDir = analysisDir, PlotDir = plotDir,
+                 Sections = Sections, erase_previous = FALSE,
+                 extractDate = extractDate, minDate = minDate,
+                 # sexCats = BySex[[taxaList[taxa]]], 
+                 sexCats = c("Male", "Female"), 
+                 minN = minN,  Global =  Global,
+                 maxOutl = maxOutl,  spOutLev = spOutLev, Birth_Type = "Captive", 
+                 uncert_birth = uncert_birth, uncert_death= uncert_death,
+                 uncert_date = uncert_date,
+                 minInstitution = minInstitution, 
+                 minNsur = minNsur, maxNsur = maxNsur, XMAX = XMAX,
+                 minlx = minlx, MinBirthKnown = MinBirthKnown, 
+                 Min_MLE = Min_MLE, MaxLE =  MaxLE,
+                 models_sur = models_sur, shape = shape,
+                 niter = niter, burnin = burnin, thinning = thinning, 
+                 nchain = nchain, ncpus = ncpus
+  )
+  save(plotDir, file = glue("{analysisDir}/finished_{taxaList[taxa]}.Rdata"))
+}
+```
+
 #### Find species with sex with 50-1000 individuals
 
 ``` r
@@ -877,7 +929,7 @@ Spec_list  = list(Amphibia = c("Nectophrynoides asperginis", "Cryptobranchus all
                   Mammalia = c("Sapajus apella", "Saimiri sciureus"),
                   Aves = c("Phoeniculus purpureus", "Bubo bengalensis", 'Pedionomus torquatus'))
 
-for (taxa in c(1,2,4)){
+for (taxa in c(6)){
   #Sections to run or to update
   Sections = c("sur", "rep", "gro")
   
@@ -930,6 +982,35 @@ Hellbender \* Male lxMin \> minlx” \* Female “lxMin \> minlx”
 Green and black poison frog \* Male “Min(Life_exp) \>= MaxLE” \* Female
 “Min(Life_exp) \>= MaxLE”
 
+#### Check models selected from error 11
+
+``` r
+
+# directory to save Rdata:
+analysisDir <-  glue ("{analysisDir}")
+
+Err11 <- readxl::read_xlsx(glue("{analysisDir}/Err11.xlsx"))%>%distinct
+Err11$Model =""
+for (i in 1:nrow(Err11)){
+  species = Err11$Species[i]
+  taxa = Err11$Taxa[i]
+  spec = str_replace(species, ' ','_')
+  
+  if(file.exists(glue("{analysisDir}Rdata/{taxa}_{spec}.RData"))){
+  load(glue("{analysisDir}Rdata/{taxa}_{spec}.RData"))
+  
+  spectab = tibble(Species = species,
+                   Taxa = taxa,
+                   Sex = Err11$Sex[i],
+                   Model = repout$surv[[Err11$Sex[i]]]$from0$bastaRes$modelSpecs[1])
+  
+  Err11= Err11%>%rows_update(spectab, by=c('Taxa', 'Species','Sex'))
+  
+  }
+}
+  write_csv2(Err11, file = glue("{analysisDir}/Tab_mod_erreur11.csv"))
+```
+
 ### Make the summary tables
 
 ``` r
@@ -965,6 +1046,6 @@ write(toJSON(repout), file = sprintf("ISRdata/global/json/%s.json",
 ### Compress the output
 
 ``` r
-system("zip -r Species360/Demo_Analyses/plot.zip Species360/Demo_Analyses/Plot/")
+system("zip -r Species360/Demo_Analyses/plot2.zip Species360/Demo_Analyses/Plot/")
 #> [1] 12
 ```

@@ -70,7 +70,7 @@ Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
   }
   
   exQuants <- data.frame(Age = xv[which(xv <= xMax)] + minAge, 
-                         RemLExp = apply(exMat, 2, mean), 
+                         RemLExp = apply(exMat, 2,quantile, 0.5), 
                          Lower = apply(exMat, 2, quantile, 0.025),
                          Upper = apply(exMat, 2, quantile, 0.975))
   return(exQuants)

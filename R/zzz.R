@@ -32,4 +32,5 @@ globalVariables(c("Age", "anonID", "MeasurementValue", "age0", "agem", "ager", "
     "Parent_BirthType", "RelevantDeathInformationType", "SexType", "SpeciesName",
     "WeightValueKg", "ageVec", "litter", "litterSize", "out", "parent",
     "sexCats", "subparfert", "moves", "maxAge", 'analyzed', ":=","AnyLocalCollectionFlag",
-    "Ages", "Lower", "Upper", "ple", "GAN", "Meann", "FatherAnonID", "residual"), package ="ISRverse")
+    "Ages", "Lower", "Upper", "ple", "GAN", "Meann", "FatherAnonID", "residual",
+    "Father_Age", "MeanBirthDate", "MotherAnonID", "Mother_Age", "finAge", "vbGrowthtest"), package ="ISRverse")

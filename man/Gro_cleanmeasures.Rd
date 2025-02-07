@@ -17,9 +17,9 @@ Gro_cleanmeasures(
 )
 }
 \arguments{
-\item{data}{\code{data.frame} including the following columns \emph{MeasurementValue}, \emph{MeasurementDate}, \emph{MeasurementDateStart}, \emph{MeasurementDateEnd}, \emph{UnitOfMeasure}, \emph{EstimatedMeasurement}, \emph{RecordType}, \emph{MeasurementType}, \emph{AnimalAnonID} and \emph{RecordingInstitution}.}
+\item{data}{\code{data.frame} including the following columns \emph{MeasurementValue}, \emph{MeasurementDate}, \emph{MeasurementDateStart}, \emph{MeasurementDateEnd}, \emph{UnitOfMeasure}, \emph{EstimatedMeasurement}, \emph{RecordType}, \emph{MeasurementType}, \emph{AnimalAnonID}, \emph{RecordingInstitution}, and \emph{Age}.}
 
-\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID} and \emph{Birthdate} (\code{date})}
+\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID} and \emph{BirthType}}
 
 \item{Birth_Type}{\code{character} Captive, Wild, or All Default =  TRUE}
 

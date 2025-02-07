@@ -128,7 +128,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
                                lastdead = lastdead, minAge = minAge[j],
                                minNsur = minNsur, maxNsur = maxNsur,
                                minInstitution = minInstitution,
-                               minlx = minlx, MinBirthKnown = MinBirthKnown, 
+                               MinBirthKnown = MinBirthKnown, 
                                niter = niter, burnin = burnin, thinning = thinning, 
                                nchain = nchain, ncpus = ncpus) 
   out[[paste0("from",minAge[j])]] <- append( out[[paste0("from",minAge[j])]], 
@@ -140,7 +140,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     out[[paste0("from",minAge[j])]]  <-Sur_out(out[[paste0("from",minAge[j])]] , shape= shape, 
                                 XMAX=XMAX,ncpus = ncpus, minAge = minAge[j],
                                 PlotDir = PlotDir, plotname = paste0(plotname,"_",minAge[j]),
-                                Min_MLE = Min_MLE, MaxLE = MaxLE
+                               minlx = minlx, Min_MLE = Min_MLE, MaxLE = MaxLE
     )
   }
   }
@@ -158,7 +158,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     out[["firstyear"]] <-Sur_out(out[["firstyear"]], shape= shape, 
                                  XMAX=XMAX,ncpus = ncpus, firstyear = TRUE,
                                  PlotDir = PlotDir, plotname = paste0(plotname,"_1yo"),
-                                 Min_MLE = Min_MLE, MaxLE = MaxLE
+                                 minlx = minlx,Min_MLE = Min_MLE, MaxLE = MaxLE
     )
   }
   }

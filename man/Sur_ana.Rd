@@ -15,7 +15,6 @@ Sur_ana(
   minNsur = 50,
   maxNsur = NULL,
   uncert_death = 365,
-  minlx = 0.1,
   MinBirthKnown = 0.3,
   minInstitution = 1,
   lastdead = FALSE,
@@ -46,8 +45,6 @@ Sur_ana(
 \item{maxNsur}{\code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL}
 
 \item{uncert_death}{\code{numeric}: Maximum uncertainty accepted for death date, in days}
-
-\item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
 
 \item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
 

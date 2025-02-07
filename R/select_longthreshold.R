@@ -97,14 +97,14 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
       pdf(file = glue::glue("{PlotDir}/{maintitle}_LongThres.pdf"), width = 5, height = 5)
       
       par(mar = c(4, 4, 1, 1))
-      gaps <- find_gaps(corelong$lifespans, plot = T,
+      gaps <- find_gaps(corelong$lifespans, maxAlive = maxAlive, plot = T,
                         main = maintitle, 
                         xlab = "")
-      
+      ngap = nrow( gaps)
       
       if (nrow(gaps) > 0) {
         allev <- 0
-        while(ngap > 0 & allev < 3) {
+        while(allev < 3 & ngap>0) {
           allev <- allev + 1
           qlev <- c("99.9", "99", "95")[allev]
           abcol <- sprintf("above%s", qlev)
@@ -112,7 +112,7 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
                             maxAlive = maxAlive, plot = T,
                             main = paste(qlev, "%"), 
                             xlab = "")
-          
+          ngap = nrow( gaps)
         }
         outTab$GapThresh <-as.numeric(qlev)
         

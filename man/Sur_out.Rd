@@ -14,6 +14,7 @@ Sur_out(
   plotname = "",
   Min_MLE = 0.1,
   MaxLE = 2,
+  minlx = 0.1,
   firstyear = FALSE
 )
 }
@@ -35,6 +36,8 @@ Sur_out(
 \item{Min_MLE}{\code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy}
 
 \item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
+
+\item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
 
 \item{firstyear}{\code{logical} Whether the analysis was done only on first year. Default = FALSE}
 }

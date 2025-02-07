@@ -52,7 +52,7 @@ find_gaps <- function(x,maxAlive = NA, plot = FALSE,...) {
   
   idgap <- gaps%>%
     filter(Gap/iniAge > 0.2 ,
-           iniAge  >= maxAlive)
+           finAge  >= maxAlive)
   
   if (nrow(idgap) > 0 & plot) {abline(v = idgap$iniAge, col = 2)}
   return(idgap)

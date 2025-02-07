@@ -5,7 +5,7 @@
 #'Select measures, remove outliers, select the best growth model and produce the percentile of the best fitting growth model for the sexes and birth types selected.
 #'
 #' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *UnitOfMeasure*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *AnimalAnonID* and *RecordingInstitution*.
-#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID* and *Birthdate* (\code{date})
+#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID*, *BirthType* and *Birthdate* (\code{date})
 #' @param taxa  \code{character} the name of the taxa studied
 #' @param species \code{character} the name of the species studied
 #' @param Birth_Type \code{vector of character} "Captive", "Wild", and/or "All"
@@ -64,7 +64,7 @@ Gro_Main <- function(data, coresubse,
   mindate = lubridate::as_date(mindate)
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(coresubse))
-  assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution"))
+  assert_that(data %has_name% c("MeasurementValue", "MeasurementDate", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution"))
   assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "SexType", "AnimalAnonID", "BirthType"))
   assert_that(is.date(mindate))
   assert_that(is.character(taxa))

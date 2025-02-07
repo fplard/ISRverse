@@ -9,6 +9,7 @@
 #' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
 #' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
 #' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
+#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
 #' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
 #' @param plotname \code{character} Name used to save the plot. Default = ""
@@ -41,11 +42,15 @@ Sur_out <- function(out, shape= "simple",
                     XMAX=120,ncpus = 2, minAge = 0,
                     PlotDir = NULL, plotname = '',
                     Min_MLE = 0.1, MaxLE = 2,
+                    minlx = 0.1,
                     firstyear = FALSE) {
   
   assert_that(is.numeric(Min_MLE))
   assert_that(is.numeric(MaxLE))
-  assert_that(is.numeric(ncpus))
+    assert_that(is.numeric(minlx))
+  assert_that(minlx > 0)
+  assert_that(minlx <1)
+assert_that(is.numeric(ncpus))
   assert_that(ncpus > 0)
   assert_that(is.character(plotname))
   assert_that(is.character(shape))
@@ -112,9 +117,7 @@ Sur_out <- function(out, shape= "simple",
   idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
   if(out$relex$RemLExp[idxmax]>= MaxLE){
     out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=11
-    # out$summary$analyzed <- FALSE 
-    # out$bastaRes <- list()
+    out$summary$Nerr=10
   }
     ##Test if the survivorship at mean life expectancy is higher than Min_MLE
     lx <-out$bastaRes$lifeTable$noCov$Mean$lx
@@ -122,8 +125,13 @@ Sur_out <- function(out, shape= "simple",
     dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
     
     if(lx[which(dif == min(dif))]< Min_MLE){
-      # out$summary$analyzed <- FALSE
-      out$summary$error = "lx[MLE] < Min_MLE"
+       out$summary$error = "lx[MLE] < Min_MLE"
+      out$summary$Nerr = 11
+      # out$bastaRes <- list()   
+    }
+    
+     if( out$summary$lxMin<minlx){
+       out$summary$error = "lxmin > minlx"
       out$summary$Nerr = 12
       # out$bastaRes <- list()   
     }
@@ -180,7 +188,7 @@ v <- LT%>%
     }
   if(check < 0.8){
    out$summary$error = "Kaplan-Meier does not fit"
-      out$summary$Nerr = 10
+      out$summary$Nerr = 9
     }
 
 

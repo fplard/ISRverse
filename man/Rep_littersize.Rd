@@ -6,7 +6,6 @@
 \usage{
 Rep_littersize(
   Reprodata,
-  perAge = FALSE,
   Nday = 7,
   parentProb_Dam = 80,
   parentProb_Sire = 80,
@@ -15,8 +14,6 @@ Rep_littersize(
 }
 \arguments{
 \item{Reprodata}{\code{data frame} including at least the columns \emph{AnimalAnonID}, \emph{ParentAnonID}, \emph{ParentType}, \emph{Probability}, \emph{Offspring_BirthDate}, \emph{Offspring_Inst} and \emph{Parent_Age}}
-
-\item{perAge}{\code{logical} Whether to estimate litter size per mother age. Default = FALSE}
 
 \item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
 
@@ -45,7 +42,7 @@ A list including:
 \item Nerr: The number id of the error
 }
 \itemize{
-\item if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
+\item a table including the mean and standard deviation of litter size per maternal age
 }
 }
 \description{
@@ -61,7 +58,7 @@ Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1,
                       BirthType_parent = "All", BirthType_offspring = "All" )
 
 #Estimate litter size
-out <- Rep_littersize(Data$Reprodata, perAge = FALSE,
+out <- Rep_littersize(Data$Reprodata, 
                       Nday = 7)
 
 out

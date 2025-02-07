@@ -76,14 +76,13 @@ out
 `Rep_littersize()` makes a data frame of litter size per parent and birth date and produces summary tables of litter size. It uses the following arguments:
 
 * `Reprodata` including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
-* `perAge`:  Whether to estimate litter size per mother age
 * `Nday`: the number of consecutive days over which the birth dates of a litter/clutch can be spread
 
 It returns a list including:
 * A data frame with the litter size per mother and birth date
 * A table including the number and proportion of each size of litter
 * Summary statistics
-* if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
+* A table including the mean and standard deviation of litter size per maternal age
 
 
 ```{r examples-Rep_littersize}
@@ -96,7 +95,7 @@ Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1,
                       BirthType_parent = "All", BirthType_offspring = "All" )
 
 #Estimate litter size
-out <- Rep_littersize(Data$Reprodata, perAge = FALSE,
+out <- Rep_littersize(Data$Reprodata, 
                       Nday = 7)
 
 out

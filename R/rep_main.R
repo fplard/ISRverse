@@ -122,7 +122,7 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
       }
       if("litter" %in% Repsect){
         #Calculate reproductive age statistics
-        out[["litter"]] <- Rep_littersize(subfert, perAge = TRUE,
+        out[["litter"]] <- Rep_littersize(subfert, 
                                           Nday = Nday, parentProb_Dam = parentProb_Dam,  
                                           parentProb_Sire = parentProb_Sire,  
                                           minNlitter =minNlitter)

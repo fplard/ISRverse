@@ -27,7 +27,7 @@ Gro_Main(
 \arguments{
 \item{data}{\code{data.frame} including the following columns \emph{MeasurementValue}, \emph{MeasurementDate}, \emph{UnitOfMeasure}, \emph{EstimatedMeasurement}, \emph{RecordType}, \emph{MeasurementType}, \emph{AnimalAnonID} and \emph{RecordingInstitution}.}
 
-\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID} and \emph{Birthdate} (\code{date})}
+\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID}, \emph{BirthType} and \emph{Birthdate} (\code{date})}
 
 \item{taxa}{\code{character} the name of the taxa studied}
 

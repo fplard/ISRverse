@@ -408,8 +408,8 @@ test_that("tx_report works", {
   expect_named(out$weig$Male$All, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$All, c('wSummar', "weightQ"))
   expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\9_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Survival\\9_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '\\')))
   expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '\\')))
   unlink(PlotDir, recursive = TRUE)
@@ -912,14 +912,14 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
       pdf(file = glue::glue("{PlotDir}/{maintitle}_LongThres.pdf"), width = 5, height = 5)
       
       par(mar = c(4, 4, 1, 1))
-      gaps <- find_gaps(corelong$lifespans, plot = T,
+      gaps <- find_gaps(corelong$lifespans, maxAlive = maxAlive, plot = T,
                         main = maintitle, 
                         xlab = "")
-      
+      ngap = nrow( gaps)
       
       if (nrow(gaps) > 0) {
         allev <- 0
-        while(ngap > 0 & allev < 3) {
+        while(allev < 3 & ngap>0) {
           allev <- allev + 1
           qlev <- c("99.9", "99", "95")[allev]
           abcol <- sprintf("above%s", qlev)
@@ -927,7 +927,7 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
                             maxAlive = maxAlive, plot = T,
                             main = paste(qlev, "%"), 
                             xlab = "")
-          
+          ngap = nrow( gaps)
         }
         outTab$GapThresh <-as.numeric(qlev)
         
@@ -1051,7 +1051,7 @@ find_gaps <- function(x,maxAlive = NA, plot = FALSE,...) {
   
   idgap <- gaps%>%
     filter(Gap/iniAge > 0.2 ,
-           iniAge  >= maxAlive)
+           finAge  >= maxAlive)
   
   if (nrow(idgap) > 0 & plot) {abline(v = idgap$iniAge, col = 2)}
   return(idgap)

@@ -76,7 +76,7 @@ It return a list per sex category including:
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the survival analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Motality does not fit; 12/Min(Life_exp) >= MaxLE; 13/lx[MLE] < Min_MLE.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta > maxNsur; 8/no DIC from Basta; 9/Kaplan-Meier does not fit; 10/Min(Life_exp) >= MaxLE; 11/"lx_MLE < Min_MLE"; 12/"lxmin > minlx"; 13/Kaplan-Meier does not fit
 #'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models
@@ -158,7 +158,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
                                lastdead = lastdead, minAge = minAge[j],
                                minNsur = minNsur, maxNsur = maxNsur,
                                minInstitution = minInstitution,
-                               minlx = minlx, MinBirthKnown = MinBirthKnown, 
+                               MinBirthKnown = MinBirthKnown, 
                                niter = niter, burnin = burnin, thinning = thinning, 
                                nchain = nchain, ncpus = ncpus) 
   out[[paste0("from",minAge[j])]] <- append( out[[paste0("from",minAge[j])]], 
@@ -170,7 +170,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     out[[paste0("from",minAge[j])]]  <-Sur_out(out[[paste0("from",minAge[j])]] , shape= shape, 
                                 XMAX=XMAX,ncpus = ncpus, minAge = minAge[j],
                                 PlotDir = PlotDir, plotname = paste0(plotname,"_",minAge[j]),
-                                Min_MLE = Min_MLE, MaxLE = MaxLE
+                               minlx = minlx, Min_MLE = Min_MLE, MaxLE = MaxLE
     )
   }
   }
@@ -188,7 +188,7 @@ Sur_main <- function(data.core,   DeathInformation, Birth_Type = "All",
     out[["firstyear"]] <-Sur_out(out[["firstyear"]], shape= shape, 
                                  XMAX=XMAX,ncpus = ncpus, firstyear = TRUE,
                                  PlotDir = PlotDir, plotname = paste0(plotname,"_1yo"),
-                                 Min_MLE = Min_MLE, MaxLE = MaxLE
+                                 minlx = minlx,Min_MLE = Min_MLE, MaxLE = MaxLE
     )
   }
   }
@@ -253,7 +253,6 @@ It return a list including:
 #' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
 #' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
 #' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 1
-#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
 #' @param niter  \code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000
 #' @param burnin  \code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001
@@ -282,7 +281,7 @@ It return a list including:
 #' @examples
 Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", shape = "simple",
                     minAge = 0, mindate = "1980-01-01", minNsur = 50,maxNsur = NULL, uncert_death=365,
-                    minlx = 0.1, MinBirthKnown = 0.3, minInstitution = 1,lastdead = FALSE,
+                    MinBirthKnown = 0.3, minInstitution = 1,lastdead = FALSE,
                     niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
   
   mindate = lubridate::as_date(mindate)
@@ -301,9 +300,6 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
     assert_that(is.numeric(maxNsur))
   }else{maxNsur = nrow(sexData)}
   assert_that(minNsur > 0)
-  assert_that(is.numeric(minlx))
-  assert_that(minlx > 0)
-  assert_that(minlx <1)
   assert_that(is.numeric(MinBirthKnown))
   assert_that(MinBirthKnown >= 0)
   assert_that(MinBirthKnown <1)
@@ -375,9 +371,7 @@ sexDat <- select_Longthreshold( sexData, minN = minNsur )
     #raw median life expectancy
     # summar$MedLE = median(deparAge[deparType == "D"])
     
-    if (summar$lxMin <= minlx) {
-      
-      
+ 
       # Extract BaSTA table:
       bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
                                excludeStillbirth = TRUE)
@@ -451,31 +445,27 @@ sexDat <- select_Longthreshold( sexData, minN = minNsur )
                   summar$analyzed = TRUE
                 } else {
                   summar$error = 'no DIC from Basta'
-                  summar$Nerr = 9
+                  summar$Nerr = 8
                 }
               } else {
                 summar$error = "Nbasta > maxNsur"
-                summar$Nerr = 8
+                summar$Nerr = 7
               }} else {
                 summar$error = "Nbasta < minNsur"
-                summar$Nerr = 7
+                summar$Nerr = 6
               }
           }else{
             summar$error = "Data from 1 Institution"
-            summar$Nerr = 6
+            summar$Nerr = 5
           }
         }else{ 
           summar$error = "%known births < MinBirthKnown"
-          summar$Nerr = 5
+          summar$Nerr = 4
         }
       }else{
         summar$error = "NBasta = 0"
-        summar$Nerr = 4
+        summar$Nerr = 3
       }
-    } else {
-      summar$ error = "lxMin > minlx"
-      summar$ Nerr = 3
-    }
   } else {
     summar$ error = "Nuncertdeath < minNsur"
     summar$ Nerr = 2
@@ -789,6 +779,7 @@ It creates the associated plot
 #' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
 #' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
 #' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
+#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
 #' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
 #' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
 #' @param plotname \code{character} Name used to save the plot. Default = ""
@@ -815,11 +806,15 @@ Sur_out <- function(out, shape= "simple",
                     XMAX=120,ncpus = 2, minAge = 0,
                     PlotDir = NULL, plotname = '',
                     Min_MLE = 0.1, MaxLE = 2,
+                    minlx = 0.1,
                     firstyear = FALSE) {
   
   assert_that(is.numeric(Min_MLE))
   assert_that(is.numeric(MaxLE))
-  assert_that(is.numeric(ncpus))
+    assert_that(is.numeric(minlx))
+  assert_that(minlx > 0)
+  assert_that(minlx <1)
+assert_that(is.numeric(ncpus))
   assert_that(ncpus > 0)
   assert_that(is.character(plotname))
   assert_that(is.character(shape))
@@ -886,9 +881,7 @@ Sur_out <- function(out, shape= "simple",
   idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
   if(out$relex$RemLExp[idxmax]>= MaxLE){
     out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=11
-    # out$summary$analyzed <- FALSE 
-    # out$bastaRes <- list()
+    out$summary$Nerr=10
   }
     ##Test if the survivorship at mean life expectancy is higher than Min_MLE
     lx <-out$bastaRes$lifeTable$noCov$Mean$lx
@@ -896,8 +889,13 @@ Sur_out <- function(out, shape= "simple",
     dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
     
     if(lx[which(dif == min(dif))]< Min_MLE){
-      # out$summary$analyzed <- FALSE
-      out$summary$error = "lx[MLE] < Min_MLE"
+       out$summary$error = "lx[MLE] < Min_MLE"
+      out$summary$Nerr = 11
+      # out$bastaRes <- list()   
+    }
+    
+     if( out$summary$lxMin<minlx){
+       out$summary$error = "lxmin > minlx"
       out$summary$Nerr = 12
       # out$bastaRes <- list()   
     }
@@ -954,7 +952,7 @@ v <- LT%>%
     }
   if(check < 0.8){
    out$summary$error = "Kaplan-Meier does not fit"
-      out$summary$Nerr = 10
+      out$summary$Nerr = 9
     }
 
 
@@ -1366,7 +1364,7 @@ Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
   }
   
   exQuants <- data.frame(Age = xv[which(xv <= xMax)] + minAge, 
-                         RemLExp = apply(exMat, 2, mean), 
+                         RemLExp = apply(exMat, 2,quantile, 0.5), 
                          Lower = apply(exMat, 2, quantile, 0.025),
                          Upper = apply(exMat, 2, quantile, 0.975))
   return(exQuants)
