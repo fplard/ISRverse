@@ -7,6 +7,7 @@ editor_options:
 
 ```{r development, include=FALSE}
 library(testthat)
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ```{r development-load}

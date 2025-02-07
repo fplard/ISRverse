@@ -41,7 +41,7 @@
 #'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
 #'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
 #'- a logical indicated if the survival analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Motality does not fit; 12/Min(Life_exp) >= MaxLE; 13/lx[MLE] < Min_MLE.
+#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/NBasta = 0; 4/ %known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta > maxNsur; 8/no DIC from Basta; 9/Kaplan-Meier does not fit; 10/Min(Life_exp) >= MaxLE; 11/"lx_MLE < Min_MLE"; 12/"lxmin > minlx"; 13/Kaplan-Meier does not fit
 #'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
 #'* the basta fit of the best model
 #'* the DIC table comparing the different fit of the models

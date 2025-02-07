@@ -271,7 +271,7 @@ does not remove the 2 youngest and 2 oldest individuals.</p>
 <span><span class="fu"><a href="../reference/Gro_Rout_quan.html">Gro_Rout_quan</a></span> <span class="op">(</span><span class="va">z</span>,<span class="va">x</span>, minq <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt;  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="linearize-individual-trajectories">Linearize individual trajectories<a class="anchor" aria-label="anchor" href="#linearize-individual-trajectories"></a>
@@ -510,17 +510,13 @@ polynomial</li>
 <span></span>
 <span><span class="fu"><a href="../reference/Gro_ModSettings.html">Gro_ModSettings</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, model <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $growthMod</span></span>
-<span><span class="co">#&gt; function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span></span>
-<span><span class="co">#&gt; {</span></span>
-<span><span class="co">#&gt;     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span></span>
-<span><span class="co">#&gt;     if (LL) {</span></span>
-<span><span class="co">#&gt;         return(sum((logz - zEst)^2))</span></span>
-<span><span class="co">#&gt;     }</span></span>
-<span><span class="co">#&gt;     else {</span></span>
-<span><span class="co">#&gt;         return(zEst)</span></span>
-<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt; function(gamma = 0.5 , zinf = 0, z0 = 0, LL = F, logx, logz = 0) {</span></span>
+<span><span class="co">#&gt;   zEst &lt;-z0 + zinf * (1 - exp(- gamma * logx))</span></span>
+<span><span class="co">#&gt;   if(LL){</span></span>
+<span><span class="co">#&gt;     return(sum((logz - zEst)^2))</span></span>
+<span><span class="co">#&gt;   }else{return(zEst)}</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x0000029a93da4848&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x00000201a2db74b8&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $np</span></span>
@@ -534,13 +530,13 @@ polynomial</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart</span></span>
 <span><span class="co">#&gt; $gamstart$zinf</span></span>
-<span><span class="co">#&gt; [1] 331.1769</span></span>
+<span><span class="co">#&gt; [1] 174.3764</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$z0</span></span>
-<span><span class="co">#&gt; [1] -317.6261</span></span>
+<span><span class="co">#&gt; [1] -159.8068</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$gamma</span></span>
-<span><span class="co">#&gt; [1] 6.872024</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.3327693</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-model-prediction">Plot model prediction<a class="anchor" aria-label="anchor" href="#plot-model-prediction"></a>

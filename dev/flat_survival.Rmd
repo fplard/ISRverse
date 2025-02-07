@@ -10,7 +10,8 @@ library(testthat)
 library(assertthat)
 library(tidyverse)
 library(glue)
-# library(extractZIMS)
+
+options(rmarkdown.html_vignette.check_title = FALSE)
 
 ```
 

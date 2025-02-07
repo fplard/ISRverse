@@ -44,7 +44,7 @@ Full documentation website on: <https://fplard.github.io/ISRverse>
 You can also open the documentation locally on your machine using
 
 ``` r
-path <- system.file("docs", "index.html", package = "ISRverse")
+path <- system.file("site", "index.html", package = "ISRverse")
 browseURL(path)
 ```
 

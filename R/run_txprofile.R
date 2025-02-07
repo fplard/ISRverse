@@ -57,7 +57,7 @@
 #' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.
 #' @param models_gro \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #'
-#' @return Save and replace the result file for each specie sin the list. The file is saved in {analysisDir}\\{taxa}\\{species}.Rdata
+#' @return Save and replace the result file for each specie sin the list. The file is saved in {analysisDir}\\Rdata\\{taxa}_{species}.Rdata
 #' @export
 #'
 #' @examples
@@ -83,7 +83,7 @@
 #' )
 #'
 #' list.files(PlotDir)
-#' list.files(paste0(AnalysisDir,'\\temp\\Rdata'))
+#' list.files(paste0(AnalysisDir,'\\Rdata'))
 #'
 #' unlink(AnalysisDir, recursive = TRUE)
 #' unlink(PlotDir, recursive = TRUE)
@@ -162,6 +162,7 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
   assert_directory_exists(ZIMSdir)
   assert_directory_exists(AnalysisDir)
+  assert_directory_exists(glue("{AnalysisDir}/Rdata"))
   assert_directory_exists(PlotDir)
   
   assert_that(all(Repsect %in% c("agemat", "litter")))
@@ -275,8 +276,8 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
     if(erase_previous){
       repout = list()
     }else{
-      if(length(list.files(glue::glue("{AnalysisDir}Rdata/"), glue::glue("{taxa}_{speciesname}.RData")))>0){
-        load(glue::glue("{AnalysisDir}Rdata/{taxa}_{speciesname}.RData"))
+      if(length(list.files(glue::glue("{AnalysisDir}/Rdata/"), glue::glue("{taxa}_{speciesname}.RData")))>0){
+        load(glue::glue("{AnalysisDir}/Rdata/{taxa}_{speciesname}.RData"))
       }else{repout = list()}
     }
     if (species %in% spOutLev) {maxOutl1 <- 99.9

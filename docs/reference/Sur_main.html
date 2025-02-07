@@ -218,7 +218,7 @@
 <li><p>lxMin:Minimum survivorship reached with the raw Kaplan-Meier model</p></li>
 <li><p>OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%</p></li>
 <li><p>a logical indicated if the survival analysis was performed</p></li>
-<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath &lt; minNsur; 3/lxMin &gt; minlx; 4/NBasta = 0; 5/ %known births &lt; MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta &lt; minNsur; 8/Nbasta &lt; maxNsur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Motality does not fit; 12/Min(Life_exp) &gt;= MaxLE; 13/lxMLE &lt; Min_MLE.</p></li>
+<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath &lt; minNsur; 3/NBasta = 0; 4/ %known births &lt; MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta &lt; minNsur; 7/Nbasta &gt; maxNsur; 8/no DIC from Basta; 9/Kaplan-Meier does not fit; 10/Min(Life_exp) &gt;= MaxLE; 11/"lx_MLE &lt; Min_MLE"; 12/"lxmin &gt; minlx"; 13/Kaplan-Meier does not fit</p></li>
 <li><p>A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator</p></li>
 </ul><ul><li><p>the basta fit of the best model</p></li>
 <li><p>the DIC table comparing the different fit of the models</p></li>
@@ -239,7 +239,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 23.32 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 15.30 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -249,7 +249,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 13.71 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 7.94 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
