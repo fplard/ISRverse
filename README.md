@@ -792,7 +792,11 @@ run_txprofile (taxa = taxaList[taxa],
 # for example on the first computer:
 ipara = 1
 
+<<<<<<< HEAD
 taxa = 1
+=======
+taxa <- 2
+>>>>>>> 8cad2d5379286a924140b1a8b0336e02ffcdb50c
 
 #Run this code changing ipara on each different computer
 XX = 1
