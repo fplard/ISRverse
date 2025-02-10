@@ -65,10 +65,10 @@
 #' # and analysisDir (directory to save analysis)
 #' file = system.file("sci_Animal.csv", package = 'ISRverse')
 #' ZIMSdir = dirname(file)
-#' AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-#' PlotDir = paste0(AnalysisDir,'\\plot')
+#' AnalysisDir = paste0(tempdir(check = TRUE),'/temp')
+#' PlotDir = paste0(AnalysisDir,'/plot')
 #' # dir.create(AnalysisDir)
-#' dir.create(paste0(AnalysisDir,'\\Rdata'), recursive = TRUE)
+#' dir.create(paste0(AnalysisDir,'/Rdata'), recursive = TRUE)
 #' dir.create(PlotDir)
 #'
 #' # #This code run the survival analysis

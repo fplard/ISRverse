@@ -47,10 +47,10 @@ The result files are saved using the following directory \code{{analysisDir}\{ta
 # and analysisDir (directory to save analysis)
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdir = dirname(file)
-AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-PlotDir = paste0(AnalysisDir,'\\plot')
+AnalysisDir = paste0(tempdir(check = TRUE),'/temp')
+PlotDir = paste0(AnalysisDir,'/plot')
 # dir.create(AnalysisDir)
-dir.create(paste0(AnalysisDir,'\\Rdata'), recursive = TRUE)
+dir.create(paste0(AnalysisDir,'/Rdata'), recursive = TRUE)
 dir.create(PlotDir)
 
 # #This code run the survival analysis
@@ -86,8 +86,8 @@ it returns the main summary table
 
 ```{r examples-make_summary}
 file = system.file("sci_Animal.csv", package = 'ISRverse')
-AnalysisDir  = paste0(dirname(file),'\\Rdata')
-SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+AnalysisDir  = paste0(dirname(file),'/Rdata')
+SaveDir = paste0(tempdir(check = TRUE),'/temp')
 dir.create(SaveDir)
 
 SummTab <- make_summary(AnalysisDir, SaveDir,

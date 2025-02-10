@@ -338,10 +338,10 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
 # and analysisDir (directory to save analysis)
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdir = dirname(file)
-AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-PlotDir = paste0(AnalysisDir,'\\plot')
+AnalysisDir = paste0(tempdir(check = TRUE),'/temp')
+PlotDir = paste0(AnalysisDir,'/plot')
 # dir.create(AnalysisDir)
-dir.create(paste0(AnalysisDir,'\\Rdata'), recursive = TRUE)
+dir.create(paste0(AnalysisDir,'/Rdata'), recursive = TRUE)
 dir.create(PlotDir)
 
 # #This code run the survival analysis
@@ -362,13 +362,12 @@ unlink(AnalysisDir, recursive = TRUE)
 unlink(PlotDir, recursive = TRUE)
 ```
 
-
 ```{r dev-run_txprofile}
 # Here is an example but use directly your own ZIMSdir (directory to find data) 
 # and analysisDir (directory to save analysis)
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSdir = dirname(file)
-PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+PlotDir = paste0(tempdir(check = TRUE),'/temp')
 dir.create(PlotDir)
 
 #This code run the survival analysis
@@ -819,8 +818,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
 
 ```{r examples-make_summary}
 file = system.file("sci_Animal.csv", package = 'ISRverse')
-AnalysisDir  = paste0(dirname(file),'\\Rdata')
-SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+AnalysisDir  = paste0(dirname(file),'/Rdata')
+SaveDir = paste0(tempdir(check = TRUE),'/temp')
 dir.create(SaveDir)
 
 SummTab <- make_summary(AnalysisDir, SaveDir,
@@ -834,7 +833,6 @@ unlink(SaveDir, recursive = TRUE)
 ```
 
 ```{r tests-make_summary}
-
 test_that("make_summary works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   AnalysisDir  = paste0(dirname(file),'\\Rdata')
