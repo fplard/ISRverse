@@ -107,7 +107,7 @@
     <p>A list including</p><ul><li><p>the data with the selected sex and additional columns showing which individuals are above the percentiles 95%, 99% and 99.9%</p></li>
 <li><p>A summary list with:</p></li>
 </ul><ul><li><p>Sex = the sex selected</p></li>
-<li><p>Nglobal: the number of individuals of this sex</p></li>
+<li><p>Nselect: the number of individuals of this sex</p></li>
 <li><p>Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)</p></li>
 <li><p>GapThresh : The threshold value selected for the distribution of longevity</p></li>
 <li><p>NThres : the number of individuals selected using this threshold</p></li>
@@ -121,7 +121,7 @@
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">select_Longthreshold</span> <span class="op">(</span>data.core <span class="op">=</span> <span class="va">core</span>,  sexCats <span class="op">=</span> <span class="st">"All"</span>, </span></span>
 <span class="r-in"><span>                             PlotDir <span class="op">=</span> <span class="va">TempDir</span>, maintitle <span class="op">=</span> <span class="st">"Testudo_hermanni"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">TempDir</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Testudo_hermanni_LongThres.pdf"</span>
 <span class="r-in"><span><span class="co">#remove temporary folder</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">TempDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 </code></pre></div>
@@ -138,7 +138,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

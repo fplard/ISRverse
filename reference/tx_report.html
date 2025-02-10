@@ -86,6 +86,7 @@
 <span>  minN <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
 <span>  Global <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  minBirthDate <span class="op">=</span> <span class="st">"1900-01-01"</span>,</span>
 <span>  extractDate <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  uncert_birth <span class="op">=</span> <span class="fl">365</span>,</span>
 <span>  uncert_death <span class="op">=</span> <span class="fl">365</span>,</span>
@@ -99,6 +100,7 @@
 <span>  XMAX <span class="op">=</span> <span class="fl">120</span>,</span>
 <span>  Min_MLE <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  MaxLE <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  firstyear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  models_sur <span class="op">=</span> <span class="st">"GO"</span>,</span>
 <span>  shape <span class="op">=</span> <span class="st">"bathtub"</span>,</span>
 <span>  niter <span class="op">=</span> <span class="fl">25000</span>,</span>
@@ -106,9 +108,12 @@
 <span>  thinning <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  nchain <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  ncpus <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  minAge <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  lastdead <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  Repsect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"agemat"</span>, <span class="st">"litter"</span><span class="op">)</span>,</span>
 <span>  Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>,</span>
-<span>  parentProb <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  parentProb_Dam <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  parentProb_Sire <span class="op">=</span> <span class="fl">80</span>,</span>
 <span>  minNlitter <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  Nday <span class="op">=</span> <span class="fl">7</span>,</span>
 <span>  minNrepro <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -116,7 +121,7 @@
 <span>  minNseas <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  minNgro <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  minNIgro <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>  MeasureType <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span>
 <span>  models_gro <span class="op">=</span> <span class="st">"vonBertalanffy"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -189,6 +194,10 @@
 <dd><p><code>logical</code> Whether only individuals belonging to global collections should be used.</p></dd>
 
 
+<dt id="arg-minbirthdate">minBirthDate<a class="anchor" aria-label="anchor" href="#arg-minbirthdate"></a></dt>
+<dd><p><code>character</code>: Earlier possible date: date used when minimum birth or death date unknown</p></dd>
+
+
 <dt id="arg-extractdate">extractDate<a class="anchor" aria-label="anchor" href="#arg-extractdate"></a></dt>
 <dd><p><code>character 'YYYY-MM-DD'</code> Date of data extraction</p></dd>
 
@@ -241,6 +250,10 @@
 <dd><p><code>numeric</code> Goodness of fit: Maximum remaining life expectancy at max age</p></dd>
 
 
+<dt id="arg-firstyear">firstyear<a class="anchor" aria-label="anchor" href="#arg-firstyear"></a></dt>
+<dd><p><code>logical</code> Whether to do the analysis only on first year. Default = FALSE</p></dd>
+
+
 <dt id="arg-models-sur">models_sur<a class="anchor" aria-label="anchor" href="#arg-models-sur"></a></dt>
 <dd><p><code>vector of characters</code> names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"</p></dd>
 
@@ -269,6 +282,14 @@
 <dd><p><code>numeric</code> Number of computer core to use. Default = 2</p></dd>
 
 
+<dt id="arg-minage">minAge<a class="anchor" aria-label="anchor" href="#arg-minage"></a></dt>
+<dd><p><code>numeric</code> Ages at which the analyses should start.  see ?basta for more information. Default = 0</p></dd>
+
+
+<dt id="arg-lastdead">lastdead<a class="anchor" aria-label="anchor" href="#arg-lastdead"></a></dt>
+<dd><p><code>logical</code> Whether the longest lived individuals should be considered dead. Default = FALSE</p></dd>
+
+
 <dt id="arg-repsect">Repsect<a class="anchor" aria-label="anchor" href="#arg-repsect"></a></dt>
 <dd><p><code>character</code> names of the reproductive analyses to run: "agemat", "litter" and/or ...</p></dd>
 
@@ -277,8 +298,12 @@
 <dd><p><code>character</code> Captive, Wild, or All. Default =  "Captive"</p></dd>
 
 
-<dt id="arg-parentprob">parentProb<a class="anchor" aria-label="anchor" href="#arg-parentprob"></a></dt>
-<dd><p><code>numeric</code> Minimum percentage of parentage probability to include. Default = 80</p></dd>
+<dt id="arg-parentprob-dam">parentProb_Dam<a class="anchor" aria-label="anchor" href="#arg-parentprob-dam"></a></dt>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include for Dam. Default = 80</p></dd>
+
+
+<dt id="arg-parentprob-sire">parentProb_Sire<a class="anchor" aria-label="anchor" href="#arg-parentprob-sire"></a></dt>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include for Sire. Default = 80</p></dd>
 
 
 <dt id="arg-minnlitter">minNlitter<a class="anchor" aria-label="anchor" href="#arg-minnlitter"></a></dt>
@@ -327,16 +352,18 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ZIMSdirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Load_Zimsdata.html">Load_Zimsdata</a></span>  <span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Reptilia"</span>,</span></span>
+<span class="r-in"><span>                       species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Reptilia <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                       ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirtest</span>,</span></span>
 <span class="r-in"><span>                       Animal <span class="op">=</span> <span class="cn">TRUE</span>, tables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Collection"</span>,<span class="st">"DeathInformation"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ReptiliaLoading Collection of Reptilia.Loading DeathInformation of Reptilia.Reptilia Done.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">Animal</span><span class="op">&lt;-</span> <span class="fu"><a href="Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">data</span><span class="op">[[</span><span class="st">"Reptilia"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, extractDate<span class="op">=</span><span class="st">"2024/08/29"</span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">PlotDir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span>check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,<span class="st">'\\temp'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">tx_report</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Testudo hermanni"</span>, taxa <span class="op">=</span> <span class="st">"Reptilia"</span>,</span></span>
-<span class="r-in"><span>                 <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Animal</span>, <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Collection</span>, </span></span>
+<span class="r-in"><span>                 <span class="va">Animal</span>, <span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Collection</span>, </span></span>
+<span class="r-in"><span>                 Birth_Type <span class="op">=</span> <span class="st">"All"</span>, uncert_birth <span class="op">=</span> <span class="fl">3500</span>,uncert_death <span class="op">=</span> <span class="fl">3500</span>, </span></span>
 <span class="r-in"><span>                 DeathInformation <span class="op">=</span><span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">DeathInformation</span>,</span></span>
 <span class="r-in"><span>                 PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'sur'</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                 sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span></span>
@@ -344,45 +371,13 @@
 <span class="r-in"><span>                 models_gro <span class="op">=</span> <span class="st">"vonBertalanffy"</span>,</span></span>
 <span class="r-in"><span>                 niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running --------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running --------------------------------------------[1] "GO"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 8.59 secs.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Library BaSTA loaded.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Library BaSTA loaded in cluster.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 5.21 secs.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing life table... done.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ****************************  Male  ****************************</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running ------------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ****************************  Female  ****************************</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running ------------------------------------------------</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Testudo_hermanni_Femalesurcheck.pdf" "Testudo_hermanni_Femalesurplot.pdf" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Long_dist" "Survival" </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -399,7 +394,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

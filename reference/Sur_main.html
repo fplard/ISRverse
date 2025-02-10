@@ -75,7 +75,9 @@
 <span>  Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>  models <span class="op">=</span> <span class="st">"GO"</span>,</span>
 <span>  shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
+<span>  firstyear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  outlLev1 <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  minAge <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  mindate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
 <span>  minNsur <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  maxNsur <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -86,6 +88,7 @@
 <span>  Min_MLE <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  MaxLE <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  XMAX <span class="op">=</span> <span class="fl">120</span>,</span>
+<span>  lastdead <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  niter <span class="op">=</span> <span class="fl">25000</span>,</span>
 <span>  burnin <span class="op">=</span> <span class="fl">5001</span>,</span>
 <span>  thinning <span class="op">=</span> <span class="fl">20</span>,</span>
@@ -120,8 +123,16 @@
 <dd><p><code>character</code> shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"</p></dd>
 
 
+<dt id="arg-firstyear">firstyear<a class="anchor" aria-label="anchor" href="#arg-firstyear"></a></dt>
+<dd><p><code>logical</code> Whether to do the analysis only on first year. Default = FALSE</p></dd>
+
+
 <dt id="arg-outllev-">outlLev1<a class="anchor" aria-label="anchor" href="#arg-outllev-"></a></dt>
 <dd><p><code>numeric</code> Start threshold used to selected for the data: 100%, 99.9, 99 or 95%</p></dd>
+
+
+<dt id="arg-minage">minAge<a class="anchor" aria-label="anchor" href="#arg-minage"></a></dt>
+<dd><p><code>numeric</code> Ages at which the analyses should start.  see ?basta for more information. Default = 0</p></dd>
 
 
 <dt id="arg-mindate">mindate<a class="anchor" aria-label="anchor" href="#arg-mindate"></a></dt>
@@ -164,6 +175,10 @@
 <dd><p><code>numeric</code> Maximum possible age. Default = 120</p></dd>
 
 
+<dt id="arg-lastdead">lastdead<a class="anchor" aria-label="anchor" href="#arg-lastdead"></a></dt>
+<dd><p><code>logical</code> Whether the longest lived individuals should be considered dead. Default = FALSE</p></dd>
+
+
 <dt id="arg-niter">niter<a class="anchor" aria-label="anchor" href="#arg-niter"></a></dt>
 <dd><p><code>numeric</code>. number of MCMC iterations to run. see ?basta for more information. Default = 25000</p></dd>
 
@@ -203,7 +218,7 @@
 <li><p>lxMin:Minimum survivorship reached with the raw Kaplan-Meier model</p></li>
 <li><p>OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%</p></li>
 <li><p>a logical indicated if the survival analysis was performed</p></li>
-<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/lxMin &gt; minlx 3/NBasta = 0 4/ %known births &lt; MinBirthKnown 5/Data from 1 Institution 6/Nbasta &lt; minNsur, 7/no DIC from Basta.</p></li>
+<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath &lt; minNsur; 3/NBasta = 0; 4/ %known births &lt; MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta &lt; minNsur; 7/Nbasta &gt; maxNsur; 8/no DIC from Basta; 9/Kaplan-Meier does not fit; 10/Min(Life_exp) &gt;= MaxLE; 11/"lx_MLE &lt; Min_MLE"; 12/"lxmin &gt; minlx"; 13/Kaplan-Meier does not fit</p></li>
 <li><p>A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator</p></li>
 </ul><ul><li><p>the basta fit of the best model</p></li>
 <li><p>the DIC table comparing the different fit of the models</p></li>
@@ -224,7 +239,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 10.77 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 10.52 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -235,7 +250,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 6.06 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 5.63 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
@@ -256,6 +271,11 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 <span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(Ages)`</span>
 </code></pre></div>
     </div>
   </div>
@@ -270,7 +290,7 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

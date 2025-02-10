@@ -76,7 +76,8 @@
 <span>  shape <span class="op">=</span> <span class="st">"bathtub"</span>,</span>
 <span>  ncpus <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  ageMax <span class="op">=</span> <span class="fl">120</span>,</span>
-<span>  dage <span class="op">=</span> <span class="fl">0.01</span></span>
+<span>  dage <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  minAge <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,6 +112,10 @@
 <dt id="arg-dage">dage<a class="anchor" aria-label="anchor" href="#arg-dage"></a></dt>
 <dd><p><code>numeric</code> precision  for age Default = 0.01</p></dd>
 
+
+<dt id="arg-minage">minAge<a class="anchor" aria-label="anchor" href="#arg-minage"></a></dt>
+<dd><p><code>numeric</code> Ages at which the analyses should start.  see ?basta for more information. Default = 0</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -126,6 +131,8 @@
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Sur_age</span><span class="op">(</span><span class="va">theMat</span>, model <span class="op">=</span> <span class="st">'GO'</span>, shape <span class="op">=</span> <span class="st">'simple'</span>, ncpus <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>               ageMax <span class="op">=</span> <span class="fl">50</span>, dage <span class="op">=</span> <span class="fl">0.1</span>, Nyear <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R Version:  R version 4.4.2 (2024-10-31) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 2 CPUs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
@@ -143,7 +150,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
