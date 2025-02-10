@@ -66,28 +66,27 @@
 #' file = system.file("sci_Animal.csv", package = 'ISRverse')
 #' ZIMSdir = dirname(file)
 #' AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-#' PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
-#' dir.create(AnalysisDir)
-#' dir.create(paste0(tempdir(check = TRUE),'\\temp\\Rdata'))
+#' PlotDir = paste0(AnalysisDir,'\\plot')
+#' # dir.create(AnalysisDir)
+#' dir.create(paste0(AnalysisDir,'\\Rdata'), recursive = TRUE)
 #' dir.create(PlotDir)
 #'
-#' #This code run the survival analysis
-#' run_txprofile(taxa = "Reptilia", Species_list = "All",
-#'               ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,
-#'               PlotDir = PlotDir,
-#'               extractDate = "",
-#'               minDate = "1980-01-01",
-#'               Sections = c("sur"),
-#'               sexCats = c('Male', 'Female'),
-#'               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
-#' )
+#' # #This code run the survival analysis
+#' # run_txprofile(taxa = "Reptilia", Species_list = "All",
+#' #               ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,
+#' #               PlotDir = PlotDir,
+#' #               extractDate = "",
+#' #               minDate = "1980-01-01",
+#' #               Sections = c("sur"),
+#' #               sexCats = c('Male', 'Female'),
+#' #               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
+#' # )
 #'
 #' list.files(PlotDir)
 #' list.files(paste0(AnalysisDir,'\\Rdata'))
 #'
 #' unlink(AnalysisDir, recursive = TRUE)
 #' unlink(PlotDir, recursive = TRUE)
-#'
 run_txprofile <- function(taxa, Species_list, ZIMSdir, 
                           AnalysisDir, PlotDir,
                           extractDate, minDate = "1980-01-01",

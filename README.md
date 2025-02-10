@@ -633,7 +633,7 @@ minAge =c(0)
 #Whether to run the first year survival analysis
 firstyear = TRUE
 #Whether the oldest individuals should be considered as dead by the model
-lastdead = T
+lastdead = F
 
 
 #      Survival Models --------------------------------
@@ -791,10 +791,11 @@ run_txprofile (taxa = taxaList[taxa],
 ``` r
 # for example on the first computer:
 ipara = 1
-taxa <- 1
+
+taxa = 1
 
 #Run this code changing ipara on each different computer
-XX = 5
+XX = 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
 Sections = c("sur")
@@ -818,7 +819,9 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
                models_sur = models_sur, shape = shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
+               parentProb_Sire =  parentProb_Sire,
+              parentProb_Dam =  parentProb_Dam,
+              minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
                minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
@@ -826,6 +829,7 @@ run_txprofile (taxaList[taxa], Species_list = "All", ZIMSdirdata,
                
 )
 save(ipara, file = glue("{analysisDir}/finished_{taxaList[taxa]}{ipara}.Rdata"))
+# }
 ```
 
 ### Check
