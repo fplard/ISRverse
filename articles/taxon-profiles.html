@@ -146,19 +146,126 @@ each species</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">AnalysisDir</span>,<span class="st">'/Rdata'</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># #This code run the survival analysis</span></span>
-<span><span class="co"># run_txprofile(taxa = "Reptilia", Species_list = "All",</span></span>
-<span><span class="co">#               ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,</span></span>
-<span><span class="co">#               PlotDir = PlotDir,</span></span>
-<span><span class="co">#               extractDate = "",</span></span>
-<span><span class="co">#               minDate = "1980-01-01",</span></span>
-<span><span class="co">#               Sections = c("sur"),</span></span>
-<span><span class="co">#               sexCats = c('Male', 'Female'),</span></span>
-<span><span class="co">#               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3</span></span>
-<span><span class="co"># )</span></span>
+<span><span class="co">#This code run the survival analysis</span></span>
+<span><span class="fu"><a href="../reference/run_txprofile.html">run_txprofile</a></span><span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span>              ZIMSdir <span class="op">=</span> <span class="va">ZIMSdir</span>, AnalysisDir <span class="op">=</span> <span class="va">AnalysisDir</span>,</span>
+<span>              PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span>
+<span>              extractDate <span class="op">=</span> <span class="st">""</span>,</span>
+<span>              minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
+<span>              Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span>,</span>
+<span>              sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>,</span>
+<span>              niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading Data</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ====================</span></span>
+<span><span class="co">#&gt; Class:    Reptilia </span></span>
+<span><span class="co">#&gt; Species:  Testudo hermanni </span></span>
+<span><span class="co">#&gt; Progress: 100 %</span></span>
+<span><span class="co">#&gt; =====================</span></span>
+<span><span class="co">#&gt; Species running...</span></span>
+<span><span class="co">#&gt;   ****************************  Male  ****************************</span></span>
+<span><span class="co">#&gt; Survival Running ------------------------------------------------</span></span>
+<span><span class="co">#&gt; [1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 14.73 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; R Version:  R version 4.4.2 (2024-10-31)</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 6.96 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; All parameters converged properly.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(Ages)`</span></span>
+<span><span class="co">#&gt;  ****************************  Female  ****************************</span></span>
+<span><span class="co">#&gt; Survival Running ------------------------------------------------</span></span>
+<span><span class="co">#&gt; [1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 14.57 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 6.85 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; Convergence not reached for some parameters.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span>
+<span><span class="co">#&gt; [1] "more chains"</span></span>
+<span><span class="co">#&gt; [1] "GO"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 14.61 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multiple simulations started...</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Simulations finished.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 22.99 secs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
+<span><span class="co">#&gt; All parameters converged properly.</span></span>
+<span><span class="co">#&gt; Constructing life table... done.</span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Stopping cluster</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(Ages)`</span></span>
+<span><span class="co">#&gt;  done.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span>
-<span><span class="co">#&gt; character(0)</span></span>
+<span><span class="co">#&gt; [1] "Long_dist" "Survival"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">AnalysisDir</span>,<span class="st">'\\Rdata'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; character(0)</span></span>
 <span></span>

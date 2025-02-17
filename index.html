@@ -135,7 +135,7 @@
 <span><span class="co"># directory to save Json for the dev team:</span></span>
 <span><span class="va">JsonDir</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{analysisDir}Json/"</span><span class="op">)</span></span>
 <span><span class="co"># Plot directory:</span></span>
-<span><span class="va">plotDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{ZIMSdir}Plot/"</span><span class="op">)</span></span>
+<span><span class="va">plotDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{ZIMSdir}Plot"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
@@ -815,17 +815,20 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Class</span> <span class="op">==</span> <span class="st">"Mammalia"</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">pull</span><span class="op">(</span><span class="va">Species</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
-<span><span class="co"># Sections = c("sur")</span></span>
+<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
 <span><span class="co"># Species_list =list_surv</span></span>
 <span><span class="va">Species_list</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Panthera onca"</span>, <span class="st">"Loris_tardigradus"</span>, <span class="st">"Pteropus_livingstonii"</span><span class="op">)</span></span>
+<span><span class="va">Species_list</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Tympanocryptis lineata"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, </span>
 <span>               ZIMSdir <span class="op">=</span><span class="va">ZIMSdirdata</span>,AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
 <span>               erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
-<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>               <span class="co"># sexCats = BySex[[taxaList[taxa]]],</span></span>
+<span>               sexCats <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span>               inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               Species_list <span class="op">=</span> <span class="va">Species_list</span>,  Sections <span class="op">=</span> <span class="va">Sections</span>,  </span>
 <span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>, </span>
 <span>               minAge <span class="op">=</span> <span class="va">minAge</span>, firstyear <span class="op">=</span> <span class="va">firstyear</span>,lastdead <span class="op">=</span><span class="va">lastdead</span>,</span>
@@ -840,7 +843,7 @@
 <span>               models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
 <span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
-<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
+<span>               parentProb_Dam <span class="op">=</span> <span class="va">parentProb_Dam</span>, parentProb_Sire <span class="op">=</span> <span class="va">parentProb_Sire</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
 <span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
 <span>               minNlitter <span class="op">=</span> <span class="va">minNlitter</span>, Nday <span class="op">=</span> <span class="va">Nday</span>, </span>
 <span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>

@@ -354,19 +354,112 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">AnalysisDir</span>,<span class="st">'/Rdata'</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># #This code run the survival analysis</span></span></span>
-<span class="r-in"><span><span class="co"># run_txprofile(taxa = "Reptilia", Species_list = "All",</span></span></span>
-<span class="r-in"><span><span class="co">#               ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,</span></span></span>
-<span class="r-in"><span><span class="co">#               PlotDir = PlotDir,</span></span></span>
-<span class="r-in"><span><span class="co">#               extractDate = "",</span></span></span>
-<span class="r-in"><span><span class="co">#               minDate = "1980-01-01",</span></span></span>
-<span class="r-in"><span><span class="co">#               Sections = c("sur"),</span></span></span>
-<span class="r-in"><span><span class="co">#               sexCats = c('Male', 'Female'),</span></span></span>
-<span class="r-in"><span><span class="co">#               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3</span></span></span>
-<span class="r-in"><span><span class="co"># )</span></span></span>
+<span class="r-in"><span><span class="co">#This code run the survival analysis</span></span></span>
+<span class="r-in"><span><span class="fu">run_txprofile</span><span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>,</span></span>
+<span class="r-in"><span>              ZIMSdir <span class="op">=</span> <span class="va">ZIMSdir</span>, AnalysisDir <span class="op">=</span> <span class="va">AnalysisDir</span>,</span></span>
+<span class="r-in"><span>              PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span></span>
+<span class="r-in"><span>              extractDate <span class="op">=</span> <span class="st">""</span>,</span></span>
+<span class="r-in"><span>              minDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span></span>
+<span class="r-in"><span>              Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              sexCats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Male'</span>, <span class="st">'Female'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Loading Data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ====================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Class:    Reptilia </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species:  Testudo hermanni </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Progress: 100 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> =====================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species running...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ****************************  Male  ****************************</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running ------------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 14.90 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Library BaSTA loaded.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Library BaSTA loaded in cluster.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 6.84 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing life table... done.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(Ages)`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ****************************  Female  ****************************</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Survival Running ------------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 14.86 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Library BaSTA loaded.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Library BaSTA loaded in cluster.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 6.92 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing life table... done.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown option on commandline: --file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(Ages)`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  done.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">PlotDir</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Long_dist" "Survival" </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">AnalysisDir</span>,<span class="st">'\\Rdata'</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
 <span class="r-in"><span></span></span>
