@@ -12,7 +12,8 @@ select_species(
   Birth_Type = "Captive",
   minDate,
   extractDate,
-  Global = TRUE
+  Global = TRUE,
+  na_birthdate = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ select_species(
 \item{extractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
 
 \item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
+
+\item{na_birthdate}{\code{logical} Whether lines with unknown birth date should be kept.}
 }
 \value{
 The output of a list including:

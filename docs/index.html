@@ -135,7 +135,7 @@
 <span><span class="co"># directory to save Json for the dev team:</span></span>
 <span><span class="va">JsonDir</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{analysisDir}Json/"</span><span class="op">)</span></span>
 <span><span class="co"># Plot directory:</span></span>
-<span><span class="va">plotDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{ZIMSdir}Plot/"</span><span class="op">)</span></span>
+<span><span class="va">plotDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span> <span class="op">(</span><span class="st">"{ZIMSdir}Plot"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">analysisDir</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ISRverse</span><span class="op">)</span></span>
@@ -701,7 +701,7 @@
 <span><span class="co">#Whether to run the first year survival analysis</span></span>
 <span><span class="va">firstyear</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="co">#Whether the oldest individuals should be considered as dead by the model</span></span>
-<span><span class="va">lastdead</span> <span class="op">=</span> <span class="cn">T</span></span>
+<span><span class="va">lastdead</span> <span class="op">=</span> <span class="cn">F</span></span>
 <span></span>
 <span></span>
 <span><span class="co">#      Survival Models --------------------------------</span></span>
@@ -815,17 +815,20 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Class</span> <span class="op">==</span> <span class="st">"Mammalia"</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">Species</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
-<span><span class="co"># Sections = c("sur")</span></span>
+<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
 <span><span class="co"># Species_list =list_surv</span></span>
 <span><span class="va">Species_list</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Panthera onca"</span>, <span class="st">"Loris_tardigradus"</span>, <span class="st">"Pteropus_livingstonii"</span><span class="op">)</span></span>
+<span><span class="va">Species_list</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Tympanocryptis lineata"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span>taxa <span class="op">=</span> <span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, </span>
 <span>               ZIMSdir <span class="op">=</span><span class="va">ZIMSdirdata</span>,AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
 <span>               erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
-<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>               <span class="co"># sexCats = BySex[[taxaList[taxa]]],</span></span>
+<span>               sexCats <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span>               inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               Species_list <span class="op">=</span> <span class="va">Species_list</span>,  Sections <span class="op">=</span> <span class="va">Sections</span>,  </span>
 <span>               extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>, </span>
 <span>               minAge <span class="op">=</span> <span class="va">minAge</span>, firstyear <span class="op">=</span> <span class="va">firstyear</span>,lastdead <span class="op">=</span><span class="va">lastdead</span>,</span>
@@ -840,7 +843,7 @@
 <span>               models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
 <span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
-<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
+<span>               parentProb_Dam <span class="op">=</span> <span class="va">parentProb_Dam</span>, parentProb_Sire <span class="op">=</span> <span class="va">parentProb_Sire</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
 <span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
 <span>               minNlitter <span class="op">=</span> <span class="va">minNlitter</span>, Nday <span class="op">=</span> <span class="va">Nday</span>, </span>
 <span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
@@ -850,44 +853,51 @@
 <div class="section level4">
 <h4 id="option-3-run-all-species-from-one-taxa-in-parallel-on-different-computers">Option 3: Run all species from one taxa in parallel on different computers<a class="anchor" aria-label="anchor" href="#option-3-run-all-species-from-one-taxa-in-parallel-on-different-computers"></a>
 </h4>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># for example on the first computer:</span></span>
-<span><span class="va">ipara</span> <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span></span>
-<span><span class="co">#Run this code changing ipara on each different computer</span></span>
-<span><span class="va">XX</span> <span class="op">=</span> <span class="fl">5</span></span>
-<span><span class="co">#Sections to run or to update</span></span>
-<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
-<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
-<span><span class="co">#Number of different computers</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSdirdata</span>, </span>
-<span>               inparallel <span class="op">=</span> <span class="cn">TRUE</span>, ipara <span class="op">=</span> <span class="va">ipara</span>, npara <span class="op">=</span> <span class="va">XX</span>, </span>
-<span>               AnalysisDir <span class="op">=</span> <span class="va">analysisDir</span>, PlotDir <span class="op">=</span> <span class="va">plotDir</span>,</span>
-<span>               Sections <span class="op">=</span> <span class="va">Sections</span>, erase_previous <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>               minAge <span class="op">=</span> <span class="va">minAge</span>, firstyear <span class="op">=</span> <span class="va">firstyear</span>,lastdead <span class="op">=</span><span class="va">lastdead</span>,</span>
-<span>              extractDate <span class="op">=</span> <span class="va">extractDate</span>, minDate <span class="op">=</span> <span class="va">minDate</span>,</span>
-<span>               sexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">taxaList</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>, </span>
-<span>               minN <span class="op">=</span> <span class="va">minN</span>,  Global <span class="op">=</span>  <span class="va">Global</span>,</span>
-<span>               maxOutl <span class="op">=</span> <span class="va">maxOutl</span>,  spOutLev <span class="op">=</span> <span class="va">spOutLev</span>, Birth_Type <span class="op">=</span> <span class="st">"Captive"</span>, </span>
-<span>               uncert_birth <span class="op">=</span> <span class="va">uncert_birth</span>, uncert_death<span class="op">=</span> <span class="va">uncert_death</span>,</span>
-<span>               uncert_date <span class="op">=</span> <span class="va">uncert_date</span>,</span>
-<span>               minInstitution <span class="op">=</span> <span class="va">minInstitution</span>, </span>
-<span>               minNsur <span class="op">=</span> <span class="va">minNsur</span>, maxNsur <span class="op">=</span> <span class="va">maxNsur</span>, XMAX <span class="op">=</span> <span class="va">XMAX</span>,</span>
-<span>               minlx <span class="op">=</span> <span class="va">minlx</span>, MinBirthKnown <span class="op">=</span> <span class="va">MinBirthKnown</span>, </span>
-<span>               Min_MLE <span class="op">=</span> <span class="va">Min_MLE</span>, MaxLE <span class="op">=</span>  <span class="va">MaxLE</span>,</span>
-<span>               models_sur <span class="op">=</span> <span class="va">models_sur</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span>
-<span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
-<span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
-<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, minNrepro <span class="op">=</span> <span class="va">minNrepro</span>, </span>
-<span>               minNparepro <span class="op">=</span> <span class="va">minNparepro</span>, minNseas <span class="op">=</span> <span class="va">minNseas</span>, </span>
-<span>               minNlitter <span class="op">=</span> <span class="va">minNlitter</span>, Nday <span class="op">=</span> <span class="va">Nday</span>, </span>
-<span>               minNgro <span class="op">=</span> <span class="va">minNgro</span>, minNIgro <span class="op">=</span> <span class="va">minNIgro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
-<span>               models_gro <span class="op">=</span> <span class="va">models_gro</span></span>
-<span>               </span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/save.html" class="external-link">save</a></span><span class="op">(</span><span class="va">ipara</span>, file <span class="op">=</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{analysisDir}/finished_{taxaList[taxa]}{ipara}.Rdata"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># for example on the first computer:</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>ipara <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="sc">&lt;</span><span class="er">&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>taxa <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="sc">==</span><span class="er">=====</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>taxa <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="sc">&gt;</span><span class="er">&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="dv">8</span>cad2d5379286a924140b1a8b0336e02ffcdb50c</span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#Run this code changing ipara on each different computer</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>XX <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#Sections to run or to update</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a>Sections <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a>Sections <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"sur"</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#Number of different computers</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="fu">run_txprofile</span> (taxaList[taxa], <span class="at">Species_list =</span> <span class="st">"All"</span>, ZIMSdirdata, </span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a>               <span class="at">inparallel =</span> <span class="cn">TRUE</span>, <span class="at">ipara =</span> ipara, <span class="at">npara =</span> XX, </span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a>               <span class="at">AnalysisDir =</span> analysisDir, <span class="at">PlotDir =</span> plotDir,</span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a>               <span class="at">Sections =</span> Sections, <span class="at">erase_previous =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a>               <span class="at">minAge =</span> minAge, <span class="at">firstyear =</span> firstyear,<span class="at">lastdead =</span>lastdead,</span>
+<span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a>              <span class="at">extractDate =</span> extractDate, <span class="at">minDate =</span> minDate,</span>
+<span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a>               <span class="at">sexCats =</span> BySex[[taxaList[taxa]]], </span>
+<span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a>               <span class="at">minN =</span> minN,  <span class="at">Global =</span>  Global,</span>
+<span id="cb16-25"><a href="#cb16-25" tabindex="-1"></a>               <span class="at">maxOutl =</span> maxOutl,  <span class="at">spOutLev =</span> spOutLev, <span class="at">Birth_Type =</span> <span class="st">"Captive"</span>, </span>
+<span id="cb16-26"><a href="#cb16-26" tabindex="-1"></a>               <span class="at">uncert_birth =</span> uncert_birth, <span class="at">uncert_death=</span> uncert_death,</span>
+<span id="cb16-27"><a href="#cb16-27" tabindex="-1"></a>               <span class="at">uncert_date =</span> uncert_date,</span>
+<span id="cb16-28"><a href="#cb16-28" tabindex="-1"></a>               <span class="at">minInstitution =</span> minInstitution, </span>
+<span id="cb16-29"><a href="#cb16-29" tabindex="-1"></a>               <span class="at">minNsur =</span> minNsur, <span class="at">maxNsur =</span> maxNsur, <span class="at">XMAX =</span> XMAX,</span>
+<span id="cb16-30"><a href="#cb16-30" tabindex="-1"></a>               <span class="at">minlx =</span> minlx, <span class="at">MinBirthKnown =</span> MinBirthKnown, </span>
+<span id="cb16-31"><a href="#cb16-31" tabindex="-1"></a>               <span class="at">Min_MLE =</span> Min_MLE, <span class="at">MaxLE =</span>  MaxLE,</span>
+<span id="cb16-32"><a href="#cb16-32" tabindex="-1"></a>               <span class="at">models_sur =</span> models_sur, <span class="at">shape =</span> shape,</span>
+<span id="cb16-33"><a href="#cb16-33" tabindex="-1"></a>               <span class="at">niter =</span> niter, <span class="at">burnin =</span> burnin, <span class="at">thinning =</span> thinning, </span>
+<span id="cb16-34"><a href="#cb16-34" tabindex="-1"></a>               <span class="at">nchain =</span> nchain, <span class="at">ncpus =</span> ncpus,</span>
+<span id="cb16-35"><a href="#cb16-35" tabindex="-1"></a>               <span class="at">parentProb_Sire =</span>  parentProb_Sire,</span>
+<span id="cb16-36"><a href="#cb16-36" tabindex="-1"></a>              <span class="at">parentProb_Dam =</span>  parentProb_Dam,</span>
+<span id="cb16-37"><a href="#cb16-37" tabindex="-1"></a>              <span class="at">minNrepro =</span> minNrepro, </span>
+<span id="cb16-38"><a href="#cb16-38" tabindex="-1"></a>               <span class="at">minNparepro =</span> minNparepro, <span class="at">minNseas =</span> minNseas, </span>
+<span id="cb16-39"><a href="#cb16-39" tabindex="-1"></a>               <span class="at">minNlitter =</span> minNlitter, <span class="at">Nday =</span> Nday, </span>
+<span id="cb16-40"><a href="#cb16-40" tabindex="-1"></a>               <span class="at">minNgro =</span> minNgro, <span class="at">minNIgro =</span> minNIgro, <span class="at">MeasureType =</span> MeasureType,</span>
+<span id="cb16-41"><a href="#cb16-41" tabindex="-1"></a>               <span class="at">models_gro =</span> models_gro</span>
+<span id="cb16-42"><a href="#cb16-42" tabindex="-1"></a>               </span>
+<span id="cb16-43"><a href="#cb16-43" tabindex="-1"></a>)</span>
+<span id="cb16-44"><a href="#cb16-44" tabindex="-1"></a><span class="fu">save</span>(ipara, <span class="at">file =</span> <span class="fu">glue</span>(<span class="st">"{analysisDir}/finished_{taxaList[taxa]}{ipara}.Rdata"</span>))</span>
+<span id="cb16-45"><a href="#cb16-45" tabindex="-1"></a><span class="co"># }</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">

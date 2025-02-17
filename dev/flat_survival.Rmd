@@ -379,7 +379,8 @@ sexDat <- select_Longthreshold( sexData, minN = minNsur )
       bastatab <- bastalist%>%
         mutate(
           bdun = Max.Birth.Date-Min.Birth.Date,
-          aliveTime = (Depart.Date - Entry.Date) / 365.25)
+          aliveTime = (Depart.Date - Entry.Date) / 365.25)%>%
+        filter(Depart.Date > Entry.Date)
       
       if(lastdead){
         bastatab$Depart.Type[bastatab$aliveTime == max(bastatab$aliveTime)]="D"

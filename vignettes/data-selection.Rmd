@@ -102,6 +102,7 @@ This function extracts the data of the specified species that fill the condition
 * `minDate`: Earlier date to include data
 * `extractDate`: Date of data extraction
 * `Global` Whether only individuals belonging to global collections should be used.
+* `na_birthdate` Whether lines with unknown birth date should be kept.
 
 
 The output is a list including:

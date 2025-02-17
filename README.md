@@ -67,7 +67,7 @@ RdataDir <-  glue ("{analysisDir}Rdata/")
 # directory to save Json for the dev team:
 JsonDir <-  glue ("{analysisDir}Json/")
 # Plot directory:
-plotDir <- glue ("{ZIMSdir}Plot/")
+plotDir <- glue ("{ZIMSdir}Plot")
 
 setwd(analysisDir)
 library(ISRverse)
@@ -753,17 +753,20 @@ list_surv= readxl::read_xlsx(glue("{analysisDir}Liste_Survival.xlsx"), sheet =1)
   filter(Class == "Mammalia")%>%
   pull(Species)%>%unique()
 
-taxa <- 1
+taxa <- 3
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
-# Sections = c("sur")
+Sections = c("sur")
 # Species_list =list_surv
 Species_list =c("Panthera onca", "Loris_tardigradus", "Pteropus_livingstonii")
+Species_list =c("Tympanocryptis lineata")
 
 run_txprofile (taxa = taxaList[taxa], 
                ZIMSdir =ZIMSdirdata,AnalysisDir = analysisDir, PlotDir = plotDir,
                erase_previous = FALSE,Birth_Type = "Captive", 
-               sexCats = BySex[[taxaList[taxa]]], inparallel = FALSE,
+               # sexCats = BySex[[taxaList[taxa]]],
+               sexCats = "All",
+               inparallel = FALSE,
                Species_list = Species_list,  Sections = Sections,  
                extractDate = extractDate, minDate = minDate, 
                minAge = minAge, firstyear = firstyear,lastdead =lastdead,
@@ -778,7 +781,7 @@ run_txprofile (taxa = taxaList[taxa],
                models_sur = models_sur, shape = shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
+               parentProb_Dam = parentProb_Dam, parentProb_Sire = parentProb_Sire, minNrepro = minNrepro, 
                minNparepro = minNparepro, minNseas = minNseas, 
                minNlitter = minNlitter, Nday = Nday, 
                minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,

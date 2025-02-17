@@ -103,7 +103,6 @@ pkgdown::build_site(override = list(destination = "inst/site"))
 pkgdown::build_site()
  # build the tar.gz with vignettes to share with others
 devtools::build(vignettes = TRUE)
-
 ```
 
 # Share the package
@@ -117,8 +116,6 @@ pkgdown::build_home()
 pkgdown::build_articles()
 pkgdown:::build_reference()
 pkgdown::build_news()
-
-
 
 # Share your package and its documentation on GitHub
 # usethis::create_github_token()

@@ -12,6 +12,7 @@
 #' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
 #' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
+#' @param na_birthdate \code{logical} Whether lines with unknown birth date should be kept.
 #'
 #' @return The output of a list including:
 #' * a summary of the data used:
@@ -34,7 +35,7 @@
 #' out$summary
 #' out$data
 select_species <- function(speciesname, coresubset, collection, uncert_birth = 365,                                     Birth_Type = "Captive",
-                           minDate, extractDate, Global = TRUE) {
+                           minDate, extractDate, Global = TRUE, na_birthdate = FALSE) {
   
   minDate = lubridate::as_date(minDate)
   extractDate = lubridate::as_date(extractDate)
@@ -127,28 +128,34 @@ select_species <- function(speciesname, coresubset, collection, uncert_birth = 3
       }
       summar$Nbirthtype = nrow( data_sel)
       
+      if(!na_birthdate){
       # Subset by uncertainty in birth
-      data_sel1 <- data_sel %>%
-        tidyr::drop_na(BirthDate)%>%
+      data_sel <- data_sel %>%
+        tidyr::drop_na(BirthDate)}
+      
+      if(nrow(data_sel)>0){
+       data_sel1 <- data_sel %>%
         filter((Birth_Uncertainty <= uncert_birth)%>% replace_na(TRUE))
       summar$Nuncertbirth = nrow( data_sel1)
       
-      # Number alive by extraction date:
+          if(nrow(data_sel1)>0){
+         # Number alive by extraction date:
       summar$Nalive <- nrow(data_sel1%>%
                               filter(DepartDate == extractDate , 
                                      DepartType == "C"))
       
       # First record:
       summar$firstDate <- min(data_sel1$EntryDate)
-      
-      # Max Ages:
+ # Max Ages:
       data_age <- data_sel1%>%
         mutate(tempAges = as.numeric(DepartDate - BirthDate) / 365.25,
                tempAlive = as.numeric(DepartDate - EntryDate) / 365.25)
       
       
       summar$maxAgeraw <- max(c(data_age$tempAges,data_age$tempAlive))
-    } 
+        } 
+      }else{data_sel1 = tibble()}
+    }else{data_sel1 = tibble()}
     
   }else{data_sel1 = tibble()}
   

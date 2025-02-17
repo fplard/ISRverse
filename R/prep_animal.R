@@ -132,7 +132,6 @@ Prep_Animal <- function(Animal, minBirthDate = "1900-01-01",
   #check Chronology in dates
   Animal <- Animal%>%
     filter ((BirthDate <= FirstAcquisitionDate)%>% replace_na(TRUE),
-            (FirstAcquisitionDate <= EntryDate)%>% replace_na(TRUE),
             (EntryDate <= DepartDate)%>% replace_na(TRUE),
             (DepartDate <= DeathDate)%>% replace_na(TRUE),
             (DeathDate >= LastTXDate)%>% replace_na(TRUE),
