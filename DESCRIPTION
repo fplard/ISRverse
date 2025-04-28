@@ -12,7 +12,7 @@ Depends:
     R (>= 2.10)
 Imports: 
     assertthat,
-    BaSTA2.0,
+    BaSTA,
     bbmle,
     checkmate,
     corrplot,

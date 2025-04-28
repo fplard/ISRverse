@@ -310,7 +310,7 @@ Sur_ana <- function(Data, DeathInformation, Models = "GO", Shape = "simple",
                 #Run the different basta models
                 for (imod in 1:length(Models)) {
                   print(Models[imod])
-                  tempList[[Models[imod]]] <- BaSTA2.0::basta(
+                  tempList[[Models[imod]]] <- BaSTA::basta(
                     bastatab, dataType = "census", shape = Shape, minAge = MinAge, 
                     model = Models[imod], parallel = TRUE, 
                     ncpus = ncpus, nsim = nchain,
@@ -325,7 +325,7 @@ Sur_ana <- function(Data, DeathInformation, Models = "GO", Shape = "simple",
                   print("more iterations")
                   for (imod in 1:length(Models)) {
                     print(Models[imod])
-                    tempList[[Models[imod]]] <- BaSTA2.0::basta(
+                    tempList[[Models[imod]]] <- BaSTA::basta(
                       bastatab, dataType = "census", shape = Shape, MinAge = MinAge, 
                         model = Models[imod], parallel = TRUE,
                       ncpus = ncpus, nsim = nchain, 
