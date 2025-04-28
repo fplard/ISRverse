@@ -9,31 +9,31 @@ Rep_prepdata(
   collection,
   parent,
   moves,
-  minNrep = 50,
-  minNparep = 30,
+  MinNRepro = 50,
+  MinNPaRepro = 30,
   BirthType_parent = "Captive",
   BirthType_offspring = "Captive",
   Global = TRUE
 )
 }
 \arguments{
-\item{coresubset}{\code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: \emph{AnimalAnonID}, 'BirthType', \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{DepartDate}, \emph{BirthDate},\emph{SexType}, and \emph{FirstHoldingInstitution}}
+\item{coresubset}{\code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: \emph{AnimalAnonID}, 'BirthType', \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{DepartDate}, \emph{BirthDate},\emph{SexType}, and \emph{FirstHoldingInstitution}.}
 
-\item{collection}{\code{data frame} Collection data including at least the following columns: \emph{AnimalAnonID}, \emph{ScopeType}, \emph{ChangeDate}}
+\item{collection}{\code{data frame} Collection data including at least the following columns: \emph{AnimalAnonID}, \emph{ScopeType}, \emph{ChangeDate}.}
 
-\item{parent}{\code{data frame} Parent data including at least the following columns: \emph{ParentAnonID}, \emph{ParentCollectionScopeType}, \emph{OffspringCollectionScopeType}, \emph{AnimalAnonID}, \emph{ParentOriginType}, \emph{Probability}}
+\item{parent}{\code{data frame} Parent data including at least the following columns: \emph{ParentAnonID}, \emph{ParentCollectionScopeType}, \emph{OffspringCollectionScopeType}, \emph{AnimalAnonID}, \emph{ParentOriginType}, \emph{Probability}.}
 
-\item{moves}{\code{data frame} Moves data including at least the following columns: \emph{AnimalAnonID}, \emph{To}, \emph{Date}}
+\item{moves}{\code{data frame} Moves data including at least the following columns: \emph{AnimalAnonID}, \emph{To}, \emph{Date}.}
 
-\item{minNrep}{\code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50}
+\item{MinNRepro}{\code{numeric} Minimum number of birth records needed to run reproductive analyses.}
 
-\item{minNparep}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30}
+\item{MinNPaRepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses.}
 
-\item{BirthType_parent}{\code{character} Captive, Wild, or All. Default =  "Captive"}
+\item{BirthType_parent}{\code{character} Captive, Wild, or All.}
 
-\item{BirthType_offspring}{\code{character} Captive, Wild, or All. Default =  "Captive"}
+\item{BirthType_offspring}{\code{character} Captive, Wild, or All.}
 
-\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used. Default = #'}
+\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
 }
 \value{
 A list including
@@ -50,7 +50,7 @@ A list including
 \item NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
 \item NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
 \item a logical indicated if the reproductive analysis can be performed
-\item If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < minNrep and 2/Nparentshs < minNparep
+\item If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < MinNRepro and 2/Nparentshs < minNparep
 }
 }
 \description{

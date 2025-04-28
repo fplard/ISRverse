@@ -3,12 +3,12 @@
 test_that("Load_Zimsdata works", {
   
   file = system.file("sci_Animal.csv", package = 'ISRverse')
-  ZIMSdirtest = dirname(file)
-  Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
+  ZIMSDirtest = dirname(file)
+  Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
   
-  data <- Load_Zimsdata	(taxa = "Reptilia", 
-                         ZIMSdir = ZIMSdirtest, 
-                         species = list(Reptilia = "All"),
+  data <- Load_Zimsdata	(Taxa = "Reptilia", 
+                         ZIMSDir = ZIMSDirtest, 
+                         Species = list(Reptilia = "All"),
                          Animal = TRUE,
                          tables = 'Weight') 
   

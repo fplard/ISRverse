@@ -7,7 +7,7 @@
 #   dir.create(TempDir,showWarnings =FALSE)
 #   SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
 # Tx_devout(SpeciesTable, AnalysisDir, SaveDir =TempDir ,
-#                         taxaList = "Reptilia",
+#                         TaxaList = "Reptilia",
 #                         BySex = list(Reptilia = c("Male", "Female")) ,
 #                         Sections = c("sur", 'gro')
 # )

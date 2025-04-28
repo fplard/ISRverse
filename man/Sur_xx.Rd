@@ -2,47 +2,24 @@
 % Please edit documentation in R/sur_xx.R
 \name{Sur_xx}
 \alias{Sur_xx}
-\title{Maximum Longevity}
+\title{Survivorship quantile}
 \usage{
-Sur_xx(
-  theMat,
-  model = "GO",
-  shape = "bathtub",
-  ncpus = 1,
-  ageMax = 120,
-  dage = 0.01,
-  xx = 0.5,
-  minAge = 0
-)
+Sur_xx(Lx, xv, xx = 0.5)
 }
 \arguments{
-\item{theMat}{\code{array} including the posteriors estimates of the model parameter}
+\item{Lx}{\code{numeric} Survivorship}
 
-\item{model}{\code{character} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
+\item{xv}{\code{numeric} Age vector}
 
-\item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
-
-\item{ncpus}{\code{numeric} Number of core to use}
-
-\item{ageMax}{\code{numeric} Maximum age in years Default = 120}
-
-\item{dage}{\code{numeric} precision  for age Default = 0.01}
-
-\item{xx}{\code{numeric} \% of the population still alive}
-
-\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
+\item{xx}{\code{numeric} Proportion of the population still alive. Between 0 and 1.}
 }
 \value{
 a data frame including age, the mean and 95\% credible interval of the L90
 }
 \description{
-Estimate Lxx: age at which xx\% of the population is still alive
+Estimate age at which xx\% of the population is still alive
 }
 \examples{
-theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
-                               b1= rnorm(10, 0.1, 0.01)))
-
-
-out <- Sur_xx(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-              ageMax = 50, dage = 0.1, xx = 0.1)
+Lx = matrix(c(seq(1,0,by = -0.1), 1,seq(0.5,0,length.out = 10)),nrow =2)
+out <- Sur_xx(Lx,  xv = c(0:10), xx = 0.1)
 }

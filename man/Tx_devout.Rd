@@ -9,7 +9,7 @@ Tx_devout(
   AnalysisDir,
   SaveDir,
   namefile = "",
-  taxaList = "Mammalia",
+  TaxaList = "Mammalia",
   BySex = list(Mammalia = c("Male", "Female")),
   Sections = c("sur", "rep", "gro")
 )
@@ -23,7 +23,7 @@ Tx_devout(
 
 \item{namefile}{\code{character} Suffix to add to the name of files produced if needed. Default = ""}
 
-\item{taxaList}{\code{vector of characters} name of the taxa studied. Default= "Mammalia"}
+\item{TaxaList}{\code{vector of characters} name of the Taxa studied. Default= "Mammalia"}
 
 \item{BySex}{\code{List} indicating the sexes analyzed. Default= list(Mammalia= c("Male", "Female"))}
 
@@ -42,7 +42,7 @@ Produce summary tables and plots of the demographic analyses made for all specie
 # dir.create(SaveDir)
 # SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
 # Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
-#                         taxaList = "Reptilia",
+#                         TaxaList = "Reptilia",
 #                         BySex = list(Reptilia = c("Male", "Female")) ,
 #                         Sections = c("sur", 'gro')
 # )

@@ -5,46 +5,46 @@
 \title{Load Zims data}
 \usage{
 Load_Zimsdata(
-  taxa,
-  ZIMSdir,
-  species,
+  Taxa,
+  ZIMSDir,
+  Species,
   Animal = FALSE,
   tables = c(),
   silent = FALSE
 )
 }
 \arguments{
-\item{taxa}{\code{character} the name of the taxa studied}
+\item{Taxa}{\code{character} Names of the taxa.}
 
-\item{ZIMSdir}{\code{character} directory where to find data}
+\item{ZIMSDir}{\code{character} Directory where to find data.}
 
-\item{species}{\code{list of character} names of the species studied. A list per taxa name should be used, or Default = "All"}
+\item{Species}{\code{list of character} names of the species studied. A list per taxa should be used, or "All".}
 
-\item{Animal}{\code{logical} Whether the core animal data should be loaded Default = TRUE}
+\item{Animal}{\code{logical} Whether the core animal data should be loaded.}
 
 \item{tables}{\code{vector character} the type of data to load.}
 
-\item{silent}{\code{logical} Whether information of advancement should be printed}
+\item{silent}{\code{logical} Whether information of advancement should be printed.}
 }
 \value{
 A list of the data frames
 }
 \description{
-Check if selected data are already in the global environment. If not, it load them.
+Load ZIMS data frames of given taxa
 }
 \details{
-\code{type} can take the following values : "Contraception", "HealthStatus", "DeathInformation","Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", "Collection"
+\code{tables} can take the following values : "Contraception", "HealthStatus", "DeathInformation","Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", "Collection"
 }
 \examples{
 file = system.file("sci_Animal.csv", package = 'ISRverse')
-ZIMSdirtest = dirname(file)
-Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
+ZIMSDirtest = dirname(file)
+Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 
-data <- Load_Zimsdata	(taxa = "Reptilia", 
-                       ZIMSdir = ZIMSdirtest, 
-                       species = list(Reptilia = "All"),
+data <- Load_Zimsdata	(Taxa = "Reptilia", 
+                       ZIMSDir = ZIMSDirtest, 
+                       Species = list(Reptilia = "All"),
                        Animal = TRUE,
                        tables = 'Weight') 
 data$Reptilia$Animal
-unlink(glue::glue("{ZIMSdirtest}/Split_Reptilia"), recursive = FALSE)
+unlink(glue::glue("{ZIMSDirtest}/Split_Reptilia"), recursive = FALSE)
 }

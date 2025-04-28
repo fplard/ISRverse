@@ -101,7 +101,7 @@
 #         seas[[seasNames[ii]]]$Nbirth <-nrow(DATAseason)
 #         
 #         if(length(unique(DATAseason$FirstHoldingInstitution))>1){
-#           if (nrow(DATAseason) >= minNseas) {
+#           if (nrow(DATAseason) >= MinNSeas) {
 #             
 #             #Find 80% of the births
 #             L_80 = quantile(yday(DATAseason$BirthDate), c(0.1,0.9))
@@ -127,7 +127,7 @@
 #             
 #             
 #           }else{
-#             seas[[seasNames[ii]]]$error = "Nbirth <= minNseas"
+#             seas[[seasNames[ii]]]$error = "Nbirth <= MinNSeas"
 #             seas[[seasNames[ii]]]$Nerr = 4}
 #         }else{
 #           seas[[seasNames[ii]]]$error = "Data from 1 Institution"

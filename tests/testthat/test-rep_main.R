@@ -6,8 +6,8 @@ test_that("Rep_main works", {
   data(parent)
   data(moves)
   out <- Rep_main (coresubset = core, collection, parent, moves,  
-                   Repsect = c('agemat', 'litter'),
-                   minNrep = 1, minNparep = 1,
+                   RepSect = c('agemat', 'litter'),
+                   MinNRepro = 1, MinNPaRepro = 1,
                    BirthType_parent = "Captive", BirthType_offspring = "Captive", 
   ) 
   

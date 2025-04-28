@@ -6,14 +6,21 @@ test_that("Rep_prepdata works", {
   data(parent)
   data(moves)
   
-  Data <- Rep_prepdata (coresubset = core, collection, parent, moves,minNrep=1,minNparep=1,
-                        BirthType_parent = "Captive", BirthType_offspring = "Captive"
+  Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
+                        MinNRepro = 1, MinNPaRepro = 1,
+                        BirthType_parent = "Captive", 
+                        BirthType_offspring = "Captive"
   )
-  expect_named(Data, c("Adults", "Reprodata", "summary"))
-  expect_named(Data$summary, c("Nbirths", "Nadults", "NOffsp", "NParent", "NOffsp_age", "NParent_age", "analyzed", "Nerr", "err"))
+  expect_named(Data, c("Adults", "ReproData", "summary"))
+  expect_named(Data$summary, c("Nbirths", "Nadults", "NOffsp", "NParent",
+                               "NOffsp_age", "NParent_age", "analyzed", 
+                               "Nerr", "err"))
   expect_true(is.numeric(Data$summary[1:6]%>%as.numeric()))
   expect_named(Data$Adults, c(names(core), "ageAds", "n", "Age", "Date_age"))
-  expect_named(Data$Reprodata, c("AnimalAnonID", "ParentOriginType", "ParentAnonID",                
-                                 "ParentType", "OffspringCollectionScopeType", "ParentCollectionScopeType"   ,
-                                 "Parent_BirthDate", "Parent_BirthType", "Offspring_BirthDate", "SexType", "Parent_Age", "currentInst",                 "Offspring_Inst", "Probability"))
+  expect_named(Data$ReproData, c("AnimalAnonID", "ParentOriginType", "ParentAnonID",                
+                                 "ParentType", "OffspringCollectionScopeType",
+                                 "ParentCollectionScopeType",
+                                 "Parent_BirthDate", "Parent_BirthType", 
+                                 "Offspring_BirthDate", "SexType", "Parent_Age", 
+                                 "currentInst", "Offspring_Inst", "Probability"))
 })

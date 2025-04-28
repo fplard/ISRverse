@@ -14,17 +14,17 @@ Gro_lin_ind(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric}) and \emph{AnimalAnonID}}
+\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{Age}  (\code{numeric}) and \emph{AnimalAnonID}.}
 
-\item{perc_weight_min}{\code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20\%)}
+\item{perc_weight_min}{\code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default : 20\%.}
 
-\item{perc_weight_max}{\code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250\%). This value is used only after 1 year old}
+\item{perc_weight_max}{\code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250\%. This value is used only after 1 year old.}
 
 \item{IQR}{\code{numeric} influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.}
 
-\item{remove_ext}{\code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers. Default =  TRUE}
+\item{remove_ext}{\code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers.}
 
-\item{traj_ind}{\code{logical} Do you want to build linear model at the level of the individual trajectory  Default =  TRUE. If yes, each individual trajectory must have at least 5 measures.}
+\item{traj_ind}{\code{logical} Do you want to build linear model at the level of the individual trajectory. If TRUE, each individual trajectory must have at least 5 measures.}
 }
 \value{
 data frame; the data set including an additional column \emph{Keep2} of 0 (potential outliers) and 1

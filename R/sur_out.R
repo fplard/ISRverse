@@ -2,30 +2,44 @@
 
 #' Create output and plots for the survival analysis
 #' 
-#' Estimate remaning life expectancy, L90, L50 and age-specific survival.
+#'  estimates key metrics from the selected survival model and returns illustrating plots of the survival model.
 #'
-#' @param out \code{numeric} The output of the survival analysis
-#' @param XMAX \code{numeric} Maximum possible age. Default = 120
-#' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
-#' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
-#' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
-#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
-#' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
-#' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
-#' @param plotname \code{character} Name used to save the plot. Default = ""
-#' @param firstyear \code{logical} Whether the analysis was done only on first year. Default = FALSE
-#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
+#' @param out \code{list} output of the survival analysis,  returns from `Sur_ana()`
+#' @param MinAge \code{numeric} Ages at which the survival analysis should start, in years.  see ?basta for more information.
+#' @param MinMLE \code{numeric} Value used for checks. Minimum survivorship allowed at mean life expectancy. Between 0 and 1.
+#' @param MaxLE \code{numeric} Value used for checks. Maximum remaining life expectancy at last observed age. In years.
+#' @param MinLx  \code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.
+#' @param MaxAge \code{numeric} Maximum possible age in years. Only used for model predictions. This argument is not used to select data.
+#' @param AgeMat \code{numeric} Age at sexual maturity, in years. If given, key survival metrics are calculated both from birth and from age at sexual maturity.
+#' @param ncpus  \code{numeric} Number of computer core to use. 
+#' @param PlotDir \code{character} Directory to save the plots. Default: no plot is saved
+#' @param PlotName \code{character} Name used to save the plots.
 #' 
-#' @return The output list of the survival analysis including in addition:
-#' * a summary of the data used:
-##'- A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
-#'* the estimated remaining life expectancy per age
-#'* the age at which 90% of the population died
-#'* the age at which 50% of the population died
-#'* the estimated probability to live one year more
-#'* the estimated probability to live five years more
-#' If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
-#'
+#' @return The output list of the survival analysis including, in addition:
+#' * Key survival metrics including Mean life expectancy (MLE & Ex), median life
+#' expectancy (L50) and  age at which 90% of the individual died (Longevity = L90)
+#' estimated from raw data, the Kaplan Meier estimator, and the survival model. Estimates
+#' include ages from birth or from age at sexual maturity (if given). First year
+#' survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of
+#' variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier
+#' estimator and the survival model.
+#' * Checks of the fit for the selected survival model:
+#'     * Gof_KM_coeff1: Percentage of age points where the KM estimator is outside of the
+#'     95% CI of the survivorship estimated from the survival model.
+#'     * Gof_KM_coeff2: Maximum sum of same sign residuals between KM estimator and
+#'     survival model
+#'     * Gof_martingale: using Martingale residuals
+#'     * LxatMLE: Estimated survivorship at mean life expectancy
+#'     * LEmaxOage: Life expectancy at max observed age
+#'     * KMMinLx: Minimum survivorship reached by the Kaplan-Meier estimator
+#' * The remaining life expectancy per age (relex_from0)
+#' * The probability to live 5 years more (Sur5)
+#' * Age-specific survival  (Sur1)
+#' * Monthly survival  (Sur1m)
+#'     * One showing the convergence of chains, together with estimated survivorship and
+#'     survival and mortality rates.
+#'     * The second showing remaining life-expectancy, and the age-specific probabilities
+#'     to live 5 years and 1 year more.
 #' @export
 #'
 #' @importFrom grDevices pdf dev.off
@@ -34,135 +48,198 @@
 #' @examples
 #' data(core)
 #' data(deathinformation)
-#' out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+#' out <- Sur_ana(core,  DeathInformation = deathinformation, 
+#'                          Models = "GO", Shape = "simple",
 #'                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 #'
-#' out <- Sur_out(out, shape = "simple", ncpus = 3)
-Sur_out <- function(out, shape= "simple", 
-                    XMAX=120,ncpus = 2, minAge = 0,
-                    PlotDir = NULL, plotname = '',
-                    Min_MLE = 0.1, MaxLE = 2,
-                    minlx = 0.1,
-                    firstyear = FALSE) {
-  
-  assert_that(is.numeric(Min_MLE))
+#' out <- Sur_out(out, ncpus = 3)
+Sur_out <- function(out,
+                    MinAge = 0, MinMLE = 0.1, MaxLE = 2, MinLx = 0.1,
+                    MaxAge = 120, AgeMat = NA,
+                    ncpus = 2, 
+                    PlotDir = NULL, PlotName = ''
+) {
+  # Check correct format for inputs -----------------------------------------------------------------------
+  assert_that(out %has_name% c("summary", "metrics", "bastaRes", "DICmods"))
+  assert_that(is.numeric(MinAge))
+  assert_that(is.numeric(MaxAge))
+  assert_that(MinAge < MaxAge)
+  assert_that(is.numeric(MinLx))
+  assert_that(MinLx >= 0 & MinLx <= 1)
+  assert_that(is.numeric(MinMLE))
+  assert_that(MinMLE >= 0 & MinMLE <= 1)
   assert_that(is.numeric(MaxLE))
-    assert_that(is.numeric(minlx))
-  assert_that(minlx > 0)
-  assert_that(minlx <1)
-assert_that(is.numeric(ncpus))
+  if(!is.na(AgeMat)) {
+    assert_that(is.numeric(AgeMat))
+  }
+  assert_that(is.numeric(ncpus))
   assert_that(ncpus > 0)
-  assert_that(is.character(plotname))
-  assert_that(is.character(shape))
-  assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
+  assert_that(is.character(PlotName))
   if(!is.null(PlotDir)){
     checkmate::assert_directory_exists(PlotDir)
   }
   
-  # Find age at S(x) = 0.005:
-  Sx <- out$bastaRes$surv$nocov[1,]
-  idxMax <- out$bastaRes$x[which(Sx < 0.005)][1]
-  if (is.na(idxMax)) {
-    xMax <- min(max(out$bastaRes$x),XMAX)
-  } else {xMax = idxMax}
-    paramax = length(out$bastaRes$names)
-    if("lambda" %in% out$bastaRes$names){paramax = paramax-1}
- 
-  if(!firstyear){
-    
-     
-    # Remaining life expectancy:
-    out$relex <- Sur_relex(theMat = out$bastaRes$params[,1:paramax], 
-                           model = out$bastaRes$modelSpecs["model"], 
-                           shape = shape, ncpus = ncpus, 
-                           xMax = xMax, dx = 0.01, minAge = minAge)
-    
-    # L90 : Age at which 90% of the individuals died
-    out$L90 <- Sur_xx(theMat = out$bastaRes$params[,1:paramax],  
-                      model = out$bastaRes$modelSpecs["model"], 
-                      shape = shape, ncpus = ncpus, xx = 0.1,
-                      ageMax = xMax, dage = 0.01, minAge = minAge)
-    # L50 : Age at which 50% of the individuals died
-    out$L50 <- Sur_xx(theMat = out$bastaRes$params[,1:paramax],  
-                      model = out$bastaRes$modelSpecs["model"], 
-                      shape = shape, ncpus = ncpus, xx = 0.5,
-                      ageMax = xMax, dage = 0.01, minAge = minAge)
-    # Proba to live 5 year more:
-    if(xMax >=5){
-      out$Sur5 <- Sur_age(theMat = out$bastaRes$params[,1:paramax], 
-                          model =out$bastaRes$modelSpecs["model"], 
-                          shape = shape, ncpus = ncpus,  minAge = minAge,
-                          ageMax = xMax,  dage = 0.01, Nyear = 5)
-    }else{out$Sur5 = "Error : Age max lower than 5 years"}
-   # Proba to live 1 year more:
-  out$Sur1 <- Sur_age(theMat = out$bastaRes$params[,1:paramax],  
-                      model = out$bastaRes$modelSpecs["model"], 
-                      shape = shape, ncpus = ncpus, minAge = minAge,
-                      ageMax = xMax, dage = 0.01, Nyear = 1)
+  # Initialize outpus ---------------------------------------------------------
+  out$check = list(Gof_KM_coeff1= NA, Gof_KM_coeff2= NA,
+                   Gof_martingale = NA, LxatMLE = NA,
+                   LEmaxOage = NA, KMMinLx = NA
+  )
   
-  }else{
+  #Check if model is gompertz report b -----------------------------------------
+  out$metrics = rbind(out$metrics,
+                      tibble(Data = 'Model',
+                             firstage = "birth",
+                             param = "b_Gomp",
+                             stat = c("mean", "sd", "lower", "upper"),
+                             value = ifelse(out$bastaRes$modelSpecs[["model"]] =="GO",
+                                            out$bastaRes$coefficient[2,c(1:4)],NA)
+                      ))
+  
+  # Define maximum predicted age: age at L(x) = 0.005---------------------------
+  Lx_mean <- out$bastaRes$surv$nocov[1,]
+  idMaxAge <- out$bastaRes$x[which(Lx_mean < 0.005)][1]
+  if (is.na(idMaxAge)) {
+    MaxAge <- min(max(out$bastaRes$x), MaxAge-MinAge)
+  } else {MaxAge = idMaxAge}
+  paramax = length(out$bastaRes$names)
+  if("lambda" %in% out$bastaRes$names){paramax = paramax-1}
+  
+  
+  # Estimate posterior of Lx from the best survival model-----------------------
+  # run parallel estimation:
+  dx = 0.01
+  xv = seq(MinAge, MaxAge, by = dx)
+  sfInit(parallel = TRUE, cpus = ncpus)
+  Lxparal <- sfClusterApplyLB(1:ncpus, Sur_Lx, theMat =  out$bastaRes$params[,1:paramax],
+                              model =  out$bastaRes$modelSpecs[["model"]], Shape =out$bastaRes$modelSpecs[["shape"]],  
+                              iseq = floor(seq(0, nrow(out$bastaRes$params), length = ncpus + 1)),
+                              xv = xv-MinAge)
+  sfStop()
+  # Gather estimates:
+  for (jj in 1:ncpus) {
+    if (jj == 1) {
+      Lx <- Lxparal[[jj]]
+    } else {
+      Lx <- rbind( Lx, Lxparal[[jj]])
+    }
+  }
+  
+  # Estilmate key survival metrics from best model--------------------------------
+  CVx = apply(Lx,1, CalcCVx, x = xv, dx = rep(dx,length(xv)))
+  Hx = apply(Lx,1,CalcHx, dx =dx)
+  out$metrics = rbind(out$metrics,
+                      tibble(Data = 'Model',
+                             firstage = "birth",
+                             param = rep(c("MLE", "H", "Epx", "G", "Hx", "CV"),each = 4),
+                             stat = rep(c("mean", "sd", "lower", "upper"),6),
+                             value = c(
+                               out$bastaRes$PS$nocov$PS[1,]%>%as.numeric(),
+                               out$bastaRes$PS$nocov$PS[2,]%>%as.numeric(),
+                               out$bastaRes$PS$nocov$PS[3,]%>%as.numeric(),
+                               out$bastaRes$PS$nocov$PS[4,]%>%as.numeric(), 
+                               mean(CVx), sd(CVx), quantile(CVx, 0.025), quantile(CVx, 0.975) ,
+                               mean(Hx), sd(Hx), quantile(Hx, 0.025), quantile(Hx, 0.975) 
+                             )))
+  # Remaining life expectancy:
+  out$relex_from0<- Sur_relex(Lx, xv = xv, dx = dx)
+  # Proba to live 5 year more:
+  if(MaxAge >=5){
+    out$Sur5 <- Sur_age(Lx, xv = xv, Nyear = 5)
+  }else{out$Sur5 = "Error : Age max lower than 5 years"}
   # Proba to live 1 year more:
-  out$Sur1m <- Sur_age(theMat = out$bastaRes$params[,1:paramax],  
-                      model = out$bastaRes$modelSpecs["model"], 
-                      shape = shape, ncpus = ncpus, minAge = 0,
-                      ageMax = 1, dage = 1/12, Nyear = 1/12)
-  }
+  out$Sur1 <- Sur_age(Lx, xv = xv, Nyear = 1)
+  # Proba to live 1 month more:
+  out$Sur1m <- Sur_age(Lx, xv = xv, Nyear = 1/12)
   
-  # Goodness of fit tests
-    
+  out$metrics = rbind(out$metrics,
+                      tibble(Data = 'Model',
+                             firstage = "birth",
+                             param = rep(c("remex0", "L50", "L90", "S1month", "S1year"),each =3),
+                             stat = rep(c("mean", "lower", "upper"), 5),
+                             value = c(
+                               out$relex_from0[1, 2:4]%>%as.numeric(),
+                               Sur_xx(Lx, xx = 0.5, xv = xv)%>%as.numeric(),
+                               Sur_xx(Lx, xx = 0.1, xv = xv)%>%as.numeric(),
+                               out$Sur1m[1, 2:4]%>%as.numeric(),
+                               out$Sur1[1, 2:4]%>%as.numeric()
+                             )))
+  #from AgeMat
+  if(!is.na(AgeMat)){
+    if(MinAge <= AgeMat){
+      xAM = min(which(xv>AgeMat))
+      xvAM= xv[xAM:length(xv)]
+      LxAM = Lx[,xAM:length(xv)]
+      LxAM = LxAM /matrix(rep(LxAM[,1],each = ncol(LxAM)), byrow = T, nrow = nrow(LxAM))
       
-  if(!firstyear){
-      xmaxobs = max(out$bastaRes$lifeTable$noCov$Mean$Ages)
-  ##Test if the life expectancy at max age observed is below MaxLE years old
-  idxmax = ifelse(max(out$relex$Age) > xmaxobs, which(out$relex$Age==xmaxobs), length(out$relex$Age))
-  if(out$relex$RemLExp[idxmax]>= MaxLE){
-    out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=10
+      CVx = apply(LxAM,1, CalcCVx, x = xvAM, dx = rep(dx,length(xvAM)))
+      Hx = apply(LxAM,1, CalcHx, dx = dx)
+      Epx = -log(Hx)
+      Gx = apply(LxAM,1, CalcGx, dx = dx)
+      Ex = apply(LxAM,1, CalcEx, dx = dx)
+      
+      out$metrics = rbind(out$metrics,
+                          tibble(Data = 'Model',
+                                 firstage = "birth",
+                                 param = rep(c("MLE", "H", "Epx", "G", "CV"),each =4),
+                                 stat = rep(c("mean", "sd", "lower", "upper"), 5),
+                                 value = c(
+                                   mean(Ex), sd(Ex), quantile(Ex, 0.025), quantile(Ex, 0.975),
+                                   mean(Hx), sd(Hx), quantile(Hx, 0.025), quantile(Hx, 0.975),
+                                   mean(Epx), sd(Epx), quantile(Epx, 0.025), quantile(Epx, 0.975),
+                                   mean(Gx), sd(Gx), quantile(Gx, 0.025), quantile(Gx, 0.975),
+                                   mean(CVx), sd(CVx), quantile(CVx, 0.025), quantile(CVx, 0.975) )))
+      # Remaining life expectancy:
+      out$relex_fromAM <- Sur_relex(LxAM, xv = xvAM, dx = dx)
+      out$metrics = rbind(out$metrics,
+                          tibble(Data = 'Model',
+                                 firstage = "AgeMat",
+                                 param = rep(c("remex0", "L50", "L90"),each = 3),
+                                 stat = rep(c("mean", "lower", "upper"),3),
+                                 value = c(
+                                   out$relex_fromAM[1, 2:4]%>%as.numeric(),
+                                   Sur_xx(Lx, xx = 0.5, xv = xv)%>%as.numeric(),
+                                   Sur_xx(Lx, xx = 0.1, xv = xv)%>%as.numeric()
+                                 )))
+    }
   }
-    ##Test if the survivorship at mean life expectancy is higher than Min_MLE
-    lx <-out$bastaRes$lifeTable$noCov$Mean$lx
-    #age for mle
-    dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
-    
-    if(lx[which(dif == min(dif))]< Min_MLE){
-       out$summary$error = "lx[MLE] < Min_MLE"
-      out$summary$Nerr = 11
-      # out$bastaRes <- list()   
-    }
-    
-     if( out$summary$lxMin<minlx){
-       out$summary$error = "lxmin > minlx"
-      out$summary$Nerr = 12
-      # out$bastaRes <- list()   
-    }
-  }  
- 
-     ##Test if residuals of predicted lx vs. kaplan meier estimator has a trend
-  # id = which(out$bastaRes$x %in% seq(0,round(XMAX)),0.5)
-  # m = min(length(id),(round(XMAX)+1), length(out$bastaRes$lifeTable$noCov$Mean$lx))
-  # if(length(id)>m){ id = which(out$bastaRes$x %in% out$bastaRes$lifeTable$noCov$Mean$Ages)}
-  # res = out$bastaRes$surv$nocov[1,id] - out$bastaRes$lifeTable$noCov$Mean$lx[1:m]
-  # b = summary(lm(res~c(1:m)))
-  # out$summary$Gof_KM = b$coefficients[2,4] > 0.01
-  # out$summary$Gof_KM_coeff =b$coefficients[2,1]
   
-  #test if kaplan-meier estimator is within the estimated 95CI
+  # Checks for selected model --------------------------------------------------
+  #Check if the life expectancy at max observed age is below MaxLE years old
+  MaxAgeobs = max(out$bastaRes$lifeTable$noCov$Mean$Ages)
+  idMaxAge = ifelse(max(out$relex_from0$Age) > MaxAgeobs, which(out$relex_from0$Age==MaxAgeobs), length(out$relex_from0$Age))
+  out$check$LEmaxOage = out$relex_from0$RemLExp[idMaxAge]
+  if(out$relex_from0$RemLExp[idMaxAge]>= MaxLE){
+    out$summary$error = "Min(Life_exp) >= MaxLE"
+    out$summary$Nerr=11
+  }
+  
+  #Check  if the survivorship at mean life expectancy is higher than MinMLE
+  lx <-out$bastaRes$lifeTable$noCov$Mean$lx
+  dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
+  out$check$LxatMLE = lx[which(dif == min(dif))]
+  if(lx[which(dif == min(dif))]< MinMLE){
+    out$summary$error = "lx[MLE] < MinMLE"
+    out$summary$Nerr = 12
+  }
+  out$check$KMMinLx = out$summary$lxMin
+  if( out$summary$lxMin >= MinLx){
+    out$summary$error = "lxmin > MinLx"
+    out$summary$Nerr = 13
+  }
+  
+  
+  #Check if kaplan-meier estimator is within the 95% CI of the estimated Lx from the selected model
   Lx= tibble(Meann = out$bastaRes$surv$nocov[1,],
              Lower = out$bastaRes$surv$nocov[2,],
              Upper = out$bastaRes$surv$nocov[3,],
-             Ages =out$bastaRes$x )%>%
-    filter(Ages >=minAge)
-  #correct estimates when minAge >0
+             Ages =out$bastaRes$x )
+  #correct estimates when MinAge >0
   Lx$Meann=Lx$Meann/Lx$Meann[1]
   Lx$Lower=Lx$Lower/Lx$Lower[1]
   Lx$Upper=Lx$Upper/Lx$Upper[1]
   
   LT = out$bastaRes$lifeTable$noCov$ple%>%
     mutate(Ages = round(Ages/0.05)*0.05)%>%
-    filter(Ages >=minAge)
-#correct estimates when minAge >0
-  LT$ple   =  LT$ple/ LT$ple[1]
-    LT = LT%>%
     group_by(Ages)%>%
     summarise(ple = max(ple))%>%
     left_join(Lx)%>%
@@ -171,74 +248,51 @@ assert_that(is.numeric(ncpus))
            residual = Meann - ple,
            sign = ifelse(residual <0, -1,1),
            diff = 0)
-LT$diff[2:nrow(LT)] =ifelse(LT$sign[1:(nrow(LT)-1)] == LT$sign[2:nrow(LT)], 0,1)
-LT$diff = cumsum(LT$diff)
-
-v <- LT%>%
-  group_by(diff)%>%
-  summarise(resi = abs(sum (residual)))
-  
+  LT$diff[2:nrow(LT)] =ifelse(LT$sign[1:(nrow(LT)-1)] == LT$sign[2:nrow(LT)], 0,1)
+  LT$diff = cumsum(LT$diff)
+  v <- LT%>%
+    group_by(diff)%>%
+    summarise(resi = abs(sum (residual)))
   check = length(which(LT$check))/nrow(LT)
-  out$summary$Gof_KM_coeff1 =check
-  out$summary$Gof_KM_coeff2 =max(v$resi)
-
- if(max(v$resi)>=2 & out$summary$Nerr==0 ){
+  out$check$Gof_KM_coeff1 =check
+  out$check$Gof_KM_coeff2 =max(v$resi)
+  if(max(v$resi)>=2 & out$summary$Nerr==0 ){
     out$summary$error = "Kaplan-Meier does not fit:2"
-      out$summary$Nerr = 13
-    }
+    out$summary$Nerr = 14
+  }
   if(check < 0.8){
-   out$summary$error = "Kaplan-Meier does not fit"
-      out$summary$Nerr = 9
-    }
-
-
-
- 
-  #Plots
+    out$summary$error = "Kaplan-Meier does not fit"
+    out$summary$Nerr = 10
+  }
+  
+  
+  # Plots------------------------------------------------------------------------
   if(!is.null(PlotDir)){
-       pdf(file = paste0(PlotDir,"/",out$summary$Nerr,'_', plotname, "_surcheck.pdf", sep=""), width = 6, height = 6)
-   if(firstyear){
-    plot(out$bastaRes, main = plotname)
-    plot(out$bastaRes, plot.type = 'demorates', xlim = c(0,1))
-    plot(out$bastaRes, plot.type = 'gof', xlim = c(0,1))
-    dev.off()
-    
-     pdf(file = paste0(PlotDir,"/", out$summary$Nerr,'_', plotname, "_surplot.pdf", sep=""), width = 6, height = 6)
-           out$Sur1m$Agem=round(out$Sur1m$Age*12,2)
-      plot(out$Sur1m$Sur ~  out$Sur1m$Agem, 
-           xlab = "Age (month)", ylab = 'Month-specific survival', type = "l")
-      lines(out$Sur1m$Lower ~  out$Sur1m$Agem, lty = 2)
-      lines(out$Sur1m$Upper ~  out$Sur1m$Agem, lty = 2)
-         dev.off()
-
-    }else{
-       plot(out$bastaRes, main = plotname)
+    pdf(file = paste0(PlotDir,"/",out$summary$Nerr,'_', PlotName, "_surcheck.pdf", sep=""), width = 6, height = 6)
+    plot(out$bastaRes, main = PlotName)
     plot(out$bastaRes, plot.type = 'demorates')
     plot(out$bastaRes, plot.type = 'gof')
     dev.off()
     
-      pdf(file = paste0(PlotDir,"/", out$summary$Nerr,'_', plotname, "_surplot.pdf", sep=""), width = 6, height = 6)
-      plot(out$relex$RemLExp~  out$relex$Age, main = plotname, xlab = "Age (year)", 
-           ylab = "Remaining life expectancy", type = "l")
-      lines(out$relex$Lower ~  out$relex$Age, lty = 2)
-      lines(out$relex$Upper ~  out$relex$Age, lty = 2)
-      
-      plot(out$Sur1$Sur ~  out$Sur1$Age, 
-           xlab = "Age (year)", ylab = 'Age-specific survival', type = "l")
-      lines(out$Sur1$Lower ~  out$Sur1$Age, lty = 2)
-      lines(out$Sur1$Upper ~  out$Sur1$Age, lty = 2)
-      
-      if(xMax >=5){
-        plot(out$Sur5$Sur ~  out$Sur5$Age, 
-             xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
-        lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
-        lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
-      }
-      dev.off()
-    }
+    pdf(file = paste0(PlotDir,"/", out$summary$Nerr,'_', PlotName, "_surplot.pdf", sep=""), width = 6, height = 6)
+    plot(out$relex_from0$RemLExp~  out$relex_from0$Age, main = PlotName, xlab = "Age (year)", 
+         ylab = "Remaining life expectancy", type = "l")
+    lines(out$relex_from0$Lower ~  out$relex_from0$Age, lty = 2)
+    lines(out$relex_from0$Upper ~  out$relex_from0$Age, lty = 2)
     
+    plot(out$Sur1$Sur ~  out$Sur1$Age, 
+         xlab = "Age (year)", ylab = 'Age-specific survival', type = "l")
+    lines(out$Sur1$Lower ~  out$Sur1$Age, lty = 2)
+    lines(out$Sur1$Upper ~  out$Sur1$Age, lty = 2)
+    
+    if(MaxAge >=5){
+      plot(out$Sur5$Sur ~  out$Sur5$Age, 
+           xlab = "Age (year)", ylab = 'p(survive 5 more years)', type = "l")
+      lines(out$Sur5$Lower ~  out$Sur5$Age, lty = 2)
+      lines(out$Sur5$Upper ~  out$Sur5$Age, lty = 2)
+    }
+    dev.off()
   }
-  
   
   return(out)
 }

@@ -5,9 +5,9 @@
 #' 
 #'Plot predicted percentiles from a growth model with data points
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID* 
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID*.
 #' @param data_percent \code{data.frame} including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
-#' @param title \code{character} Title of the plot
+#' @param title \code{character} Title of the plot.
 #' 
 #' @import dplyr assertthat 
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle geom_ribbon aes

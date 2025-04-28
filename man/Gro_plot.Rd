@@ -7,11 +7,11 @@
 Gro_plot(data, data_percent, title = "")
 }
 \arguments{
-\item{data}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{AnimalAnonID}}
+\item{data}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{AnimalAnonID}.}
 
 \item{data_percent}{\code{data.frame} including the predicted percentile from the growth model and  the numeric columns \emph{Age}, \emph{percentiles50} and other percentiles to plot.}
 
-\item{title}{\code{character} Title of the plot}
+\item{title}{\code{character} Title of the plot.}
 }
 \value{
 Plot

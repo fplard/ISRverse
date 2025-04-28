@@ -23,7 +23,7 @@ pkgload::load_all(export_all = FALSE)
 * `collection`data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
 * `parent` data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
 * `move` data including at least the following columns: *AnimalAnonID*, *To*, *Date*
-* `Repsect` names of the reproductive analyses to run: "agemat", "litter" and/or ...
+* `RepSect` names of the reproductive analyses to run: "agemat", "litter" and/or ...
 
 
 It return a list per sex category including:
@@ -37,24 +37,22 @@ It return a list per sex category including:
 #' 
 #' Run the age at sexual maturity analysis, the litter size analysis
 #' 
-#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*
-#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
-#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
-#' @param move \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*
-#' @param Repsect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
-#' @param BirthType_parent \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param BirthType_offspring \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = #'
-#' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
-#' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
-#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
-#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
-#' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
-#' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
-#' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
-#' @param minNseas \code{numeric} XXXXXXXXXXX
-#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 2
+#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*.
+#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*.
+#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*.
+#' @param move \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*.
+#' @param RepSect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
+#' @param BirthType_parent \code{character} Captive, Wild, or All.
+#' @param BirthType_offspring \code{character} Captive, Wild, or All.
+#' @param NDay \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread.
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. 
+#' @param MinNRepro \code{numeric} Minimum number of birth records needed to run reproductive analyses.
+#' @param MinNPaRepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses.
+#' @param ParentPercDam \code{numeric} Minimum percentage of parentage probability to include for Dam.
+#' @param ParentPercSire \code{numeric} Minimum percentage of parentage probability to include for Sire.
+#' @param MinNLitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.
+#' @param MinNSeas \code{numeric} XXXXXXXXXXX
+#' @param MinInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis.
 #'
 #' @return  The output of a list including:
 #' * a summary of the data used:
@@ -66,7 +64,7 @@ It return a list per sex category including:
 #'  - NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
 #'  - NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
 #'  - a logical indicated if any reproductive analysis can be performed
-#'  -  If no analyses can be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < minNrep, 2/Nparents < minNparep, and 3/Data from N Institution
+#'  -  If no analyses can be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < MinNRepro, 2/Nparents < minNparep, and 3/Data from N Institution
 #'  - a logical indicated if the age at maturity analysis can be performed
 #'  - a logical indicated if the litter size analysis can be performed
 #'* The output of each analysis. See the function Rep_agemat, Rep_littersize, Rep_fertility, and and Rep_seasonality for more details.
@@ -75,19 +73,19 @@ It return a list per sex category including:
 #'  
 #' @export
 #' @examples
-Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat', 'litter'),
+Rep_main <- function( coresubset, collection, parent, move,  RepSect = c('agemat', 'litter'),
                       BirthType_parent = "Captive", BirthType_offspring = "Captive", 
-                      Global = TRUE, minInstitution = 2, 
-                      minNrepro = 100,minNparepro = 30,
-                      parentProb_Sire = 80,parentProb_Dam = 80, minNlitter = 20, Nday = 7,
-                      minNseas = 50) {
-  
+                      Global = TRUE, MinInstitution = 2, 
+                      MinNRepro = 100,MinNPaRepro = 30,
+                      ParentPercSire = 80,ParentPercDam = 80, MinNLitter = 20, NDay = 7,
+                      MinNSeas = 50) {
+  # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(coresubset))
   assert_that(is.data.frame(collection))
   assert_that(is.data.frame(parent))
   assert_that(is.data.frame(moves))
-  assert_that(is.double(minInstitution))
-  assert_that(is.numeric(Nday))
+  assert_that(is.double(MinInstitution))
+  assert_that(is.numeric(NDay))
   
   assert_that(coresubset %has_name% c("AnimalAnonID", 'BirthType', "MaxBirthDate", 
                                       "MinBirthDate", "DepartDate", "BirthDate",
@@ -103,56 +101,57 @@ Rep_main <- function( coresubset, collection, parent, move,  Repsect = c('agemat
   assert_that(is.character( BirthType_offspring))
   assert_that( BirthType_offspring %in% c("Captive", "Wild", "All"))
   assert_that(is.logical(Global))
-  assert_that(all(Repsect %in% c("agemat", "litter")))
+  assert_that(all(RepSect %in% c("agemat", "litter")))
   
-  assert_that(is.numeric(parentProb_Dam))
-  assert_that(parentProb_Dam > 0)
- assert_that(is.numeric(parentProb_Sire))
-  assert_that(parentProb_Sire > 0)
-  assert_that(is.numeric(minNrepro))
-  assert_that(minNrepro > 0)
-  assert_that(is.numeric(minNparepro))
-  assert_that(minNparepro > 0)
-  assert_that(is.numeric(minNlitter))
-  assert_that(minNlitter > 0)
-  assert_that(is.numeric( minNseas))
-  assert_that( minNseas > 0)
-  assert_that(is.numeric( Nday))
-  assert_that( Nday >= 0)
+  assert_that(is.numeric(ParentPercDam))
+  assert_that(ParentPercDam > 0)
+  assert_that(is.numeric(ParentPercSire))
+  assert_that(ParentPercSire > 0)
+  assert_that(is.numeric(MinNRepro))
+  assert_that(MinNRepro > 0)
+  assert_that(is.numeric(MinNPaRepro))
+  assert_that(MinNPaRepro > 0)
+  assert_that(is.numeric(MinNLitter))
+  assert_that(MinNLitter > 0)
+  assert_that(is.numeric( MinNSeas))
+  assert_that( MinNSeas > 0)
+  assert_that(is.numeric( NDay))
+  assert_that( NDay >= 0)
   out <- list()
   
-  #prepare Reproduction data
+  # Prepare Reproduction data ----------------------------------------------------
   Datarep <- Rep_prepdata(coresubset = coresubset, 
                           collection, parent,move,
                           BirthType_parent = BirthType_parent, 
                           BirthType_offspring = BirthType_offspring,
-                          minNrep=minNrepro, minNparep =minNparepro, 
+                          MinNRepro=MinNRepro, MinNPaRepro =MinNPaRepro, 
                           Global = Global)
   out[["summary"]] <- Datarep$summary
   out$summary$litt_analyzed =  out$summary$amat_analyzed = FALSE
-  if(nrow(Datarep$Reprodata)>0){
-    if(length(unique(Datarep$Reprodata$currentInst))>=minInstitution){
+  if(nrow(Datarep$ReproData)>0){
+    if(length(unique(Datarep$ReproData$currentInst))>=MinInstitution){
       #remove curretn inst to avoid duplicated lines
-      subfert <- Datarep$Reprodata%>%
+      subfert <- Datarep$ReproData%>%
         select(-currentInst)%>%
         distinct() 
       
-      
-      if("agemat" %in% Repsect){
+      # Run Age at sexual maturity Analysis -------------------------------------------  
+      if("agemat" %in% RepSect){
         #Calculate reproductive age statistics
         out[["agemat"]] <- Rep_agemat(subfert)
         out$summary$amat_analyzed = TRUE
       }
-      if("litter" %in% Repsect){
+      # Run Litter Size Analysis -------------------------------------------  
+      if("litter" %in% RepSect){
         #Calculate reproductive age statistics
         out[["litter"]] <- Rep_littersize(subfert, 
-                                          Nday = Nday, parentProb_Dam = parentProb_Dam,  
-                                          parentProb_Sire = parentProb_Sire,  
-                                          minNlitter =minNlitter)
+                                          NDay = NDay, ParentPercDam = ParentPercDam,  
+                                          ParentPercSire = ParentPercSire,  
+                                          MinNLitter =MinNLitter)
         out$summary$litt_analyzed = out$litter$summary$analyzed
       }
     }else{
-      outsummary$error = glue::glue("Data from {length(unique(Datarep$Reprodata$currentInst)} Institution(s)")
+      outsummary$error = glue::glue("Data from {length(unique(Datarep$ReproData$currentInst)} Institution(s)")
       outsummary$Nerr = 3
       outsummary$analyzed = FALSE
     }
@@ -168,8 +167,8 @@ data(collection)
 data(parent)
 data(moves)
 out <- Rep_main (coresubset = core, collection, parent, moves,  
-                 Repsect = c('agemat', 'litter'),
-                 minNrep = 1, minNparep = 1,
+                 RepSect = c('agemat', 'litter'),
+                 MinNRepro = 1, MinNPaRepro = 1,
                  BirthType_parent = "Captive", BirthType_offspring = "Captive", 
 ) 
 
@@ -183,8 +182,8 @@ test_that("Rep_main works", {
   data(parent)
   data(moves)
   out <- Rep_main (coresubset = core, collection, parent, moves,  
-                   Repsect = c('agemat', 'litter'),
-                   minNrep = 1, minNparep = 1,
+                   RepSect = c('agemat', 'litter'),
+                   MinNRepro = 1, MinNPaRepro = 1,
                    BirthType_parent = "Captive", BirthType_offspring = "Captive", 
   ) 
   
@@ -205,14 +204,14 @@ test_that("Rep_main works", {
 # Age at first reproduction
 
 `Rep_agemat()` returns summary statistics for ages of reproduction. It uses the following argument:
-* Reprodata, a data frame including at least the columns *ParentAnonID* and *Parent_Age*
+* ReproData, a data frame including at least the columns *ParentAnonID* and *Parent_Age*
 
 ```{r function-Rep_agemat}
 #' Age of reproduction
 #' 
 #' Returns summary statistcs for age of reproduction
 #'
-#' @param Reprodata \code{data frame} including at least the columns *ParentAnonID* and *Parent_Age*
+#' @param ReproData \code{data frame} including at least the columns *ParentAnonID* and *Parent_Age*.
 #'
 #' @return A data frame including:
 #' * N_moth_agemat: Number of mothers used
@@ -233,13 +232,12 @@ test_that("Rep_main works", {
 #' @importFrom stats dist median var sd
 #'
 #' @examples
-Rep_agemat <- function(Reprodata) {
+Rep_agemat <- function(ReproData) {
+  # Check correct format for inputs -------------------------------------------
+  assert_that(is.data.frame(ReproData))
+  assert_that(ReproData %has_name% c("ParentAnonID", "Parent_Age"))
   
-  assert_that(is.data.frame(Reprodata))
-  
-  assert_that(Reprodata %has_name% c("ParentAnonID", "Parent_Age"))
-  
-  
+  # Initialize outputs ----------------------------------------------------------
   fertSumm <- tibble(N_moth_agemat = 0,N_birth_agemat = 0, 
                      ageMat = NA,   
                      ageYouRep = NA, ageOldRep = NA, 
@@ -247,15 +245,15 @@ Rep_agemat <- function(Reprodata) {
                      ageMeanRep = NA, ageSdRep= NA, ageMedRep = NA,
                      ageMeanRepIC = NA, ageMean1RepIC = NA) 
   
-  # Age at first reproduction:
-  TageMat <-  Reprodata%>%select(ParentAnonID, Parent_Age)%>%
+  # Age at first reproduction --------------------------------------------------
+  TageMat <-  ReproData%>%select(ParentAnonID, Parent_Age)%>%
     group_by(ParentAnonID)%>%
     summarize(ageMat = min(Parent_Age),
               ageold = max(Parent_Age))%>%
     ungroup()
   
   fertSumm$N_moth_agemat  = nrow(TageMat)
-  fertSumm$N_birth_agemat  = nrow( Reprodata)
+  fertSumm$N_birth_agemat  = nrow( ReproData)
   fertSumm$ageMat<- as.numeric(quantile(TageMat$ageMat, 0.025, 
                                         na.rm = TRUE))
   
@@ -265,13 +263,15 @@ Rep_agemat <- function(Reprodata) {
   
   fertSumm$ageMean1Rep = mean(as.numeric(TageMat$ageMat), na.rm = TRUE)
   fertSumm$ageSd1Rep = sd(as.numeric(TageMat$ageMat), na.rm = TRUE)
-  fertSumm$ageMean1RepIC = list(fertSumm$ageMean1Rep +c(-1.96, 1.96)*sqrt(var(as.numeric(TageMat$ageMat), na.rm = TRUE)/nrow(TageMat)))
-  fertSumm$ageMeanRep = mean(as.numeric(Reprodata$Parent_Age), na.rm = TRUE)
-  fertSumm$ageSdRep = sd(as.numeric(Reprodata$Parent_Age), na.rm = TRUE)
-  fertSumm$ageMeanRepIC = list(fertSumm$ageMeanRep +c(-1.96, 1.96)*sqrt(var(as.numeric( Reprodata$Parent_Age), na.rm = TRUE)/nrow(Reprodata)))
-  
-  fertSumm$ageMedRep =  median(as.numeric(Reprodata$Parent_Age), na.rm = TRUE)
-  
+  fertSumm$ageMean1RepIC = list(fertSumm$ageMean1Rep +
+                                  c(-1.96, 1.96)*sqrt(var(as.numeric(TageMat$ageMat),
+                                                          na.rm = TRUE)/nrow(TageMat)))
+  fertSumm$ageMeanRep = mean(as.numeric(ReproData$Parent_Age), na.rm = TRUE)
+  fertSumm$ageSdRep = sd(as.numeric(ReproData$Parent_Age), na.rm = TRUE)
+  fertSumm$ageMeanRepIC = list(fertSumm$ageMeanRep +
+                                 c(-1.96, 1.96)*sqrt(var(as.numeric( ReproData$Parent_Age),
+                                                         na.rm = TRUE)/nrow(ReproData)))
+  fertSumm$ageMedRep =  median(as.numeric(ReproData$Parent_Age), na.rm = TRUE)
   return(fertSumm)
 }
 ```
@@ -283,9 +283,9 @@ data(parent)
 data(moves)
 #prepare Data
 Data <- Rep_prepdata (coresubset = core, collection, parent, moves, 
-                      minNrep = 1, minNparep = 1)
+                      MinNRepro = 1, MinNPaRepro = 1)
 #Calculate summary for reproductive ages
-out <- Rep_agemat(Data$Reprodata)
+out <- Rep_agemat(Data$ReproData)
 out
 
 ```
@@ -297,8 +297,8 @@ test_that("Rep_agemat works", {
   data(parent)
   data(moves)
   Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
-                        minNrep = 1, minNparep = 1)
-  out <- Rep_agemat(Data$Reprodata)
+                        MinNRepro = 1, MinNPaRepro = 1)
+  out <- Rep_agemat(Data$ReproData)
   
   expect_named(out, c("N_moth_agemat", "N_birth_agemat", "ageMat", "ageYouRep",
                       "ageOldRep", "ageMean1Rep", "ageSd1Rep", "ageOld1Rep",
@@ -315,8 +315,8 @@ test_that("Rep_agemat works", {
 
 `Rep_littersize()` makes a data frame of litter size per parent and birth date and produces summary tables of litter size. It uses the following arguments:
 
-* `Reprodata` including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
-* `Nday`: the number of consecutive days over which the birth dates of a litter/clutch can be spread
+* `ReproData` including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
+* `NDay`: the number of consecutive days over which the birth dates of a litter/clutch can be spread
 
 It returns a list including:
 * A data frame with the litter size per mother and birth date
@@ -329,11 +329,11 @@ It returns a list including:
 #' 
 #' Make a data frame of litter size per parent and birth date and produce summary tables of litter size. it selects only offspring/mother couples
 #'
-#' @param Reprodata \code{data frame} including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*
-#' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
-#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
-#' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
+#' @param ReproData \code{data frame} including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*.
+#' @param NDay \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread.
+#' @param ParentPercDam \code{numeric} Minimum percentage of parentage probability to include for Dam.
+#' @param ParentPercSire \code{numeric} Minimum percentage of parentage probability to include for Sire.
+#' @param MinNLitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.
 #'
 #' @return A list including:
 #' * A data frame with the litter size per mother and birth date
@@ -346,79 +346,71 @@ It returns a list including:
 #' - MedLittSize: Median litter size 
 #' - SdLittSize: Standard deviation of litter size 
 #' - analyzed = FALSE,
-#' - error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {minNlitter}
+#' - error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {MinNLitter}
 #' - Nerr: The number id of the error
 #' * a table including the mean and standard deviation of litter size per maternal age
 #' 
 #' @export
 #'
 #' @examples
-Rep_littersize <- function(Reprodata,
-                           Nday = 7, 
-                           parentProb_Dam = 80,parentProb_Sire = 80,  minNlitter =30
+Rep_littersize <- function(ReproData,
+                           NDay = 7, 
+                           ParentPercDam = 80,ParentPercSire = 80,  MinNLitter =30
 ) {
-  
-  assert_that(is.data.frame(Reprodata))
-  
-  assert_that(Reprodata %has_name% c("AnimalAnonID", "ParentAnonID", "Probability", 
+  # Check correct format for inputs -------------------------------------------
+  assert_that(is.data.frame(ReproData))
+  assert_that(ReproData %has_name% c("AnimalAnonID", "ParentAnonID", "Probability", 
                                      "ParentType", "Offspring_BirthDate",
                                      "Offspring_Inst", "Parent_Age"))
+  assert_that(is.numeric(NDay))
+  assert_that(is.numeric(ParentPercDam))
+  assert_that(is.numeric(ParentPercSire))
+  assert_that(is.numeric(MinNLitter))
   
-
-  assert_that(is.numeric(Nday))
-  assert_that(is.numeric(parentProb_Dam))
- assert_that(is.numeric(parentProb_Sire))
-  assert_that(is.numeric(minNlitter))
-  
-  
-  
+  # Initialize outputs ----------------------------------------------------------
   littSumm <- list(NOffsp_prob = NULL, NParent_prob = NULL, NReprEvent = NULL,
                    analyzed = FALSE,error = "", Nerr= 0,
                    MeanLittSize = NULL, MedLittSize = NULL, SdLittSize = NULL)
   littSizeDf <- tibble()
   littSizeTab <- NULL
   littSizeperAge <- NULL
-    subpar_sire <- Reprodata %>%
+  
+  # Select Fathers
+  subpar_sire <- ReproData %>%
     filter(ParentType == "Parentage_Sire",
-           Probability >= parentProb_Sire)%>%
+           Probability >= ParentPercSire)%>%
     select("ParentAnonID", "AnimalAnonID", "Parent_Age", "ParentAnonID", "Parent_Age")%>%
-      mutate(Father_Age =round(Parent_Age,2))%>%
-      select(-'Parent_Age')%>%
+    mutate(Father_Age =round(Parent_Age,2))%>%
+    select(-'Parent_Age')%>%
     rename(FatherAnonID = ParentAnonID)
   
-  subpar <- Reprodata %>%
+  subpar <- ReproData %>%
     filter(ParentType == "Parentage_Dam",
-           Probability >= parentProb_Dam)%>%
+           Probability >= ParentPercDam)%>%
     left_join(subpar_sire, by = "AnimalAnonID",relationship = "many-to-many" )
-
-
-
   
   littSumm$NOffsp_prob <- length(unique(subpar$AnimalAnonID))
   littSumm$NParent_prob <- length(unique(subpar$ParentAnonID))
   
   col = c("ParentAnonID", "AnimalAnonID", "Offspring_BirthDate", "Offspring_Inst", "FatherAnonID", "Father_Age", "Parent_Age")
-  
-  
+ 
   if(nrow(subpar) >0){
     #remove duplicated lines
     subpar <- subpar%>%
       dplyr::select(all_of(col))%>%
       distinct()
-    
-    
-    
+ 
     for (id in unique(subpar$ParentAnonID)) {
       parid <- subpar%>%filter(ParentAnonID == id)
       
       parid <- parid %>%
         arrange(Offspring_BirthDate)
-      diff=  c((Nday+1), as.numeric(diff(parid$Offspring_BirthDate)))
-      parid$litter=  cumsum(ifelse(diff > Nday, 1, 0))
-
+      diff=  c((NDay+1), as.numeric(diff(parid$Offspring_BirthDate)))
+      parid$litter=  cumsum(ifelse(diff > NDay, 1, 0))
+      
       parid <- parid%>%
         mutate(Mother_Age = round(Parent_Age,2)
-               )%>%
+        )%>%
         group_by (ParentAnonID, Offspring_Inst, litter, Mother_Age)%>%
         summarize(litterSize = length(unique(AnimalAnonID)),
                   MeanBirthDate = median(Offspring_BirthDate),
@@ -432,29 +424,29 @@ Rep_littersize <- function(Reprodata,
       
       littSizeDf <- rbind(littSizeDf, parid)
     }
-
-   littSizeDf<- littSizeDf%>%tidyr::unnest(c(FatherAnonID,Father_Age))%>%distinct()%>%
-        group_by (MotherAnonID, InstitutionAnonID, litterSize, MeanBirthDate, Mother_Age)%>%
-        summarize(FatherAnonID = list(FatherAnonID),
-                  Father_Age = list(Father_Age),
-                  .groups = 'drop')
     
-    if (nrow(littSizeDf)>= minNlitter)  {
+    littSizeDf<- littSizeDf%>%tidyr::unnest(c(FatherAnonID,Father_Age))%>%distinct()%>%
+      group_by (MotherAnonID, InstitutionAnonID, litterSize, MeanBirthDate, Mother_Age)%>%
+      summarize(FatherAnonID = list(FatherAnonID),
+                Father_Age = list(Father_Age),
+                .groups = 'drop')
+    
+    if (nrow(littSizeDf)>= MinNLitter)  {
       littSizeTab <- littSizeDf%>%
         group_by(litterSize)%>%
         summarise( N = n(),
                    prop = n()/nrow(littSizeDf),
-                  .groups = 'drop')
+                   .groups = 'drop')
       
-    
-        littSizeperAge <- littSizeDf%>%
-          group_by(Mother_Age)%>%
-          summarise(MeanlittSize = mean(litterSize),
-                    SDlittSize = sd(litterSize),
-                    Nlitter = n(),
+      
+      littSizeperAge <- littSizeDf%>%
+        group_by(Mother_Age)%>%
+        summarise(MeanlittSize = mean(litterSize),
+                  SDlittSize = sd(litterSize),
+                  Nlitter = n(),
                   .groups = 'drop')%>%
-          ungroup()
-
+        ungroup()
+      
       # Summary
       littSumm$MeanLittSize =  mean(littSizeDf$litterSize)
       littSumm$MedLittSize = median(littSizeDf$litterSize)
@@ -462,7 +454,7 @@ Rep_littersize <- function(Reprodata,
       littSumm$analyzed = TRUE 
       littSumm$NReprEvent= sum(littSizeTab$N)
     }else{
-      littSumm$error = glue::glue("N litter < {minNlitter}")
+      littSumm$error = glue::glue("N litter < {MinNLitter}")
       littSumm$Nerr = 5
     }
   }else{
@@ -481,12 +473,12 @@ data(collection)
 data(parent)
 data(moves)
 #prepare Data
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1, minNparep = 1,
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves, MinNRepro = 1, MinNPaRepro = 1,
                       BirthType_parent = "All", BirthType_offspring = "All" )
 
 #Estimate litter size
-out <- Rep_littersize(Data$Reprodata, 
-                      Nday = 7)
+out <- Rep_littersize(Data$ReproData, 
+                      NDay = 7)
 
 out
 ```
@@ -497,10 +489,10 @@ test_that("Rep_littersize works", {
   data(collection)
   data(parent)
   data(moves)
-  Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1, minNparep = 1,
+  Data <- Rep_prepdata (coresubset = core, collection, parent, moves, MinNRepro = 1, MinNPaRepro = 1,
                         BirthType_parent = "All", BirthType_offspring = "All" )
-  out <- Rep_littersize(Data$Reprodata, minNlitter =5,
-                        Nday = 7)
+  out <- Rep_littersize(Data$ReproData, MinNLitter =5,
+                        NDay = 7)
   
   expect_named(out, c("summary", "littSizeDf", "littSizeTab", "littSizeperAge"))
   expect_named(out$summary, c("NOffsp_prob",  "NParent_prob", "NReprEvent",   "analyzed","error", "Nerr",
@@ -508,11 +500,11 @@ test_that("Rep_littersize works", {
   expect_named(out$littSizeTab, c("litterSize", "N", "prop"))
   expect_named(out$littSizeDf, c('MotherAnonID', 'InstitutionAnonID', 'litterSize', 'MeanBirthDate', 'Mother_Age', 'FatherAnonID', 'Father_Age' ))
   expect_named(out$littSizeperAge, c('Mother_Age', "MeanlittSize", "SDlittSize", "Nlitter"))
-  expect_equal(round(out$summary$MeanLittSize,2), 1.2)
-  expect_equal(out$summary$NReprEvent, 5)
-expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
+  expect_equal(round(out$summary$MeanLittSize,2), 1.67)
+  expect_equal(out$summary$NReprEvent, 6)
+  expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
   expect_equal(nrow(out$littSizeTab), 2)
-  expect_equal(nrow(out$littSizeperAge), 5)
+  expect_equal(nrow(out$littSizeperAge), 6)
 })
 ```
 
@@ -645,15 +637,15 @@ test_that("Rep_fert works", {
 #' 
 #' Prepare reproduction data including age of parent at birth, offspring sex and birth date and data of potential reproductive individuals at each age.
 #'
-#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*
-#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
-#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
-#' @param moves \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*
-#' @param BirthType_parent \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param BirthType_offspring \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = #'
-#' @param minNrep \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
-#' @param minNparep \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
+#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*.
+#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*.
+#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*.
+#' @param moves \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*.
+#' @param BirthType_parent \code{character} Captive, Wild, or All.
+#' @param BirthType_offspring \code{character} Captive, Wild, or All.
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. 
+#' @param MinNRepro \code{numeric} Minimum number of birth records needed to run reproductive analyses.
+#' @param MinNPaRepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses.
 #'
 #' @return A list including
 #' * The reproduction data
@@ -666,22 +658,21 @@ test_that("Rep_fert works", {
 #'  - NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
 #'  - NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
 #'  - a logical indicated if the reproductive analysis can be performed
-#'  -  If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < minNrep and 2/Nparentshs < minNparep
+#'  -  If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < MinNRepro and 2/Nparentshs < minNparep
 #'  
 #'  
 #' @export
 #'
 #' @examples
-Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minNparep =30,
+Rep_prepdata <- function(coresubset, collection, parent, moves, MinNRepro=50, MinNPaRepro =30,
                          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
                          Global = TRUE
 ) {
-  
+  # Check correct format for inputs ------------------------------------------ 
   assert_that(is.data.frame(coresubset))
   assert_that(is.data.frame(collection))
   assert_that(is.data.frame(parent))
   assert_that(is.data.frame(moves))
-  
   assert_that(coresubset %has_name% c("AnimalAnonID", 'BirthType', "MaxBirthDate", 
                                       "MinBirthDate", "DepartDate", "BirthDate",
                                       "SexType", "FirstHoldingInstitution"))
@@ -690,13 +681,13 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
                                   "OffspringCollectionScopeType", "AnimalAnonID",
                                   "ParentOriginType", "Probability"))
   assert_that(moves %has_name% c("AnimalAnonID", "To", "Date"))
-  
   assert_that(is.character(BirthType_parent))
   assert_that(BirthType_parent %in% c("Captive", "Wild", "All"))
   assert_that(is.character( BirthType_offspring))
   assert_that( BirthType_offspring %in% c("Captive", "Wild", "All"))
   assert_that(is.logical(Global))
   
+    # Initialize outputs ----------------------------------------------------------
   fertSumm <- tibble(Nbirths = 0,
                      Nadults = 0,
                      NOffsp = 0, NParent = 0,
@@ -803,16 +794,16 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
     } 
     
   }
-  if (fertSumm$NParent_age < minNparep ) {
+  if (fertSumm$NParent_age < MinNPaRepro ) {
     Adults = subpar = tibble()
     fertSumm$analyzed = FALSE
     fertSumm$err = "Nparents < minNparep"
     fertSumm$Nerr = 2
   }
-  if (fertSumm$NOffsp_age < minNrep ) {
+  if (fertSumm$NOffsp_age < MinNRepro ) {
     Adults = subpar = tibble()
     fertSumm$analyzed = FALSE
-    fertSumm$err = "Nbirths < minNrep"
+    fertSumm$err = "Nbirths < MinNRepro"
     fertSumm$Nerr = 1
   }
   
@@ -868,7 +859,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
   #           
   
   
-  return(list(Adults = ADULTS, Reprodata = subpar, summary =  fertSumm))
+  return(list(Adults = ADULTS, ReproData = subpar, summary =  fertSumm))
   
   
   
@@ -893,16 +884,23 @@ test_that("Rep_prepdata works", {
   data(parent)
   data(moves)
   
-  Data <- Rep_prepdata (coresubset = core, collection, parent, moves,minNrep=1,minNparep=1,
-                        BirthType_parent = "Captive", BirthType_offspring = "Captive"
+  Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
+                        MinNRepro = 1, MinNPaRepro = 1,
+                        BirthType_parent = "Captive", 
+                        BirthType_offspring = "Captive"
   )
-  expect_named(Data, c("Adults", "Reprodata", "summary"))
-  expect_named(Data$summary, c("Nbirths", "Nadults", "NOffsp", "NParent", "NOffsp_age", "NParent_age", "analyzed", "Nerr", "err"))
+  expect_named(Data, c("Adults", "ReproData", "summary"))
+  expect_named(Data$summary, c("Nbirths", "Nadults", "NOffsp", "NParent",
+                               "NOffsp_age", "NParent_age", "analyzed", 
+                               "Nerr", "err"))
   expect_true(is.numeric(Data$summary[1:6]%>%as.numeric()))
   expect_named(Data$Adults, c(names(core), "ageAds", "n", "Age", "Date_age"))
-  expect_named(Data$Reprodata, c("AnimalAnonID", "ParentOriginType", "ParentAnonID",                
-                                 "ParentType", "OffspringCollectionScopeType", "ParentCollectionScopeType"   ,
-                                 "Parent_BirthDate", "Parent_BirthType", "Offspring_BirthDate", "SexType", "Parent_Age", "currentInst",                 "Offspring_Inst", "Probability"))
+  expect_named(Data$ReproData, c("AnimalAnonID", "ParentOriginType", "ParentAnonID",                
+                                 "ParentType", "OffspringCollectionScopeType",
+                                 "ParentCollectionScopeType",
+                                 "Parent_BirthDate", "Parent_BirthType", 
+                                 "Offspring_BirthDate", "SexType", "Parent_Age", 
+                                 "currentInst", "Offspring_Inst", "Probability"))
 })
 ```
 
@@ -1011,7 +1009,7 @@ test_that("Rep_prepdata works", {
 #         seas[[seasNames[ii]]]$Nbirth <-nrow(DATAseason)
 #         
 #         if(length(unique(DATAseason$FirstHoldingInstitution))>1){
-#           if (nrow(DATAseason) >= minNseas) {
+#           if (nrow(DATAseason) >= MinNSeas) {
 #             
 #             #Find 80% of the births
 #             L_80 = quantile(yday(DATAseason$BirthDate), c(0.1,0.9))
@@ -1037,7 +1035,7 @@ test_that("Rep_prepdata works", {
 #             
 #             
 #           }else{
-#             seas[[seasNames[ii]]]$error = "Nbirth <= minNseas"
+#             seas[[seasNames[ii]]]$error = "Nbirth <= MinNSeas"
 #             seas[[seasNames[ii]]]$Nerr = 4}
 #         }else{
 #           seas[[seasNames[ii]]]$error = "Data from 1 Institution"

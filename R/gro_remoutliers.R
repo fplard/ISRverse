@@ -5,17 +5,17 @@
 #'
 #'Takes a data frame including weight measures and Age and look for possible outliers
 #'
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *MeasurementType*,  *Age*  (\code{numeric})
-#' @param taxa  \code{character} the name of the taxa studied
-#' @param ageMat \code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *MeasurementType*,  *Age*  (\code{numeric}).
+#' @param Taxa  \code{character} Name of the taxa.
+#' @param AgeMat \code{numeric} Age at sexual maturity to differentiate juveniles (still growing) from adults.
 #' @param maxweight \code{numeric} the maximum weight allowed for the dataset
-#' @param variableid \code{character} name of the variable including individual ids. Defaut = "AnimalAnonID". It must also be a column of data_weight.Default = 6. It must be at least 5
-#' @param min_Nmeasures \code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5
-#' @param minq \code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
+#' @param variableid \code{character} name of the variable including individual ids. It must also be a column of data_weight.
+#' @param min_Nmeasures \code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. It must be at least 5.
+#' @param minq \code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1.
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
-#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
-#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
-#' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10
+#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default: 20%.
+#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250%.
+#' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles.
 #' 
 #' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3 and the column juv indicates which individuals have been classified as juveniles.
 #' 
@@ -34,27 +34,28 @@
 #' @examples
 #' data(weights)
 #' weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
-#'                           taxa = "Mammalia", ageMat = 10)
-Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL, 
+#'                           Taxa = "Mammalia", AgeMat = 10)
+Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL, 
                             variableid = "AnimalAnonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
                             IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(data_weight))
   assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
   if(length(unique(data_weight$MeasurementType))==1){warnings( glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data should often include only one Measurement Type"))}
-  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+  assert_that(Taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                           "Chondrichthyes", "Osteichthyes"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+              msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Osteichthyes'")
   if(is.null(maxweight)){
     maxweight = 10000000
-    if(taxa == "Mammalia")       maxweight = 7000
-    if(taxa == "Aves")           maxweight = 200
-    if(taxa == "Reptilia")       maxweight = 1500
-    if(taxa == "Amphibia")       maxweight = 100
-    if(taxa == "Chondrichthyes") maxweight = 1000
-    if(taxa == "Osteichthyes") maxweight = 500
+    if(Taxa == "Mammalia")       maxweight = 7000
+    if(Taxa == "Aves")           maxweight = 200
+    if(Taxa == "Reptilia")       maxweight = 1500
+    if(Taxa == "Amphibia")       maxweight = 100
+    if(Taxa == "Chondrichthyes") maxweight = 1000
+    if(Taxa == "Osteichthyes") maxweight = 500
   }
   assert_that(is.numeric(maxweight))
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
@@ -68,8 +69,8 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
       rename(AnimalAnonID = !!sym(variableid))
   }
   
-  if(is.null(ageMat)){ageMat=1.5}
-  assert_that(is.numeric(ageMat))
+  if(is.na(AgeMat)){AgeMat=1.5}
+  assert_that(is.numeric(AgeMat))
   
   #1) Removes very large weights using maxweight ----
   data_weight <- data_weight%>%
@@ -79,13 +80,13 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   ### JUVENILES ----
   juv <- data_weight%>%
     mutate(juv = 1)%>%
-    filter(Age >= 0, Age < ageMat*1.2)
+    filter(Age >= 0, Age < AgeMat*1.2)
   if (nrow(juv) > 0) {
     
     ##a/Uses sliding windows to check outliers based on percentile of the distribution 
     #Make Ninterval_juv for sliding windows
     nInts = Ninterval_juv
-    windInts <- seq(0, ageMat, length = nInts+1)
+    windInts <- seq(0, AgeMat, length = nInts+1)
     numInt <- table(findInterval(juv$Age[juv$keep1==1], windInts))
     nWindInts <- 0
     ii <- 1
@@ -100,7 +101,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
         ii <- nInts
       }
     }
-    if (!ageMat %in% nWindInts)  nWindInts <- c(nWindInts, ageMat)
+    if (!AgeMat %in% nWindInts)  nWindInts <- c(nWindInts, AgeMat)
     nInts <- length(nWindInts) - 1
     juv$keep2 = juv$keep1
     for (iints in 1:nInts) {
@@ -134,7 +135,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   ### ADULTS ----
   ad <- data_weight%>%
     mutate(juv = 0)%>%
-    filter(Age >=  ageMat*1.2)
+    filter(Age >=  AgeMat*1.2)
   if (nrow(ad) > 0) {
     
     ##a/Check outliers based on percentile of the distribution 

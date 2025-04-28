@@ -2,73 +2,102 @@
 
 #' Survival Analysis
 #' 
-#' Run basta models on the data after checking conditions for correct convergence of the models
+#' Run basta Models on the data after checking conditions for correct convergence of the Models
 #'
-#' @param sexData \code{data.frame} including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*
+#' @param Data \code{data.frame} including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*.
 #' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
-#' @param outlLev1 \code{numeric} Start threshold used to selected for the data: 100%, 99.9, 99 or 95%
-#' @param models \code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
-#' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
-#' @param minAge \code{numeric} Age at which the analysis should start.  see ?basta for more information. Default = 0
-#' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death date, in days
-#' @param minNsur \code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50
-#' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
-#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 1
-#' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
-#' @param niter  \code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000
-#' @param burnin  \code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001
-#' @param thinning  \code{numeric} Number of iteration to run before saving a set of parameters. see ?basta for more information. Default = 20
-#' @param nchain  \code{numeric} Number of chains to run. Default = 5001
-#' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
-#' @param lastdead  \code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE
+#' @param Models \code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information.
+#' @param Shape \code{character} Shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information.
+#' @param MinAge \code{numeric} Ages at which the survival analysis should start, in years.  see ?basta for more information.
+#' @param OutlLev1 \code{numeric} Start threshold to select individuals based on the longevity distribution: 100%, 99.9, 99 or 95%. This number must decrease when many errors are expected in longevity data.
+#' @param MinDate \code{character 'YYYY-MM-DD'} Earlier date to include data.
+#' @param UncertDeath \code{numeric}: Maximum uncertainty accepted for death date, in days.
+#' @param MinNSur \code{numeric} Minimum number of individual records needed to run the survival analysis.
+#' @param MaxNSur \code{numeric} Maximum number of individual records to run the survival analysis.
+#' @param MinLx  \code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.
+#' @param MinInstitution \code{numeric} Minimum number of institutions that should hold records to run the survival analysis. 
+#' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data to run the survival analysis.
+#' @param AgeMat \code{numeric} Age at sexual maturity, in years. If given, key survival metrics are calculated both from birth and from age at sexual maturity.
+#' @param niter  \code{numeric}. Parameter to run the model: number of MCMC iterations. see ?basta for more information.
+#' @param burnin  \code{numeric} Parameter to run the model: number of iterations removed so that the model has time to converge. see ?basta for more information.
+#' @param thinning  \code{numeric} Parameter to run the model: number of iterations to run before saving a set of parameters. see ?basta for more information.
+#' @param nchain  \code{numeric} Parameter to run the model: Number of chains to run.
+#' @param ncpus  \code{numeric} Number of computer cores to use. 
+#' @param LastDead  \code{logical} Whether the longest lived individuals should be considered dead.
 #'
 #' @return The output of a list including:
 #' * a summary of the data used:
-#'- NSelect: Number of individuals selected from filters
-#'- NUncertdeath: Number of individuals selected after filter uncertainty in death
-#'- NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
-#'- Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
-#'- maxAge: Maximum age of known age individuals
-#'- maxAlive:Maximum number of years spent ex situ
-#'- lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
-#'-  OutLev: threshold selected for the distribution of  time spent alive: 100%, 99.9, 99 or 95%
-#'- a logical indicated if the growth analysis was performed
-#'-  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta.
+#'     * NSelect: Number of individuals selected from filters
+#'     * NUncertdeath: Number of individuals selected after filter uncertainty in death
+#'     * NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
+#'     * Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
+#'     * Nrc: Number of right censored individuals
+#'     * N8090: Number of individuals born between 1980 and 1990 (excluded)
+#'     * N9000: Number of individuals born between 1990 and 2000 (excluded)
+#'     * N0010: Number of individuals born between 2000 and 2010 (excluded)
+#'     * N1020: Number of individuals born between 2010 and 2020 (excluded)
+#'     * N2030: Number of individuals born between 2020 and 2030 (excluded)
+#'     * QBD10: 10% Quantile of birth date distribution
+#'     * QBD50: Median of birth date distribution
+#'     * QBD90: 90% Quantile of birth date distribution
+#'     * BDincert: average uncertainty in birth date: in days
+#'     * maxAge: Maximum age of known age individuals
+#'     * maxAlive:M aximum number of years spent ex situ
+#'     * lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
+#'     *  OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%
+#'     * analyzed: a logical indicated if the survival analysis was performed
+#'     *  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta.
+#'* Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90% of the individual died (Longevity = L90) estimated from raw data and from the Kaplan Meier Estimator. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator.
 #'* the basta fit of the best model
-#'* the DIC table comparing the different fit of the models
+#'* the DIC table comparing the different fit of the Models
 #' 
 #' @export
+#' @importFrom lubridate year
 #'
 #' @examples
 #' data(core)
 #' data(deathinformation)
-#' out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+#' out <- Sur_ana(core,  DeathInformation = deathinformation, Models = "GO", Shape = "simple",
 #'                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", shape = "simple",
-                    minAge = 0, mindate = "1980-01-01", minNsur = 50,maxNsur = NULL, uncert_death=365,
-                    MinBirthKnown = 0.3, minInstitution = 1,lastdead = FALSE,
-                    niter = 25000, burnin = 5001, thinning = 20, nchain = 3, ncpus = 2) {
+Sur_ana <- function(Data, DeathInformation, Models = "GO", Shape = "simple", 
+                    MinAge = 0, OutlLev1 = 100,
+                    MinDate = "1980-01-01", MinNSur = 50, MaxNSur = NULL,
+                    UncertDeath=365, MinLx=0.1,
+                    MinBirthKnown = 0.3, MinInstitution = 1,
+                    AgeMat = NA, LastDead = FALSE,
+                    niter = 25000, burnin = 5001, thinning = 20, nchain = 3,
+                    ncpus = 2) {
   
-  mindate = lubridate::as_date(mindate)
-  assert_that(is.data.frame(sexData))
-  assert_that(sexData %has_name% c("AnimalAnonID", "BirthDate", "DepartDate",
-                                   "EntryDate", "MaxBirthDate", "MinBirthDate",
-                                   "EntryType", "DepartType", "FirstHoldingInstitution", 
-                                   "LastHoldingInstitution", "SexType", "BirthType"))
+  # Check correct format for inputs -----------------------------------------------------------------------
+  assert_that(is.data.frame(Data))
+  assert_that(Data %has_name% c("AnimalAnonID", "BirthDate", "DepartDate",
+                                "EntryDate", "MaxBirthDate", "MinBirthDate",
+                                "EntryType", "DepartType", "FirstHoldingInstitution", 
+                                "LastHoldingInstitution", "SexType", "BirthType"))
   assert_that(is.data.frame(DeathInformation))
   assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
-  assert_that(outlLev1 <= 100)
-  assert_that(is.numeric(minNsur))
-  assert_that(is.double(minInstitution))
-  assert_that(is.numeric(uncert_death))
-  if(!is.null(maxNsur)) {
-    assert_that(is.numeric(maxNsur))
-  }else{maxNsur = nrow(sexData)}
-  assert_that(minNsur > 0)
+  assert_that(is.character(Models))
+  assert_that(all(Models %in% c("GO", "EX", "LO", "WE")))
+  assert_that(is.character(Shape))
+  assert_that(all(Shape %in% c("simple", "bathtub", "Makeham")))  
+  assert_that(is.numeric(MinAge))
+  assert_that(OutlLev1 <= 100)
+  assert_that(is.numeric(UncertDeath))
+  assert_that(UncertDeath>=0)
+  MinDate = lubridate::as_date(MinDate)
+  assert_that(is.numeric(MinNSur))
+  if(!is.null(MaxNSur)) {
+    assert_that(is.numeric(MaxNSur))
+  }else{MaxNSur = nrow(Data)}
+  assert_that(is.double(MinInstitution))
+  assert_that(is.numeric(MinLx))
+  assert_that(MinLx >= 0 & MinLx <= 1)
   assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown >= 0)
-  assert_that(MinBirthKnown <1)
+  assert_that(MinBirthKnown <= 1, msg ='MinBirthKnown must be a proportion, so between 0 and 1')
+  if(!is.na(AgeMat)) {
+    assert_that(is.numeric(AgeMat))
+  }
+  assert_that(is.logical(LastDead))
   assert_that(is.numeric(niter))
   assert_that(niter > 0)
   assert_that(is.numeric(burnin))
@@ -81,79 +110,184 @@ Sur_ana <- function(sexData, DeathInformation, outlLev1 = 100, models = "GO", sh
   assert_that(nchain > 0)
   assert_that(is.numeric(ncpus))
   assert_that(ncpus > 0)
-  assert_that(is.character(models))
-  assert_that(all(models %in% c("GO", "EX", "LO", "WE")))
-  assert_that(is.character(shape))
-  assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
-  assert_that(is.logical(lastdead))
-   
-   #Initialize
+  
+  # Initialize outpus ----------------------------------------------------------
   summar = list(
-    NSelect =  nrow(sexData), NUncertdeath = 0,  NBasta = 0, Ndead = 0, 
+    NSelect =  nrow(Data), NUncertdeath = 0,  
+    NBasta = 0, Ndead = 0, Nrc = 0,
+    N8090 =0, N9000 = 0, N0010 = 0, N1020 = 0, N2030 = 0,
+    QBD10 = 0, QBD50 = 0, QBD90 = 0, BDincert = 0,
     maxAge = NULL, maxAlive = NULL, 
-    lxMin = NULL, outLev = NULL, 
+    lxMin = NULL, outLev = NULL, model ="",
     analyzed = FALSE, Nerr = 0,  error ="")
+  metrics =  tibble(Data = character(0),
+                    firstage = character(0) ,
+                    param = character(0),
+                    stat =character(0),
+                    value = numeric(0))
   bastaRes = NULL
   DICmods = NULL
   
-   #Remove individuals with uncertainty in death date
-  sexData <- sexData%>%
-    filter((Death_Uncertainty < uncert_death)%>% replace_na(TRUE))
-summar$NUncertdeath =nrow(sexData)
-
+  # Remove individuals with uncertainty in death date----------------------------
+  Data <- Data%>%
+    filter((DeathUncertainty < UncertDeath)%>% replace_na(TRUE))
+  summar$NUncertdeath =nrow(Data)
   
-   if(nrow(sexData)> minNsur){
-sexDat <- select_Longthreshold( sexData, minN = minNsur )
- outlLev = sexDat$summar$GapThresh
- 
-    #Find the minimum threshold for which lxmin  >.1
+  # Check for possible gaps in longevity distribution and deduce maximum longevity threshold specifically on the survival dataset
+  if(nrow(Data)> MinNSur){
+    Dat <- select_Longthreshold(Data, MinN = MinNSur)
+    # deduce maximum longevity threshold
+    outlLev = Dat$summar$GapThresh
+    
+    # Find the maximum longevity threshold (min = 95%) for which lxmin > MinLx----
     summar$lxMin <- 1
-    outLev2 = min(outlLev1, outlLev)
-    while(summar$lxMin > 0.1 & outLev2 >= 95){
+    outLev2 = min(OutlLev1, outlLev)
+    while(summar$lxMin > MinLx & outLev2 >= 95){
       summar$outLev = outLev2
       if (summar$outLev ==100){
-        data_sel <-  sexData
+        data_sel <-  Data
       }else{
-        data_sel <-  sexData%>%
+        data_sel <-  Data%>%
           filter(!!sym(paste0("above", summar$outLev))==0)
       }
       data_sel <- data_sel%>%
         mutate(
           deparAge = (DepartDate - BirthDate) / 365.25,
           entryAge = (EntryDate - BirthDate) / 365.25
-        )
+        )%>%
+        filter(deparAge>MinAge)
       
       if (!all(data_sel$DepartType == "C")) {
+        #Calculate Kaplan-Meier table
         rawPLE <- Sur_ple(data_sel)
-        # Minimum value of lx:
         summar$lxMin <- rawPLE$ple[nrow(rawPLE)-1]
       }
-      if( summar$outLev == 100){outLev2 = 99.9}
-      if( summar$outLev == 99.9){outLev2 = 99}
-      if( summar$outLev == 99){outLev2 = 95}
-      if( summar$outLev == 95){outLev2 = 90}
+      if(summar$outLev == 100){outLev2 = 99.9}
+      if(summar$outLev == 99.9){outLev2 = 99}
+      if(summar$outLev == 99){outLev2 = 95}
+      if(summar$outLev == 95){outLev2 = 90}
     }
     
-    #raw median life expectancy
-    # summar$MedLE = median(deparAge[deparType == "D"])
+    # Estimate key survival metrics from Raw data and from Kaplan Meier table----
+    #from Age at sexual maturity
+    if(!is.na(AgeMat)){
+      metrics = rbind(metrics,
+                      tibble(Data = 'Raw',
+                             firstage = "AM",
+                             param = c("L50", "MLE", "L90"),
+                             stat = c("value"),
+                             value = c(
+                               median( data_sel$deparAge[data_sel$DepartType == "D"& 
+                                                           data_sel$deparAge > AgeMat])%>%as.numeric(),
+                               mean( data_sel$deparAge[data_sel$DepartType == "D"& 
+                                                         data_sel$deparAge > AgeMat])%>%as.numeric(),
+                               quantile( data_sel$deparAge[data_sel$DepartType == "D"& 
+                                                             data_sel$deparAge > AgeMat],0.9)%>%as.numeric()
+                             )))
+      xAM = min(which(rawPLE$Ages>AgeMat))
+      rawPLEAM =rawPLE[xAM:nrow(rawPLE),]
+      rawPLEAM$ple = rawPLEAM$ple/rawPLEAM$ple[1]
+      rawPLEAM$Ndead = c(0,rawPLEAM$ple[1:(nrow(rawPLEAM)-1)] * 1000 -rawPLEAM$ple[2:nrow(rawPLEAM)]*1000)
+      rawPLEAM$Z50 = (log(-log(rawPLEAM$ple))-log(-log(0.5)))*rawPLEAM$ple*log(rawPLEAM$ple)/(rawPLEAM$ple^2*rawPLEAM$Snd)
+      rawPLEAM$Z10 = (log(-log(rawPLEAM$ple))-log(-log(0.1)))*rawPLEAM$ple*log(rawPLEAM$ple)/(rawPLEAM$ple^2*rawPLEAM$Snd)
+      metrics = rbind(metrics,
+                      tibble(Data = 'KM',
+                             firstage = "AM",
+                             param = rep(c("L50", "L90"),each = 3),
+                             stat = rep(c("mean", "lower", "upper"), 2),
+                             value = c(
+                               KM_age(rawPLEAM, 0.1)[2]%>%as.numeric(), 
+                               rawPLEAM$Ages[min(which(rawPLEAM$Z10<=-1.96))]%>%as.numeric(),
+                               rawPLEAM$Ages[max(which(rawPLEAM$Z10>=1.96))]%>%as.numeric(),
+                               KM_age(rawPLEAM, 0.5)[2]%>%as.numeric(),
+                               rawPLEAM$Ages[min(which(rawPLEAM$Z50<=-1.96))]%>%as.numeric(),
+                               rawPLEAM$Ages[max(which(rawPLEAM$Z50>=1.96))]%>%as.numeric()
+                             )))
+      
+      metrics = rbind(metrics,
+                      tibble(Data = 'KM',
+                             firstage = "AM",
+                             param = c("MLE", "H", "Epx", "G", "Ex", "CV"),
+                             stat = rep("value",6),
+                             value = c(
+                               sum(rawPLEAM$Ndead *rawPLEAM$Ages)/sum(rawPLEAM$Ndead)%>%as.numeric(), 
+                               CalcHx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)) )%>%as.numeric(),
+                               -log(CalcHx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages))))%>%as.numeric(),
+                               CalcGx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)) )%>%as.numeric(),
+                               CalcEx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)))%>%as.numeric(),
+                               CalcCVx(rawPLEAM$ple,
+                                       rawPLEAM$Ages,c(0,diff(rawPLEAM$Ages)))%>%as.numeric()
+                             )))
+    }
+    #from birth
+    metrics = rbind(metrics,
+                    tibble(Data = 'Raw',
+                           firstage = "birth",
+                           param = c("L50", "MLE", "L90"),
+                           stat = c("value"),
+                           value = c(median( data_sel$deparAge[data_sel$DepartType == "D"])%>%as.numeric(),
+                                     mean( data_sel$deparAge[data_sel$DepartType == "D"])%>%as.numeric(),
+                                     quantile( data_sel$deparAge[data_sel$DepartType == "D"],0.9)%>%as.numeric()
+                           )))
+    rawPLE$Z50 = (log(-log(rawPLE$ple))-log(-log(0.5)))*rawPLE$ple*log(rawPLE$ple)/(rawPLE$ple^2*rawPLE$Snd)
+    rawPLE$Z10 = (log(-log(rawPLE$ple))-log(-log(0.1)))*rawPLE$ple*log(rawPLE$ple)/(rawPLE$ple^2*rawPLE$Snd)
+    metrics = rbind(metrics,
+                    tibble(Data = 'KM',
+                           firstage = "birth",
+                           param = c(rep(c("L50", "L90"), each =3),"S1month", "S1year"),
+                           stat = c(rep(c("mean", "lower", "upper"), 2),rep('value',2)),
+                           value = c(
+                             KM_age(rawPLE, 0.1)[2]%>%as.numeric(), 
+                             rawPLE$Ages[min(which(rawPLE$Z10<=-1.96))]%>%as.numeric(),
+                             rawPLE$Ages[max(which(rawPLE$Z10>=1.96))]%>%as.numeric(),
+                             KM_age(rawPLE, 0.5)[2]%>%as.numeric(),
+                             rawPLE$Ages[min(which(rawPLE$Z50<=-1.96))]%>%as.numeric(),
+                             rawPLE$Ages[max(which(rawPLE$Z50>=1.96))]%>%as.numeric(),
+                             KM_Lx(rawPLE, 1/12)$Lx,KM_Lx(rawPLE, 1)$Lx%>%as.numeric()
+                           )))
+    rawPLE$Ndead = c(0,rawPLE$ple[1:(nrow(rawPLE)-1)] * 1000 -rawPLE$ple[2:nrow(rawPLE)]*1000)
+    metrics = rbind(metrics,
+                    tibble(Data = 'KM',
+                           firstage = "birth",
+                           param = c("MLE", "H", "Epx", "G", "Ex", "CV"),
+                           stat =rep("value",6),
+                           value = c(
+                             sum(rawPLE$Ndead *rawPLE$Ages)/sum(rawPLE$Ndead)%>%as.numeric(), 
+                             CalcHx(rawPLE$ple,c(0,diff(rawPLE$Ages)) )%>%as.numeric(),
+                             -log(CalcHx(rawPLE$ple,c(0,diff(rawPLE$Ages))))%>%as.numeric(),
+                             CalcGx(rawPLE$ple,c(0,diff(rawPLE$Ages)) )%>%as.numeric(),
+                             CalcEx(rawPLE$ple,c(0,diff(rawPLE$Ages)))%>%as.numeric(),
+                             CalcCVx(rawPLE$ple,
+                                     rawPLE$Ages,c(0,diff(rawPLE$Ages)))%>%as.numeric()
+                           )))
     
- 
+    # Run survival model using Basta --------------------------------------------
+    if(summar$lxMin < 0.99){
       # Extract BaSTA table:
-      bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, earliestDate = mindate,
-                               excludeStillbirth = TRUE)
+      bastalist <- surv_Bastab(data_sel, DeathInformation = DeathInformation, EarliestDate = MinDate,
+                               ExcludeStillBirth = TRUE)
       bastatab <- bastalist%>%
         mutate(
           bdun = Max.Birth.Date-Min.Birth.Date,
           aliveTime = (Depart.Date - Entry.Date) / 365.25)%>%
         filter(Depart.Date > Entry.Date)
       
-      if(lastdead){
+      if(LastDead){
         bastatab$Depart.Type[bastatab$aliveTime == max(bastatab$aliveTime)]="D"
       }
-      
-      
-
+      #Summary of data used
       summar$NBasta <- nrow(bastatab)
+      summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
+      summar$Nrc <- nrow(bastatab%>%filter(Depart.Type =="C"))
+      summar$N8090 <- nrow(bastatab%>%filter(year(Birth.Date) >= 1980 & year(Birth.Date) < 1990 ))
+      summar$N9000 <- nrow(bastatab%>%filter(year(Birth.Date) >= 1990 & year(Birth.Date) < 2000 ))
+      summar$N0010 <- nrow(bastatab%>%filter(year(Birth.Date) >= 2000 & year(Birth.Date) < 2010 ))
+      summar$N1020 <- nrow(bastatab%>%filter(year(Birth.Date) >= 2010 & year(Birth.Date) < 2020 ))
+      summar$N2030 <- nrow(bastatab%>%filter(year(Birth.Date) >= 2020))
+      summar$QBD10 <- quantile(year(bastatab$Birth.Date),0.1)
+      summar$QBD50 <- quantile(year(bastatab$Birth.Date),0.5)
+      summar$QBD90 <- quantile(year(bastatab$Birth.Date),0.9)
+      summar$BDincert<- as.numeric(mean(bastatab$Max.Birth.Date - bastatab$Min.Birth.Date))
       summar$Ndead <- nrow(bastatab%>%filter(Depart.Type =="D"))
       summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
       summar$maxAlive <- as.numeric(max(bastatab$Depart.Date - bastatab$Entry.Date, na.rm = TRUE))
@@ -163,80 +297,120 @@ sexDat <- select_Longthreshold( sexData, minN = minNsur )
         Perbirthknown =  length(which(bastatab$bdun<32 & bastatab$Entry.Type=="B")) / 
           summar$NBasta
         if(Perbirthknown >= MinBirthKnown){
-          #Check that we have more than 1 institution
+          #Check the number of Institutions
           Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
           Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
-          if(length(unique(c(Instb,Instl)))>=minInstitution){
-            if (summar$NBasta >= minNsur) {
-              if(summar$NBasta <= maxNsur){
+          if(length(unique(c(Instb,Instl)))>=MinInstitution){
+            #Check the number of individual selected
+            if (summar$NBasta >= MinNSur) {
+              if(summar$NBasta <= MaxNSur){
                 tempList <- list()
-                DICmods <- tibble(models,
+                DICmods <- tibble(Models,
                                   DIC = 0)
-                for (imod in 1:length(models)) {
-                  print(models[imod])
-                  tempList[[models[imod]]] <- BaSTA::basta(
-                    bastatab, dataType = "census", shape = shape, minAge = minAge, 
-                    model = models[imod], parallel = TRUE, 
+                #Run the different basta models
+                for (imod in 1:length(Models)) {
+                  print(Models[imod])
+                  tempList[[Models[imod]]] <- BaSTA2.0::basta(
+                    bastatab, dataType = "census", shape = Shape, minAge = MinAge, 
+                    model = Models[imod], parallel = TRUE, 
                     ncpus = ncpus, nsim = nchain,
                     niter = niter, burnin = burnin, thinning = thinning)
                   
-                  if (!is.na( tempList[[models[imod]]]$DIC[1])) {
-                    DICmods$DIC[imod] <-  tempList[[models[imod]]]$DIC["DIC"]
+                  if (!is.na( tempList[[Models[imod]]]$DIC[1])) {
+                    DICmods$DIC[imod] <-  tempList[[Models[imod]]]$DIC["DIC"]
                   }
                 }
+                # If no model converged, run the models with more MCMC iterations
                 if (all(DICmods$DIC == 0)) {
-                  print("more chains")
-                  for (imod in 1:length(models)) {
-                    print(models[imod])
-                    tempList[[models[imod]]] <- BaSTA::basta(
-                      bastatab, dataType = "census", shape = shape, minAge = minAge, 
+                  print("more iterations")
+                  for (imod in 1:length(Models)) {
+                    print(Models[imod])
+                    tempList[[Models[imod]]] <- BaSTA2.0::basta(
+                      bastatab, dataType = "census", shape = Shape, MinAge = MinAge, 
+                        model = Models[imod], parallel = TRUE,
                       ncpus = ncpus, nsim = nchain, 
                       niter = niter*4, burnin = burnin*4-3, thinning = thinning)
-                    if (!is.na(tempList[[models[imod]]]$DIC[1])) {
-                      DICmods$DIC[imod] <-tempList[[models[imod]]]$DIC["DIC"]
+                    if (!is.na(tempList[[Models[imod]]]$DIC[1])) {
+                      DICmods$DIC[imod] <-tempList[[Models[imod]]]$DIC["DIC"]
                     }
-                    
-                    
                   } 
                 }
                 
-                # BaSTA outputs:
+                # Survival model outputs --------------------------------------------------
                 if (any(DICmods$DIC != 0)) {
                   a = which(DICmods$DIC == 0)
-                   DICmods2 = DICmods
+                  DICmods2 = DICmods
                   if(length(a)>0){
                     DICmods2 = DICmods2[-a,]
                   }
                   idModSel <- which(DICmods$DIC == min(DICmods2$DIC, na.rm = TRUE))
                   bastaRes <- tempList[[idModSel]]
+                  summar$model = bastaRes$modelSpecs[["model"]]
                   summar$analyzed = TRUE
                 } else {
                   summar$error = 'no DIC from Basta'
-                  summar$Nerr = 8
+                  summar$Nerr = 9
                 }
               } else {
-                summar$error = "Nbasta > maxNsur"
-                summar$Nerr = 7
+                summar$error = "Nbasta > MaxNSur"
+                summar$Nerr = 8
               }} else {
-                summar$error = "Nbasta < minNsur"
-                summar$Nerr = 6
+                summar$error = "Nbasta < MinNSur"
+                summar$Nerr = 7
               }
           }else{
             summar$error = "Data from 1 Institution"
-            summar$Nerr = 5
+            summar$Nerr = 6
           }
         }else{ 
           summar$error = "%known births < MinBirthKnown"
-          summar$Nerr = 4
+          summar$Nerr = 5
         }
       }else{
         summar$error = "NBasta = 0"
-        summar$Nerr = 3
+        summar$Nerr = 4
       }
+    }else{
+      summar$ error = "lxMin > 0.99"
+      summar$ Nerr = 3
+    }
   } else {
-    summar$ error = "Nuncertdeath < minNsur"
+    summar$ error = "Nuncertdeath < MinNSur"
     summar$ Nerr = 2
   }
   
-  return(list(summary = summar, bastaRes = bastaRes, DICmods = DICmods))
+  return(list(summary = summar, metrics = metrics, bastaRes = bastaRes, DICmods = DICmods))
 }
+
+#Useful Functions
+# life expectancy:
+CalcEx <- function(Sx, dx) sum(Sx * dx) / Sx[1]
+
+# Keyfitz's entropy:
+CalcHx <- function(Sx, dx) {
+  Sx1 <- Sx[Sx > 0]; Sx1 <- Sx1 / Sx1[1]
+  if(length(dx)>1){dx <- dx[Sx > 0]}
+  -sum(Sx1 * log(Sx1) * dx) / sum(Sx1 * dx)
+}
+
+# Gini coefficient:
+CalcGx <- function(Sx, dx) {
+  Sx <- Sx / Sx[1]
+      if(length(dx)>1){dx <- dx[Sx > 0]}
+    Sx <- Sx[Sx > 0]
+  return(1 - 1 / sum(Sx * dx) * sum(Sx^2 * dx))
+}
+
+# Coefficient of variation:
+CalcCVx <- function( Sx,x, dx) {
+  Sx <- Sx / Sx[1]
+  idd <- which(Sx > 0)
+  Sx <- Sx[idd]
+  dx <- dx[idd]
+  x <- (x - x[1])[idd]
+  dS <- -diff(Sx)
+  dS <- dS / sum(dS)
+  ex <- sum(Sx * dx)
+  return(sqrt(sum((x[-length(x)] + dx[2:length(dx)]/2 - ex)^2 * dS)) / ex)
+}
+

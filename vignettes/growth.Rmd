@@ -30,18 +30,18 @@ This function is the main function used to run the growth analysis for taxon pro
 
 * `data`: the weight or length data from ZIMS
 * `coresubse`: the core data of the species from ZIMS
-* `taxa`: the name of the taxa studied
-* `species`: the name of the species studied
-* `Birth_Type`: "Captive", "Wild", and/or "All"
-* `agemat`: age at sexual maturity 
+* `Taxa`: the name of the taxa studied
+* `Species`: the name of the species studied
+* `BirthType`: "Captive", "Wild", and/or "All"
+* `AgeMat`: age at sexual maturity 
 * `models`: indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
 * `percentiles`: indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
-* `minInstitution` Minimum number of institutions that should hold records to run the analysis. 
-* `minNgro`: Minimum number of weight needed to fit the growth models
-* `minNIgro`: Minimum number of unique individuals needed to fit the growth models
+* `MinInstitution` Minimum number of institutions that should hold records to run the analysis. 
+* `MinNGro`: Minimum number of weight needed to fit the growth models
+* `MinNIGro`: Minimum number of unique individuals needed to fit the growth models
 * `type`: Either 'weight' or 'length'. Default =  'weight
 * `MeasureType`: Name of the type of measurements that should be included. 
-* `mindate`: Earlier date to include data
+* `MinDate`: Earlier date to include data
 * `PlotDir`: Directory to save the plots showing outliers and predictions from best models
 
 
@@ -54,17 +54,17 @@ The function returns a list including an analysis by sex and by birth type as in
 - NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing outliers
 - NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
 - a logical indicated if the growth analysis was performed
--  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro 5/NInd < minNIgro 6/Best model did not fit.
+-  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < MinNGro 5/NInd < MinNIGro 6/Best model did not fit.
 
 
 ```{r examples-Gro_Main}
 data(weights)
 data(core)
 output= Gro_Main(data = weights, coresubse = core,
-                 taxa = "Reptilia", species = "Testudo hermanni" ,
-                 Birth_Type = c("Captive", "Wild"), agemat = 1,
+                 Taxa = "Reptilia", Species = "Testudo hermanni" ,
+                 BirthType = c("Captive", "Wild"), AgeMat = 1,
                  type = "weight", MeasureType = "Live weight",
-                 minNgro = 30, minNIgro = 30, 
+                 MinNGro = 30, MinNIGro = 30, 
                  models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 ```
 
@@ -74,9 +74,9 @@ This function is used to prepare weight and length dataset. It unify the unity u
 
 * `data`: the weight or length data from ZIMS
 * `coresubse`: the core data of the species from ZIMS
-* `Birth_Type` Captive, Wild, or All Default =  "All"
-* `mindate` Earlier date to include data ('YYYY-MM-DD')
-* `uncert_date` Maximum uncertainty accepted for measurement dates, in days
+* `BirthType` Captive, Wild, or All Default =  "All"
+* `MinDate` Earlier date to include data ('YYYY-MM-DD')
+* `UncertDate` Maximum uncertainty accepted for measurement dates, in days
 * `MeasureType` Name of the type of measurement that should be included. Default = NULL, all measurement type are included.
 * `type` Either 'weight' or 'length'.
 
@@ -93,9 +93,9 @@ The function returns a list including:
 data(weights)
 data(core)
 data_weights= Gro_cleanmeasures(weights, core,
-                                Birth_Type = "All",
+                                BirthType = "All",
                                 MeasureType = 'Live weight',
-                                mindate = "1980-01-01")
+                                MinDate = "1980-01-01")
 ```
 
 # gro_remoutliers
@@ -103,8 +103,8 @@ data_weights= Gro_cleanmeasures(weights, core,
 This function removes the outliers from a dataset of weights. This function takes as arguments:
 `
 * `data_weight` a data frame that must include at least the columns `MeasurementValue`, `MeasurementType`, and `Age`.
-* `taxa` the name of the taxa studied
-* `ageMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults
+* `Taxa` the name of the taxa studied
+* `AgeMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*AgeMat to differentiate juveniles (still growing) from adults
 * `maxweight`
 * `variableid` name of the column including individual IDs. Defaut = "AnimalAnonID". It must also be a column of `data_weight`
 * `minq` Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
@@ -126,7 +126,7 @@ The function returns the data frame including the column `KEEP` a numeric vector
 ```{r examples-Gro_remoutliers}
 data(weights)
 weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
-                          taxa = "Mammalia", ageMat = 10)
+                          Taxa = "Mammalia", AgeMat = 10)
 ```
 
 ## Remove outliers from percentiles
@@ -193,7 +193,7 @@ The plot of the data points showed the outliers :
 ```{r example-Gro_outplot}
 data(weights)
 weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
-                          taxa = "Reptilia", ageMat = 10)
+                          Taxa = "Reptilia", AgeMat = 10)
 
 p <- Gro_outplot(data = weights, 
                  title = "Species A", ylimit = c(0,2000))
@@ -227,7 +227,7 @@ out = Gro_analysis(dat,
 
 ## Fit growth model
 
-This function fit a given growth model to a dataset. It takes as arguments:
+This function fits a given growth model to a dataset. It takes as arguments:
 
 * num index of the model to run 
 * `data`, a data frame including at least the numeric columns *logx* and *logz* 

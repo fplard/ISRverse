@@ -4,15 +4,15 @@
 #' 
 #' Prepare reproduction data including age of parent at birth, offspring sex and birth date and data of potential reproductive individuals at each age.
 #'
-#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*
-#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*
-#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*
-#' @param moves \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*
-#' @param BirthType_parent \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param BirthType_offspring \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. Default = #'
-#' @param minNrep \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
-#' @param minNparep \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
+#' @param coresubset \code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: *AnimalAnonID*, 'BirthType', *MaxBirthDate*, *MinBirthDate*, *DepartDate*, *BirthDate*,*SexType*, and *FirstHoldingInstitution*.
+#' @param collection \code{data frame} Collection data including at least the following columns: *AnimalAnonID*, *ScopeType*, *ChangeDate*.
+#' @param parent \code{data frame} Parent data including at least the following columns: *ParentAnonID*, *ParentCollectionScopeType*, *OffspringCollectionScopeType*, *AnimalAnonID*, *ParentOriginType*, *Probability*.
+#' @param moves \code{data frame} Moves data including at least the following columns: *AnimalAnonID*, *To*, *Date*.
+#' @param BirthType_parent \code{character} Captive, Wild, or All.
+#' @param BirthType_offspring \code{character} Captive, Wild, or All.
+#' @param Global \code{logical} Whether only individuals belonging to global collections should be used. 
+#' @param MinNRepro \code{numeric} Minimum number of birth records needed to run reproductive analyses.
+#' @param MinNPaRepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses.
 #'
 #' @return A list including
 #' * The reproduction data
@@ -25,7 +25,7 @@
 #'  - NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
 #'  - NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
 #'  - a logical indicated if the reproductive analysis can be performed
-#'  -  If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < minNrep and 2/Nparentshs < minNparep
+#'  -  If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < MinNRepro and 2/Nparentshs < minNparep
 #'  
 #'  
 #' @export
@@ -39,16 +39,15 @@
 #' Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
 #'                       BirthType_parent = "Captive", BirthType_offspring = "Captive"
 #' )
-Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minNparep =30,
+Rep_prepdata <- function(coresubset, collection, parent, moves, MinNRepro=50, MinNPaRepro =30,
                          BirthType_parent = "Captive", BirthType_offspring = "Captive", 
                          Global = TRUE
 ) {
-  
+  # Check correct format for inputs ------------------------------------------ 
   assert_that(is.data.frame(coresubset))
   assert_that(is.data.frame(collection))
   assert_that(is.data.frame(parent))
   assert_that(is.data.frame(moves))
-  
   assert_that(coresubset %has_name% c("AnimalAnonID", 'BirthType', "MaxBirthDate", 
                                       "MinBirthDate", "DepartDate", "BirthDate",
                                       "SexType", "FirstHoldingInstitution"))
@@ -57,13 +56,13 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
                                   "OffspringCollectionScopeType", "AnimalAnonID",
                                   "ParentOriginType", "Probability"))
   assert_that(moves %has_name% c("AnimalAnonID", "To", "Date"))
-  
   assert_that(is.character(BirthType_parent))
   assert_that(BirthType_parent %in% c("Captive", "Wild", "All"))
   assert_that(is.character( BirthType_offspring))
   assert_that( BirthType_offspring %in% c("Captive", "Wild", "All"))
   assert_that(is.logical(Global))
   
+    # Initialize outputs ----------------------------------------------------------
   fertSumm <- tibble(Nbirths = 0,
                      Nadults = 0,
                      NOffsp = 0, NParent = 0,
@@ -170,16 +169,16 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
     } 
     
   }
-  if (fertSumm$NParent_age < minNparep ) {
+  if (fertSumm$NParent_age < MinNPaRepro ) {
     Adults = subpar = tibble()
     fertSumm$analyzed = FALSE
     fertSumm$err = "Nparents < minNparep"
     fertSumm$Nerr = 2
   }
-  if (fertSumm$NOffsp_age < minNrep ) {
+  if (fertSumm$NOffsp_age < MinNRepro ) {
     Adults = subpar = tibble()
     fertSumm$analyzed = FALSE
-    fertSumm$err = "Nbirths < minNrep"
+    fertSumm$err = "Nbirths < MinNRepro"
     fertSumm$Nerr = 1
   }
   
@@ -235,7 +234,7 @@ Rep_prepdata <- function(coresubset, collection, parent, moves, minNrep=50, minN
   #           
   
   
-  return(list(Adults = ADULTS, Reprodata = subpar, summary =  fertSumm))
+  return(list(Adults = ADULTS, ReproData = subpar, summary =  fertSumm))
   
   
   

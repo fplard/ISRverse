@@ -9,52 +9,52 @@ Rep_main(
   collection,
   parent,
   move,
-  Repsect = c("agemat", "litter"),
+  RepSect = c("agemat", "litter"),
   BirthType_parent = "Captive",
   BirthType_offspring = "Captive",
   Global = TRUE,
-  minInstitution = 2,
-  minNrepro = 100,
-  minNparepro = 30,
-  parentProb_Sire = 80,
-  parentProb_Dam = 80,
-  minNlitter = 20,
-  Nday = 7,
-  minNseas = 50
+  MinInstitution = 2,
+  MinNRepro = 100,
+  MinNPaRepro = 30,
+  ParentPercSire = 80,
+  ParentPercDam = 80,
+  MinNLitter = 20,
+  NDay = 7,
+  MinNSeas = 50
 )
 }
 \arguments{
-\item{coresubset}{\code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: \emph{AnimalAnonID}, 'BirthType', \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{DepartDate}, \emph{BirthDate},\emph{SexType}, and \emph{FirstHoldingInstitution}}
+\item{coresubset}{\code{data frame} cleaned core data including only the selected individuals. It must includes at least the following columns: \emph{AnimalAnonID}, 'BirthType', \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{DepartDate}, \emph{BirthDate},\emph{SexType}, and \emph{FirstHoldingInstitution}.}
 
-\item{collection}{\code{data frame} Collection data including at least the following columns: \emph{AnimalAnonID}, \emph{ScopeType}, \emph{ChangeDate}}
+\item{collection}{\code{data frame} Collection data including at least the following columns: \emph{AnimalAnonID}, \emph{ScopeType}, \emph{ChangeDate}.}
 
-\item{parent}{\code{data frame} Parent data including at least the following columns: \emph{ParentAnonID}, \emph{ParentCollectionScopeType}, \emph{OffspringCollectionScopeType}, \emph{AnimalAnonID}, \emph{ParentOriginType}, \emph{Probability}}
+\item{parent}{\code{data frame} Parent data including at least the following columns: \emph{ParentAnonID}, \emph{ParentCollectionScopeType}, \emph{OffspringCollectionScopeType}, \emph{AnimalAnonID}, \emph{ParentOriginType}, \emph{Probability}.}
 
-\item{move}{\code{data frame} Moves data including at least the following columns: \emph{AnimalAnonID}, \emph{To}, \emph{Date}}
+\item{move}{\code{data frame} Moves data including at least the following columns: \emph{AnimalAnonID}, \emph{To}, \emph{Date}.}
 
-\item{Repsect}{\code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...}
+\item{RepSect}{\code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...}
 
-\item{BirthType_parent}{\code{character} Captive, Wild, or All. Default =  "Captive"}
+\item{BirthType_parent}{\code{character} Captive, Wild, or All.}
 
-\item{BirthType_offspring}{\code{character} Captive, Wild, or All. Default =  "Captive"}
+\item{BirthType_offspring}{\code{character} Captive, Wild, or All.}
 
-\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used. Default = #'}
+\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
 
-\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 2}
+\item{MinInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis.}
 
-\item{minNrepro}{\code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50}
+\item{MinNRepro}{\code{numeric} Minimum number of birth records needed to run reproductive analyses.}
 
-\item{minNparepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30}
+\item{MinNPaRepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses.}
 
-\item{parentProb_Sire}{\code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80}
+\item{ParentPercSire}{\code{numeric} Minimum percentage of parentage probability to include for Sire.}
 
-\item{parentProb_Dam}{\code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80}
+\item{ParentPercDam}{\code{numeric} Minimum percentage of parentage probability to include for Dam.}
 
-\item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
+\item{MinNLitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.}
 
-\item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
+\item{NDay}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread.}
 
-\item{minNseas}{\code{numeric} XXXXXXXXXXX}
+\item{MinNSeas}{\code{numeric} XXXXXXXXXXX}
 }
 \value{
 The output of a list including:
@@ -70,7 +70,7 @@ The output of a list including:
 \item NOffsp_age: the number of offspring with known birth date and with parents with a known age > 0
 \item NParent_age: the number of unique parents with known and positive age and with offspring with known birth date
 \item a logical indicated if any reproductive analysis can be performed
-\item If no analyses can be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < minNrep, 2/Nparents < minNparep, and 3/Data from N Institution
+\item If no analyses can be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths < MinNRepro, 2/Nparents < minNparep, and 3/Data from N Institution
 \item a logical indicated if the age at maturity analysis can be performed
 \item a logical indicated if the litter size analysis can be performed
 }
@@ -87,8 +87,8 @@ data(collection)
 data(parent)
 data(moves)
 out <- Rep_main (coresubset = core, collection, parent, moves,  
-                 Repsect = c('agemat', 'litter'),
-                 minNrep = 1, minNparep = 1,
+                 RepSect = c('agemat', 'litter'),
+                 MinNRepro = 1, MinNPaRepro = 1,
                  BirthType_parent = "Captive", BirthType_offspring = "Captive", 
 ) 
 

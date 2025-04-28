@@ -4,10 +4,10 @@ test_that("select_Longthreshold works", {
   TempDir <- paste0(tempdir(check = TRUE),'\\temp')
   dir.create(TempDir)
   data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
-  out <- select_Longthreshold (data.core = core,  sexCats = "All", 
-                               PlotDir = TempDir, maintitle = "Testudo_hermanni")
+  out <- select_Longthreshold (Data = core,  SexCats = "All", 
+                               PlotDir = TempDir, PlotName = "Testudo_hermanni")
   expect_true(file.exists(paste(TempDir, 'Testudo_hermanni_LongThres.pdf', sep = '\\')))
-  #remove temporary folder
+  #reMove temporary folder
   unlink(TempDir, recursive = TRUE)
   expect_named(out, c("summar",  "data"))
   expect_true("above95" %in% names(out$data))

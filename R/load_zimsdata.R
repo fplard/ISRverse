@@ -2,17 +2,17 @@
 
 #' Load Zims data
 #' 
-#' Check if selected data are already in the global environment. If not, it load them.
+#' Load ZIMS data frames of given taxa
 #'
-#' @param taxa  \code{character} the name of the taxa studied
-#' @param ZIMSdir \code{character} directory where to find data
-#' @param species  \code{list of character} names of the species studied. A list per taxa name should be used, or Default = "All"
-#' @param Animal \code{logical} Whether the core animal data should be loaded Default = TRUE
+#' @param Taxa  \code{character} Names of the taxa.
+#' @param ZIMSDir \code{character} Directory where to find data.
+#' @param Species  \code{list of character} names of the species studied. A list per taxa should be used, or "All".
+#' @param Animal \code{logical} Whether the core animal data should be loaded.
 #' @param tables \code{vector character} the type of data to load. 
-#' @param silent \code{logical} Whether information of advancement should be printed
+#' @param silent \code{logical} Whether information of advancement should be printed.
 #' 
 #' @details
-#' \code{type} can take the following values : "Contraception", "HealthStatus", "DeathInformation","Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", "Collection"
+#' \code{tables} can take the following values : "Contraception", "HealthStatus", "DeathInformation","Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", "Collection"
 #'
 #' @return A list of the data frames
 #' @importFrom glue glue
@@ -22,95 +22,86 @@
 #'
 #' @examples
 #' file = system.file("sci_Animal.csv", package = 'ISRverse')
-#' ZIMSdirtest = dirname(file)
-#' Split_Zimsdata	(ZIMSdir = ZIMSdirtest)
+#' ZIMSDirtest = dirname(file)
+#' Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 #'
-#' data <- Load_Zimsdata	(taxa = "Reptilia", 
-#'                        ZIMSdir = ZIMSdirtest, 
-#'                        species = list(Reptilia = "All"),
+#' data <- Load_Zimsdata	(Taxa = "Reptilia", 
+#'                        ZIMSDir = ZIMSDirtest, 
+#'                        Species = list(Reptilia = "All"),
 #'                        Animal = TRUE,
 #'                        tables = 'Weight') 
 #' data$Reptilia$Animal
-#' unlink(glue::glue("{ZIMSdirtest}/Split_Reptilia"), recursive = FALSE)
-Load_Zimsdata	<- function (taxa, ZIMSdir,
-                           species ,
+#' unlink(glue::glue("{ZIMSDirtest}/Split_Reptilia"), recursive = FALSE)
+Load_Zimsdata	<- function (Taxa, ZIMSDir,
+                           Species,
                            Animal = FALSE,
                            tables = c(),
                            silent = FALSE) 
 { 
   out <- list()
-  checkmate::assert_directory_exists(ZIMSdir)
-  assert_that(is.character(taxa))
-  
-  idtaxa <- list.files(glue::glue("{ZIMSdir}/"), "Split")%>%
-    stringr::str_remove("Split_")
-  assert_that(taxa %in% c(idtaxa, "All"),
-              msg = glue::glue("taxa must one of {stringr::str_flatten_comma(idtaxa)}, or 'All'"))
-  if (taxa == "All") taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                              "Chondrichthyes", "Osteichthyes")
-  assert_that(is.logical( silent))
-  assert_that(is.list(species))
-  assert_that (all(taxa %in% names(species)), 
-               msg = "species must be a list with the different taxa as names")
+ # Check correct format for inputs ---------------------------------------------
+ checkmate::assert_directory_exists(ZIMSDir)
+  assert_that(is.character(Taxa))
+  assert_that(is.logical(silent))
+  assert_that(is.list(Species))
+  assert_that (all(Taxa %in% names(Species)), 
+               msg = "Species must be a list with the different Taxa as names")
   if(length(tables)>0){  
     assert_that(is.character(tables))
     assert_that(all(tables %in%  c("Contraception", "HealthStatus", 
                                    "Institution","InstitutionAssociation", 
                                    "Move","Parent", "Weight", "Length",
-                                   'DeathInformation', 'Collection')), msg = "The table names must be 'Contraception', 'HealthStatus', 'Institution','InstitutionAssociation', 'Move','Parent', 'Weight', 'Length', 'DeathInformation', and/or 'Collection'")
+                                   'DeathInformation', 'Collection')), 
+                msg = "The table names must be 'Contraception', 'HealthStatus',
+                'Institution','InstitutionAssociation', 'Move','Parent', 'Weight', 
+                'Length', 'DeathInformation', and/or 'Collection'")
   }
+  idTaxa <- list.files(glue::glue("{ZIMSDir}/"), "Split")%>%
+    stringr::str_remove("Split_")
+  assert_that(Taxa %in% c(idTaxa, "All"),
+              msg = glue::glue("Taxa must one of {stringr::str_flatten_comma(idTaxa)}, or 'All'"))
+  if (Taxa == "All") Taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+                              "Chondrichthyes", "Osteichthyes")
   
-  for (ta in taxa){
+  # Loop over taxa ---------------------------------------------------------------
+  for (ta in Taxa){
     if (!silent) {
       cat(glue::glue("{ta}"))
     }
-    if(any(species[[ta]] != "All")){Species = species[[ta]]}
-    #Load Animal File
-    idfiles <- list.files(glue::glue("{ZIMSdir}/Split_{ta}/"), "Animal.csv")
-    
+    if(any(Species[[ta]] != "All")){Species1 = Species[[ta]]}
+    #Load Animal File ----------------------------------------------------------
+    idfiles <- list.files(glue::glue("{ZIMSDir}/Split_{ta}/"), "Animal.csv")
     assert_that(length(idfiles )> 0,
-                msg =glue::glue("Animal file for {ta} not found.")
-    )
+                msg =glue::glue("Animal file for {ta} not found."))
     assert_that(length(idfiles) < 2,
-                msg = glue::glue("More than one Animal file for {ta}.")
-    )
+                msg = glue::glue("More than one Animal file for {ta}."))
+     Ani <- read.csv(glue::glue("{ZIMSDir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
     
-    Ani <- read.csv(glue::glue("{ZIMSdir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
-    
-    
-    if(any(species[[ta]] != "All")){
+    #Filter Species List
+    if(any(Species[[ta]] != "All")){
       Ani <- Ani%>%
-        filter(binSpecies %in% Species)
+        filter(binSpecies %in% Species1)
     }
     if(nrow(Ani) == 0) warnings("There are no data for selected species of {ta}")
-    
     if(Animal){out[[ta]][["Animal"]]<- Ani}
     
+     #Load other tables --------------------------------------------------------
     if(length(tables)>0){  
       for (ty in tables){
-        
-        idfiles <- list.files(glue::glue("{ZIMSdir}/Split_{ta}/"), glue::glue("{ty}.csv"))
-        
+         idfiles <- list.files(glue::glue("{ZIMSDir}/Split_{ta}/"), glue::glue("{ty}.csv"))
         if(length(idfiles)== 0) error(glue::glue("{ty} file of {ta} not found."))
-        
         if(length(idfiles) >= 2) error(glue::glue("More than one {ty} file for {ta}."))
-        
-        if (!silent) {
-          cat(glue::glue("Loading {ty} of {ta}.\n"))
-        }
-        
-        b <- read.csv(glue::glue("{ZIMSdir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
+          if (!silent) {cat(glue::glue("Loading {ty} of {ta}.\n"))}
+         b <- read.csv(glue::glue("{ZIMSDir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
         
         if("AnimalAnonID" %in% colnames(b)){
           b <- b%>%
             filter(AnimalAnonID %in% Ani$AnimalAnonID)
         }
-        out[[taxa]][[ty]]<- b
+        out[[Taxa]][[ty]]<- b
       }
     }
-    if (!silent) {
-      cat(glue::glue("{taxa} Done.\n"))
-    }
+    if (!silent) {cat(glue::glue("{Taxa} Done.\n"))}
   }
   return(out)
 }

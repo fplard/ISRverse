@@ -85,10 +85,22 @@
     <loc>/reference/ISRverse-package.html</loc>
   </url>
   <url>
+    <loc>/reference/KM_age.html</loc>
+  </url>
+  <url>
+    <loc>/reference/KM_Lx.html</loc>
+  </url>
+  <url>
     <loc>/reference/Load_Zimsdata.html</loc>
   </url>
   <url>
     <loc>/reference/make_summary.html</loc>
+  </url>
+  <url>
+    <loc>/reference/make_summary2.html</loc>
+  </url>
+  <url>
+    <loc>/reference/Make_SurFigTab.html</loc>
   </url>
   <url>
     <loc>/reference/moves.html</loc>

@@ -2,13 +2,16 @@
 
 #' Split raw extracted data
 #' 
-#' Check Data and split tables per taxa
+#' Check Data and split tables per Taxa
 #'
-#' @param ZIMSdir \code{character} directory where to find data
-#' @param extractDate \code{character} Extraction Date
+#' @param ZIMSDir \code{character} directory where to find data
+#' @param ExtractDate \code{character} Extraction Date
 #' @param silent \code{logical} Whether information of advancement should be printed
 #' 
-#' @return A list of the data frames
+#' @return Save all tables per taxa after: 
+#'  * selecting only "Individual" for Animal Type
+#'  * adding binSpecies name
+#'  * for weights and lengths: checking that measurement are > 0 and adding the following columns: Age in years, UnitOfMeasure and MeasurementValue.
 #' 
 #' @importFrom glue glue
 #' @importFrom readr write_delim
@@ -19,92 +22,88 @@
 #' @examples
 #'
 #' file = system.file("sci_Animal.csv", package = "ISRverse")
-#' ZIMSdirtest = dirname(file)
+#' ZIMSDirtest = dirname(file)
 #'
-#' Split_Zimsdata(ZIMSdir = ZIMSdirtest)
+#' Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 #'
-#' list.files(ZIMSdirtest, recursive = TRUE)
-Split_Zimsdata	<- function (ZIMSdir,
-                            extractDate = NULL,
+#' list.files(ZIMSDirtest, recursive = TRUE)
+Split_Zimsdata	<- function (ZIMSDir,
+                            ExtractDate = NULL,
                             silent = FALSE) 
 { 
-  checkmate::assert_directory_exists(ZIMSdir)
+  # Check correct format for inputs ---------------------------------------------
+  checkmate::assert_directory_exists(ZIMSDir)
   assert_that(is.logical( silent))
-  if(!is.null(extractDate)){
-    extractDate = lubridate::date(extractDate)
-  }else{extractDate = ""}
-  
-  idfiles <- list.files(ZIMSdir, "sci_")
-  idfilesAni <- list.files(ZIMSdir, "Animal.csv")
+  if(!is.null(ExtractDate)){
+    ExtractDate = lubridate::date(ExtractDate)
+  }else{ExtractDate = ""}
+   
+  # Look for files
+  idfiles <- list.files(ZIMSDir, "sci_")
+  idfilesAni <- list.files(ZIMSDir, "Animal.csv")
   idfiles = str_subset(idfiles, pattern = "Animal.csv", negate = TRUE)
   
   
-  #Load Animal File
+  #Load Animal File ------------------------------------------------------------
   assert_that(length(idfilesAni)> 0,
-              msg =glue::glue("Animal file not found.")
-  )
+              msg =glue::glue("Animal file not found."))
   assert_that(length(idfilesAni) < 2,
-              msg = glue::glue("More than one Animal file.")
-  )
-  if (!silent) {
-    cat(glue::glue("Splitting Animal file.\n"))
-  }
-  Ani <- read.csv(glue::glue("{ZIMSdir}/{idfilesAni}"), sep = "@",  header = T, skipNul = TRUE)
+              msg = glue::glue("More than one Animal file."))
+  if (!silent) { cat(glue::glue("Splitting Animal file.\n"))}
+  Ani <- read.csv(glue::glue("{ZIMSDir}/{idfilesAni}"), sep = "@",  header = T, 
+                  skipNul = TRUE)
   Ani <- Ani%>%filter(AnimalType == "Individual")%>%select(-GAN)
   
   temp= stringr::str_split(Ani$SpeciesName, " ", simplify = T)
   temp2 = temp[,2]
   temp[,2][temp2 == ""] = "sp."
   Ani$binSpecies = stringr::str_c(temp[,1], temp[,2], sep = " ")
-  taxaList = unique(Ani$Class)
+  TaxaList = unique(Ani$Class)
   
-  #split Animal data and create sub_directory
-  for (taxa in taxaList){
-    dir.create(path = glue::glue("{ZIMSdir}/Split_{taxa}/"), showWarnings = FALSE)
-    
-    
-    Ani_taxa = Ani%>% filter(Class == taxa)
-    write_delim(Ani_taxa, file = glue::glue("{ZIMSdir}/Split_{taxa}/{taxa}{extractDate}_Animal.csv"), delim = "@")
+  # Split Animal data and create sub_directory -----------------------------------
+  for (Taxa in TaxaList){
+    dir.create(path = glue::glue("{ZIMSDir}/Split_{Taxa}/"), showWarnings = FALSE)
+    Ani_Taxa = Ani%>% filter(Class == Taxa)
+    write_delim(Ani_Taxa, 
+                file = glue::glue("{ZIMSDir}/Split_{Taxa}/{Taxa}{ExtractDate}_Animal.csv"), 
+                delim = "@")
   }
-  
-  
-  #Split all other files
+
+  # Split all other files --------------------------------------------------------
   for (file in idfiles){
-    if (!silent) {
-      cat(glue::glue("Splitting {file}.\n"))
-    }
+    if (!silent) {cat(glue::glue("Splitting {file}.\n"))}
     name = str_remove(file, "sci_")
-    fi <- read.csv(glue::glue("{ZIMSdir}/{file}"), sep = "@",  header = T, skipNul = TRUE)
+    fi <- read.csv(glue::glue("{ZIMSDir}/{file}"), sep = "@",  
+                   header = T, skipNul = TRUE)
     
-    for (taxa in taxaList){
-      fi_taxa = fi
-      Ani_taxa = Ani%>% filter(Class == taxa)
+    for (Taxa in TaxaList){
+      fi_Taxa = fi
+      Ani_Taxa = Ani%>% filter(Class == Taxa)
       if("AnimalAnonID" %in% names(fi)){
-        fi_taxa <- fi_taxa %>% filter(AnimalAnonID %in% Ani_taxa$AnimalAnonID)}
+        fi_Taxa <- fi_Taxa %>% filter(AnimalAnonID %in% Ani_Taxa$AnimalAnonID)}
       if("InstitutionAnonID" %in% names(fi)){
-        fi_taxa <- fi_taxa %>% filter(InstitutionAnonID %in% Ani_taxa$InstitutionAnonID)}
+        fi_Taxa <- fi_Taxa %>% 
+          filter(InstitutionAnonID %in% Ani_Taxa$InstitutionAnonID)}
       
       if (name == "AnimalWeight.csv"){
-        fi_taxa <-fi_taxa%>%
+        fi_Taxa <-fi_Taxa%>%
           filter(WeightValueKg>0)%>%
           rename(MeasurementValue = WeightValueKg)%>%
           mutate(Age = AnimalAgeDays/365,
                  UnitOfMeasure = "kg")
       }
       if (name == "AnimalLength.csv"){
-        fi_taxa <-fi_taxa%>%
+        fi_Taxa <-fi_Taxa%>%
           filter(LengthValueCm>0)%>%
           rename(MeasurementValue = LengthValueCm)%>%
           mutate(Age = AnimalAgeDays/365,
                  UnitOfMeasure = "cm")
       }
-      write_delim(fi_taxa,
-                  file = glue::glue("{ZIMSdir}/Split_{taxa}/{taxa}{extractDate}_{name}"), 
+      write_delim(fi_Taxa,
+                  file = glue::glue("{ZIMSDir}/Split_{Taxa}/{Taxa}{ExtractDate}_{name}"), 
                   delim = "@")
     }
   }
   
-  if (!silent) {
-    cat(" Done.\n")
-  }
+  if (!silent) {cat(" Done.\n")}
 }

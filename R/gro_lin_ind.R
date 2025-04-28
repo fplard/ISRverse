@@ -4,12 +4,12 @@
 #' 
 #' This function flag 
 #' 
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric}) and *AnimalAnonID*
-#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
-#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric}) and *AnimalAnonID*.
+#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default : 20%.
+#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250%. This value is used only after 1 year old.
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
-#' @param remove_ext \code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers. Default =  TRUE
-#' @param traj_ind \code{logical} Do you want to build linear model at the level of the individual trajectory  Default =  TRUE. If yes, each individual trajectory must have at least 5 measures. 
+#' @param remove_ext \code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers.
+#' @param traj_ind \code{logical} Do you want to build linear model at the level of the individual trajectory. If TRUE, each individual trajectory must have at least 5 measures. 
 #' 
 #' @details
 #' The function uses a log-linear model of the measurement value in relation to a quadratic effect of age for each individual trajectories. It flags as outliers all measures for which the residuals from the linear model are above  IQR * the inter quantile interval (quantile(0.9) - quantile(0.1)) of the residuals. \code{perc_weight_min} and \code{perc_weight_max} limit the values that must be considered as outliers.
@@ -42,7 +42,7 @@ Gro_lin_ind <- function(data_weight,
                         remove_ext = T,
                         traj_ind = T
 ) {
-  
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.numeric(perc_weight_min ))
   assert_that(perc_weight_min  >0 )
   assert_that(perc_weight_min  <1)

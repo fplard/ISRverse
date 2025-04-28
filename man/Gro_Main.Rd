@@ -7,21 +7,21 @@
 Gro_Main(
   data,
   coresubse,
-  taxa,
-  species,
-  Birth_Type = "All",
-  agemat = NULL,
+  Taxa,
+  Species,
+  BirthType = "All",
+  AgeMat = NA,
   type = "weight",
   MeasureType = NULL,
-  minInstitution = 1,
-  uncert_date = 365,
-  minNgro = 30,
-  minNIgro = 30,
+  MinInstitution = 1,
+  UncertDate = 365,
+  MinNGro = 30,
+  MinNIGro = 30,
   models = "vonBertalanffy",
   percentiles = c(2.5, 97.5),
   PlotDir = NULL,
-  mindate = "1980-01-01",
-  plotname = ""
+  MinDate = "1980-01-01",
+  PlotName = ""
 )
 }
 \arguments{
@@ -29,35 +29,35 @@ Gro_Main(
 
 \item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID}, \emph{BirthType} and \emph{Birthdate} (\code{date})}
 
-\item{taxa}{\code{character} the name of the taxa studied}
+\item{Taxa}{\code{character} the name of the taxa studied}
 
-\item{species}{\code{character} the name of the species studied}
+\item{Species}{\code{character} the name of the species studied}
 
-\item{Birth_Type}{\code{vector of character} "Captive", "Wild", and/or "All"}
+\item{BirthType}{\code{vector of character} "Captive", "Wild", and/or "All"}
 
-\item{agemat}{\code{numeric} age at sexual maturity . Default = NULL}
+\item{AgeMat}{\code{numeric} age at sexual maturity.}
 
-\item{type}{\code{character} Either 'weight' or 'length'. Default =  'weight}
+\item{type}{\code{character} Either 'weight' or 'length'.ht}
 
-\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.}
+\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included.  Default: all measurement types are included.}
 
-\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the analysis. Default = 1}
+\item{MinInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the analysis.}
 
-\item{uncert_date}{\code{numeric}: Maximum uncertainty accepted for measurement dates, in days}
+\item{UncertDate}{\code{numeric}: Maximum uncertainty accepted for measurement dates, in days}
 
-\item{minNgro}{\code{numeric} Minimum number of weight needed to fit the growth models}
+\item{MinNGro}{\code{numeric} Minimum number of weight needed to fit the growth models}
 
-\item{minNIgro}{\code{numeric} Minimum number of unique individuals needed to fit the growth models}
+\item{MinNIGro}{\code{numeric} Minimum number of unique individuals needed to fit the growth models}
 
-\item{models}{\code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
+\item{models}{\code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.}
 
 \item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95\% predicted interval.}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = NULL, no plot is saved}
+\item{PlotDir}{\code{character} Directory to save the plots. Default: no plot is saved.}
 
-\item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
-\item{plotname}{\code{character} Name used to save the plot. Default = ""}
+\item{PlotName}{\code{character} Name used to save the plot.}
 }
 \value{
 A list including an analysis by sex and by birth type as included in the input. Each analysis includes:
@@ -73,7 +73,7 @@ A list including an analysis by sex and by birth type as included in the input. 
 outliers
 \item NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
 \item a logical indicated if the growth analysis was performed
-\item If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro #' 5/NInd < minNIgro 6/Best model did not fit.
+\item If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < MinNGro #' 5/NInd < MinNIGro 6/Best model did not fit.
 If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 }
 }
@@ -84,9 +84,9 @@ Select measures, remove outliers, select the best growth model and produce the p
 data(weights)
 data(core)
 output= Gro_Main(data = weights, coresubse = core,
-                 taxa = "Reptilia", species = "Testudo hermanni" ,
-                 Birth_Type = c("Captive", "Wild"), agemat = 1,
+                 Taxa = "Reptilia", Species = "Testudo hermanni" ,
+                 BirthType = c("Captive", "Wild"), AgeMat = 1,
                  type = "weight", MeasureType = "Live weight",
-                 minNgro = 30, minNIgro = 30, 
+                 MinNGro = 30, MinNIGro = 30, 
                  models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 }

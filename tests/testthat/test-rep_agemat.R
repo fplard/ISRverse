@@ -6,8 +6,8 @@ test_that("Rep_agemat works", {
   data(parent)
   data(moves)
   Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
-                        minNrep = 1, minNparep = 1)
-  out <- Rep_agemat(Data$Reprodata)
+                        MinNRepro = 1, MinNPaRepro = 1)
+  out <- Rep_agemat(Data$ReproData)
   
   expect_named(out, c("N_moth_agemat", "N_birth_agemat", "ageMat", "ageYouRep",
                       "ageOldRep", "ageMean1Rep", "ageSd1Rep", "ageOld1Rep",

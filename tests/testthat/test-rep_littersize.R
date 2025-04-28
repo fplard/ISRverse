@@ -5,10 +5,10 @@ test_that("Rep_littersize works", {
   data(collection)
   data(parent)
   data(moves)
-  Data <- Rep_prepdata (coresubset = core, collection, parent, moves, minNrep = 1, minNparep = 1,
+  Data <- Rep_prepdata (coresubset = core, collection, parent, moves, MinNRepro = 1, MinNPaRepro = 1,
                         BirthType_parent = "All", BirthType_offspring = "All" )
-  out <- Rep_littersize(Data$Reprodata, minNlitter =5,
-                        Nday = 7)
+  out <- Rep_littersize(Data$ReproData, MinNLitter =5,
+                        NDay = 7)
   
   expect_named(out, c("summary", "littSizeDf", "littSizeTab", "littSizeperAge"))
   expect_named(out$summary, c("NOffsp_prob",  "NParent_prob", "NReprEvent",   "analyzed","error", "Nerr",
@@ -16,9 +16,9 @@ test_that("Rep_littersize works", {
   expect_named(out$littSizeTab, c("litterSize", "N", "prop"))
   expect_named(out$littSizeDf, c('MotherAnonID', 'InstitutionAnonID', 'litterSize', 'MeanBirthDate', 'Mother_Age', 'FatherAnonID', 'Father_Age' ))
   expect_named(out$littSizeperAge, c('Mother_Age', "MeanlittSize", "SDlittSize", "Nlitter"))
-  expect_equal(round(out$summary$MeanLittSize,2), 1.2)
-  expect_equal(out$summary$NReprEvent, 5)
-expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
+  expect_equal(round(out$summary$MeanLittSize,2), 1.67)
+  expect_equal(out$summary$NReprEvent, 6)
+  expect_equal(nrow(out$littSizeDf), out$summary$NReprEvent)
   expect_equal(nrow(out$littSizeTab), 2)
-  expect_equal(nrow(out$littSizeperAge), 5)
+  expect_equal(nrow(out$littSizeperAge), 6)
 })

@@ -6,66 +6,80 @@
 \usage{
 Sur_out(
   out,
-  shape = "simple",
-  XMAX = 120,
-  ncpus = 2,
-  minAge = 0,
-  PlotDir = NULL,
-  plotname = "",
-  Min_MLE = 0.1,
+  MinAge = 0,
+  MinMLE = 0.1,
   MaxLE = 2,
-  minlx = 0.1,
-  firstyear = FALSE
+  MinLx = 0.1,
+  MaxAge = 120,
+  AgeMat = NA,
+  ncpus = 2,
+  PlotDir = NULL,
+  PlotName = ""
 )
 }
 \arguments{
-\item{out}{\code{numeric} The output of the survival analysis}
+\item{out}{\code{list} output of the survival analysis,  returns from \code{Sur_ana()}}
 
-\item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
+\item{MinAge}{\code{numeric} Ages at which the survival analysis should start, in years.  see ?basta for more information.}
 
-\item{XMAX}{\code{numeric} Maximum possible age. Default = 120}
+\item{MinMLE}{\code{numeric} Value used for checks. Minimum survivorship allowed at mean life expectancy. Between 0 and 1.}
 
-\item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
+\item{MaxLE}{\code{numeric} Value used for checks. Maximum remaining life expectancy at last observed age. In years.}
 
-\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
+\item{MinLx}{\code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = NULL, no plot is saved}
+\item{MaxAge}{\code{numeric} Maximum possible age in years. Only used for model predictions. This argument is not used to select data.}
 
-\item{plotname}{\code{character} Name used to save the plot. Default = ""}
+\item{AgeMat}{\code{numeric} Age at sexual maturity, in years. If given, key survival metrics are calculated both from birth and from age at sexual maturity.}
 
-\item{Min_MLE}{\code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy}
+\item{ncpus}{\code{numeric} Number of computer core to use.}
 
-\item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
+\item{PlotDir}{\code{character} Directory to save the plots. Default: no plot is saved}
 
-\item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
-
-\item{firstyear}{\code{logical} Whether the analysis was done only on first year. Default = FALSE}
+\item{PlotName}{\code{character} Name used to save the plots.}
 }
 \value{
-The output list of the survival analysis including in addition:
+The output list of the survival analysis including, in addition:
 \itemize{
-\item a summary of the data used:
+\item Key survival metrics including Mean life expectancy (MLE & Ex), median life
+expectancy (L50) and  age at which 90\% of the individual died (Longevity = L90)
+estimated from raw data, the Kaplan Meier estimator, and the survival model. Estimates
+include ages from birth or from age at sexual maturity (if given). First year
+survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of
+variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier
+estimator and the survival model.
+\item Checks of the fit for the selected survival model:
+\itemize{
+\item Gof_KM_coeff1: Percentage of age points where the KM estimator is outside of the
+95\% CI of the survivorship estimated from the survival model.
+\item Gof_KM_coeff2: Maximum sum of same sign residuals between KM estimator and
+survival model
+\item Gof_martingale: using Martingale residuals
+\item LxatMLE: Estimated survivorship at mean life expectancy
+\item LEmaxOage: Life expectancy at max observed age
+\item KMMinLx: Minimum survivorship reached by the Kaplan-Meier estimator
 }
+\item The remaining life expectancy per age (relex_from0)
+\item The probability to live 5 years more (Sur5)
+\item Age-specific survival  (Sur1)
+\item Monthly survival  (Sur1m)
 \itemize{
-\item A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
+\item One showing the convergence of chains, together with estimated survivorship and
+survival and mortality rates.
+\item The second showing remaining life-expectancy, and the age-specific probabilities
+to live 5 years and 1 year more.
 }
-\itemize{
-\item the estimated remaining life expectancy per age
-\item the age at which 90\% of the population died
-\item the age at which 50\% of the population died
-\item the estimated probability to live one year more
-\item the estimated probability to live five years more
-If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 }
 }
 \description{
-Estimate remaning life expectancy, L90, L50 and age-specific survival.
+estimates key metrics from the selected survival model and returns illustrating plots of the survival model.
 }
 \examples{
 data(core)
 data(deathinformation)
-out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+out <- Sur_ana(core,  DeathInformation = deathinformation, 
+                         Models = "GO", Shape = "simple",
                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 
-out <- Sur_out(out, shape = "simple", ncpus = 3)
+out <- Sur_out(out, ncpus = 3)
 }

@@ -33,4 +33,10 @@ globalVariables(c("Age", "anonID", "MeasurementValue", "age0", "agem", "ager", "
     "WeightValueKg", "ageVec", "litter", "litterSize", "out", "parent",
     "sexCats", "subparfert", "moves", "maxAge", 'analyzed', ":=","AnyLocalCollectionFlag",
     "Ages", "Lower", "Upper", "ple", "GAN", "Meann", "FatherAnonID", "residual",
-    "Father_Age", "MeanBirthDate", "MotherAnonID", "Mother_Age", "finAge", "vbGrowthtest"), package ="ISRverse")
+    "Father_Age", "MeanBirthDate", "MotherAnonID", "Mother_Age", "finAge", "vbGrowthtest",
+    "BirthUncertainty", "Data", "DeathUncertainty", "Gof_KM_coeff1", "Raw IC",
+    "KMMinLx_Raw", "L50_KM", "L50_Model", "L90_KM", "L90_Model", "LEmaxOage_Raw",
+    "LxatMLE_Raw", "N0010", "N1020", "N2030", "N8090", "N9000", "Ndead", "Nerr", "Nrc", "Nselect",
+    "Pmort", "Pval", "S1month_KM", "S1month_Model", "S1year_KM", "S1year_Model", "SurTab",
+    "Surv_Ana", "Surv_error", "firstage", "model", "param", "stat",
+    "value"), package ="ISRverse")

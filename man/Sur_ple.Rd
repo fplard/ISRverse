@@ -2,12 +2,12 @@
 % Please edit documentation in R/sur_ple.R
 \name{Sur_ple}
 \alias{Sur_ple}
-\title{Estimate raw survivorship from life table}
+\title{Kaplan-Meier table}
 \usage{
-Sur_ple(sexData)
+Sur_ple(Data)
 }
 \arguments{
-\item{sexData}{\code{data.frame} including at least the following columns \emph{deparAge}, \emph{entryAge} (\code{date}), and \emph{DepartType}}
+\item{Data}{\code{data.frame} including at least the following columns \emph{deparAge}, \emph{entryAge} (\code{date}), and \emph{DepartType}}
 }
 \value{
 A data frame including 3 colummns:
@@ -19,9 +19,10 @@ vs. 0 is the individual was left-censored at this age
 }
 }
 \description{
-Estimate raw survivorship from life table
+This function estimated the Kaplan-Meier estimator from the raw data.
 }
 \examples{
+
 entryAge = sample(c(1:10), 200, replace = TRUE)
 data <- data.frame(
   entryAge = entryAge,

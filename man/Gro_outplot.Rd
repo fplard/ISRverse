@@ -7,13 +7,13 @@
 Gro_outplot(data, title = "", ylimit = NULL, xlimit = NULL)
 }
 \arguments{
-\item{data}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue}, \emph{keep1}, \emph{keep2}, \emph{keep3}, and \emph{KEEP}}
+\item{data}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue}, \emph{keep1}, \emph{keep2}, \emph{keep3}, and \emph{KEEP}.}
 
-\item{title}{\code{character} Title of the plot}
+\item{title}{\code{character} Title of the plot.}
 
-\item{ylimit}{\code{vector of 2 numeric} y limit for the plot}
+\item{ylimit}{\code{vector of 2 numeric} y limit for the plot.}
 
-\item{xlimit}{\code{vector of 2 numeric} x limit for the plot}
+\item{xlimit}{\code{vector of 2 numeric} x limit for the plot.}
 }
 \value{
 Plot of the data points with outliers showed:
@@ -30,7 +30,7 @@ Plot higlighting the outliers found by \code{Gro_remoutliers()}
 \examples{
 data(weights)
 weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
-                          taxa = "Reptilia", ageMat = 10)
+                          Taxa = "Reptilia", AgeMat = 10)
 
 p <- Gro_outplot(data = weights, 
                  title = "Species A", ylimit = c(0,2000))

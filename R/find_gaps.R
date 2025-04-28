@@ -2,10 +2,10 @@
 
 #' Find gaps in an integer variable
 #' 
-#' Looks for gaps within a continuous variable. Number are rounded and gaps are found if one number is not represented. Gaps are returned only if the length of the gaps is 20% higher than the starting age of this gap.
+#' Looks for gaps within a continuous variable. Values of the variable are rounded and gaps are found if one integer is not represented. Gaps are returned only if the length of the gaps is 20% higher than the starting age of this gap.
 #'
 #' @param x \code{vector of numeric} variable to analyze
-#' @param maxAlive \code{numeric} Return gaps higher than this maximum, only. Default = NA
+#' @param MaxAlive \code{numeric} Return gaps higher than this maximum, only.
 #' @param plot \code{logical} whether to actually plot the histogram
 #' @param ... arguments pass to hist()
 #'
@@ -18,21 +18,23 @@
 #'
 #' @examples
 #' x = runif(10,0,40)
-#' out<-find_gaps(x,maxAlive = 5, plot = FALSE)
-find_gaps <- function(x,maxAlive = NA, plot = FALSE,...) {
-  
-  assert_that(is.numeric(x))
-  if(is.na(maxAlive)){
-    maxAlive = max(x)
+#' out<-find_gaps(x,MaxAlive = 5, plot = FALSE)
+find_gaps <- function(x,MaxAlive = NA, plot = FALSE,...) {
+   # Check correct format for inputs -----------------------------------------------------------------------
+ assert_that(is.numeric(x))
+  if(is.na(MaxAlive)){
+    MaxAlive = max(x)
   }else{
-    assert_that(is.numeric(maxAlive))}
+    assert_that(is.numeric(MaxAlive))}
+  assert_that(is.logical(plot))
   
-  
+  #Round each value of the continuous variable-----------------------------------
   breaks <- floor(min(x, na.rm = TRUE)):ceiling(max(x, na.rm = TRUE))
   hs <- hist(x, breaks = breaks, plot = plot, ...)
   xc <- hs$counts
   xc[hs$counts > 0] <- 1
   
+  # Look for gaps ---------------------------------------------------------------
   fin <- FALSE
   i <- 1
   n <- length(xc)
@@ -48,12 +50,12 @@ find_gaps <- function(x,maxAlive = NA, plot = FALSE,...) {
       fin <- TRUE
     }
   }
-  if(is.na(maxAlive))(maxAlive = max(x))
+  if(is.na(MaxAlive))(MaxAlive = max(x))
   
+  #Return gaps only if the gaps is 20% higher than the starting age of this gap-----
   idgap <- gaps%>%
     filter(Gap/iniAge > 0.2 ,
-           finAge  >= maxAlive)
-  
-  if (nrow(idgap) > 0 & plot) {abline(v = idgap$iniAge, col = 2)}
+           finAge  >= MaxAlive)
+   if (nrow(idgap) > 0 & plot) {abline(v = idgap$iniAge, col = 2)}
   return(idgap)
 }

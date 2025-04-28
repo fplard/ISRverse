@@ -8,7 +8,7 @@
 #' @param AnalysisDir  \code{character} directory where to find the .Rdata files
 #' @param SaveDir  \code{character} directory where to save the json files
 #' @param namefile \code{character} Suffix to add to the name of files produced if needed. Default = ""
-#' @param taxaList \code{vector of characters} name of the taxa studied. Default= "Mammalia"
+#' @param TaxaList \code{vector of characters} name of the Taxa studied. Default= "Mammalia"
 #' @param BySex \code{List} indicating the sexes analyzed. Default= list(Mammalia= c("Male", "Female"))
 #' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
 #'
@@ -25,14 +25,14 @@
 #' # dir.create(SaveDir)
 #' # SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
 #' # Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
-#' #                         taxaList = "Reptilia",
+#' #                         TaxaList = "Reptilia",
 #' #                         BySex = list(Reptilia = c("Male", "Female")) ,
 #' #                         Sections = c("sur", 'gro')
 #' # )
 #' # list.files(SaveDir)
 #' # unlink(SaveDir, recursive = TRUE)
 Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
-                       taxaList = "Mammalia",
+                       TaxaList = "Mammalia",
                        BySex = list(Mammalia= c("Male", "Female")) , 
                        Sections = c("sur", 'rep', 'gro')
 ){
@@ -40,10 +40,10 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
   assert_that(is.data.frame(SpeciesTable))
   
   assert_that(SpeciesTable  %has_name% c("Class", "Species"))
-  assert_that(is.character(taxaList))
-  # assert_that(taxaList %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+  assert_that(is.character(TaxaList))
+  # assert_that(TaxaList %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
   #                             "Chondrichthyes", "Actinopterygii"),
-  #             msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+  #             msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
   #                         'Chondrichthyes', or 'Actinopterygii'")
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
@@ -51,33 +51,33 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
   checkmate::assert_directory_exists(SaveDir)
   assert_that(is.character(namefile))
   assert_that(is.list(BySex))
-  assert_that(all(taxaList %in% names(BySex)), msg = "BySex should be a list with names identical to taxaList")
+  assert_that(all(TaxaList %in% names(BySex)), msg = "BySex should be a list with names identical to TaxaList")
   
   # List of available SRGs:
   SRGlist <- list.files(AnalysisDir, pattern = ".RData")
   assert_that(length(SRGlist) > 0, 
               msg = glue::glue("There are no result file in {AnalysisDir}"))
   
-  for (taxa in taxaList) {
+  for (Taxa in TaxaList) {
     
-    SRGspecies = SpeciesTable%>%filter(Class==taxa)%>%pull(Species)
+    SRGspecies = SpeciesTable%>%filter(Class==Taxa)%>%pull(Species)
     SRGspeciesta = SRGspecies %>%stringr::str_replace(" ", "_")
     i = 0
     # Loop over species
     for (isp in SRGspeciesta) {
       i = i+1
       specie =isp%>%
-        stringr::str_remove(pattern = paste0(taxa, '_'))%>%
+        stringr::str_remove(pattern = paste0(Taxa, '_'))%>%
         stringr::str_replace("_", " ")
       
-      cat("\n", taxa," -------Species: ", SRGspecies[i], "Progress:", round(i / length(SRGspecies) * 100, 1),"%")
+      cat("\n", Taxa," -------Species: ", SRGspecies[i], "Progress:", round(i / length(SRGspecies) * 100, 1),"%")
       
       # SRG file:
-      load(file = glue::glue("{AnalysisDir}/{taxa}_{isp}.RData"))
+      load(file = glue::glue("{AnalysisDir}/{Taxa}_{isp}.RData"))
       TPout = list()
       
       # Fill up data list:
-      for (sx in  BySex[[taxa]]) {
+      for (sx in  BySex[[Taxa]]) {
         if("sur" %in% Sections){
           TPout$survival[[sx]]$Nbasta = repout$surv[[sx]]$from0$summary$NBasta
           TPout$survival[[sx]]$Lx = cbind(Age = repout$surv[[sx]]$from0$bastaRes$x, t(repout$surv[[sx]]$from0$bastaRes$surv$nocov))
@@ -87,7 +87,7 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
         }
         
       }
-      write(rjson::toJSON(TPout), file = glue("{SaveDir}/{namefile}{taxa}_{isp}.json"))
+      write(rjson::toJSON(TPout), file = glue("{SaveDir}/{namefile}{Taxa}_{isp}.json"))
     }
     
     if("gro" %in% Sections){

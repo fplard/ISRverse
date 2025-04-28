@@ -4,67 +4,66 @@
 #' 
 #' Load data needed and run or update demographic analyses for the list of species selected
 #'
-#' @param taxa  \code{character} the name of the taxa studied
-#' @param Species_list \code{vector of character} Species selected
-#' @param ZIMSdir \code{character} directory where to find data
-#' @param AnalysisDir \code{character} directory where to save results
-#' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
-#' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
-#' @param minBirthDate  \code{character}: Earlier possible date: date used when minimum birth or death date unknown
-#' @param Birth_Type \code{character} Captive, Wild, or All. Default =  "Captive"
-#' @param minDate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param Sections \code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")
-#' @param erase_previous \code{logical} whether the current result file should be deleted (before being replaced). Default = FALSE
-#' @param sexCats \code{character} Male, Female or All Default =  "All"
+#' @param Taxa \code{character} Name of the taxa studied
+#' @param SpeciesList \code{vector of character} Species selected
+#' @param ZIMSDir \code{character} Directory where to find data
+#' @param AnalysisDir \code{character} Directory where to save results
+#' @param PlotDir \code{character} Directory to save the plots. Default: no plot is saved
+#' @param ExtractDate \code{character 'YYYY-MM-DD'} Date of data extraction
+#' @param MinBirthDate  \code{character}: Earliest possible date: date used when minimum birth or death dates are unknown
+#' @param BirthType \code{character} Captive, Wild, or All.
+#' @param MinDate \code{character 'YYYY-MM-DD'} Earliest date to include data
+#' @param Sections \code{vector of character} Names of the sections to update in the results: "sur", "rep" and/or "gro".
+#' @param ErasePrevious \code{logical} Whether the current result file should be deleted (before being replaced).
+#' @param SexCats \code{character} Male, Female or All.
 #' @param Global \code{logical} Whether only individuals belonging to global collections should be used.
-#' @param inparallel \code{logical} Whether this function is run in parallel on different computer. In other words: should the species list be divided? Default = FALSE
-#' @param ipara \code{numeric} Id number of the computer used to select the species to run
-#' @param npara \code{numeric} number of computers used in parallel
-#' @param minN \code{numeric} Minimum number of individuals. Default = 50
-#' @param maxOutl \code{numeric} Maximum threshold for the longevity distribution. Default = NULL
-#' @param spOutLev \code{vector of character} List of species for which the Maximum threshold for the longevity distribution.XXXXXXXXXXXXXXXXXXXXXXXXX
-#' @param minInstitution \code{numeric} Minimum number of institutions that should hold records to run the analyses. Default = 2
-#' @param uncert_birth \code{numeric}: Maximum uncertainty accepted for birth dates, in days
-#' @param uncert_death \code{numeric}: Maximum uncertainty accepted for death dates, in days. Default = 365
-#' @param uncert_date \code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days. Default = 365
-#' @param minNsur \code{numeric} Minimum number of individuals to run the survival analysis. Default = 50
-#' @param maxNsur \code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL
-#' @param minlx  \code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1
-#' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3
-#' @param XMAX \code{numeric} Maximum possible age. Default = 120
-#' @param Min_MLE \code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy
-#' @param MaxLE \code{numeric} Goodness of fit: Maximum remaining life expectancy at max age
-#' @param minAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0
-#' @param firstyear \code{logical} Whether to do the analysis only on first year. Default = FALSE
-#' @param models_sur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
-#' @param shape \code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
-#' @param lastdead  \code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE
-#' @param niter  \code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000
-#' @param burnin  \code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. Default = 5001
-#' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20
-#' @param nchain  \code{numeric} Number of chains to run the survival model. Default = 5001
-#' @param ncpus  \code{numeric} Number of computer core to use. Default = 2
-#' @param Repsect \code{character} names of the reproductive analyses to run: "agemat", "litter" and/or ...
-#' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb_Dam \code{numeric} Minimum percentage of parentage probability to include for Dam. Default = 80
-#' @param parentProb_Sire \code{numeric} Minimum percentage of parentage probability to include for Sire. Default = 80
-#' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
-#' @param minNrepro \code{numeric} Minimum number of birth records needed to run reproductive analyses. Default = 50
-#' @param minNparepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses. Default = 30
-#' @param minNseas \code{numeric} XXXXXXXXXXX
-#' @param minNgro \code{numeric} Minimum number of weight needed to fit the growth models
-#' @param minNIgro \code{numeric} Minimum number of unique individuals needed to fit the growth models
-#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.
-#' @param models_gro \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+#' @param InParallel \code{logical} Whether this function is run in parallel on different computers. In other words: should the species list be divided?
+#' @param ipara \code{numeric} ID number of the computer used
+#' @param npara \code{numeric} Number of computers used in parallel
+#' @param MinN \code{numeric} Minimum number of individuals needed to run the analysis.
+#' @param spOutLev \code{vector of character} List of species for which the Maximum threshold for the longevity distribution is 99.9% instead of MaxOutl.
+#' @param MinInstitution \code{numeric} Minimum number of institutions that should hold records to run the analyses.
+#' @param UncertBirth \code{numeric}: Maximum uncertainty accepted for birth dates, in days
+#' @param UncertDeath \code{numeric}: Maximum uncertainty accepted for death dates, in days.
+#' @param UncertDate \code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days.
+#' @param MinNSur \code{numeric} Minimum number of individual records to run the survival analysis.
+#' @param MaxNSur \code{numeric} Maximum number of individual records to run the survival analysis.
+#' @param MinLx  \code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.
+#' @param MinMLE \code{numeric} Value used for checks. Minimum survivorship allowed at mean life expectancy. Between 0 and 1.
+#' @param MaxLE \code{numeric} Value used for checks. Maximum remaining life expectancy at last observed age. In years.
+#' @param MaxOutl \code{numeric} Start threshold to select individuals based on the longevity distribution: 100%, 99.9, 99 or 95%. This number must decrease when many errors are expected in longevity data.
+#' @param MinBirthKnown  \code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data.
+#' @param MaxAge \code{numeric} Maximum possible age in years. Only used for model predictions. This argument is not used to select data.
+#' @param MinAge \code{numeric} Ages at which the analyses should start.  see ?basta for more information.
+#' @param ModelsSur \code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information.
+#' @param Shape \code{character} Shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information.
+#' @param LastDead  \code{logical} Whether the longest lived individual should be considered dead.
+#' @param niter  \code{numeric}. Number of MCMC iterations to run the survival model. see ?basta for more information.
+#' @param burnin  \code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. 
+#' @param thinning  \code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. 
+#' @param nchain  \code{numeric} Number of chains to run the survival model.
+#' @param ncpus  \code{numeric} Number of computer core to use.
+#' @param RepSect \code{character} Names of the reproductive analyses to run: "agemat", "litter" and/or ...
+#' @param NDay \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread
+#' @param ParentPercDam \code{numeric} Minimum percentage of parentage probability to include Dam.
+#' @param ParentPercSire \code{numeric} Minimum percentage of parentage probability to include Sire.
+#' @param MinNLitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. 
+#' @param MinNRepro \code{numeric} Minimum number of birth records needed to run reproductive analyses.
+#' @param MinNPaRepro \code{numeric} Minimum number of unique parent records needed to run reproductive analyses.
+#' @param MinNSeas \code{numeric} XXXXXXXXXXX
+#' @param MinNGro \code{numeric} Minimum number of weight needed to fit the growth models
+#' @param MinNIGro \code{numeric} Minimum number of unique individuals needed to fit the growth models
+#' @param MeasureType \code{vector of characters} Names of the types of measurement that should be included.  Default: all measurement type are included.
+#' @param ModelsGro \code{vector of characters} Names the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #'
-#' @return Save and replace the result file for each specie sin the list. The file is saved in {analysisDir}\\Rdata\\{taxa}_{species}.Rdata
+#' @return Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}\\Rdata\\{Taxa}_{species}.Rdata
 #' @export
 #'
 #' @examples
-#' # Here is an example but use directly your own ZIMSdir (directory to find data) 
-#' # and analysisDir (directory to save analysis)
+#' # Here is an example but use directly your own ZIMSDir (directory to find data) 
+#' # and AnalysisDir (directory to save the analysis)
 #' file = system.file("sci_Animal.csv", package = 'ISRverse')
-#' ZIMSdir = dirname(file)
+#' ZIMSDir = dirname(file)
 #' AnalysisDir = paste0(tempdir(check = TRUE),'/temp')
 #' PlotDir = paste0(AnalysisDir,'/plot')
 #' # dir.create(AnalysisDir)
@@ -72,13 +71,13 @@
 #' dir.create(PlotDir)
 #'
 #' #This code run the survival analysis
-#' run_txprofile(taxa = "Reptilia", Species_list = "All",
-#'               ZIMSdir = ZIMSdir, AnalysisDir = AnalysisDir,
+#' run_txprofile(Taxa = "Reptilia", SpeciesList = "All",
+#'               ZIMSDir = ZIMSDir, AnalysisDir = AnalysisDir,
 #'               PlotDir = PlotDir,
-#'               extractDate = "",
-#'               minDate = "1980-01-01",
+#'               ExtractDate = "",
+#'               MinDate = "1980-01-01",
 #'               Sections = c("sur"),
-#'               sexCats = c('Male', 'Female'),
+#'               SexCats = c('Male', 'Female'),
 #'               niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
 #' )
 #'
@@ -87,115 +86,126 @@
 #'
 #' unlink(AnalysisDir, recursive = TRUE)
 #' unlink(PlotDir, recursive = TRUE)
-run_txprofile <- function(taxa, Species_list, ZIMSdir, 
+run_txprofile <- function(Taxa, SpeciesList, ZIMSDir, 
                           AnalysisDir, PlotDir,
-                          extractDate, minDate = "1980-01-01",
-                          Sections, erase_previous = FALSE,
-                          sexCats = c('Male', 'Female'), minBirthDate = "1900-01-01",
-                          inparallel = FALSE, ipara = 1, npara = 1, 
-                          minN= 50,  maxOutl =99,  spOutLev = NULL, Global = TRUE,
-                          uncert_birth = 365,  uncert_death = 365,  uncert_date = 365, 
-                          minNsur = 50, maxNsur = NULL, minInstitution = 2,
-                          minlx = 0.1, MinBirthKnown = 0.3, XMAX =120,
-                          Min_MLE = 0.1, MaxLE = 2, minAge = 0,firstyear =FALSE,
-                          models_sur = "GO", shape = "bathtub",
+                          ExtractDate, MinDate = "1980-01-01",
+                          Sections, ErasePrevious = FALSE,
+                          SexCats = c('Male', 'Female'), MinBirthDate = "1900-01-01",
+                          InParallel = FALSE, ipara = 1, npara = 1, 
+                          MinN= 50,  MaxOutl =99,  spOutLev = NULL, Global = TRUE,
+                          UncertBirth = 365,  UncertDeath = 365,  UncertDate = 365, 
+                          MinNSur = 50, MaxNSur = NULL, MinInstitution = 2,
+                          MinLx = 0.1, MinBirthKnown = 0.3, MaxAge =120,
+                          MinMLE = 0.1, MaxLE = 2, MinAge = 0,
+                          ModelsSur = "GO", Shape = "bathtub",
                           niter = 25000, burnin = 5001, thinning = 20, 
                           nchain = 3, ncpus = 2,
-                          Repsect = c('agemat', 'litter'),
-                          Birth_Type = "Captive", lastdead = FALSE,
-                          parentProb_Sire = 80, parentProb_Dam = 80, minNlitter = 20,Nday = 7,
-                          minNrepro = 100, minNparepro = 30, minNseas = 50, 
-                          minNgro =100,minNIgro = 50, MeasureType = "Live weight",
-                          models_gro = "vonBertalanffy"
+                          RepSect = c('agemat', 'litter'),
+                          BirthType = "Captive", LastDead = FALSE,
+                          ParentPercSire = 80, ParentPercDam = 80, MinNLitter = 20,NDay = 7,
+                          MinNRepro = 100, MinNPaRepro = 30, MinNSeas = 50, 
+                          MinNGro =100,MinNIGro = 50, MeasureType = "Live weight",
+                          ModelsGro = "vonBertalanffy"
                           
 ){
-  
-  assert_that(is.character(taxa))
+  # Check correct format for inputs -----------------------------------------------------------------------
+  assert_that(is.character(Taxa))
   assert_that(is.character(Sections))
   assert_that(all(Sections %in% c("sur", "gro", "rep")))
-  assert_that(is.character(Species_list))
+  assert_that(is.character(SpeciesList))
   assert_that(is.logical(Global))
-  minDate = lubridate::as_date(minDate)
-  extractDate = lubridate::as_date(extractDate)
-  assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
-  assert_that(is.logical( erase_previous))
-  assert_that(is.logical(inparallel))
-  assert_that(is.numeric( ipara))
-  assert_that(is.numeric( npara))
+  MinDate = lubridate::as_date(MinDate)
+  ExtractDate = lubridate::as_date(ExtractDate)
+  assert_that(BirthType %in% c("Captive", "Wild", "All"))
+  assert_that(is.logical(ErasePrevious))
+  assert_that(is.logical(InParallel))
+  assert_that(is.numeric(ipara))
+  assert_that(is.numeric(npara))
   assert_that(ipara <= npara)
-  assert_that(is.numeric( maxOutl))
-  assert_that(is.numeric(minAge))
-  assert_that(minAge>=0)
-  assert_that(is.logical(firstyear))
-  assert_that( maxOutl <= 100)
-  assert_that(is.numeric(uncert_birth))
-  assert_that(is.numeric(uncert_death))
-  assert_that(is.numeric(uncert_date))
-  assert_that(is.double(minInstitution))
-  assert_that(is.numeric(Min_MLE))
-  assert_that(is.numeric(MaxLE))
-  assert_that(is.numeric(minNsur))
-  assert_that(minNsur > 0)
-  if(!is.null(maxNsur)) assert_that(is.numeric(maxNsur))
-  assert_that(is.numeric(minlx))
-  assert_that(minlx > 0)
-  assert_that(minlx < 1)
-  assert_that(is.numeric(MinBirthKnown))
-  assert_that(MinBirthKnown >= 0)
-  assert_that(MinBirthKnown <1)
-  assert_that(is.numeric(niter))
-  assert_that(niter > 0)
-  assert_that(is.numeric(burnin))
-  assert_that(burnin > 0)
-  assert_that(burnin < niter)
-  assert_that(is.numeric(thinning))
-  assert_that(thinning > 0)
-  assert_that(thinning < niter)
-  assert_that(is.numeric(nchain))
-  assert_that(nchain > 0)
+  
+  assert_that(is.numeric( MaxOutl))
+  assert_that(is.numeric(MinAge))
+  assert_that(MinAge>=0)
+  assert_that(MaxOutl <= 100)
+  assert_that(is.numeric(UncertBirth))
+  assert_that(is.numeric(UncertDeath))
+  assert_that(is.numeric(UncertDate))
+  assert_that(is.double(MinInstitution))
   assert_that(is.numeric(ncpus))
   assert_that(ncpus > 0)
-  assert_that(is.character(models_sur))
-  assert_that(all(models_sur %in% c("GO", "EX", "LO", "WE")))
-  assert_that(is.character(shape))
-  assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
-  assert_directory_exists(ZIMSdir)
+  checkmate::assert_directory_exists(PlotDir)
+  assert_directory_exists(ZIMSDir)
   assert_directory_exists(AnalysisDir)
   assert_directory_exists(glue("{AnalysisDir}/Rdata"))
-  assert_directory_exists(PlotDir)
   
-  assert_that(all(Repsect %in% c("agemat", "litter")))
-  assert_that(is.numeric(parentProb_Dam))
-  assert_that(parentProb_Dam > 0)
-  assert_that(is.numeric(parentProb_Sire))
-  assert_that(parentProb_Sire > 0)
-  assert_that(is.numeric(minNrepro))
-  assert_that(minNrepro > 0)
-  assert_that(is.numeric(minNparepro))
-  assert_that(minNparepro > 0)
-  assert_that(is.numeric(minNlitter))
-  assert_that(minNlitter > 0)
-  assert_that(is.numeric( minNseas))
-  assert_that( minNseas > 0)
-  assert_that(is.numeric( Nday))
-  assert_that( Nday >= 0)
+  if("sur" %in% Sections){
+    
+    assert_that(is.numeric(MinNSur))
+    assert_that(MinNSur > 0)
+    if(!is.null(MaxNSur)) assert_that(is.numeric(MaxNSur))
+    assert_that(is.numeric(MinLx))
+    assert_that(MinLx >= 0 & MinLx <= 1)
+    assert_that(is.numeric(MinMLE))
+    assert_that(MinMLE >= 0 & MinMLE <= 1)
+    assert_that(is.numeric(MaxLE))
+    assert_that(is.numeric(MinBirthKnown))
+    assert_that(MinBirthKnown <= 1,
+                msg ='MinBirthKnown must be a proportion, so between 0 and 1')
+    assert_that(is.numeric(niter))
+    assert_that(niter > 0)
+    assert_that(is.numeric(burnin))
+    assert_that(burnin > 0)
+    assert_that(burnin < niter)
+    assert_that(is.numeric(thinning))
+    assert_that(thinning > 0)
+    assert_that(thinning < niter)
+    assert_that(is.numeric(nchain))
+    assert_that(nchain > 0)
+    assert_that(is.numeric(ncpus))
+    assert_that(ncpus > 0)
+    assert_that(is.character(ModelsSur))
+    assert_that(all(ModelsSur %in% c("GO", "EX", "LO", "WE")))
+    assert_that(is.character(Shape))
+    assert_that(all(Shape %in% c("simple", "bathtub", "Makeham")))
+  }
   
-  assert_that(is.numeric( minNIgro))
-  assert_that( minNIgro > 0)
-  assert_that(is.numeric(minNgro))
-  assert_that(minNgro > 0)
-  assert_that(is.character(MeasureType))
-  assert_that(is.character(models_gro ))
-  assert_that(all(models_gro %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
+  if("rep" %in% Sections){
+    assert_that(all(RepSect %in% c("agemat", "litter")))
+    assert_that(is.numeric(ParentPercDam))
+    assert_that(ParentPercDam > 0)
+    assert_that(is.numeric(ParentPercSire))
+    assert_that(ParentPercSire > 0)
+    assert_that(is.numeric(MinNRepro))
+    assert_that(MinNRepro > 0)
+    assert_that(is.numeric(MinNPaRepro))
+    assert_that(MinNPaRepro > 0)
+    assert_that(is.numeric(MinNLitter))
+    assert_that(MinNLitter > 0)
+    assert_that(is.numeric( MinNSeas))
+    assert_that( MinNSeas > 0)
+    assert_that(is.numeric( NDay))
+    assert_that( NDay >= 0)
+  }
   
-  assert_that(is.character( sexCats))
-  assert_that(all(sexCats %in% c("Male", "Female", "All")))
+  if("gro" %in% Sections){
+    assert_that(is.numeric(MinNIGro))
+    assert_that(MinNIGro > 0)
+    assert_that(is.numeric(MinNGro))
+    assert_that(MinNGro > 0)
+    assert_that(is.character(MeasureType))
+    assert_that(is.character(ModelsGro))
+    assert_that(all(ModelsGro %in% c("logistic", "gompertz", "chapmanRichards",
+                                     "vonBertalanffy", "polynomial", "gam")),
+                msg = "The growth models supported are: logistic, gompertz, 
+                chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
+  }
+  
+  assert_that(is.character(SexCats))
+  assert_that(all(SexCats %in% c("Male", "Female", "All")))
   
   
   
-  # ======================#
-  # ==== Load data ========
-  # ======================#
+  # Load data ------------------------------------------------------------------------
   cat("Loading Data\n")
   tables = c("Collection")
   if("sur" %in% Sections){
@@ -207,64 +217,60 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
   if("rep" %in% Sections){
     tables = c(tables, "Parent", "Contraception", "Move")
   }
-  species_list = list()
-  species_list [[taxa]] = Species_list
-  data <- Load_Zimsdata	(taxa = taxa, ZIMSdir = ZIMSdir, 
-                         species = species_list,
+  Species_List = list()
+  Species_List[[Taxa]] = SpeciesList
+  data <- Load_Zimsdata	(Taxa = Taxa, ZIMSDir = ZIMSDir, 
+                         Species = Species_List,
                          Animal = TRUE,
                          tables = tables,
                          silent = TRUE) 
   
-  # ======================#
-  # ==== Species List =====
-  # ======================#
-  if(all(Species_list == "All")){
-    spAll <- unique(data[[taxa]]$Animal$binSpecies)%>%
+  # Species List -------------------------------------------------------------------
+  if(all(SpeciesList == "All")){
+    spAll <- unique(data[[Taxa]]$Animal$binSpecies)%>%
       stringr::str_subset(pattern = ' sp.', negate = TRUE)
   }else{
-    spAll <-Species_list
+    spAll <-SpeciesList
   }
-  if (inparallel){
+  if (InParallel){
     # IDs of species to run per version:
     idsprun <- seq(ipara, length(spAll), by = npara)
   }else{
     idsprun <- c(1:length(spAll))}
   
-  # ======================#
-  # ==== RUN ANALYSES: ====
-  # ======================#
-  core <- Prep_Animal(data[[taxa]]$Animal, extractDate= extractDate,minBirthDate =minBirthDate )
+  
+  # RUN ANALYSES-------------------------------------------------------------------
+  core <- Prep_Animal(data[[Taxa]]$Animal, 
+                      ExtractDate = ExtractDate, 
+                      MinBirthDate = MinBirthDate)
   # #subset Tables
   if("sur" %in% Sections){
-    DeathInformation <- data[[taxa]]$DeathInformation
+    DeathInformation <- data[[Taxa]]$DeathInformation
   }else{DeathInformation <- NULL}
   if("gro" %in% Sections){
-    weights = data[[taxa]]$Weight
+    weights = data[[Taxa]]$Weight
   }else{
     weights <-NULL
   }
   if("rep" %in% Sections){
-    parents = data[[taxa]]$Parent
-    move = data[[taxa]]$Move
-    contraceptions = data[[taxa]]$Contraception
+    parents = data[[Taxa]]$Parent
+    move = data[[Taxa]]$Move
+    contraceptions = data[[Taxa]]$Contraception
   }else{
     parents =contraceptions = move = NULL
   }
   
   # Start counter:
   icount <- 0
-  
   # Loop over species
   for (isp in idsprun) {
     # Extract species:
     species <- spAll[isp]
-    
-    # # progress count:
+    # progress count:
     icount <- icount + 1
     
-    
     # Report progress:
-    cat("\n====================\nClass:   ", taxa, "\nSpecies: ", species, 
+    cat("\n====================\nClass:   ", Taxa, "\nSpecies: ", species, 
         "\nProgress:", round(icount / length(idsprun) * 100, 0), 
         "%\n=====================\n")
     cat("Species running...\n ")
@@ -272,46 +278,51 @@ run_txprofile <- function(taxa, Species_list, ZIMSdir,
     speciesname = stringr::str_replace(species, " ", "_")
     
     #Load previous taxon profile to update it
-    if(erase_previous){
+    if(ErasePrevious){
       repout = list()
     }else{
-      if(length(list.files(glue::glue("{AnalysisDir}/Rdata/"), glue::glue("{taxa}_{speciesname}.RData")))>0){
-        load(glue::glue("{AnalysisDir}/Rdata/{taxa}_{speciesname}.RData"))
+      if(length(list.files(glue::glue("{AnalysisDir}/Rdata/"), glue::glue("{Taxa}_{speciesname}.RData")))>0){
+        load(glue::glue("{AnalysisDir}/Rdata/{Taxa}_{speciesname}.RData"))
       }else{repout = list()}
     }
-    if (species %in% spOutLev) {maxOutl1 <- 99.9
-    }else{maxOutl1 <- maxOutl}
+    if (species %in% spOutLev) {MaxOutl1 <- 99.9
+    }else{MaxOutl1 <- MaxOutl}
     
     
     # Create report:
-    repout <- tx_report(species, taxa, 
-                        Animal =  core, collection = data[[taxa]]$Collection, 
+    repout <- tx_report(species, Taxa, 
+                        Animal =  core, Collection = data[[Taxa]]$Collection, 
                         DeathInformation = DeathInformation,
-                        PlotDir = PlotDir, extractDate= extractDate, minBirthDate = minBirthDate,
-                        weights = weights, parents = parents, contraceptions = contraceptions, move = move,
-                        repout = repout, Sections = Sections, Birth_Type = Birth_Type,
-                        sexCats = sexCats, minN= minN, minDate= minDate, Global = Global,
-                        uncert_birth = uncert_birth, uncert_death= uncert_death,
-                        uncert_date = uncert_date,minAge =minAge,firstyear = firstyear,
-                        maxOutl = maxOutl1, minlx = minlx, minInstitution = minInstitution,
-                        minNsur = minNsur, maxNsur = maxNsur, MinBirthKnown = MinBirthKnown,
-                        Min_MLE = Min_MLE, MaxLE =  MaxLE,XMAX = XMAX,
-                        models_sur = models_sur, shape = shape,lastdead = lastdead,
+                        PlotDir = PlotDir, ExtractDate= ExtractDate, 
+                        MinBirthDate = MinBirthDate,
+                        Weights = weights, Parents = parents,
+                        Contraceptions = contraceptions, Move = move,
+                        repout = repout, Sections = Sections, 
+                        BirthType = BirthType,
+                        SexCats = SexCats, MinN= MinN, 
+                        MinDate= MinDate, Global = Global,
+                        UncertBirth = UncertBirth, UncertDeath= UncertDeath,
+                        UncertDate = UncertDate,MinAge =MinAge,
+                        MaxOutl = MaxOutl1, MinLx = MinLx, 
+                        MinInstitution = MinInstitution,
+                        MinNSur = MinNSur, MaxNSur = MaxNSur, 
+                        MinBirthKnown = MinBirthKnown,
+                        MinMLE = MinMLE, MaxLE =  MaxLE,MaxAge = MaxAge,
+                        ModelsSur = ModelsSur, Shape = Shape,
+                        LastDead = LastDead,
                         niter = niter, burnin =  burnin, thinning = thinning,
                         nchain = nchain,  ncpus = ncpus,
-                        Repsect = Repsect, parentProb_Dam = parentProb_Dam,
-                        parentProb_Sire = parentProb_Sire, minNrepro = minNrepro,
-                        minNlitter = minNlitter, Nday = Nday,
-                        minNparepro = minNparepro, minNseas = minNseas, 
-                        minNgro =minNgro,minNIgro = minNIgro, 
-                        MeasureType = MeasureType, models_gro = models_gro
+                        RepSect = RepSect, ParentPercDam = ParentPercDam,
+                        ParentPercSire = ParentPercSire, MinNRepro = MinNRepro,
+                        MinNLitter = MinNLitter, NDay = NDay,
+                        MinNPaRepro = MinNPaRepro, MinNSeas = MinNSeas, 
+                        MinNGro =MinNGro,MinNIGro = MinNIGro, 
+                        MeasureType = MeasureType, ModelsGro = ModelsGro
     )
     
-    # ----------------------- #
-    # ---- Save results: ----
-    # ----------------------- #
+    # Save results ------------------------------------------------------------------
     # Save species list:
-    save("repout", file = glue::glue("{AnalysisDir}/Rdata/{taxa}_{speciesname}.RData"))
+    save("repout", file = glue::glue("{AnalysisDir}/Rdata/{Taxa}_{speciesname}.RData"))
     cat(" done.\n")
   }
 }

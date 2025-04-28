@@ -4,45 +4,22 @@
 \alias{Sur_age}
 \title{Age-specific survival}
 \usage{
-Sur_age(
-  theMat,
-  Nyear = 1,
-  model = "GO",
-  shape = "bathtub",
-  ncpus = 1,
-  ageMax = 120,
-  dage = 0.01,
-  minAge = 0
-)
+Sur_age(Lx, xv, Nyear = 1)
 }
 \arguments{
-\item{theMat}{\code{array} including the posteriors estimates of the model parameter}
+\item{Lx}{\code{numeric} Survivorship}
+
+\item{xv}{\code{numeric}  Age vector}
 
 \item{Nyear}{\code{numeric} number of year to survive Default = 1#}
-
-\item{model}{\code{character} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
-
-\item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
-
-\item{ncpus}{\code{numeric} Number of core to use}
-
-\item{ageMax}{\code{numeric} Maximum age in years Default = 120}
-
-\item{dage}{\code{numeric} precision  for age Default = 0.01}
-
-\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
 }
 \value{
-a data frame including age, the mean and 95\% credible interval of the remaining life expectancy
+a data frame including age, the mean and 95\% credible interval of the age specific probability to survive \code{Nyear} years.
 }
 \description{
 Estimate age-specific survival (i.e. the probability to leave at least a given number of years) from the parameters outputs of a Basta model.
 }
 \examples{
-theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
-                               b1= rnorm(10, 0.1, 0.01)))
-
-
-out <- Sur_age(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-               ageMax = 50, dage = 0.1, Nyear = 5)
+Lx = matrix(c(seq(1,0,by = -0.1), 1,seq(0.5,0,length.out = 10)),nrow =2)
+out <- Sur_age(Lx, Nyear = 5, xv = c(0:10))
 }

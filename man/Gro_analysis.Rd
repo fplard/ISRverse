@@ -11,11 +11,11 @@ Gro_analysis(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{AnimalAnonID}}
+\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{AnimalAnonID}.}
 
-\item{all_mods}{\code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
+\item{all_mods}{\code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.}
 
-\item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95\% predicted interval.}
+\item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default: 95\% predicted interval.}
 }
 \value{
 a list including:
@@ -27,7 +27,7 @@ a list including:
 }
 }
 \description{
-This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
+This function fits a series of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 }
 \examples{
 Age <- sample(c(0:10), 100, replace = TRUE)

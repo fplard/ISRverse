@@ -6,8 +6,8 @@
 \usage{
 Gro_remoutliers(
   data_weight,
-  taxa,
-  ageMat = NULL,
+  Taxa,
+  AgeMat = NA,
   maxweight = NULL,
   variableid = "AnimalAnonID",
   min_Nmeasures = 7,
@@ -19,27 +19,27 @@ Gro_remoutliers(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{MeasurementType},  \emph{Age}  (\code{numeric})}
+\item{data_weight}{\code{data.frame} including at least the following columns : \emph{MeasurementValue} (\code{numeric}), \emph{MeasurementType},  \emph{Age}  (\code{numeric}).}
 
-\item{taxa}{\code{character} the name of the taxa studied}
+\item{Taxa}{\code{character} Name of the taxa.}
 
-\item{ageMat}{\code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults}
+\item{AgeMat}{\code{numeric} Age at sexual maturity to differentiate juveniles (still growing) from adults.}
 
 \item{maxweight}{\code{numeric} the maximum weight allowed for the dataset}
 
-\item{variableid}{\code{character} name of the variable including individual ids. Defaut = "AnimalAnonID". It must also be a column of data_weight.Default = 6. It must be at least 5}
+\item{variableid}{\code{character} name of the variable including individual ids. It must also be a column of data_weight.}
 
-\item{min_Nmeasures}{\code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5}
+\item{min_Nmeasures}{\code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. It must be at least 5.}
 
-\item{perc_weight_min}{\code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20\%)}
+\item{perc_weight_min}{\code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default: 20\%.}
 
-\item{perc_weight_max}{\code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250\%)}
+\item{perc_weight_max}{\code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250\%.}
 
 \item{IQR}{\code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.}
 
-\item{minq}{\code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025}
+\item{minq}{\code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1.}
 
-\item{Ninterval_juv}{\code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10}
+\item{Ninterval_juv}{\code{integer} Number of intervals used for the sliding windows for juveniles.}
 }
 \value{
 The data frame including the additional column \code{KEEP} a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3 and the column juv indicates which individuals have been classified as juveniles.
@@ -57,5 +57,5 @@ This function follow 4 different steps to highlight outliers:
 \examples{
 data(weights)
 weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
-                          taxa = "Mammalia", ageMat = 10)
+                          Taxa = "Mammalia", AgeMat = 10)
 }

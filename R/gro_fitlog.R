@@ -3,11 +3,11 @@
 
 #' Fit growth model
 #' 
-#' Fit a growth model to data, return its fit and AIC
+#' Fits a growth model to data, return its fit and AIC
 #' 
-#' @param num \code{numeric} index of the model to run 
-#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
-#' @param all_mods \code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+#' @param num \code{numeric} index of the model to run .
+#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* .
+#' @param all_mods \code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
 #' 
 #' @import dplyr assertthat
 #' @importFrom bbmle mle2 logLik
@@ -22,6 +22,7 @@
 #' )
 #' out <- Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
 Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
+ # Check correct format for inputs ---------------------------------------------
   assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c('logx', 'logz', 'AnimalAnonID'))

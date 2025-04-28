@@ -2,106 +2,108 @@
 
 #' Gap analysis in longevity
 #' 
-#' Run a gap analysis on the distribution of longevity and give the threshold value to use in this distribution to avoid having gaps in longevities. Plot the distribution of longevities with gaps.
+#' Run a gap analysis on the distribution of longevity and give the threshold value to use to avoid having gaps in longevity.
 #' 
-#' @param data.core \code{data.frame} including at least the following columns *Birth.Date* (\code{date}), *Depart.Date* (\code{date}), *Entry.Date* (\code{date}), and *SexType*
-#' @param sexCats \code{character} Male, Female or All Default =  "All"
+#' @param Data \code{data.frame} including at least the following columns *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), and *SexType*
+#' @param SexCats \code{character} Male, Female or All.
+#' @param MinN \code{numeric} Minimum number of individuals to run the gap analysis.
 #' @param PlotDir \code{character} Directory to save the plots.
-#' @param maintitle \code{character} name of the graph to be saved. Default = ""
-#' @param minN \code{numeric} Minimum number of individuals. Default = 50
+#' @param PlotName \code{character} name of the graph to be saved.
 #'
 #' @return A list including
 #' * the data with the selected sex and additional columns showing which individuals are above the percentiles 95%, 99% and 99.9%
 #' * A summary list with:
-#' - Sex = the sex selected
-#' - Nselect: the number of individuals of this sex
-#' - Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
-#' - GapThresh : The threshold value selected for the distribution of longevity
-#' - NThres : the number of individuals selected using this threshold
-#' 
+#'     * Sex = the sex selected
+#'     * Nselect: the number of individuals of this sex
+#'     * Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
+#'     * GapThresh : The threshold value selected for the distribution of longevity
+#'     * NThres : the number of individuals selected using this threshold
+#' * Plot and save the longevity distribution with gaps if PlotDir is given.
+#'  
 #' @export
 #'
 #' @examples
 #' TempDir <- paste0(tempdir(check = TRUE),'\\temp')
 #' dir.create(TempDir)
 #' data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
-#' out <- select_Longthreshold (data.core = core,  sexCats = "All", 
-#'                              PlotDir = TempDir, maintitle = "Testudo_hermanni")
+#' out <- select_Longthreshold (Data = core,  SexCats = "All", 
+#'                              PlotDir = TempDir, PlotName = "Testudo_hermanni")
 #' list.files(TempDir)
-#' #remove temporary folder
+#' #reMove temporary folder
 #' unlink(TempDir, recursive = TRUE)
-select_Longthreshold <- function(data.core,  sexCats = "All", 
-                                 PlotDir = NULL, maintitle = '', minN = 50) {
-  
-  assert_that(is.data.frame(data.core ))
-  assert_that(data.core  %has_name% c("BirthDate", "DepartDate",
-                                      "EntryDate", "SexType"))
-  assert_that(is.character(sexCats))
-  assert_that(length(sexCats)==1, 
+select_Longthreshold <- function(Data,  SexCats = "All", MinN = 50,
+                                 PlotDir = NULL, PlotName = ''
+                                 ) {
+  # Check correct format for inputs -----------------------------------------------------------------------
+  assert_that(is.data.frame(Data))
+  assert_that(Data  %has_name% c("BirthDate", "DepartDate",
+                                 "EntryDate", "SexType"))
+  assert_that(is.character(SexCats))
+  assert_that(length(SexCats)==1, 
               msg = "You can chose only one sex category")
-  assert_that(all(sexCats %in% c("Female", "Male", "All")))
+  assert_that(all(SexCats %in% c("Female", "Male", "All")))
+  assert_that(is.numeric(MinN))
   if(!is.null(PlotDir)){
     assert_that(is.character(PlotDir))
     checkmate::assert_directory_exists(PlotDir)}
   
-  coresubset <- data.core%>%
+    # Initialize Output list_______________________________________________________
+  outTab <- tibble( 
+    Sex = SexCats,
+    Nselect = 0,
+    Nlifespan = 0,
+    GapThresh = NA, 
+    NThres = 0
+  ) 
+  
+  #Calculate longevity and time alive ------------------------------------------
+  coresubset <- Data%>%
     mutate(
       #longevities:
       lifespans = as.numeric(DepartDate - BirthDate) / 365.25,
       # Calculate time alive:
       alive = as.numeric(DepartDate - EntryDate) / 365.25)
   
-  # Output table:
-  outTab <- tibble( 
-    Sex = sexCats,
-    Nselect = nrow(coresubset),
-    Nlifespan = 0,
-    GapThresh = NA, 
-    NThres = 0
-  ) 
-  
-  if(sexCats %in% c('Male', 'Female')){
-    coresex <- coresubset%>%filter(SexType ==sexCats)
+
+  # Select Sex -----------------------------------------------------------------
+  if(SexCats %in% c('Male', 'Female')){
+    coresex <- coresubset%>%filter(SexType ==SexCats)
   }else{coresex = coresubset}
+  outTab$Nselect = nrow(coresex)
   
+  # Run Gap analysis -----------------------------------------------------------
   if(nrow(coresex)>0){
-    # Check longevities:
-    
-    quant = quantile (coresubset$lifespans,c(0.95,0.99,0.999))
-    
+     quant = quantile (coresubset$lifespans,c(0.95,0.99,0.999))
     coresex <-  coresex%>%
       mutate(`above95`= if_else(lifespans> quant[1], 1, 0),
              `above99`= if_else(lifespans> quant[2], 1, 0),
              `above99.9`= if_else(lifespans> quant[3], 1, 0)
       )
-    
     # Find gaps in longevities:
     corelong <- coresex%>%tidyr::drop_na(lifespans)
     outTab$Nlifespan <- nrow(corelong)
-    
-    
-    if (nrow(corelong) > minN) {
+     if (nrow(corelong) > MinN) {
       gapsAlive <- find_gaps(corelong$alive, 
-                             maxAlive = quantile(corelong$alive, 0.5, na.rm = TRUE), 
+                             MaxAlive = quantile(corelong$alive, 0.5, na.rm = TRUE), 
                              plot = F)
       if (nrow(gapsAlive) > 0) {
-        maxAlive <-  gapsAlive$iniAge[1]
+        MaxAlive <-  gapsAlive$iniAge[1]
       } else {
-        maxAlive <- max(corelong$alive, na.rm = TRUE)
+        MaxAlive <- max(corelong$alive, na.rm = TRUE)
       }
-      if (maxAlive < 5) {
-        maxAlive <- 5
-      } else if (maxAlive > 50) {
-        maxAlive <- 50
+      if (MaxAlive < 5) {
+        MaxAlive <- 5
+      } else if (MaxAlive > 50) {
+        MaxAlive <- 50
       }
-      pdf(file = glue::glue("{PlotDir}/{maintitle}_LongThres.pdf"), width = 5, height = 5)
       
+      # Plot the longevity gaps
+      pdf(file = glue::glue("{PlotDir}/{PlotName}_LongThres.pdf"), width = 5, height = 5)
       par(mar = c(4, 4, 1, 1))
-      gaps <- find_gaps(corelong$lifespans, maxAlive = maxAlive, plot = T,
-                        main = maintitle, 
+      gaps <- find_gaps(corelong$lifespans, MaxAlive = MaxAlive, plot = T,
+                        main = PlotName, 
                         xlab = "")
       ngap = nrow( gaps)
-      
       if (nrow(gaps) > 0) {
         allev <- 0
         while(allev < 3 & ngap>0) {
@@ -109,14 +111,13 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
           qlev <- c("99.9", "99", "95")[allev]
           abcol <- sprintf("above%s", qlev)
           gaps <- find_gaps(corelong$lifespans[corelong[[abcol]] == 0], 
-                            maxAlive = maxAlive, plot = T,
+                            MaxAlive = MaxAlive, plot = T,
                             main = paste(qlev, "%"), 
                             xlab = "")
-          ngap = nrow( gaps)
+          ngap = nrow(gaps)
         }
         outTab$GapThresh <-as.numeric(qlev)
-        
-        if (allev < 3) {
+          if (allev < 3) {
           for (ll in (allev + 1):3) {
             qlev <- c("99.9", "99", "95")[ll]
             abcol <- sprintf("above%s", qlev)
@@ -130,15 +131,8 @@ select_Longthreshold <- function(data.core,  sexCats = "All",
         outTab$GapThresh <-100
       }
       outTab$NThres <- nrow(coresex)
-      
       dev.off()
-      
     } 
-    
-    
   }
   return(list(summar = outTab, data = coresex) )
 }
-
-
-

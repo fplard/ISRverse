@@ -5,8 +5,8 @@
 #' 
 #' This function gets the parameter and equations for the growth model
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
-#' @param model \code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial 
+#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* .
+#' @param model \code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial .
 #' 
 #' 
 #' @import dplyr assertthat
@@ -23,7 +23,7 @@
 #' Gro_ModSettings(data = dat, model = "vonBertalanffy")
 # Set growth model parameters:
 Gro_ModSettings <- function(data, model = "vonBertalanffy") {
-  
+ # Check correct format for inputs ---------------------------------------------
   assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "vonBertalanffy_re", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c('logx', 'logz'))

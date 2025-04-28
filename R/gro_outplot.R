@@ -5,10 +5,10 @@
 #' 
 #'Plot higlighting the outliers found by \code{Gro_remoutliers()}
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*
-#' @param title \code{character} Title of the plot
-#' @param xlimit \code{vector of 2 numeric} x limit for the plot
-#' @param ylimit \code{vector of 2 numeric} y limit for the plot
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*.
+#' @param title \code{character} Title of the plot.
+#' @param xlimit \code{vector of 2 numeric} x limit for the plot.
+#' @param ylimit \code{vector of 2 numeric} y limit for the plot.
 #' 
 #' @import dplyr assertthat 
 #' @importFrom ggplot2 ggplot geom_point ggtitle aes xlim ylim
@@ -23,12 +23,13 @@
 #' @examples
 #' data(weights)
 #' weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
-#'                           taxa = "Reptilia", ageMat = 10)
+#'                           Taxa = "Reptilia", AgeMat = 10)
 #'
 #' p <- Gro_outplot(data = weights, 
 #'                  title = "Species A", ylimit = c(0,2000))
 #' p
 Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
+  # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c("MeasurementValue","Age", 'keep1', 'keep2', 'keep3', "KEEP"))
   assert_that(is.numeric(data$MeasurementValue))

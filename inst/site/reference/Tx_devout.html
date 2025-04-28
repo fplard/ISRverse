@@ -74,7 +74,7 @@
 <span>  <span class="va">AnalysisDir</span>,</span>
 <span>  <span class="va">SaveDir</span>,</span>
 <span>  namefile <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  taxaList <span class="op">=</span> <span class="st">"Mammalia"</span>,</span>
+<span>  TaxaList <span class="op">=</span> <span class="st">"Mammalia"</span>,</span>
 <span>  BySex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -98,8 +98,8 @@
 <dd><p><code>character</code> Suffix to add to the name of files produced if needed. Default = ""</p></dd>
 
 
-<dt>taxaList</dt>
-<dd><p><code>vector of characters</code> name of the taxa studied. Default= "Mammalia"</p></dd>
+<dt>TaxaList</dt>
+<dd><p><code>vector of characters</code> name of the Taxa studied. Default= "Mammalia"</p></dd>
 
 
 <dt>BySex</dt>
@@ -125,7 +125,7 @@
 <span class="r-in"><span><span class="co"># dir.create(SaveDir)</span></span></span>
 <span class="r-in"><span><span class="co"># SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")</span></span></span>
 <span class="r-in"><span><span class="co"># Tx_devout(SpeciesTable, AnalysisDir, SaveDir,</span></span></span>
-<span class="r-in"><span><span class="co">#                         taxaList = "Reptilia",</span></span></span>
+<span class="r-in"><span><span class="co">#                         TaxaList = "Reptilia",</span></span></span>
 <span class="r-in"><span><span class="co">#                         BySex = list(Reptilia = c("Male", "Female")) ,</span></span></span>
 <span class="r-in"><span><span class="co">#                         Sections = c("sur", 'gro')</span></span></span>
 <span class="r-in"><span><span class="co"># )</span></span></span>

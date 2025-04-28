@@ -4,34 +4,34 @@
 \alias{Prep_Animal}
 \title{Prepare Animal data}
 \usage{
-Prep_Animal(Animal, minBirthDate = "1900-01-01", extractDate)
+Prep_Animal(Animal, MinBirthDate = "1900-01-01", ExtractDate)
 }
 \arguments{
 \item{Animal}{\code{data.frame} including at least the following columns \emph{AnimalAnonID},  \emph{BirthDate}, \emph{BirthDateEstimateType}, \emph{BirthDateEstimateStart}, \emph{BirthDateEstimateEnd}, \emph{BirthType}, \emph{FirstAcquisitionDate}, \emph{DeathDate}, \emph{DeathDateEstimateType}, \emph{DeathDateEstimateStart}, \emph{DeathDateEstimateEnd}, \emph{LastCommentEntryDate}, \emph{BirthObserved}, \emph{GlobalStatus}, and  \emph{LastTXDate}}
 
-\item{minBirthDate}{\code{character}: Earlier possible date: date used when minimum birth or death date unknown}
+\item{MinBirthDate}{\code{character}: Earliest possible date: date used when minimum birth or death date unknown}
 
-\item{extractDate}{\code{character}: Latest possible date in the data: date used when individuals are still alive}
+\item{ExtractDate}{\code{character}: Latest possible date in the data: date used as DepartDate when individuals are still alive}
 }
 \value{
-The checked and prepared dataset
+the checked and prepared dataset
 }
 \description{
 Check dates and add needed columns to animal data
 }
 \details{
-This function add the columns: MinBirthDate, MaxBirthDate, MinDeathDate, MaxDeathDate, EntryDate, EntryType, DepartDate, DepartType, Birth_Uncertainty, and Death_Uncertainty. It removes individuals for which dates are not chronologically meaningful (i.e. birth date after death date) and for which Birth_Uncertainty is higher than \code{uncert_birth}.
+This function adds the columns: MinBirthDate, MaxBirthDate, MinDeathDate, MaxDeathDate, EntryDate, EntryType, DepartDate, DepartType, BirthUncertainty, and DeathUncertainty. It removes individuals for which dates are not chronologically meaningful (i.e. birth date after death date) and for which birth uncertainty is higher than \code{UncertBirth}.
 }
 \examples{
 file = system.file("sci_Animal.csv", package = 'ISRverse')
-ZIMSdirtest = dirname(file)
+ZIMSDirtest = dirname(file)
 
-data <- Load_Zimsdata	(taxa = "Reptilia", 
-                       species = list(Reptilia = "All"),
-                       ZIMSdir = ZIMSdirtest,
+data <- Load_Zimsdata	(Taxa = "Reptilia", 
+                       Species = list(Reptilia = "All"),
+                       ZIMSDir = ZIMSDirtest,
                        Animal = TRUE)
 
-Animal <- Prep_Animal(data$Reptilia$Animal, extractDate = lubridate::as_date("2023/12/23"))
+Animal <- Prep_Animal(data$Reptilia$Animal, ExtractDate = lubridate::as_date("2023/12/23"))
 
-unlink(ZIMSdirtest, recursive = FALSE)
+unlink(ZIMSDirtest, recursive = FALSE)
 }

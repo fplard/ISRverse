@@ -8,29 +8,26 @@ make_summary(
   AnalysisDir,
   SaveDir,
   namefile = "",
-  taxaList = "Mammalia",
+  TaxaList = "Mammalia",
   BySex = list(Mammalia = c("Male", "Female")),
   Sections = c("sur", "rep", "gro"),
-  minAge = 0,
-  firstyear = FALSE
+  MinAge = 0
 )
 }
 \arguments{
-\item{AnalysisDir}{\code{character} directory where to find the .Rdata files}
+\item{AnalysisDir}{\code{character} Directory where to find the .Rdata files: Results of the analyses}
 
-\item{SaveDir}{\code{character} directory where to save summary plots and tables}
+\item{SaveDir}{\code{character} Directory where to save summary plots and tables}
 
-\item{namefile}{\code{character} Suffix to add to the name of files produced if needed. Default = ""}
+\item{namefile}{\code{character} Suffix to add to the name of files produced if needed.}
 
-\item{taxaList}{\code{vector of character} names of the taxa studied. Default= "Mammalia"}
+\item{TaxaList}{\code{vector of character} names of the taxa studied.}
 
-\item{BySex}{\code{list} of the taxa names indicating the sexes analyzed. Default=list(Mammalia = c("Male", "Female"))}
+\item{BySex}{\code{list} of the taxa names indicating the sexes analyzed.}
 
-\item{Sections}{\code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")}
+\item{Sections}{\code{vector of character} names of the sections: "sur", "rep" and/or "gro".}
 
-\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
-
-\item{firstyear}{\code{logical} Whether to do the analysis only on first year. Default = FALSE}
+\item{MinAge}{\code{numeric} Ages at which the survival analyses started.}
 }
 \value{
 It saves summary tables and plots for each Sections and a general summary table. It returns the main summary table
@@ -39,17 +36,17 @@ It saves summary tables and plots for each Sections and a general summary table.
 Produce summary tables and plots of the demographic analyses made for all species
 }
 \examples{
-file = system.file("sci_Animal.csv", package = 'ISRverse')
-AnalysisDir  = paste0(dirname(file),'/Rdata')
-SaveDir = paste0(tempdir(check = TRUE),'/temp')
-dir.create(SaveDir)
-
-SummTab <- make_summary(AnalysisDir, SaveDir,
-                        taxaList = "Reptilia",
-                        BySex = list(Reptilia = c("Male", "Female")) ,
-                        Sections = c("sur", 'gro')
-)
-list.files(SaveDir)
-
-unlink(SaveDir, recursive = TRUE)
+# file = system.file("sci_Animal.csv", package = 'ISRverse')
+# AnalysisDir  = paste0(dirname(file),'/Rdata')
+# SaveDir = paste0(tempdir(check = TRUE),'/temp')
+# dir.create(SaveDir)
+# 
+# SummTab <- make_summary(AnalysisDir, SaveDir,
+#                         TaxaList = "Reptilia",
+#                         BySex = list(Reptilia = c("Male", "Female")) ,
+#                         Sections = c("sur", 'gro')
+# )
+# list.files(SaveDir)
+# 
+# unlink(SaveDir, recursive = TRUE)
 }

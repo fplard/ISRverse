@@ -5,7 +5,7 @@ data = tibble(Age = c(rep(c(1:5),2),4),
               AnimalAnonID = c(rep(1:2, each = 5),3),
               MeasurementType = "Live weight")
 
-out= Gro_remoutliers(data, taxa = "Reptilia", ageMat = 10,
+out= Gro_remoutliers(data, Taxa = "Reptilia", AgeMat = 10,
                      min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
 
 test_that(

@@ -5,19 +5,21 @@
 \title{Survival Analysis}
 \usage{
 Sur_ana(
-  sexData,
+  Data,
   DeathInformation,
-  outlLev1 = 100,
-  models = "GO",
-  shape = "simple",
-  minAge = 0,
-  mindate = "1980-01-01",
-  minNsur = 50,
-  maxNsur = NULL,
-  uncert_death = 365,
+  Models = "GO",
+  Shape = "simple",
+  MinAge = 0,
+  OutlLev1 = 100,
+  MinDate = "1980-01-01",
+  MinNSur = 50,
+  MaxNSur = NULL,
+  UncertDeath = 365,
+  MinLx = 0.1,
   MinBirthKnown = 0.3,
-  minInstitution = 1,
-  lastdead = FALSE,
+  MinInstitution = 1,
+  AgeMat = NA,
+  LastDead = FALSE,
   niter = 25000,
   burnin = 5001,
   thinning = 20,
@@ -26,70 +28,83 @@ Sur_ana(
 )
 }
 \arguments{
-\item{sexData}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{SexType}, and \emph{BirthType}}
+\item{Data}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{SexType}, and \emph{BirthType}.}
 
 \item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}}
 
-\item{outlLev1}{\code{numeric} Start threshold used to selected for the data: 100\%, 99.9, 99 or 95\%}
+\item{Models}{\code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information.}
 
-\item{models}{\code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
+\item{Shape}{\code{character} Shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information.}
 
-\item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
+\item{MinAge}{\code{numeric} Ages at which the survival analysis should start, in years.  see ?basta for more information.}
 
-\item{minAge}{\code{numeric} Age at which the analysis should start.  see ?basta for more information. Default = 0}
+\item{OutlLev1}{\code{numeric} Start threshold to select individuals based on the longevity distribution: 100\%, 99.9, 99 or 95\%. This number must decrease when many errors are expected in longevity data.}
 
-\item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data.}
 
-\item{minNsur}{\code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50}
+\item{MinNSur}{\code{numeric} Minimum number of individual records needed to run the survival analysis.}
 
-\item{maxNsur}{\code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL}
+\item{MaxNSur}{\code{numeric} Maximum number of individual records to run the survival analysis.}
 
-\item{uncert_death}{\code{numeric}: Maximum uncertainty accepted for death date, in days}
+\item{UncertDeath}{\code{numeric}: Maximum uncertainty accepted for death date, in days.}
 
-\item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
+\item{MinLx}{\code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.}
 
-\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 1}
+\item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data to run the survival analysis.}
 
-\item{lastdead}{\code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE}
+\item{MinInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis.}
 
-\item{niter}{\code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000}
+\item{AgeMat}{\code{numeric} Age at sexual maturity, in years. If given, key survival metrics are calculated both from birth and from age at sexual maturity.}
 
-\item{burnin}{\code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001}
+\item{LastDead}{\code{logical} Whether the longest lived individuals should be considered dead.}
 
-\item{thinning}{\code{numeric} Number of iteration to run before saving a set of parameters. see ?basta for more information. Default = 20}
+\item{niter}{\code{numeric}. Parameter to run the model: number of MCMC iterations. see ?basta for more information.}
 
-\item{nchain}{\code{numeric} Number of chains to run. Default = 5001}
+\item{burnin}{\code{numeric} Parameter to run the model: number of iterations removed so that the model has time to converge. see ?basta for more information.}
 
-\item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
+\item{thinning}{\code{numeric} Parameter to run the model: number of iterations to run before saving a set of parameters. see ?basta for more information.}
+
+\item{nchain}{\code{numeric} Parameter to run the model: Number of chains to run.}
+
+\item{ncpus}{\code{numeric} Number of computer cores to use.}
 }
 \value{
 The output of a list including:
 \itemize{
 \item a summary of the data used:
-}
 \itemize{
 \item NSelect: Number of individuals selected from filters
 \item NUncertdeath: Number of individuals selected after filter uncertainty in death
 \item NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
 \item Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
+\item Nrc: Number of right censored individuals
+\item N8090: Number of individuals born between 1980 and 1990 (excluded)
+\item N9000: Number of individuals born between 1990 and 2000 (excluded)
+\item N0010: Number of individuals born between 2000 and 2010 (excluded)
+\item N1020: Number of individuals born between 2010 and 2020 (excluded)
+\item N2030: Number of individuals born between 2020 and 2030 (excluded)
+\item QBD10: 10\% Quantile of birth date distribution
+\item QBD50: Median of birth date distribution
+\item QBD90: 90\% Quantile of birth date distribution
+\item BDincert: average uncertainty in birth date: in days
 \item maxAge: Maximum age of known age individuals
-\item maxAlive:Maximum number of years spent ex situ
-\item lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
-\item OutLev: threshold selected for the distribution of  time spent alive: 100\%, 99.9, 99 or 95\%
-\item a logical indicated if the growth analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/lxMin > minlx; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < minNsur; 8/Nbasta < maxNsur; 9/no DIC from Basta.
+\item maxAlive:M aximum number of years spent ex situ
+\item lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
+\item OutLev: threshold selected for the distribution of longevity: 100\%, 99.9\%, 99\% or 95\%
+\item analyzed: a logical indicated if the survival analysis was performed
+\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta.
 }
-\itemize{
+\item Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90\% of the individual died (Longevity = L90) estimated from raw data and from the Kaplan Meier Estimator. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator.
 \item the basta fit of the best model
-\item the DIC table comparing the different fit of the models
+\item the DIC table comparing the different fit of the Models
 }
 }
 \description{
-Run basta models on the data after checking conditions for correct convergence of the models
+Run basta Models on the data after checking conditions for correct convergence of the Models
 }
 \examples{
 data(core)
 data(deathinformation)
-out <- Sur_ana(core,  DeathInformation = deathinformation, models = "GO", shape = "simple",
+out <- Sur_ana(core,  DeathInformation = deathinformation, Models = "GO", Shape = "simple",
                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 }

@@ -7,11 +7,11 @@
 Gro_cleanmeasures(
   data,
   coresubse,
-  Birth_Type = "All",
+  BirthType = "All",
   type = "weight",
   MeasureType = NULL,
-  mindate = "1980-01-01",
-  uncert_date = 365,
+  MinDate = "1980-01-01",
+  UncertDate = 365,
   corevariable = NULL,
   variablekeep = NULL
 )
@@ -19,21 +19,21 @@ Gro_cleanmeasures(
 \arguments{
 \item{data}{\code{data.frame} including the following columns \emph{MeasurementValue}, \emph{MeasurementDate}, \emph{MeasurementDateStart}, \emph{MeasurementDateEnd}, \emph{UnitOfMeasure}, \emph{EstimatedMeasurement}, \emph{RecordType}, \emph{MeasurementType}, \emph{AnimalAnonID}, \emph{RecordingInstitution}, and \emph{Age}.}
 
-\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID} and \emph{BirthType}}
+\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID} and \emph{BirthType}.}
 
-\item{Birth_Type}{\code{character} Captive, Wild, or All Default =  TRUE}
+\item{BirthType}{\code{character} Captive, Wild, or All.}
 
-\item{type}{\code{character} Either 'weight' or 'length'. Default =  'weight}
+\item{type}{\code{character} Either 'weight' or 'length'.}
 
-\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.}
+\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included. Default: all measurement type are included.}
 
-\item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
 
-\item{uncert_date}{\code{numeric}: Maximum uncertainty accepted for measurement dates, in days}
+\item{UncertDate}{\code{numeric}: Maximum uncertainty accepted for measurement dates, in days.}
 
-\item{corevariable}{\code{vector character} Name of the core columns that must be added to data}
+\item{corevariable}{\code{vector character} Name of the core columns that must be added to data.}
 
-\item{variablekeep}{\code{vector character} Name of the data columns that must also be returned}
+\item{variablekeep}{\code{vector character} Name of the data columns that must also be returned.}
 }
 \value{
 A list including
@@ -52,7 +52,7 @@ Select clean measures, unify the unity used and add individual age at each measu
 data(weights)
 data(core)
 data_weights= Gro_cleanmeasures(weights, core,
-                                Birth_Type = "All",
+                                BirthType = "All",
                                 MeasureType = 'Live weight',
-                                mindate = "1980-01-01")
+                                MinDate = "1980-01-01")
 }

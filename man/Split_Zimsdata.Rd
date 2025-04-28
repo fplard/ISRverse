@@ -4,27 +4,32 @@
 \alias{Split_Zimsdata}
 \title{Split raw extracted data}
 \usage{
-Split_Zimsdata(ZIMSdir, extractDate = NULL, silent = FALSE)
+Split_Zimsdata(ZIMSDir, ExtractDate = NULL, silent = FALSE)
 }
 \arguments{
-\item{ZIMSdir}{\code{character} directory where to find data}
+\item{ZIMSDir}{\code{character} directory where to find data}
 
-\item{extractDate}{\code{character} Extraction Date}
+\item{ExtractDate}{\code{character} Extraction Date}
 
 \item{silent}{\code{logical} Whether information of advancement should be printed}
 }
 \value{
-A list of the data frames
+Save all tables per taxa after:
+\itemize{
+\item selecting only "Individual" for Animal Type
+\item adding binSpecies name
+\item for weights and lengths: checking that measurement are > 0 and adding the following columns: Age in years, UnitOfMeasure and MeasurementValue.
+}
 }
 \description{
-Check Data and split tables per taxa
+Check Data and split tables per Taxa
 }
 \examples{
 
 file = system.file("sci_Animal.csv", package = "ISRverse")
-ZIMSdirtest = dirname(file)
+ZIMSDirtest = dirname(file)
 
-Split_Zimsdata(ZIMSdir = ZIMSdirtest)
+Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 
-list.files(ZIMSdirtest, recursive = TRUE)
+list.files(ZIMSDirtest, recursive = TRUE)
 }

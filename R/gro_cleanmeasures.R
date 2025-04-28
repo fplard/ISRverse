@@ -5,14 +5,14 @@
 #'Select clean measures, unify the unity used and add individual age at each measure
 #'
 #' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *MeasurementDateStart*, *MeasurementDateEnd*, *UnitOfMeasure*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *AnimalAnonID*, *RecordingInstitution*, and *Age*.
-#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID* and *BirthType*
-#' @param Birth_Type \code{character} Captive, Wild, or All Default =  TRUE
-#' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param uncert_date \code{numeric}: Maximum uncertainty accepted for measurement dates, in days
-#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.
-#' @param type \code{character} Either 'weight' or 'length'. Default =  'weight
-#' @param corevariable \code{vector character} Name of the core columns that must be added to data
-#' @param variablekeep \code{vector character} Name of the data columns that must also be returned
+#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID* and *BirthType*.
+#' @param BirthType \code{character} Captive, Wild, or All.
+#' @param MinDate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param UncertDate \code{numeric}: Maximum uncertainty accepted for measurement dates, in days.
+#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included. Default: all measurement type are included.
+#' @param type \code{character} Either 'weight' or 'length'.
+#' @param corevariable \code{vector character} Name of the core columns that must be added to data.
+#' @param variablekeep \code{vector character} Name of the data columns that must also be returned.
 #' 
 #' @return A list including
 #' * The data frame including selected measures, plus individual birth date and individual age at each measure
@@ -29,23 +29,24 @@
 #' data(weights)
 #' data(core)
 #' data_weights= Gro_cleanmeasures(weights, core,
-#'                                 Birth_Type = "All",
+#'                                 BirthType = "All",
 #'                                 MeasureType = 'Live weight',
-#'                                 mindate = "1980-01-01")
+#'                                 MinDate = "1980-01-01")
 Gro_cleanmeasures <- function(data, coresubse,
-                              Birth_Type = "All", type = "weight", MeasureType = NULL,
-                               mindate = "1980-01-01", uncert_date = 365,
+                              BirthType = "All", type = "weight", MeasureType = NULL,
+                               MinDate = "1980-01-01", UncertDate = 365,
                               corevariable = NULL, variablekeep =NULL) 
 {
-  mindate = lubridate::as_date(mindate)
+   # Check correct format for inputs ---------------------------------------------
+  MinDate = lubridate::as_date(MinDate)
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(coresubse))
   assert_that(data %has_name% c("MeasurementValue", "MeasurementDate","MeasurementDateEstimateStart","MeasurementDateEstimateEnd", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution", "Age"))
   assert_that(coresubse %has_name% c("binSpecies", "SexType", "AnimalAnonID", "BirthType"))
-   assert_that(is.character(Birth_Type))
-  assert_that(Birth_Type %in% c("Captive", "Wild", "All"))
-  assert_that(is.date(mindate))
-  assert_that(is.numeric(uncert_date))
+   assert_that(is.character(BirthType))
+  assert_that(BirthType %in% c("Captive", "Wild", "All"))
+  assert_that(is.date(MinDate))
+  assert_that(is.numeric(UncertDate))
   
   
   if(!is.null(corevariable)) {
@@ -73,9 +74,9 @@ Gro_cleanmeasures <- function(data, coresubse,
   
   
   
-  if (Birth_Type != "All"){
+  if (BirthType != "All"){
     coresubse<- coresubse%>%
-      filter(stringr::str_detect(BirthType, pattern = Birth_Type))
+      filter(stringr::str_detect(BirthType, pattern = BirthType))
   }
 
   
@@ -85,7 +86,7 @@ Gro_cleanmeasures <- function(data, coresubse,
            MeasurementDateEstimateStart = lubridate::as_date(MeasurementDateEstimateStart),
            MeasurementDateEstimateEnd = lubridate::as_date(MeasurementDateEstimateEnd),
            Date_Uncert = MeasurementDateEstimateEnd - MeasurementDateEstimateStart)%>%
-    filter((Date_Uncert <= uncert_date)%>% replace_na(TRUE))%>%
+    filter((Date_Uncert <= UncertDate)%>% replace_na(TRUE))%>%
     left_join(coresubse%>%dplyr::select(all_of(Corevariable)), by = "AnimalAnonID")
   
   
@@ -102,7 +103,7 @@ Gro_cleanmeasures <- function(data, coresubse,
   
   if(nrow(data)>0){
     data<- data%>%
-      filter(MeasurementDate>= mindate,
+      filter(MeasurementDate>= MinDate,
              !is.na(MeasurementValue),
              !is.na(Age),
              EstimatedMeasurement == 0 , 

@@ -2,124 +2,147 @@
 % Please edit documentation in R/sur_main.R
 \name{Sur_main}
 \alias{Sur_main}
-\title{Main survival analysis for taxon profiles}
+\title{Main survival analysis}
 \usage{
 Sur_main(
-  data.core,
+  DataCore,
   DeathInformation,
-  Birth_Type = "All",
-  models = "GO",
-  shape = "simple",
-  firstyear = FALSE,
-  outlLev1 = NA,
-  minAge = 0,
-  mindate = "1980-01-01",
-  minNsur = 50,
-  maxNsur = NULL,
-  minInstitution = 2,
-  uncert_death = 365,
-  minlx = 0.1,
+  BirthType = "All",
+  Models = "GO",
+  Shape = "simple",
+  MinAge = 0,
+  MaxAge = 120,
+  OutlLev1 = NA,
+  UncertDeath = 365,
+  MinDate = "1980-01-01",
+  MinNSur = 50,
+  MaxNSur = NULL,
+  MinInstitution = 2,
+  MinLx = 0.1,
   MinBirthKnown = 0.3,
-  Min_MLE = 0.1,
+  MinMLE = 0.1,
   MaxLE = 2,
-  XMAX = 120,
-  lastdead = FALSE,
+  AgeMat = NA,
+  LastDead = FALSE,
   niter = 25000,
   burnin = 5001,
   thinning = 20,
   nchain = 3,
   ncpus = 2,
   PlotDir = NULL,
-  plotname = ""
+  PlotName = ""
 )
 }
 \arguments{
-\item{data.core}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{SexType}, and \emph{BirthType}}
+\item{DataCore}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{SexType}, and \emph{BirthType}.}
 
-\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}}
+\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}.}
 
-\item{Birth_Type}{\code{character} When separated the analysis by sex category, the birth type to be selected: Captive, Wild, or All Default =  "All"}
+\item{BirthType}{\code{character} The birth type to be selected: Captive, Wild, or All.}
 
-\item{models}{\code{vector of characters} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
+\item{Models}{\code{vector of characters} names of the basta Models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information.}
 
-\item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
+\item{Shape}{\code{character} Shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information.}
 
-\item{firstyear}{\code{logical} Whether to do the analysis only on first year. Default = FALSE}
+\item{MinAge}{\code{numeric} Ages at which the survival analysis should start in years.  see ?basta for more information.}
 
-\item{outlLev1}{\code{numeric} Start threshold used to selected for the data: 100\%, 99.9, 99 or 95\%}
+\item{MaxAge}{\code{numeric} Maximum possible age in years. Only used for model predictions. This argument is not used to select data.}
 
-\item{minAge}{\code{numeric} Ages at which the analyses should start.  see ?basta for more information. Default = 0}
+\item{OutlLev1}{\code{numeric} Start threshold to select individuals based on the longevity distribution: 100\%, 99.9, 99 or 95\%. This number must decrease when many errors are expected in longevity data.}
 
-\item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{UncertDeath}{\code{numeric}: Maximum uncertainty accepted for death date, in days.}
 
-\item{minNsur}{\code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data.}
 
-\item{maxNsur}{\code{numeric} Maximum number of individual records to run the survival analysis. Default = NULL}
+\item{MinNSur}{\code{numeric} Minimum number of individual records needed to run the survival analysis.}
 
-\item{minInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis. Default = 2}
+\item{MaxNSur}{\code{numeric} Maximum number of individual records allowed to run the survival analysis.}
 
-\item{uncert_death}{\code{numeric}: Maximum uncertainty accepted for death date, in days}
+\item{MinInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the survival analysis.}
 
-\item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
+\item{MinLx}{\code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.}
 
-\item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
+\item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data to run the survival analysis.}
 
-\item{Min_MLE}{\code{numeric} Goodness of fit: Minimum survivorship at Mean life expectancy}
+\item{MinMLE}{\code{numeric} Value used for checks. Minimum survivorship allowed at mean life expectancy. Between 0 and 1.}
 
-\item{MaxLE}{\code{numeric} Goodness of fit: Maximum remaining life expectancy at max age}
+\item{MaxLE}{\code{numeric} Value used for checks. Maximum remaining life expectancy at last observed age. In years.}
 
-\item{XMAX}{\code{numeric} Maximum possible age. Default = 120}
+\item{AgeMat}{\code{numeric} Age at sexual maturity, in years. If given, key survival metrics are calculated both from birth and from age at sexual maturity.}
 
-\item{lastdead}{\code{logical} Whether the longest lived individuals should be considered dead. Default = FALSE}
+\item{LastDead}{\code{logical} Whether the longest lived individuals should be considered
+dead.}
 
-\item{niter}{\code{numeric}. number of MCMC iterations to run. see ?basta for more information. Default = 25000}
+\item{niter}{\code{numeric}. Parameter to run the model: number of MCMC iterations. see ?basta for more information.}
 
-\item{burnin}{\code{numeric} Number of iterations removed so that the model has time to converge. see ?basta for more information. Default = 5001}
+\item{burnin}{\code{numeric} Parameter to run the model: number of iterations removed so that the model has time to converge. see ?basta for more information.}
 
-\item{thinning}{\code{numeric} Number of iteration to run before saving a set of parameters. see ?basta for more information. Default = 20}
+\item{thinning}{\code{numeric} Parameter to run the model: number of iterations to run before saving a set of parameters. see ?basta for more information.}
 
-\item{nchain}{\code{numeric} Number of chains to run. Default = 5001}
+\item{nchain}{\code{numeric} Parameter to run the model: Number of chains to run.}
 
-\item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
+\item{ncpus}{\code{numeric} Number of computer cores to use.}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = NULL, no plot is saved}
+\item{PlotDir}{\code{character} Directory to save the plots. Default, no plot is saved}
 
-\item{plotname}{\code{character} Name used to save the plot. Default = ""}
+\item{PlotName}{\code{character} Name used to save the plots.}
 }
 \value{
 The output of a list including per sex categories:
 \itemize{
 \item a summary of the data used:
-}
 \itemize{
-\item NGlobal: Number of captive born individuals selected from global collections
+\item NSelect: Number of individuals selected from filters
+\item NUncertdeath: Number of individuals selected after filter uncertainty in death
 \item NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
 \item Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
+\item Nrc: Number of right censored individuals
+\item N8090: Number of individuals born between 1980 and 1990 (excluded)
+\item N9000: Number of individuals born between 1990 and 2000 (excluded)
+\item N0010: Number of individuals born between 2000 and 2010 (excluded)
+\item N1020: Number of individuals born between 2010 and 2020 (excluded)
+\item N2030: Number of individuals born between 2020 and 2030 (excluded)
+\item QBD10: 10\% Quantile of birth date distribution
+\item QBD50: Median of birth date distribution
+\item QBD90: 90\% Quantile of birth date distribution
+\item BDincert: average uncertainty in birth date: in days
 \item maxAge: Maximum age of known age individuals
-\item maxAlive:Maximum number of years spent ex situ
-\item lxMin:Minimum survivorship reached with the raw Kaplan-Meier model
-\item OutLev: threshold selected for the distribution of  time spent alive: 100\%, 99.9, 99 or 95\%
-\item a logical indicated if the survival analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < minNsur; 3/NBasta = 0; 4/ \%known births < MinBirthKnown; 5/Data from 1 Institution; 6/Nbasta < minNsur; 7/Nbasta > maxNsur; 8/no DIC from Basta; 9/Kaplan-Meier does not fit; 10/Min(Life_exp) >= MaxLE; 11/"lx_MLE < Min_MLE"; 12/"lxmin > minlx"; 13/Kaplan-Meier does not fit
-\item A goodness of fit tested the trend in the residuals between the model prediction and the kaplan meier estimator
+\item maxAlive:M aximum number of years spent ex situ
+\item lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
+\item OutLev: threshold selected for the distribution of longevity: 100\%, 99.9\%, 99\% or 95\%
+\item analyzed: a logical indicated if the survival analysis was performed
+\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx\link{MLE} < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
 }
-\itemize{
 \item the basta fit of the best model
-\item the DIC table comparing the different fit of the models
-\item the estimated remaining life expectancy per age
-\item the age at which 90\% of the population died
-\item the estimated probability to live one year more
-\item the estimated probability to live five years more
-If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
+\item the DIC table comparing the different fit of the Models
+\item Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90\% of the individual died (Longevity = L90) estimated from raw data, the Kaplan Meier estimator, and the survival model. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator and the survival model.
+\item Checks of the fit for the selected survival model:
+\itemize{
+\item Gof_KM_coeff1: Percentage of age points where the KM estimator is outside of the 95\% CI of the survivorship estimated from the survival model.
+\item Gof_KM_coeff2: Maximum sum of same sign residuals between KM estimator and survival model
+\item Gof_martingale: Goodness of fit using Martingale residuals
+\item LxatMLE: Estimated survivorship at mean life expectancy
+\item LEmaxOage: Life expectancy at max observed age
+\item KMMinLx: Minimum survivorship reached by the Kaplan-Meier estimator
+}
+\item The remaining life expectancy per age (relex_from0)
+\item The probability to live 5 years more (Sur5)
+\item Age-specific yearly survival  (Sur1)
+\item Monthly survival  (Sur1m)
+\item If PlotDir is filled, 2 plots are produced:
+\itemize{
+\item One showing the convergence of chains, together with estimated survivorship and survival and mortality rates.
+\item The second showing remaining life-expectancy, and the age-specific probabilities to live 5 years and 1 year more.
+}
 }
 }
 \description{
-Run the survival analysis per sex and per birth type
+Run the survival analysis and calculates key survival metrics
 }
 \examples{
 data(core)
 data(deathinformation)
-out <- Sur_main(core, DeathInformation = deathinformation, Birth_Type = "All",
-                models = "GO", shape = "simple",
+out <- Sur_main(core, DeathInformation = deathinformation, BirthType = "All",
+                Models = "GO", Shape = "simple",
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 }
