@@ -218,7 +218,7 @@ Sur_out <- function(out,
   dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
   out$check$LxatMLE = lx[which(dif == min(dif))]
   if(lx[which(dif == min(dif))]< MinMLE){
-    out$summary$error = "lx[MLE] < MinMLE"
+    out$summary$error = "lx at MLE < MinMLE"
     out$summary$Nerr = 12
   }
   out$check$KMMinLx = out$summary$lxMin

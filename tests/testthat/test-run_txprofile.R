@@ -17,6 +17,6 @@ test_that("run_txprofile works", {
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
   )
   
-  expect_true(file.exists(paste(ZIMSDir, "Rdata\\Reptilia_Testudo_hermanni.Rdata", sep = '\\')))
+  expect_true(file.exists(paste(ZIMSDir, "Rdata/Reptilia_Testudo_hermanni.Rdata", sep = '/')))
   unlink(PlotDir, recursive = TRUE)
 })

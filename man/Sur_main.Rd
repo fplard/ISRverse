@@ -7,6 +7,7 @@
 Sur_main(
   DataCore,
   DeathInformation,
+  CalculateMetricsFrom = c("Raw", "Kaplan-Meier", "Model"),
   BirthType = "All",
   Models = "GO",
   Shape = "simple",
@@ -37,6 +38,8 @@ Sur_main(
 \item{DataCore}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{SexType}, and \emph{BirthType}.}
 
 \item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}.}
+
+\item{CalculateMetricsFrom}{\code{vector of characters} indicates which metrics should be calculated from which data: "Raw", "Kaplan-Meier", "Model".}
 
 \item{BirthType}{\code{character} The birth type to be selected: Captive, Wild, or All.}
 
@@ -88,31 +91,32 @@ dead.}
 \item{PlotName}{\code{character} Name used to save the plots.}
 }
 \value{
-The output of a list including per sex categories:
+The output of a list including (depending of CalculateMetricsFrom) per sex categories:
 \itemize{
 \item a summary of the data used:
 \itemize{
 \item NSelect: Number of individuals selected from filters
 \item NUncertdeath: Number of individuals selected after filter uncertainty in death
 \item NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
-\item Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
-\item Nrc: Number of right censored individuals
-\item N8090: Number of individuals born between 1980 and 1990 (excluded)
-\item N9000: Number of individuals born between 1990 and 2000 (excluded)
-\item N0010: Number of individuals born between 2000 and 2010 (excluded)
-\item N1020: Number of individuals born between 2010 and 2020 (excluded)
-\item N2030: Number of individuals born between 2020 and 2030 (excluded)
-\item QBD10: 10\% Quantile of birth date distribution
-\item QBD50: Median of birth date distribution
-\item QBD90: 90\% Quantile of birth date distribution
-\item BDincert: average uncertainty in birth date: in days
-\item maxAge: Maximum age of known age individuals
-\item maxAlive:M aximum number of years spent ex situ
+\item Ndead:Number of selected individuals with known age of death used in the BaSTA/survival analysis
+\item Nrc: Number of selected right censored individuals
+\item N8090: Number of selected individuals born between 1980 and 1990 (excluded)
+\item N9000: Number of selected individuals born between 1990 and 2000 (excluded)
+\item N0010: Number of selected individuals born between 2000 and 2010 (excluded)
+\item N1020: Number of selected individuals born between 2010 and 2020 (excluded)
+\item N2030: Number of selected individuals born between 2020 and 2030 (excluded)
+\item QBD10: 10\% Quantile of birth date distribution among selected individuals
+\item QBD50: Median of birth date distribution among selected individuals
+\item QBD90: 90\% Quantile of birth date distribution among selected individuals
+\item BDincert: average uncertainty in birth date: in days among selected individuals
+\item maxAge: Maximum age of selected known age individuals
+\item maxAlive:Maximum number of years spent ex situ among selected individuals
 \item lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of longevity: 100\%, 99.9\%, 99\% or 95\%
-\item analyzed: a logical indicated if the survival analysis was performed
-\item If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx\link{MLE} < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+\item analyzed: a logical indicated if the basta survival model was performed
+\item If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx\link{MLE} < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
 }
+\item the Kaplan-Meier table
 \item the basta fit of the best model
 \item the DIC table comparing the different fit of the Models
 \item Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90\% of the individual died (Longevity = L90) estimated from raw data, the Kaplan Meier estimator, and the survival model. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator and the survival model.

@@ -31,7 +31,7 @@ test_that("tx_report works", {
   expect_named(out$general, c('NRaw', 'NDate', 'NGlobal', 'NBirthType', 'NUncertBirth', 'NAlive', 'FirstDate', 'MaxAgeRaw', 'ExtractDate'))
   expect_named(out$sur, c('Male', "Female"))
   expect_named(out$sur$Male, c("from0"))
-  expect_named(out$sur$Male$from0, c('summary', 'metrics', 'bastaRes', 'DICmods', 'relex', 'Sur1', 'Sur5', 'L90', 'L50', 'check', 'relex_from0', 'Sur1m'))
+  expect_named(out$sur$Male$from0, c('summary', 'metrics', 'bastaRes', 'DICmods', 'KM_estimator', 'relex', 'Sur1', 'Sur5', 'L90', 'L50', 'check', 'relex_from0', 'Sur1m'))
   expect_named(out$weig, c('Male', "Female"))
   expect_named(out$weig$Male$All, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$All, c('wSummar', "weightQ"))

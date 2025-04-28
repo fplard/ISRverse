@@ -7,6 +7,7 @@
 #' @param DataCore \code{data.frame} including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*.
 #' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*.
 #' @param BirthType \code{character} The birth type to be selected: Captive, Wild, or All.
+#' @param CalculateMetricsFrom \code{vector of characters} indicates which metrics should be calculated from which data: "Raw", "Kaplan-Meier", "Model".
 #' @param Models \code{vector of characters} names of the basta Models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. 
 #' @param Shape \code{character} Shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information.
 #' @param MinAge \code{numeric} Ages at which the survival analysis should start in years.  see ?basta for more information.
@@ -32,28 +33,29 @@
 #' @param LastDead  \code{logical} Whether the longest lived individuals should be considered
 #' dead.
 #' 
-#' @return The output of a list including per sex categories:
+#' @return The output of a list including (depending of CalculateMetricsFrom) per sex categories:
 #' * a summary of the data used:
 #'    * NSelect: Number of individuals selected from filters
 #'    * NUncertdeath: Number of individuals selected after filter uncertainty in death
 #'    * NBasta: Number of data (individuals) selected for the BaSTA/survival analysis
-#'    * Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis
-#'    * Nrc: Number of right censored individuals
-#'    * N8090: Number of individuals born between 1980 and 1990 (excluded)
-#'    * N9000: Number of individuals born between 1990 and 2000 (excluded)
-#'    * N0010: Number of individuals born between 2000 and 2010 (excluded)
-#'    * N1020: Number of individuals born between 2010 and 2020 (excluded)
-#'    * N2030: Number of individuals born between 2020 and 2030 (excluded)
-#'    * QBD10: 10% Quantile of birth date distribution
-#'    * QBD50: Median of birth date distribution
-#'    * QBD90: 90% Quantile of birth date distribution
-#'    * BDincert: average uncertainty in birth date: in days
-#'    * maxAge: Maximum age of known age individuals
-#'    * maxAlive:M aximum number of years spent ex situ
+#'    * Ndead:Number of selected individuals with known age of death used in the BaSTA/survival analysis
+#'    * Nrc: Number of selected right censored individuals
+#'    * N8090: Number of selected individuals born between 1980 and 1990 (excluded)
+#'    * N9000: Number of selected individuals born between 1990 and 2000 (excluded)
+#'    * N0010: Number of selected individuals born between 2000 and 2010 (excluded)
+#'    * N1020: Number of selected individuals born between 2010 and 2020 (excluded)
+#'    * N2030: Number of selected individuals born between 2020 and 2030 (excluded)
+#'    * QBD10: 10% Quantile of birth date distribution among selected individuals
+#'    * QBD50: Median of birth date distribution among selected individuals
+#'    * QBD90: 90% Quantile of birth date distribution among selected individuals
+#'    * BDincert: average uncertainty in birth date: in days among selected individuals
+#'    * maxAge: Maximum age of selected known age individuals
+#'    * maxAlive:Maximum number of years spent ex situ among selected individuals
 #'    * lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
-#'    *  OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%
-#'    * analyzed: a logical indicated if the survival analysis was performed
-#'    *  If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx[MLE] < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+#'    * OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%
+#'    * analyzed: a logical indicated if the basta survival model was performed
+#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx[MLE] < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+#' * the Kaplan-Meier table
 #' * the basta fit of the best model
 #' * the DIC table comparing the different fit of the Models
 #' * Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90% of the individual died (Longevity = L90) estimated from raw data, the Kaplan Meier estimator, and the survival model. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator and the survival model.
@@ -80,7 +82,9 @@
 #' out <- Sur_main(core, DeathInformation = deathinformation, BirthType = "All",
 #'                 Models = "GO", Shape = "simple",
 #'                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-Sur_main <- function(DataCore,   DeathInformation, BirthType = "All",
+Sur_main <- function(DataCore,   DeathInformation, 
+                     CalculateMetricsFrom = c("Raw", "Kaplan-Meier", "Model"),
+                      BirthType = "All",
                      Models = "GO", Shape= "simple",
                      MinAge =0, MaxAge=120, OutlLev1 = NA,UncertDeath=365,
                      MinDate = "1980-01-01", MinNSur = 50, MaxNSur = NULL,
@@ -103,9 +107,11 @@ Sur_main <- function(DataCore,   DeathInformation, BirthType = "All",
   assert_that(length(BirthType) == 1, msg = "You can use only one birth type for each sex analysis")
   assert_that(BirthType %in% c("Captive", "Wild", "All"))
   assert_that(is.character(Models))
-  assert_that(all(Models %in% c("GO", "EX", "LO", "WE")))
+ assert_that(is.character(CalculateMetricsFrom))
+  assert_that(all(CalculateMetricsFrom %in% c("Raw", "Kaplan-Meier", "Model")))
+ assert_that(all(Models %in% c("", "GO", "EX", "LO", "WE")))
   assert_that(is.character(Shape))
-  assert_that(all(Shape %in% c("simple", "bathtub", "Makeham")))
+  assert_that(all(Shape %in% c("","simple", "bathtub", "Makeham")))
   assert_that(is.numeric(MinAge))
   assert_that(is.numeric(MaxAge))
   assert_that(MinAge < MaxAge)
@@ -160,6 +166,7 @@ Sur_main <- function(DataCore,   DeathInformation, BirthType = "All",
   for(j in 1:length(MinAge)){
     out[[paste0("from",MinAge[j])]]<- Sur_ana(Data, DeathInformation = DeathInformation,
                                               OutlLev1 = OutlLev1, AgeMat = AgeMat,
+                                              CalculateMetricsFrom = CalculateMetricsFrom,
                                               Models = Models, Shape = Shape,
                                               MinDate = MinDate, UncertDeath = UncertDeath, 
                                               LastDead = LastDead, MinAge = MinAge[j],

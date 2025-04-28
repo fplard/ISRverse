@@ -26,11 +26,13 @@ library(ISRverse)
 
 * `DataCore` the core data of the species from ZIMS including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*.
 * `DeathInformation` data.frame including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*
+* `CalculateMetricsFrom` indicates which metrics should be calculated from which data: "Raw", "Kaplan-Meier", "Model".
 * `BirthType`: The birth type to be selected: Captive, Wild, or All
 * `PlotDir`: Directory to save the plots of the selected model
 
-It returns a list including:
+It returns a list including, depending of `CalculateMetricsFrom`:
 * a summary of the data selected
+* The Kaplan Meier estimator
 * the basta fit of the selected model
 * the DIC table comparing the fit  of the different models
 * the remaining life expectancy per age
@@ -51,6 +53,7 @@ out <- Sur_main(core, DeathInformation = deathinformation, BirthType = "All",
 This functions runs basta survival models on the data after checking conditions for correct convergence of the models. It includes the following arguments:
 * `Data`including at least the following columns *AnimalAnonID*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *SexType*, and *BirthType*.
 * `DeathInformation` data.frame including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*.
+* `CalculateMetricsFrom` indicates which metrics should be calculated from which data: "Raw", "Kaplan-Meier", "Model".
 * `Models` names of the basta Models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO".
 * `Shape` shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple".
 
@@ -62,10 +65,13 @@ The user should define different filters to select data and run the survival ana
 * `MinBirthKnown` Minimum proportion of individuals with a known birth month in the data.
 * `MinInstitution` Minimum number of institutions that should hold records to run the survival analysis.
 
-It return a list including:
+It return a list including and depending on `CalculateMetricsFrom`:
 * a summary of the data used
+* The Kaplan Meier estimator and associated key metrics
+* Key survival metrics from raw data
 * the basta fit of the best model
 * the DIC table comparing the different fit of the Models
+
 
 
 ```{r examples-Sur_ana}

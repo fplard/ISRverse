@@ -244,7 +244,7 @@ test_that("Sur_main works", {
                   Models = "LO", Shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
   expect_named(out, c("from0"))
-  expect_named(out$from0, c('summary', 'metrics', 'bastaRes', 'DICmods', 'relex', 'Sur1', 'Sur5', 'L90', 'L50', 'check', 'relex_from0', 'Sur1m'))
+  expect_named(out$from0, c('summary', 'metrics', 'bastaRes', 'DICmods', 'KM_estimator', 'relex', 'Sur1', 'Sur5', 'L90', 'L50', 'check', 'relex_from0', 'Sur1m'))
   expect_named(out$from0$summary, c('NSelect', 'NUncertdeath', 'NBasta', 'Ndead', 'Nrc', 'N8090', 'N9000', 'N0010', 'N1020', 'N2030', 'QBD10', 'QBD50', 'QBD90', 'BDincert', 'maxAge', 'maxAlive', 'lxMin', 'outLev', 'model', 'analyzed', 'Nerr', 'error'))
   expect_named(out$from0$DICmods, c("Models", "DIC"))
 })
@@ -323,7 +323,7 @@ It return a list including and depending on `CalculateMetricsFrom`:
 #'    * lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
 #'    * OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%
 #'    * analyzed: a logical indicated if the basta survival model was performed
-#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx[MLE] < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx at MLE < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
 #' * the Kaplan-Meier table
 #' * Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90% of the individual died (Longevity = L90) estimated from raw data and from the Kaplan Meier Estimator. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator.
 #'* the basta fit of the best model
@@ -333,7 +333,8 @@ It return a list including and depending on `CalculateMetricsFrom`:
 #' @importFrom lubridate year
 #'
 #' @examples
-Sur_ana <- function(Data, DeathInformation, CalculateMetricsFrom = c("Raw", "Kaplan-Meier", "Model"), 
+Sur_ana <- function(Data, DeathInformation, 
+                    CalculateMetricsFrom = c("Raw", "Kaplan-Meier", "Model"), 
                     Models = "GO", Shape = "simple", 
                     MinAge = 0, OutlLev1 = 100,
                     MinDate = "1980-01-01", MinNSur = 50, MaxNSur = NULL,
@@ -722,7 +723,7 @@ test_that("Sur_ana works", {
   out <- Sur_ana(core, DeathInformation = deathinformation, Models = "GO", Shape = "bathtub",
                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                  LastDead = TRUE, AgeMat = 2)
-  expect_named(out, c("summary", "metrics", "bastaRes", "DICmods"))
+  expect_named(out, c("summary", "metrics", "bastaRes", "DICmods", 'KM_estimator'))
   expect_named(out$DICmods, c("Models",  "DIC"))
   expect_equal(nrow(out$DICmods),1)
   expect_named(out$summary, c('NSelect', 'NUncertdeath', 'NBasta', 'Ndead', 'Nrc', 'N8090', 'N9000', 'N0010', 'N1020', 'N2030', 'QBD10', 'QBD50', 'QBD90', 'BDincert', 'maxAge', 'maxAlive', 'lxMin', 'outLev', 'model', 'analyzed', 'Nerr', 'error'))
@@ -970,7 +971,7 @@ Sur_out <- function(out,
   dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
   out$check$LxatMLE = lx[which(dif == min(dif))]
   if(lx[which(dif == min(dif))]< MinMLE){
-    out$summary$error = "lx[MLE] < MinMLE"
+    out$summary$error = "lx at MLE < MinMLE"
     out$summary$Nerr = 12
   }
   out$check$KMMinLx = out$summary$lxMin
@@ -1070,7 +1071,7 @@ dir.create(PlotDir)
   out <- Sur_ana(core,  DeathInformation = deathinformation, Models = "GO", Shape = "simple",
                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3, AgeMat = 2)
   out <- Sur_out(out, ncpus = 3, PlotDir = PlotDir)
-  expect_named(out, c("summary","metrics",  "bastaRes", "DICmods", "check", 'relex_from0', 'Sur5', 'Sur1', 'Sur1m'))
+  expect_named(out, c("summary","metrics",  "bastaRes", "DICmods", 'KM_estimator', "check", 'relex_from0', 'Sur5', 'Sur1', 'Sur1m'))
   expect_named(out$check, c('Gof_KM_coeff1', 'Gof_KM_coeff2', 'Gof_martingale', 'LxatMLE', 'LEmaxOage', 'KMMinLx'))
   expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
   expect_true(is.numeric(out$relex_from0$Upper))
