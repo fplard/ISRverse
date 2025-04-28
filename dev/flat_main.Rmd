@@ -97,7 +97,7 @@ The result files are saved using the following directory \code{{AnalysisDir}\{Ta
 #' @param MeasureType \code{vector of characters} Names of the types of measurement that should be included.  Default: all measurement type are included.
 #' @param ModelsGro \code{vector of characters} Names the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #'
-#' @return Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}\\Rdata\\{Taxa}_{species}.Rdata
+#' @return Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}/Rdata/{Taxa}_{species}.Rdata
 #' @export
 #'
 #' @examples
@@ -367,7 +367,7 @@ run_txprofile(Taxa = "Reptilia", SpeciesList = "All",
 )
 
 list.files(PlotDir)
-list.files(paste0(AnalysisDir,'\\Rdata'))
+list.files(paste0(AnalysisDir,'/Rdata'))
 
 unlink(AnalysisDir, recursive = TRUE)
 unlink(PlotDir, recursive = TRUE)
@@ -400,7 +400,7 @@ unlink(PlotDir, recursive = TRUE)
 test_that("run_txprofile works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSDir = dirname(file)
-  PlotDir = paste0(tempdir(check = TRUE),'\\tem')
+  PlotDir = paste0(tempdir(check = TRUE),'/tem')
   dir.create(PlotDir)
   
   #This code run the survival analysis
@@ -847,8 +847,8 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
 ```{r tests-make_summary}
 # test_that("make_summary works", {
 #   file = system.file("sci_Animal.csv", package = 'ISRverse')
-#   AnalysisDir  = paste0(dirname(file),'\\Rdata')
-#   TempDir = paste0(tempdir(check = TRUE),'\\temp')
+#   AnalysisDir  = paste0(dirname(file),'/Rdata')
+#   TempDir = paste0(tempdir(check = TRUE),'/temp')
 #   dir.create(TempDir,showWarnings =FALSE)
 #   
 #   SummTab <- make_summary(AnalysisDir, TempDir,
@@ -856,11 +856,11 @@ make_summary <- function (AnalysisDir, SaveDir, namefile = "",
 #                           BySex = list(Reptilia = c("Male", "Female")) ,
 #                           Sections = c("sur", 'gro')
 #   )
-#   expect_true(file.exists(paste(TempDir, 'Survival_error.pdf', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'SRGs_Survival.csv', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'Growth_error.pdf', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'SRGs_Growth.csv', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'SRGs_Analyses.csv', sep = '\\')))
+#   expect_true(file.exists(paste(TempDir, 'Survival_error.pdf', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'SRGs_Survival.csv', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'Growth_error.pdf', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'SRGs_Growth.csv', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'SRGs_Analyses.csv', sep = '/')))
 #   expect_named(SummTab , c("Class", "Species", "Sex", "Nraw", "Ndate", "Nglobal", 
 #                            "Nbirthtype", "Nuncertbirth","Nalive", "firstDate", 
 #                            "maxAgeraw","ExtractDate"))
@@ -1107,15 +1107,15 @@ unlink(SaveDir, recursive = TRUE)
 ```{r tests-make_summary2}
 test_that("make_summary2 works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
-  AnalysisDir  = paste0(dirname(file),'\\Rdata')
+  AnalysisDir  = paste0(dirname(file),'/Rdata')
   SummTab <- make_summary2(AnalysisDir, dirname(file),
                            TaxaList = "Reptilia",
                            BySex = list(Reptilia = c("Male", "Female")) ,
                            Sections = c("sur")
   )
-  expect_true(file.exists(paste( dirname(file), 'DP_Survival.csv', sep = '\\')))
-  expect_true(file.exists(paste( dirname(file), 'DP_Analyses.csv', sep = '\\')))
-  expect_true(file.exists(paste( dirname(file), 'DP_Any_Ana.csv', sep = '\\')))
+  expect_true(file.exists(paste( dirname(file), 'DP_Survival.csv', sep = '/')))
+  expect_true(file.exists(paste( dirname(file), 'DP_Analyses.csv', sep = '/')))
+  expect_true(file.exists(paste( dirname(file), 'DP_Any_Ana.csv', sep = '/')))
   expect_named(SummTab , c('Class', 'Species', 'Sex', 'NRaw', 'NDate', 'NGlobal', 'NBirthType', 'NUncertBirth', 'NAlive', 'FirstDate', 'MaxAgeRaw', 'ExtractDate'))
 })
 
@@ -1352,7 +1352,7 @@ test_that("Make_FigTab works", {
   out <-Make_SurFigTab (AnalysisDir, SaveDir,
                         Sections = "sur")
   
-  expect_true(file.exists(paste( SaveDir, 'Fig_Survival_1y1m.pdf', sep = '\\')))
+  expect_true(file.exists(paste( SaveDir, 'Fig_Survival_1y1m.pdf', sep = '/')))
   expect_named(out, c('Fig1', 'Fig2', 'Fig3', 'Fig4', 'error', 'corplot', 'Tabdata', 'Tabmetrics', 'cortab', 'Tabcheck'))
 }
 )
@@ -1750,8 +1750,8 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
 
 ```{r examples-Tx_devout}
 # file = system.file("sci_Animal.csv", package = 'ISRverse')
-# AnalysisDir  = paste0(dirname(file),'\\Rdata')
-# SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+# AnalysisDir  = paste0(dirname(file),'/Rdata')
+# SaveDir = paste0(tempdir(check = TRUE),'/temp')
 # dir.create(SaveDir)
 # SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
 # Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
@@ -1766,8 +1766,8 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
 ```{r tests-Tx_devout}
 # test_that("Tx_devout works", {
 #   file = system.file("sci_Animal.csv", package = 'ISRverse')
-#   AnalysisDir  = paste0(dirname(file),'\\Rdata')
-#   TempDir = paste0(tempdir(check = TRUE),'\\temp')
+#   AnalysisDir  = paste0(dirname(file),'/Rdata')
+#   TempDir = paste0(tempdir(check = TRUE),'/temp')
 #   dir.create(TempDir,showWarnings =FALSE)
 #   SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
 # Tx_devout(SpeciesTable, AnalysisDir, SaveDir =TempDir ,
@@ -1775,7 +1775,7 @@ Tx_devout <- function (SpeciesTable, AnalysisDir, SaveDir, namefile = "",
 #                         BySex = list(Reptilia = c("Male", "Female")) ,
 #                         Sections = c("sur", 'gro')
 # )
-#   expect_true(file.exists(paste(TempDir, 'Reptilia_Testudo_hermanni.json', sep = '\\')))
+#   expect_true(file.exists(paste(TempDir, 'Reptilia_Testudo_hermanni.json', sep = '/')))
 # 
 #   unlink(TempDir, recursive = TRUE)
 # })

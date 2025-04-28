@@ -118,16 +118,21 @@ following columns <em>AnimalAnonID</em> and
 <em>RelevantDeathInformationType</em>
 </li>
 <li>
+<code>CalculateMetricsFrom</code> indicates which metrics should be
+calculated from which data: “Raw”, “Kaplan-Meier”, “Model”.</li>
+<li>
 <code>BirthType</code>: The birth type to be selected: Captive,
 Wild, or All</li>
 <li>
 <code>PlotDir</code>: Directory to save the plots of the selected
 model</li>
 </ul>
-<p>It returns a list including: * a summary of the data selected * the
-basta fit of the selected model * the DIC table comparing the fit of the
-different models * the remaining life expectancy per age * key survival
-metrics * Statistics to check the fit of the selected model</p>
+<p>It returns a list including, depending of
+<code>CalculateMetricsFrom</code>: * a summary of the data selected *
+The Kaplan Meier estimator * the basta fit of the selected model * the
+DIC table comparing the fit of the different models * the remaining life
+expectancy per age * key survival metrics * Statistics to check the fit
+of the selected model</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
@@ -139,26 +144,24 @@ metrics * Statistics to check the fit of the selected model</p>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 17.57 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 15.96 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; R Version:  R version 4.3.2 (2023-10-31 ucrt)</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded in cluster.</span></span>
-<span><span class="co">#&gt; Loading required package: snowfall</span></span>
-<span><span class="co">#&gt; Loading required package: snow</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
+<span><span class="co">#&gt; Warning: package 'BaSTA' was built under R version 4.3.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 12.45 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 9.69 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
 <span><span class="co">#&gt; Constructing life table... done.</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(Ages)`</span></span></code></pre></div>
@@ -176,11 +179,13 @@ columns <em>AnimalAnonID</em>, <em>BirthDate</em>, <em>DepartDate</em>,
 <em>SexType</em>, and <em>BirthType</em>. *
 <code>DeathInformation</code> data.frame including at least the
 following columns <em>AnimalAnonID</em> and
-<em>RelevantDeathInformationType</em>. * <code>Models</code> names of
-the basta Models to run: “G0”, “EX”, “LO” and/or “WE”. see ?basta for
-more information. Default = “GO”. * <code>Shape</code> shape of the
-basta model: “simple”, “Makeham”, “bathtub”. see ?basta for more
-information. Default = “simple”.</p>
+<em>RelevantDeathInformationType</em>. *
+<code>CalculateMetricsFrom</code> indicates which metrics should be
+calculated from which data: “Raw”, “Kaplan-Meier”, “Model”. *
+<code>Models</code> names of the basta Models to run: “G0”, “EX”, “LO”
+and/or “WE”. see ?basta for more information. Default = “GO”. *
+<code>Shape</code> shape of the basta model: “simple”, “Makeham”,
+“bathtub”. see ?basta for more information. Default = “simple”.</p>
 <p>The user should define different filters to select data and run the
 survival analyses. The main ones are: * <code>UncertDeath</code> Maximum
 uncertainty accepted for death date, in days. * <code>MinNSur</code>
@@ -192,9 +197,11 @@ survival analysis. * <code>MinBirthKnown</code> Minimum proportion of
 individuals with a known birth month in the data. *
 <code>MinInstitution</code> Minimum number of institutions that should
 hold records to run the survival analysis.</p>
-<p>It return a list including: * a summary of the data used * the basta
-fit of the best model * the DIC table comparing the different fit of the
-Models</p>
+<p>It return a list including and depending on
+<code>CalculateMetricsFrom</code>: * a summary of the data used * The
+Kaplan Meier estimator and associated key metrics * Key survival metrics
+from raw data * the basta fit of the best model * the DIC table
+comparing the different fit of the Models</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span>
@@ -205,16 +212,16 @@ Models</p>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 16.67 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 13.03 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded in cluster.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 11.27 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 8.49 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -252,16 +259,16 @@ expectancy per age (relex_from0) * the probability to live 5 years more
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 16.61 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 14.98 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded.</span></span>
-<span><span class="co">#&gt; Library BaSTA2.0 loaded in cluster.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded.</span></span>
+<span><span class="co">#&gt; Library BaSTA loaded in cluster.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 9.09 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 8.97 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>

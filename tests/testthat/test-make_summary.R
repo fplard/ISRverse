@@ -2,8 +2,8 @@
 
 # test_that("make_summary works", {
 #   file = system.file("sci_Animal.csv", package = 'ISRverse')
-#   AnalysisDir  = paste0(dirname(file),'\\Rdata')
-#   TempDir = paste0(tempdir(check = TRUE),'\\temp')
+#   AnalysisDir  = paste0(dirname(file),'/Rdata')
+#   TempDir = paste0(tempdir(check = TRUE),'/temp')
 #   dir.create(TempDir,showWarnings =FALSE)
 #   
 #   SummTab <- make_summary(AnalysisDir, TempDir,
@@ -11,11 +11,11 @@
 #                           BySex = list(Reptilia = c("Male", "Female")) ,
 #                           Sections = c("sur", 'gro')
 #   )
-#   expect_true(file.exists(paste(TempDir, 'Survival_error.pdf', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'SRGs_Survival.csv', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'Growth_error.pdf', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'SRGs_Growth.csv', sep = '\\')))
-#   expect_true(file.exists(paste(TempDir, 'SRGs_Analyses.csv', sep = '\\')))
+#   expect_true(file.exists(paste(TempDir, 'Survival_error.pdf', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'SRGs_Survival.csv', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'Growth_error.pdf', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'SRGs_Growth.csv', sep = '/')))
+#   expect_true(file.exists(paste(TempDir, 'SRGs_Analyses.csv', sep = '/')))
 #   expect_named(SummTab , c("Class", "Species", "Sex", "Nraw", "Ndate", "Nglobal", 
 #                            "Nbirthtype", "Nuncertbirth","Nalive", "firstDate", 
 #                            "maxAgeraw","ExtractDate"))

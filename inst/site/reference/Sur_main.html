@@ -72,6 +72,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Sur_main</span><span class="op">(</span></span>
 <span>  <span class="va">DataCore</span>,</span>
 <span>  <span class="va">DeathInformation</span>,</span>
+<span>  CalculateMetricsFrom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Raw"</span>, <span class="st">"Kaplan-Meier"</span>, <span class="st">"Model"</span><span class="op">)</span>,</span>
 <span>  BirthType <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>  Models <span class="op">=</span> <span class="st">"GO"</span>,</span>
 <span>  Shape <span class="op">=</span> <span class="st">"simple"</span>,</span>
@@ -107,6 +108,10 @@
 
 <dt>DeathInformation</dt>
 <dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em> and <em>RelevantDeathInformationType</em>.</p></dd>
+
+
+<dt>CalculateMetricsFrom</dt>
+<dd><p><code>vector of characters</code> indicates which metrics should be calculated from which data: "Raw", "Kaplan-Meier", "Model".</p></dd>
 
 
 <dt>BirthType</dt>
@@ -210,27 +215,28 @@ dead.</p></dd>
     <h2>Value</h2>
     
 
-<p>The output of a list including per sex categories:</p><ul><li><p>a summary of the data used:</p><ul><li><p>NSelect: Number of individuals selected from filters</p></li>
+<p>The output of a list including (depending of CalculateMetricsFrom) per sex categories:</p><ul><li><p>a summary of the data used:</p><ul><li><p>NSelect: Number of individuals selected from filters</p></li>
 <li><p>NUncertdeath: Number of individuals selected after filter uncertainty in death</p></li>
 <li><p>NBasta: Number of data (individuals) selected for the BaSTA/survival analysis</p></li>
-<li><p>Ndead:Number of individuals with known age of death used in the BaSTA/survival analysis</p></li>
-<li><p>Nrc: Number of right censored individuals</p></li>
-<li><p>N8090: Number of individuals born between 1980 and 1990 (excluded)</p></li>
-<li><p>N9000: Number of individuals born between 1990 and 2000 (excluded)</p></li>
-<li><p>N0010: Number of individuals born between 2000 and 2010 (excluded)</p></li>
-<li><p>N1020: Number of individuals born between 2010 and 2020 (excluded)</p></li>
-<li><p>N2030: Number of individuals born between 2020 and 2030 (excluded)</p></li>
-<li><p>QBD10: 10% Quantile of birth date distribution</p></li>
-<li><p>QBD50: Median of birth date distribution</p></li>
-<li><p>QBD90: 90% Quantile of birth date distribution</p></li>
-<li><p>BDincert: average uncertainty in birth date: in days</p></li>
-<li><p>maxAge: Maximum age of known age individuals</p></li>
-<li><p>maxAlive:M aximum number of years spent ex situ</p></li>
+<li><p>Ndead:Number of selected individuals with known age of death used in the BaSTA/survival analysis</p></li>
+<li><p>Nrc: Number of selected right censored individuals</p></li>
+<li><p>N8090: Number of selected individuals born between 1980 and 1990 (excluded)</p></li>
+<li><p>N9000: Number of selected individuals born between 1990 and 2000 (excluded)</p></li>
+<li><p>N0010: Number of selected individuals born between 2000 and 2010 (excluded)</p></li>
+<li><p>N1020: Number of selected individuals born between 2010 and 2020 (excluded)</p></li>
+<li><p>N2030: Number of selected individuals born between 2020 and 2030 (excluded)</p></li>
+<li><p>QBD10: 10% Quantile of birth date distribution among selected individuals</p></li>
+<li><p>QBD50: Median of birth date distribution among selected individuals</p></li>
+<li><p>QBD90: 90% Quantile of birth date distribution among selected individuals</p></li>
+<li><p>BDincert: average uncertainty in birth date: in days among selected individuals</p></li>
+<li><p>maxAge: Maximum age of selected known age individuals</p></li>
+<li><p>maxAlive:Maximum number of years spent ex situ among selected individuals</p></li>
 <li><p>lxMin: Minimum survivorship reached with the raw Kaplan-Meier model</p></li>
 <li><p>OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%</p></li>
-<li><p>analyzed: a logical indicated if the survival analysis was performed</p></li>
-<li><p>If the survival analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath &lt; MinNSur; 3/ lxMin &gt;0.99; 4/NBasta = 0; 5/ %known births &lt; MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta &lt; MinNSur; 8/Nbasta &gt; MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) &gt;= MaxLE; 12/lxMLE &lt; MinMLE; 13/lxmin &gt; MinLx; 14/Kaplan-Meier does not fit:2.</p></li>
+<li><p>analyzed: a logical indicated if the basta survival model was performed</p></li>
+<li><p>If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath &lt; MinNSur; 3/ lxMin &gt;0.99; 4/NBasta = 0; 5/ %known births &lt; MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta &lt; MinNSur; 8/Nbasta &gt; MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) &gt;= MaxLE; 12/lxMLE &lt; MinMLE; 13/lxmin &gt; MinLx; 14/Kaplan-Meier does not fit:2.</p></li>
 </ul></li>
+<li><p>the Kaplan-Meier table</p></li>
 <li><p>the basta fit of the best model</p></li>
 <li><p>the DIC table comparing the different fit of the Models</p></li>
 <li><p>Key survival metrics including Mean life expectancy (MLE &amp; Ex), median life expectancy (L50) and  age at which 90% of the individual died (Longevity = L90) estimated from raw data, the Kaplan Meier estimator, and the survival model. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator and the survival model.</p></li>
@@ -261,17 +267,17 @@ dead.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 17.40 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 14.33 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Library BaSTA2.0 loaded.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Library BaSTA2.0 loaded in cluster.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Library BaSTA loaded.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Library BaSTA loaded in cluster.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 12.53 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 10.11 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>

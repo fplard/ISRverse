@@ -56,7 +56,7 @@
 #' @param MeasureType \code{vector of characters} Names of the types of measurement that should be included.  Default: all measurement type are included.
 #' @param ModelsGro \code{vector of characters} Names the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 #'
-#' @return Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}\\Rdata\\{Taxa}_{species}.Rdata
+#' @return Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}/Rdata/{Taxa}_{species}.Rdata
 #' @export
 #'
 #' @examples
@@ -82,7 +82,7 @@
 #' )
 #'
 #' list.files(PlotDir)
-#' list.files(paste0(AnalysisDir,'\\Rdata'))
+#' list.files(paste0(AnalysisDir,'/Rdata'))
 #'
 #' unlink(AnalysisDir, recursive = TRUE)
 #' unlink(PlotDir, recursive = TRUE)

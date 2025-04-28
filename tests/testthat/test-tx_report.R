@@ -9,7 +9,7 @@ test_that("tx_report works", {
                                                    "Weight", "Parent", "Move", 
                                                    "Contraception"))
   Animal<- Prep_Animal(data[["Reptilia"]]$Animal, ExtractDate= "2024/08/29" )
-  PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+  PlotDir = paste0(tempdir(check = TRUE),'/temp')
   dir.create(PlotDir)
   
   out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
@@ -35,10 +35,10 @@ test_that("tx_report works", {
   expect_named(out$weig, c('Male', "Female"))
   expect_named(out$weig$Male$All, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$All, c('wSummar', "weightQ"))
-  expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Long_dist/Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Survival/10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Survival/10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Growth/Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Growth/Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '/')))
   unlink(PlotDir, recursive = TRUE)
 })

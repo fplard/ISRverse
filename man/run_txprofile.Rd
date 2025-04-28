@@ -162,7 +162,7 @@ run_txprofile(
 \item{ModelsGro}{\code{vector of characters} Names the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
 }
 \value{
-Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}\\Rdata\\{Taxa}_{species}.Rdata
+Save and replace the result file for each species in the list. The file is saved in {AnalysisDir}/Rdata/{Taxa}_{species}.Rdata
 }
 \description{
 Load data needed and run or update demographic analyses for the list of species selected
@@ -190,7 +190,7 @@ run_txprofile(Taxa = "Reptilia", SpeciesList = "All",
 )
 
 list.files(PlotDir)
-list.files(paste0(AnalysisDir,'\\\\Rdata'))
+list.files(paste0(AnalysisDir,'/Rdata'))
 
 unlink(AnalysisDir, recursive = TRUE)
 unlink(PlotDir, recursive = TRUE)

@@ -2,15 +2,15 @@
 
 test_that("make_summary2 works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
-  AnalysisDir  = paste0(dirname(file),'\\Rdata')
+  AnalysisDir  = paste0(dirname(file),'/Rdata')
   SummTab <- make_summary2(AnalysisDir, dirname(file),
                            TaxaList = "Reptilia",
                            BySex = list(Reptilia = c("Male", "Female")) ,
                            Sections = c("sur")
   )
-  expect_true(file.exists(paste( dirname(file), 'DP_Survival.csv', sep = '\\')))
-  expect_true(file.exists(paste( dirname(file), 'DP_Analyses.csv', sep = '\\')))
-  expect_true(file.exists(paste( dirname(file), 'DP_Any_Ana.csv', sep = '\\')))
+  expect_true(file.exists(paste( dirname(file), 'DP_Survival.csv', sep = '/')))
+  expect_true(file.exists(paste( dirname(file), 'DP_Analyses.csv', sep = '/')))
+  expect_true(file.exists(paste( dirname(file), 'DP_Any_Ana.csv', sep = '/')))
   expect_named(SummTab , c('Class', 'Species', 'Sex', 'NRaw', 'NDate', 'NGlobal', 'NBirthType', 'NUncertBirth', 'NAlive', 'FirstDate', 'MaxAgeRaw', 'ExtractDate'))
 })
 

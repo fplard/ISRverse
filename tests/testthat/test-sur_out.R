@@ -20,7 +20,7 @@ dir.create(PlotDir)
   expect_named(out$Sur5, c("Age", "Lower",  "Upper", "Sur"))
   expect_true(is.numeric(out$Sur5$Lower))
   expect_true(is.numeric(out$Sur5$Sur))
-    expect_true(file.exists(paste(PlotDir, "10__surcheck.pdf", sep = '\\')))
+    expect_true(file.exists(paste(PlotDir, "10__surcheck.pdf", sep = '/')))
 
 unlink(PlotDir, recursive = TRUE)
 })

@@ -42,7 +42,7 @@ A list including
 Run a gap analysis on the distribution of longevity and give the threshold value to use to avoid having gaps in longevity.
 }
 \examples{
-TempDir <- paste0(tempdir(check = TRUE),'\\\\temp')
+TempDir <- paste0(tempdir(check = TRUE),'/temp')
 dir.create(TempDir)
 data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
 out <- select_Longthreshold (Data = core,  SexCats = "All", 

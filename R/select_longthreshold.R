@@ -23,7 +23,7 @@
 #' @export
 #'
 #' @examples
-#' TempDir <- paste0(tempdir(check = TRUE),'\\temp')
+#' TempDir <- paste0(tempdir(check = TRUE),'/temp')
 #' dir.create(TempDir)
 #' data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
 #' out <- select_Longthreshold (Data = core,  SexCats = "All", 

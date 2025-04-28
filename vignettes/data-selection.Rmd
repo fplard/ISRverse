@@ -49,7 +49,7 @@ data <- Load_Zimsdata	(Taxa = "Reptilia",
                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 
 Animal<- Prep_Animal(data[["Reptilia"]]$Animal, ExtractDate="2024/08/29"  )
-PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+PlotDir = paste0(tempdir(check = TRUE),'/temp')
 dir.create(PlotDir)
 
 out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
@@ -142,7 +142,7 @@ and a summary list including the threshold value selected for the distribution o
 
 
 ```{r examples-select_Longthreshold}
-TempDir <- paste0(tempdir(check = TRUE),'\\temp')
+TempDir <- paste0(tempdir(check = TRUE),'/temp')
 dir.create(TempDir)
 data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
 out <- select_Longthreshold (Data = core,  SexCats = "All", 

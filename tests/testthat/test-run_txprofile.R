@@ -3,7 +3,7 @@
 test_that("run_txprofile works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSDir = dirname(file)
-  PlotDir = paste0(tempdir(check = TRUE),'\\tem')
+  PlotDir = paste0(tempdir(check = TRUE),'/tem')
   dir.create(PlotDir)
   
   #This code run the survival analysis

@@ -72,7 +72,7 @@
 #'                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 #'
 #' Animal<- Prep_Animal(data[["Reptilia"]]$Animal, ExtractDate="2024/08/29"  )
-#' PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+#' PlotDir = paste0(tempdir(check = TRUE),'/temp')
 #' dir.create(PlotDir)
 #'
 #' out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",

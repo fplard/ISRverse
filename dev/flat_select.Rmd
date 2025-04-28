@@ -378,7 +378,7 @@ data <- Load_Zimsdata	(Taxa = "Reptilia",
                        Animal = TRUE, tables = c("Collection","DeathInformation"))
 
 Animal<- Prep_Animal(data[["Reptilia"]]$Animal, ExtractDate="2024/08/29"  )
-PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+PlotDir = paste0(tempdir(check = TRUE),'/temp')
 dir.create(PlotDir)
 
 out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
@@ -408,7 +408,7 @@ test_that("tx_report works", {
                                                    "Weight", "Parent", "Move", 
                                                    "Contraception"))
   Animal<- Prep_Animal(data[["Reptilia"]]$Animal, ExtractDate= "2024/08/29" )
-  PlotDir = paste0(tempdir(check = TRUE),'\\temp')
+  PlotDir = paste0(tempdir(check = TRUE),'/temp')
   dir.create(PlotDir)
   
   out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
@@ -434,11 +434,11 @@ test_that("tx_report works", {
   expect_named(out$weig, c('Male', "Female"))
   expect_named(out$weig$Male$All, c('wSummar', "weightQ"))
   expect_named(out$weig$Female$All, c('wSummar', "weightQ"))
-  expect_true(file.exists(paste(PlotDir, "Long_dist\\Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Survival\\10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '\\')))
-  expect_true(file.exists(paste(PlotDir, "Growth\\Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '\\')))
+  expect_true(file.exists(paste(PlotDir, "Long_dist/Reptilia_Testudo_hermanni_Male_LongThres.pdf", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Survival/10_Reptilia_Testudo_hermanni_Male_0_surcheck.pdf", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Survival/10_Reptilia_Testudo_hermanni_Male_0_surplot.pdf", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Growth/Reptilia_Testudo_hermanni_Male_All_outliers.png", sep = '/')))
+  expect_true(file.exists(paste(PlotDir, "Growth/Reptilia_Testudo_hermanni_Male_All_growth.png", sep = '/')))
   unlink(PlotDir, recursive = TRUE)
 })
 ```
@@ -981,7 +981,7 @@ select_Longthreshold <- function(Data,  SexCats = "All", MinN = 50,
 ```
 
 ```{r examples-select_Longthreshold}
-TempDir <- paste0(tempdir(check = TRUE),'\\temp')
+TempDir <- paste0(tempdir(check = TRUE),'/temp')
 dir.create(TempDir)
 data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
 out <- select_Longthreshold (Data = core,  SexCats = "All", 
@@ -993,12 +993,12 @@ unlink(TempDir, recursive = TRUE)
 
 ```{r tests-select_Longthreshold}
 test_that("select_Longthreshold works", {
-  TempDir <- paste0(tempdir(check = TRUE),'\\temp')
+  TempDir <- paste0(tempdir(check = TRUE),'/temp')
   dir.create(TempDir)
   data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
   out <- select_Longthreshold (Data = core,  SexCats = "All", 
                                PlotDir = TempDir, PlotName = "Testudo_hermanni")
-  expect_true(file.exists(paste(TempDir, 'Testudo_hermanni_LongThres.pdf', sep = '\\')))
+  expect_true(file.exists(paste(TempDir, 'Testudo_hermanni_LongThres.pdf', sep = '/')))
   #reMove temporary folder
   unlink(TempDir, recursive = TRUE)
   expect_named(out, c("summar",  "data"))
