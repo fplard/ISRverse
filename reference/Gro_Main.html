@@ -72,21 +72,21 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Gro_Main</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">coresubse</span>,</span>
-<span>  <span class="va">taxa</span>,</span>
-<span>  <span class="va">species</span>,</span>
-<span>  Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
-<span>  agemat <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">Taxa</span>,</span>
+<span>  <span class="va">Species</span>,</span>
+<span>  BirthType <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span>  AgeMat <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"weight"</span>,</span>
 <span>  MeasureType <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  minInstitution <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  uncert_date <span class="op">=</span> <span class="fl">365</span>,</span>
-<span>  minNgro <span class="op">=</span> <span class="fl">30</span>,</span>
-<span>  minNIgro <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  MinInstitution <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  UncertDate <span class="op">=</span> <span class="fl">365</span>,</span>
+<span>  MinNGro <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  MinNIGro <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  models <span class="op">=</span> <span class="st">"vonBertalanffy"</span>,</span>
 <span>  percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">97.5</span><span class="op">)</span>,</span>
 <span>  PlotDir <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mindate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
-<span>  plotname <span class="op">=</span> <span class="st">""</span></span>
+<span>  MinDate <span class="op">=</span> <span class="st">"1980-01-01"</span>,</span>
+<span>  PlotName <span class="op">=</span> <span class="st">""</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,48 +102,48 @@
 <dd><p><code>data.frame</code> including at least the following columns <em>binSpecies</em>, <em>SexType</em>, <em>AnimalAnonID</em>, <em>BirthType</em> and <em>Birthdate</em> (<code>date</code>)</p></dd>
 
 
-<dt id="arg-taxa">taxa<a class="anchor" aria-label="anchor" href="#arg-taxa"></a></dt>
+<dt id="arg-taxa">Taxa<a class="anchor" aria-label="anchor" href="#arg-taxa"></a></dt>
 <dd><p><code>character</code> the name of the taxa studied</p></dd>
 
 
-<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dt id="arg-species">Species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
 <dd><p><code>character</code> the name of the species studied</p></dd>
 
 
-<dt id="arg-birth-type">Birth_Type<a class="anchor" aria-label="anchor" href="#arg-birth-type"></a></dt>
+<dt id="arg-birthtype">BirthType<a class="anchor" aria-label="anchor" href="#arg-birthtype"></a></dt>
 <dd><p><code>vector of character</code> "Captive", "Wild", and/or "All"</p></dd>
 
 
-<dt id="arg-agemat">agemat<a class="anchor" aria-label="anchor" href="#arg-agemat"></a></dt>
-<dd><p><code>numeric</code> age at sexual maturity . Default = NULL</p></dd>
+<dt id="arg-agemat">AgeMat<a class="anchor" aria-label="anchor" href="#arg-agemat"></a></dt>
+<dd><p><code>numeric</code> age at sexual maturity.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p><code>character</code> Either 'weight' or 'length'. Default =  'weight</p></dd>
+<dd><p><code>character</code> Either 'weight' or 'length'.ht</p></dd>
 
 
 <dt id="arg-measuretype">MeasureType<a class="anchor" aria-label="anchor" href="#arg-measuretype"></a></dt>
-<dd><p><code>vector of characters</code> Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.</p></dd>
+<dd><p><code>vector of characters</code> Name of the type of measurements that should be included.  Default: all measurement types are included.</p></dd>
 
 
-<dt id="arg-mininstitution">minInstitution<a class="anchor" aria-label="anchor" href="#arg-mininstitution"></a></dt>
-<dd><p><code>numeric</code> Minimum number of institutions that should hold records to run the analysis. Default = 1</p></dd>
+<dt id="arg-mininstitution">MinInstitution<a class="anchor" aria-label="anchor" href="#arg-mininstitution"></a></dt>
+<dd><p><code>numeric</code> Minimum number of institutions that should hold records to run the analysis.</p></dd>
 
 
-<dt id="arg-uncert-date">uncert_date<a class="anchor" aria-label="anchor" href="#arg-uncert-date"></a></dt>
+<dt id="arg-uncertdate">UncertDate<a class="anchor" aria-label="anchor" href="#arg-uncertdate"></a></dt>
 <dd><p><code>numeric</code>: Maximum uncertainty accepted for measurement dates, in days</p></dd>
 
 
-<dt id="arg-minngro">minNgro<a class="anchor" aria-label="anchor" href="#arg-minngro"></a></dt>
+<dt id="arg-minngro">MinNGro<a class="anchor" aria-label="anchor" href="#arg-minngro"></a></dt>
 <dd><p><code>numeric</code> Minimum number of weight needed to fit the growth models</p></dd>
 
 
-<dt id="arg-minnigro">minNIgro<a class="anchor" aria-label="anchor" href="#arg-minnigro"></a></dt>
+<dt id="arg-minnigro">MinNIGro<a class="anchor" aria-label="anchor" href="#arg-minnigro"></a></dt>
 <dd><p><code>numeric</code> Minimum number of unique individuals needed to fit the growth models</p></dd>
 
 
 <dt id="arg-models">models<a class="anchor" aria-label="anchor" href="#arg-models"></a></dt>
-<dd><p><code>vector of characters</code> indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"</p></dd>
+<dd><p><code>vector of characters</code> indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.</p></dd>
 
 
 <dt id="arg-percentiles">percentiles<a class="anchor" aria-label="anchor" href="#arg-percentiles"></a></dt>
@@ -151,15 +151,15 @@
 
 
 <dt id="arg-plotdir">PlotDir<a class="anchor" aria-label="anchor" href="#arg-plotdir"></a></dt>
-<dd><p><code>character</code> Directory to save the plots. Default = NULL, no plot is saved</p></dd>
+<dd><p><code>character</code> Directory to save the plots. Default: no plot is saved.</p></dd>
 
 
-<dt id="arg-mindate">mindate<a class="anchor" aria-label="anchor" href="#arg-mindate"></a></dt>
+<dt id="arg-mindate">MinDate<a class="anchor" aria-label="anchor" href="#arg-mindate"></a></dt>
 <dd><p><code>character 'YYYY-MM-DD'</code> Earlier date to include data</p></dd>
 
 
-<dt id="arg-plotname">plotname<a class="anchor" aria-label="anchor" href="#arg-plotname"></a></dt>
-<dd><p><code>character</code> Name used to save the plot. Default = ""</p></dd>
+<dt id="arg-plotname">PlotName<a class="anchor" aria-label="anchor" href="#arg-plotname"></a></dt>
+<dd><p><code>character</code> Name used to save the plot.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -173,7 +173,7 @@
 outliers</p></li>
 <li><p>NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis</p></li>
 <li><p>a logical indicated if the growth analysis was performed</p></li>
-<li><p>If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight &lt; minNgro #' 5/NInd &lt; minNIgro 6/Best model did not fit.
+<li><p>If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight &lt; MinNGro #' 5/NInd &lt; MinNIGro 6/Best model did not fit.
 If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.</p></li>
 </ul></div>
 
@@ -182,10 +182,10 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">output</span><span class="op">=</span> <span class="fu">Gro_Main</span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, coresubse <span class="op">=</span> <span class="va">core</span>,</span></span>
-<span class="r-in"><span>                 taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, species <span class="op">=</span> <span class="st">"Testudo hermanni"</span> ,</span></span>
-<span class="r-in"><span>                 Birth_Type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, agemat <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                 Taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, Species <span class="op">=</span> <span class="st">"Testudo hermanni"</span> ,</span></span>
+<span class="r-in"><span>                 BirthType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, AgeMat <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>                 type <span class="op">=</span> <span class="st">"weight"</span>, MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span></span>
-<span class="r-in"><span>                 minNgro <span class="op">=</span> <span class="fl">30</span>, minNIgro <span class="op">=</span> <span class="fl">30</span>, </span></span>
+<span class="r-in"><span>                 MinNGro <span class="op">=</span> <span class="fl">30</span>, MinNIGro <span class="op">=</span> <span class="fl">30</span>, </span></span>
 <span class="r-in"><span>                 models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"logistic"</span><span class="op">)</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span><span class="op">)</span> </span></span>
 </code></pre></div>
     </div>

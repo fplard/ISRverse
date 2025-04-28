@@ -74,8 +74,8 @@
 <span>  <span class="va">collection</span>,</span>
 <span>  <span class="va">parent</span>,</span>
 <span>  <span class="va">moves</span>,</span>
-<span>  minNrep <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>  minNparep <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  MinNRepro <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  MinNPaRepro <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>,</span>
 <span>  BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>,</span>
 <span>  Global <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -87,39 +87,39 @@
 
 
 <dl><dt id="arg-coresubset">coresubset<a class="anchor" aria-label="anchor" href="#arg-coresubset"></a></dt>
-<dd><p><code>data frame</code> cleaned core data including only the selected individuals. It must includes at least the following columns: <em>AnimalAnonID</em>, 'BirthType', <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>DepartDate</em>, <em>BirthDate</em>,<em>SexType</em>, and <em>FirstHoldingInstitution</em></p></dd>
+<dd><p><code>data frame</code> cleaned core data including only the selected individuals. It must includes at least the following columns: <em>AnimalAnonID</em>, 'BirthType', <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>DepartDate</em>, <em>BirthDate</em>,<em>SexType</em>, and <em>FirstHoldingInstitution</em>.</p></dd>
 
 
 <dt id="arg-collection">collection<a class="anchor" aria-label="anchor" href="#arg-collection"></a></dt>
-<dd><p><code>data frame</code> Collection data including at least the following columns: <em>AnimalAnonID</em>, <em>ScopeType</em>, <em>ChangeDate</em></p></dd>
+<dd><p><code>data frame</code> Collection data including at least the following columns: <em>AnimalAnonID</em>, <em>ScopeType</em>, <em>ChangeDate</em>.</p></dd>
 
 
 <dt id="arg-parent">parent<a class="anchor" aria-label="anchor" href="#arg-parent"></a></dt>
-<dd><p><code>data frame</code> Parent data including at least the following columns: <em>ParentAnonID</em>, <em>ParentCollectionScopeType</em>, <em>OffspringCollectionScopeType</em>, <em>AnimalAnonID</em>, <em>ParentOriginType</em>, <em>Probability</em></p></dd>
+<dd><p><code>data frame</code> Parent data including at least the following columns: <em>ParentAnonID</em>, <em>ParentCollectionScopeType</em>, <em>OffspringCollectionScopeType</em>, <em>AnimalAnonID</em>, <em>ParentOriginType</em>, <em>Probability</em>.</p></dd>
 
 
 <dt id="arg-moves">moves<a class="anchor" aria-label="anchor" href="#arg-moves"></a></dt>
-<dd><p><code>data frame</code> Moves data including at least the following columns: <em>AnimalAnonID</em>, <em>To</em>, <em>Date</em></p></dd>
+<dd><p><code>data frame</code> Moves data including at least the following columns: <em>AnimalAnonID</em>, <em>To</em>, <em>Date</em>.</p></dd>
 
 
-<dt id="arg-minnrep">minNrep<a class="anchor" aria-label="anchor" href="#arg-minnrep"></a></dt>
-<dd><p><code>numeric</code> Minimum number of birth records needed to run reproductive analyses. Default = 50</p></dd>
+<dt id="arg-minnrepro">MinNRepro<a class="anchor" aria-label="anchor" href="#arg-minnrepro"></a></dt>
+<dd><p><code>numeric</code> Minimum number of birth records needed to run reproductive analyses.</p></dd>
 
 
-<dt id="arg-minnparep">minNparep<a class="anchor" aria-label="anchor" href="#arg-minnparep"></a></dt>
-<dd><p><code>numeric</code> Minimum number of unique parent records needed to run reproductive analyses. Default = 30</p></dd>
+<dt id="arg-minnparepro">MinNPaRepro<a class="anchor" aria-label="anchor" href="#arg-minnparepro"></a></dt>
+<dd><p><code>numeric</code> Minimum number of unique parent records needed to run reproductive analyses.</p></dd>
 
 
 <dt id="arg-birthtype-parent">BirthType_parent<a class="anchor" aria-label="anchor" href="#arg-birthtype-parent"></a></dt>
-<dd><p><code>character</code> Captive, Wild, or All. Default =  "Captive"</p></dd>
+<dd><p><code>character</code> Captive, Wild, or All.</p></dd>
 
 
 <dt id="arg-birthtype-offspring">BirthType_offspring<a class="anchor" aria-label="anchor" href="#arg-birthtype-offspring"></a></dt>
-<dd><p><code>character</code> Captive, Wild, or All. Default =  "Captive"</p></dd>
+<dd><p><code>character</code> Captive, Wild, or All.</p></dd>
 
 
 <dt id="arg-global">Global<a class="anchor" aria-label="anchor" href="#arg-global"></a></dt>
-<dd><p><code>logical</code> Whether only individuals belonging to global collections should be used. Default = #'</p></dd>
+<dd><p><code>logical</code> Whether only individuals belonging to global collections should be used.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -134,7 +134,7 @@
 <li><p>NOffsp_age: the number of offspring with known birth date and with parents with a known age &gt; 0</p></li>
 <li><p>NParent_age: the number of unique parents with known and positive age and with offspring with known birth date</p></li>
 <li><p>a logical indicated if the reproductive analysis can be performed</p></li>
-<li><p>If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths &lt; minNrep and 2/Nparentshs &lt; minNparep</p></li>
+<li><p>If the analyses cannot be performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/Nbirths &lt; MinNRepro and 2/Nparentshs &lt; minNparep</p></li>
 </ul></div>
 
     <div id="ref-examples">

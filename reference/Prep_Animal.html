@@ -69,7 +69,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Prep_Animal</span><span class="op">(</span><span class="va">Animal</span>, minBirthDate <span class="op">=</span> <span class="st">"1900-01-01"</span>, <span class="va">extractDate</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Prep_Animal</span><span class="op">(</span><span class="va">Animal</span>, MinBirthDate <span class="op">=</span> <span class="st">"1900-01-01"</span>, <span class="va">ExtractDate</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -80,37 +80,37 @@
 <dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em>,  <em>BirthDate</em>, <em>BirthDateEstimateType</em>, <em>BirthDateEstimateStart</em>, <em>BirthDateEstimateEnd</em>, <em>BirthType</em>, <em>FirstAcquisitionDate</em>, <em>DeathDate</em>, <em>DeathDateEstimateType</em>, <em>DeathDateEstimateStart</em>, <em>DeathDateEstimateEnd</em>, <em>LastCommentEntryDate</em>, <em>BirthObserved</em>, <em>GlobalStatus</em>, and  <em>LastTXDate</em></p></dd>
 
 
-<dt id="arg-minbirthdate">minBirthDate<a class="anchor" aria-label="anchor" href="#arg-minbirthdate"></a></dt>
-<dd><p><code>character</code>: Earlier possible date: date used when minimum birth or death date unknown</p></dd>
+<dt id="arg-minbirthdate">MinBirthDate<a class="anchor" aria-label="anchor" href="#arg-minbirthdate"></a></dt>
+<dd><p><code>character</code>: Earliest possible date: date used when minimum birth or death date unknown</p></dd>
 
 
-<dt id="arg-extractdate">extractDate<a class="anchor" aria-label="anchor" href="#arg-extractdate"></a></dt>
-<dd><p><code>character</code>: Latest possible date in the data: date used when individuals are still alive</p></dd>
+<dt id="arg-extractdate">ExtractDate<a class="anchor" aria-label="anchor" href="#arg-extractdate"></a></dt>
+<dd><p><code>character</code>: Latest possible date in the data: date used as DepartDate when individuals are still alive</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The checked and prepared dataset</p>
+    <p>the checked and prepared dataset</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>This function add the columns: MinBirthDate, MaxBirthDate, MinDeathDate, MaxDeathDate, EntryDate, EntryType, DepartDate, DepartType, Birth_Uncertainty, and Death_Uncertainty. It removes individuals for which dates are not chronologically meaningful (i.e. birth date after death date) and for which Birth_Uncertainty is higher than <code>uncert_birth</code>.</p>
+    <p>This function adds the columns: MinBirthDate, MaxBirthDate, MinDeathDate, MaxDeathDate, EntryDate, EntryType, DepartDate, DepartType, BirthUncertainty, and DeathUncertainty. It removes individuals for which dates are not chronologically meaningful (i.e. birth date after death date) and for which birth uncertainty is higher than <code>UncertBirth</code>.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ZIMSdirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ZIMSDirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Load_Zimsdata.html">Load_Zimsdata</a></span>  <span class="op">(</span>taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, </span></span>
-<span class="r-in"><span>                       species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Reptilia <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                       ZIMSdir <span class="op">=</span> <span class="va">ZIMSdirtest</span>,</span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Load_Zimsdata.html">Load_Zimsdata</a></span>  <span class="op">(</span>Taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, </span></span>
+<span class="r-in"><span>                       Species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Reptilia <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                       ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirtest</span>,</span></span>
 <span class="r-in"><span>                       Animal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ReptiliaReptilia Done.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu">Prep_Animal</span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Animal</span>, extractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2023/12/23"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu">Prep_Animal</span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">Reptilia</span><span class="op">$</span><span class="va">Animal</span>, ExtractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2023/12/23"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">ZIMSdirtest</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">ZIMSDirtest</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

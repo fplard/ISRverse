@@ -22,7 +22,10 @@
 <url><loc>/reference/Gro_plot.html</loc></url>
 <url><loc>/reference/Gro_remoutliers.html</loc></url>
 <url><loc>/reference/ISRverse-package.html</loc></url>
+<url><loc>/reference/KM_Lx.html</loc></url>
+<url><loc>/reference/KM_age.html</loc></url>
 <url><loc>/reference/Load_Zimsdata.html</loc></url>
+<url><loc>/reference/Make_SurFigTab.html</loc></url>
 <url><loc>/reference/Prep_Animal.html</loc></url>
 <url><loc>/reference/Rep_agemat.html</loc></url>
 <url><loc>/reference/Rep_littersize.html</loc></url>
@@ -31,7 +34,6 @@
 <url><loc>/reference/Split_Zimsdata.html</loc></url>
 <url><loc>/reference/Sur_age.html</loc></url>
 <url><loc>/reference/Sur_ana.html</loc></url>
-<url><loc>/reference/Sur_ana1.html</loc></url>
 <url><loc>/reference/Sur_main.html</loc></url>
 <url><loc>/reference/Sur_out.html</loc></url>
 <url><loc>/reference/Sur_ple.html</loc></url>
@@ -44,6 +46,7 @@
 <url><loc>/reference/find_gaps.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/make_summary.html</loc></url>
+<url><loc>/reference/make_summary2.html</loc></url>
 <url><loc>/reference/moves.html</loc></url>
 <url><loc>/reference/parent.html</loc></url>
 <url><loc>/reference/pipe.html</loc></url>
