@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - codecov/upload
-workflows:
+ workflows:
   upload-to-codecov:
     jobs:
       - upload_job
