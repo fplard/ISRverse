@@ -7,9 +7,7 @@ jobs:
       - image: circleci/python:3.8
     steps:
       - checkout
-      - run:
-          name: Upload to Codecov
-          command: codecov
+      - codecov/upload
 workflows:
   upload-to-codecov:
     jobs:
