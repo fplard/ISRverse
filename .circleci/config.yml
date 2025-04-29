@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
- codecov: codecov/codecov@5
+  codecov: codecov/codecov@5
 jobs:
   upload_job:
     docker:
@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - codecov/upload
- workflows:
+workflows:
   upload-to-codecov:
     jobs:
       - upload_job
