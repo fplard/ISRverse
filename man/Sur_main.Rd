@@ -114,7 +114,7 @@ The output of a list including (depending of CalculateMetricsFrom) per sex categ
 \item lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of longevity: 100\%, 99.9\%, 99\% or 95\%
 \item analyzed: a logical indicated if the basta survival model was performed
-\item If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx\link{MLE} < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+\item If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx_MLE < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
 }
 \item the Kaplan-Meier table
 \item the basta fit of the best model
