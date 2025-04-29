@@ -2,7 +2,8 @@
 
 logx <- rnorm(100, 0, 1)
 logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
-dat = data.frame(logx = logx, logz = logz)
+dat = data.frame(logx = logx, logz = logz,AnimalAnonID = sample(c(0:20), 100, replace = TRUE)
+)
 
 test_that(
   "Gro_fitlog error",

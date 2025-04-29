@@ -4,8 +4,8 @@
 #'
 #' @param z  \code{numeric vector} Measurement values
 #' @param x  \code{numeric vector} Age
-#' @param minq \code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05
-#' @param type \code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened. Default =  0.05
+#' @param minq \code{numeric} Sensitivity of the function to remove outliers, between 0 and 1.
+#' @param type \code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened.
 #'
 #' @return
 #' Vector of 0 and 1 indicating the measurement values to keep (=1) vs. the outliers (=0).
@@ -23,6 +23,7 @@
 #' Gro_Rout_quan (z,x, minq = 0.05)
 Gro_Rout_quan <- function (z, x, minq = 0.05, type = "both") 
 {
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.numeric(z))
   assert_that(is.numeric(x))
   assert_that(length(z) == length(x))

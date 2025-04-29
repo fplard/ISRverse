@@ -11,9 +11,9 @@ Gro_Rout_quan(z, x, minq = 0.05, type = "both")
 
 \item{x}{\code{numeric vector} Age}
 
-\item{minq}{\code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05}
+\item{minq}{\code{numeric} Sensitivity of the function to remove outliers, between 0 and 1.}
 
-\item{type}{\code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened. Default =  0.05}
+\item{type}{\code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened.}
 }
 \value{
 Vector of 0 and 1 indicating the measurement values to keep (=1) vs. the outliers (=0).

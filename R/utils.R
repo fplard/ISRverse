@@ -1,6 +1,14 @@
 
 #Growth Functions
 # Von Bertalanffy growth function:
+#test pour faire du RE en fréquentist mais ca ne marche pas du tout!!
+# vbGrowthtest <- function(gamma = 0.5 , zinf = 0, z0 = 0, sigma = 0.01, LL = F, logx, IND, logz = 0) {
+#   re_z0 = rnorm(length(unique(IND)), 0,sigma)
+#   zEst <-z0 + re_z0[IND] + zinf * (1 - exp(- gamma * logx))
+#   if(LL){
+#     return(sum((logz - zEst)^2))
+#   }else{return(zEst)}
+# }
 
 vbGrowth <- function(gamma = 0.5 , zinf = 0, z0 = 0, LL = F, logx, logz = 0) {
   zEst <-z0 + zinf * (1 - exp(- gamma * logx))

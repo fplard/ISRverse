@@ -22,99 +22,53 @@ library(ISRverse)
 
 # Run Taxon Profiles
 
-`run_txprofile()` loads the data needed and runs or updates demographic analyses for the list of species selected. It uses the following main arguments (see the help of the function for more):
+`run_txprofile()` loads the data needed and runs or updates demographic analyses for the list of species selected. It uses the following main arguments (see the help of the different functions for more details):
 
-* `taxa` 
-* `Species_list
-* `ZIMSdir` directory where to find data
+* `Taxa` 
+* `SpeciesList
+* `ZIMSDir` directory where to find data
 * `AnalysisDir`  directory where to save results
 * `PlotDir`: Directory to save the plots of the best models
-* `extractDate `  Date of data extraction
-* `minDate`  Earlier date to include data
+* `ExtractDate`  Date of data extraction
+* `MinDate`  Earliest date to include data
+* `BirthType` Captive, Wild, or All
 * `Sections` names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro"
-* `sexCats` Male, Female or/and All
-* `models_sur` names of the survival basta models to run and compared: "G0", "EX", "LO" and/or "WE".
-* `models_gro` indicating the growth models that need to be run and compared. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
+* `SexCats` Male, Female or/and All
+* `ModelsSur` names of the survival basta models to run and compared: "G0", "EX", "LO" and/or "WE".
+* `ModelsGro` indicating the growth models that need to be run and compared. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
 
-The result files are saved using the following directory \code{{analysisDir}\{taxa}\{species}.Rdata}, where `analysisDir` and `taxa` are argument of the function. `species` is the latin name of each species
+The result files are saved using the following directory \code{{AnalysisDir}\{Taxa}\{Species}.Rdata}, where `AnalysisDir` and `Taxa` are argument of the function. `Species` is the latin name of each species
 
 
 
 
 ```{r examples-run_txprofile}
-# # Here is an example but use directly your own ZIMSdir(directory to find data) and analysisDir(directory to save analysis)
-# file = system.file("coretest.csv", package = 'ISRverse')
-# ZIMSdir = dirname(file)
-# AnalysisDir = paste0(tempdir(check = TRUE),'\\temp')
-# PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
+# Here is an example but use directly your own ZIMSDir (directory to find data) 
+# and AnalysisDir (directory to save the analysis)
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSDir = dirname(file)
+AnalysisDir = paste0(tempdir(check = TRUE),'/temp')
+PlotDir = paste0(AnalysisDir,'/plot')
 # dir.create(AnalysisDir)
-# dir.create(PlotDir)
-# 
-# #This code run the survival analysis for gorilla
-# out <- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla'), 
-#                           ZIMSdir = RastDir, AnalysisDir = AnalysisDir,
-#                           PlotDir = PlotDir,
-#                           extractDate = "", 
-#                           minDate = "1980-01-01",
-#                           Sections = "sur", 
-#                           sexCats = c('Male', 'Female'),
-#                          niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
-# )
-# 
-# list.files(PlotDir)
-# list.files(AnalysisDir)
-# 
-# unlink(AnalysisDir, recursive = TRUE)
+dir.create(paste0(AnalysisDir,'/Rdata'), recursive = TRUE)
+dir.create(PlotDir)
 
-```
+#This code run the survival analysis
+run_txprofile(Taxa = "Reptilia", SpeciesList = "All",
+              ZIMSDir = ZIMSDir, AnalysisDir = AnalysisDir,
+              PlotDir = PlotDir,
+              ExtractDate = "",
+              MinDate = "1980-01-01",
+              Sections = c("sur"),
+              SexCats = c('Male', 'Female'),
+              niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
+)
 
-This function can be run on parallel on several computer on the same species list. In this case the following arguments need to be used:
-* `inparallel` Whether this function is run in parallel on different computer. In other words: should the species list be divided? Default = FALSE
-* `ipara` Id number of the computer used to select the species to run
-* `npara` number of computers used in parallel
-.
+list.files(PlotDir)
+list.files(paste0(AnalysisDir,'/Rdata'))
 
-
-```{r examples2-run_txprofile}
-#' \dontrun{
-#' # Here is an example but use directly your own ZIMSdir(directory to find data) and analysisDir(directory #' to save analysis)
-#' file = system.file("coretest.csv", package = 'ISRverse')
-#' ZIMSdir = dirname(file)
-#' analysisDir = paste0(tempdir(check = TRUE),'\\temp')
-#' PlotDir = paste0(tempdir(check = TRUE),'\\temp\\plot')
-#' dir.create(analysisDir)
-#' dir.create(PlotDir)
-#' 
-#' #Here I want to split my analysis on two computers
-#' #Run on computer 1:
-#' out <- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla', "Capreolus capreolus"), 
-#'                           ZIMSdir = RastDir, analysisDir = analysisDir,
-#'                          PlotDir = PlotDir,
-#'                        extractDate = "", 
-#'                           minDate = "1980-01-01",
-#'                           Sections = "sur", 
-#'                           sexCats = c('Male', 'Female'), 
-#'                           inparallel = TRUE, 
-#'                           ipara = 1, npara = 2
-#' )
-#' 
-#' 
-#' #Run on computer 2:
-#' out <- run_txprofile(taxa = "Mammalia", Species_list = c('Gorilla gorilla', "Capreolus capreolus"), 
-#'                           ZIMSdir = RastDir, analysisDir = analysisDir,
-#'                           PlotDir = PlotDir,
-#'                       extractDate = "", 
-#'                           minDate = "1980-01-01",
-#'                           Sections = "sur", 
-#'                           sexCats = c('Male', 'Female'), 
-#'                           inparallel = TRUE,
-#'                            ipara = 2, npara = 2
-#' )
-#' list.files(PlotDir)
-#' list.files(AnalysisDir)
-#'
-#' unlink(analysisDir, recursive = TRUE)
-#' }
+unlink(AnalysisDir, recursive = TRUE)
+unlink(PlotDir, recursive = TRUE)
 ```
 
 # Summary tables & plots
@@ -123,53 +77,151 @@ This function can be run on parallel on several computer on the same species lis
 
 * `AnalysisDir` character} directory where to find the .Rdata files
 * `SaveDir` character} directory where to save summary plots and tables
-* `taxaList` names of the taxa studied.
-* `BySex` list of the taxa names indicating the sexes analyzed. 
-* `Sections` names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro"
+* `TaxaList` names of the Taxa studied.
+* `BySex` list of the Taxa names indicating the sexes analyzed. 
+* `Sections` names of the sections: "sur", "rep" and/or "gro"
 
 it returns the main summary table
 
 
 ```{r examples-make_summary}
-# file = system.file("gorilla gorilla.Rdata", package = 'ISRverse')
-# AnalysisDir  = dirname(file)
-# SaveDir = paste0(tempdir(check = TRUE),'\\temp')
+# file = system.file("sci_Animal.csv", package = 'ISRverse')
+# AnalysisDir  = paste0(dirname(file),'/Rdata')
+# SaveDir = paste0(tempdir(check = TRUE),'/temp')
 # dir.create(SaveDir)
 # 
-# SummTab <- make_summary (AnalysisDir, SaveDir,
-#                           taxaList = "Mammalia", 
-#                           BySex = list(Mammalia = c("Male", "Female")) , 
-#                           Sections = c("sur", 'gro')
+# SummTab <- make_summary(AnalysisDir, SaveDir,
+#                         TaxaList = "Reptilia",
+#                         BySex = list(Reptilia = c("Male", "Female")) ,
+#                         Sections = c("sur", 'gro')
 # )
 # list.files(SaveDir)
 # 
-# 
 # unlink(SaveDir, recursive = TRUE)
+```
 
+# Summary tables & plots Data Paper
+
+`make_summary2()` produces summary tables of the demographic analyses made for all species. It uses the following arguments:
+
+* `AnalysisDir` character} Directory where to find the analyses results: .Rdata files
+* `SaveDir` character} Directory where to save summary plots and tables
+* `TaxaList` names of the taxa studied.
+* `BySex` list of the taxa names indicating the sexes analyzed. 
+* `Sections` names of the sections: "sur", "rep" and/or "gro"
+
+it returns the main summary table
+
+
+```{r examples-make_summary2}
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = paste0(dirname(file),'/Rdata')
+SaveDir = paste0(tempdir(check = TRUE),'/temp')
+dir.create(SaveDir)
+
+SummTab <- make_summary2(AnalysisDir, SaveDir,
+                         TaxaList = "Reptilia",
+                         BySex = list(Reptilia = c("Male", "Female")) ,
+                         Sections = c("sur")
+)
+list.files(SaveDir)
+unlink(SaveDir, recursive = TRUE)
+```
+
+# Figures & Tables
+
+`Make_FigTab()` Make figures & Tables as in Data Papers. It uses the following arguments:
+
+* `AnalysisDir` character} Directory where to find the analyses results: .Rdata files
+* `SaveDir` character} Directory where to save summary plots and tables
+* `Sections` names of the sections: "sur", "rep" and/or "gro"
+
+
+```{r examples-Make_FigTab}
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+AnalysisDir  = dirname(file)
+SaveDir = paste0(tempdir(check = TRUE),'/temp')
+dir.create(SaveDir)
+out <-Make_SurFigTab (AnalysisDir, SaveDir,
+                      Sections = "sur")
+unlink(SaveDir, recursive = TRUE)
 ```
 
 # Load zims core data
 
-`Load_Zimsdata()` load ZIMS data frames of the taxa selected in a list. It uses the following arguments:
+`Load_Zimsdata()` load ZIMS data frames of a given taxa It uses the following arguments:
 
-* `taxa` the name of the taxa studied`
-* `ZIMSdir` directory where to find data
-* `extractDate` Date of data extraction
-* `type` of data to load: "core", "health", "institution", "moves", "parent", "weights", "lengths", "collections", and/or "simplified_collections"
+* `Taxa` Names of the taxa studied
+* `ZIMSDir` Directory where to find data
+* `Species` Names of the species studied
+* `Animal` Whether the core animal data should be loaded
+* `tables` of data to be load: "Contraception", "HealthStatus", "Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", and/or "Collection".
 
 
 ```{r examples-Load_Zimsdata}
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSDirtest = dirname(file)
+Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 
-# #example of an environmental ncdf file saved with the package
-# file = system.file("coretest.csv", package = 'ISRverse')
-# ZIMSdirtest = dirname(file)
-# 
-# data <- Load_Zimsdata	(taxa = "Mammalia", 
-#                            ZIMSdir = ZIMSdirtest, 
-#                            extractDate = "2023-12-04", 
-#                            type = 'core') 
-# data$core
-# unlink(ZIMSdirtest, recursive = TRUE)
+data <- Load_Zimsdata	(Taxa = "Reptilia", 
+                       ZIMSDir = ZIMSDirtest, 
+                       Species = list(Reptilia = "All"),
+                       Animal = TRUE,
+                       tables = 'Weight') 
+data$Reptilia$Animal
+unlink(glue::glue("{ZIMSDirtest}/Split_Reptilia"), recursive = FALSE)
+```
 
+# Split Initial extract
+
+`Split_Zimsdata()` loads the science extract and:
+* splits it by Taxa 
+* selects only "Individual" for Animal Type
+* adds binSpecies name
+* weights and lengths: checks that measurement are > 0 and adds the following columns: Age in years, UnitOfMeasure and MeasurementValue. 
+
+It uses the following arguments:
+
+* `ZIMSDir` directory where to find data
+* `ExtractDate` Extraction Date in character
+
+
+
+```{r examples-Split_Zimsdata}
+file = system.file("sci_Animal.csv", package = "ISRverse")
+ZIMSDirtest = dirname(file)
+
+Split_Zimsdata(ZIMSDir = ZIMSDirtest)
+
+list.files(ZIMSDirtest, recursive = TRUE)
+```
+
+# Output for Dev team
+
+`make_summary()` produces summary tables and plots of the demographic analyses made for all species. It uses the following arguments:
+
+* `SpeciesTable` Data frame including 2 columns: *Class* and *Species*
+* `AnalysisDir` directory where to find the .Rdata files
+* `SaveDir` directory where to save summary plots and tables
+* `TaxaList` names of the Taxa studied.
+* `BySex` list of the Taxa names indicating the sexes analyzed. 
+* `Sections` names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro"
+
+it returns the main summary table
+
+
+```{r examples-Tx_devout}
+# file = system.file("sci_Animal.csv", package = 'ISRverse')
+# AnalysisDir  = paste0(dirname(file),'/Rdata')
+# SaveDir = paste0(tempdir(check = TRUE),'/temp')
+# dir.create(SaveDir)
+# SpeciesTable = data.frame( Class = "Reptilia", Species = "Testudo hermanni")
+# Tx_devout(SpeciesTable, AnalysisDir, SaveDir,
+#                         TaxaList = "Reptilia",
+#                         BySex = list(Reptilia = c("Male", "Female")) ,
+#                         Sections = c("sur", 'gro')
+# )
+# list.files(SaveDir)
+# unlink(SaveDir, recursive = TRUE)
 ```
 

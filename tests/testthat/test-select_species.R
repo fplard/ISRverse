@@ -3,17 +3,16 @@
 test_that("select_species works", {
   data(core)
   data(collection)
-  out<- select_species (speciesname = "Gorilla gorilla",
+  out<- select_species (SpeciesName = "Testudo hermanni",
                         coresubset = core, collection,
-                        minDate = "1980-01-01", extractDate = "2023-01-01")
+                        MinDate = "1980-01-01", ExtractDate = "2023-01-01")
   expect_named(out, c("summary",  "data"))
-  expect_named(out$summary, c("Nraw", "Ndate", "Nglobal", "Nalive",    "firstDate", "maxAgeraw", "extractdate"))
-  expect_equal(out$summary$Nraw,200)
-  expect_equal(out$summary$Ndate,175)
-  expect_equal(out$summary$Nalive,0)
+  expect_named(out$summary, c('NRaw', 'NDate', 'NGlobal', 'NBirthType', 'NUncertBirth', 'NAlive', 'FirstDate', 'MaxAgeRaw', 'ExtractDate'))
+  expect_equal(out$summary$NRaw,1000)
+  expect_equal(out$summary$NDate,1000)
+  expect_equal(out$summary$NAlive,0)
   expect_named(out$data, names(core))
-  expect_equal(nrow(out$data),out$summary$Nglobal)
-  expect_true(is.numeric(out$summary$maxAgeraw))
-  expect_true(is.date(out$summary$firstDate))
-  
-})
+  expect_equal(nrow(out$data),out$summary$NUncertBirth)
+  expect_true(is.numeric(out$summary$MaxAgeRaw))
+  expect_true(is.date(out$summary$FirstDate))
+  })

@@ -5,48 +5,49 @@
 \title{Gap analysis in longevity}
 \usage{
 select_Longthreshold(
-  data.core,
-  sexCats = "All",
-  PlotDir = "",
-  maintitle = "",
-  minN = 50
+  Data,
+  SexCats = "All",
+  MinN = 50,
+  PlotDir = NULL,
+  PlotName = ""
 )
 }
 \arguments{
-\item{data.core}{\code{data.frame} including at least the following columns \emph{Birth.Date} (\code{date}), \emph{Depart.Date} (\code{date}), \emph{Entry.Date} (\code{date}), and \emph{Sex}}
+\item{Data}{\code{data.frame} including at least the following columns \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), and \emph{SexType}}
 
-\item{sexCats}{\code{character} Male, Female or All Default =  "All"}
+\item{SexCats}{\code{character} Male, Female or All.}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = ""}
+\item{MinN}{\code{numeric} Minimum number of individuals to run the gap analysis.}
 
-\item{maintitle}{\code{character} name of the graph to be saved. Default = ""}
+\item{PlotDir}{\code{character} Directory to save the plots.}
 
-\item{minN}{\code{numeric} Minimum number of individuals. Default = 50}
+\item{PlotName}{\code{character} name of the graph to be saved.}
 }
 \value{
 A list including
 \itemize{
 \item the data with the selected sex and additional columns showing which individuals are above the percentiles 95\%, 99\% and 99.9\%
 \item A summary list with:
-}
 \itemize{
 \item Sex = the sex selected
-\item Nglobal: the number of individuals of this sex
+\item Nselect: the number of individuals of this sex
 \item Nlifespan : the number of individuals with estimated lifespan (i.e. estimated birth dates, censored individuals are also included)
 \item GapThresh : The threshold value selected for the distribution of longevity
-\item NThres : the number of individuals slected using this threshold
+\item NThres : the number of individuals selected using this threshold
+}
+\item Plot and save the longevity distribution with gaps if PlotDir is given.
 }
 }
 \description{
-Run a gap analysis on the distribution of longevity and give the threshold value to use in this distribution to avoid having gaps in longevities. Plot the distribution of longevities with gaps.
+Run a gap analysis on the distribution of longevity and give the threshold value to use to avoid having gaps in longevity.
 }
 \examples{
-TempDir <- paste0(tempdir(check = TRUE),'\\\\temp')
+TempDir <- paste0(tempdir(check = TRUE),'/temp')
 dir.create(TempDir)
 data(core) #### CHANGE DATASET WITH ONE EXCLUDING ABOVE95 99 99.9
-out <- select_Longthreshold (data.core = core,  sexCats = "All", 
-                             PlotDir = TempDir, maintitle = 'Gorilla_gorilla')
+out <- select_Longthreshold (Data = core,  SexCats = "All", 
+                             PlotDir = TempDir, PlotName = "Testudo_hermanni")
 list.files(TempDir)
-#remove temporary folder
+#reMove temporary folder
 unlink(TempDir, recursive = TRUE)
 }

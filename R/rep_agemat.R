@@ -4,7 +4,7 @@
 #' 
 #' Returns summary statistcs for age of reproduction
 #'
-#' @param Reprodata \code{data frame} including at least the columns *ParentAnonID* and *ageBirth*
+#' @param ReproData \code{data frame} including at least the columns *ParentAnonID* and *Parent_Age*.
 #'
 #' @return A data frame including:
 #' * N_moth_agemat: Number of mothers used
@@ -30,18 +30,18 @@
 #' data(parent)
 #' data(moves)
 #' #prepare Data
-#' Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+#' Data <- Rep_prepdata (coresubset = core, collection, parent, moves, 
+#'                       MinNRepro = 1, MinNPaRepro = 1)
 #' #Calculate summary for reproductive ages
-#' out <- Rep_agemat(Data$Reprodata)
+#' out <- Rep_agemat(Data$ReproData)
 #' out
 #'
-Rep_agemat <- function(Reprodata) {
+Rep_agemat <- function(ReproData) {
+  # Check correct format for inputs -------------------------------------------
+  assert_that(is.data.frame(ReproData))
+  assert_that(ReproData %has_name% c("ParentAnonID", "Parent_Age"))
   
-   assert_that(is.data.frame(Reprodata))
-  
-  assert_that(Reprodata %has_name% c("ParentAnonID", "ageBirth"))
-
-  
+  # Initialize outputs ----------------------------------------------------------
   fertSumm <- tibble(N_moth_agemat = 0,N_birth_agemat = 0, 
                      ageMat = NA,   
                      ageYouRep = NA, ageOldRep = NA, 
@@ -49,17 +49,17 @@ Rep_agemat <- function(Reprodata) {
                      ageMeanRep = NA, ageSdRep= NA, ageMedRep = NA,
                      ageMeanRepIC = NA, ageMean1RepIC = NA) 
   
-  # Age at first reproduction:
-  TageMat <-  Reprodata%>%select(ParentAnonID, ageBirth)%>%
+  # Age at first reproduction --------------------------------------------------
+  TageMat <-  ReproData%>%select(ParentAnonID, Parent_Age)%>%
     group_by(ParentAnonID)%>%
-    summarize(ageMat = min(ageBirth),
-              ageold = max(ageBirth))%>%
+    summarize(ageMat = min(Parent_Age),
+              ageold = max(Parent_Age))%>%
     ungroup()
-    
-    fertSumm$N_moth_agemat  = nrow(TageMat)
-  fertSumm$N_birth_agemat  = nrow( Reprodata)
+  
+  fertSumm$N_moth_agemat  = nrow(TageMat)
+  fertSumm$N_birth_agemat  = nrow( ReproData)
   fertSumm$ageMat<- as.numeric(quantile(TageMat$ageMat, 0.025, 
-                                              na.rm = TRUE))
+                                        na.rm = TRUE))
   
   fertSumm$ageYouRep= as.numeric(min(TageMat$ageMat, na.rm = TRUE))
   fertSumm$ageOldRep= as.numeric(max( TageMat$ageold, na.rm = TRUE))
@@ -67,12 +67,14 @@ Rep_agemat <- function(Reprodata) {
   
   fertSumm$ageMean1Rep = mean(as.numeric(TageMat$ageMat), na.rm = TRUE)
   fertSumm$ageSd1Rep = sd(as.numeric(TageMat$ageMat), na.rm = TRUE)
-  fertSumm$ageMean1RepIC = list(fertSumm$ageMean1Rep +c(-1.96, 1.96)*sqrt(var(as.numeric(TageMat$ageMat), na.rm = TRUE)/nrow(TageMat)))
-  fertSumm$ageMeanRep = mean(as.numeric(Reprodata$ageBirth), na.rm = TRUE)
-  fertSumm$ageSdRep = sd(as.numeric(Reprodata$ageBirth), na.rm = TRUE)
-  fertSumm$ageMeanRepIC = list(fertSumm$ageMeanRep +c(-1.96, 1.96)*sqrt(var(as.numeric( Reprodata$ageBirth), na.rm = TRUE)/nrow(Reprodata)))
-  
-  fertSumm$ageMedRep =  median(as.numeric(Reprodata$ageBirth), na.rm = TRUE)
-  
+  fertSumm$ageMean1RepIC = list(fertSumm$ageMean1Rep +
+                                  c(-1.96, 1.96)*sqrt(var(as.numeric(TageMat$ageMat),
+                                                          na.rm = TRUE)/nrow(TageMat)))
+  fertSumm$ageMeanRep = mean(as.numeric(ReproData$Parent_Age), na.rm = TRUE)
+  fertSumm$ageSdRep = sd(as.numeric(ReproData$Parent_Age), na.rm = TRUE)
+  fertSumm$ageMeanRepIC = list(fertSumm$ageMeanRep +
+                                 c(-1.96, 1.96)*sqrt(var(as.numeric( ReproData$Parent_Age),
+                                                         na.rm = TRUE)/nrow(ReproData)))
+  fertSumm$ageMedRep =  median(as.numeric(ReproData$Parent_Age), na.rm = TRUE)
   return(fertSumm)
 }

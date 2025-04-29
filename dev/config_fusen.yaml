@@ -38,10 +38,12 @@ flat_main.Rmd:
   - R/load_zimsdata.R
   - R/make_summary.R
   - R/run_txprofile.R
+  - R/split_zimsdata.R
   tests:
   - tests/testthat/test-run_txprofile.R
   - tests/testthat/test-make_summary.R
   - tests/testthat/test-load_zimsdata.R
+  - tests/testthat/test-split_zimsdata.R
   vignettes: vignettes/taxon-profiles.Rmd
   inflate:
     flat_file: dev/flat_main.Rmd
@@ -54,21 +56,19 @@ flat_repro.Rmd:
   path: dev/flat_repro.Rmd
   state: active
   R:
-  - R/my_fun.R
   - R/rep_agemat.R
-  - R/rep_fert.R
   - R/rep_littersize.R
-  - R/rep_prepdata.R
-  - R/rep_season.R
   - R/rep_main.R
+  - R/rep_prepdata.R
+  - R/fertility.R
+  - R/seasonnality.R
   tests:
   - tests/testthat/test-rep_main.R
   - tests/testthat/test-rep_agemat.R
   - tests/testthat/test-rep_littersize.R
-  - tests/testthat/test-rep_fert.R
+  - tests/testthat/test-fertility.R
   - tests/testthat/test-rep_prepdata.R
-  - tests/testthat/test-rep_season.R
-  - tests/testthat/test-my_fun.R
+  - tests/testthat/test-seasonnality.R
   vignettes: vignettes/reproduction.Rmd
   inflate:
     flat_file: dev/flat_repro.Rmd
@@ -82,11 +82,13 @@ flat_select.Rmd:
   state: active
   R:
   - R/find_gaps.R
+  - R/prep_animal.R
   - R/select_longthreshold.R
   - R/select_species.R
   - R/tx_report.R
   tests:
   - tests/testthat/test-tx_report.R
+  - tests/testthat/test-prep_animal.R
   - tests/testthat/test-select_species.R
   - tests/testthat/test-select_longthreshold.R
   - tests/testthat/test-find_gaps.R
@@ -102,19 +104,28 @@ flat_survival.Rmd:
   path: dev/flat_survival.Rmd
   state: active
   R:
+  - R/km_age.R
+  - R/km_lx.R
   - R/sur_age.R
   - R/sur_ana.R
+  - R/sur_lx.R
   - R/sur_main.R
+  - R/sur_out.R
   - R/sur_ple.R
   - R/sur_relex.R
+  - R/sur_xx.R
   - R/surv_bastab.R
   tests:
   - tests/testthat/test-sur_main.R
   - tests/testthat/test-sur_ana.R
+  - tests/testthat/test-sur_out.R
   - tests/testthat/test-surv_bastab.R
   - tests/testthat/test-sur_ple.R
   - tests/testthat/test-sur_relex.R
   - tests/testthat/test-sur_age.R
+  - tests/testthat/test-sur_xx.R
+  - tests/testthat/test-km_age.R
+  - tests/testthat/test-km_lx.R
   vignettes: vignettes/survival.Rmd
   inflate:
     flat_file: dev/flat_survival.Rmd

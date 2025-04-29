@@ -7,48 +7,57 @@
 Gro_Main(
   data,
   coresubse,
-  taxa,
-  species,
-  BirthType = NULL,
-  agemat = NULL,
+  Taxa,
+  Species,
+  BirthType = "All",
+  AgeMat = NA,
   type = "weight",
   MeasureType = NULL,
-  minNgro = 30,
-  minNIgro = 30,
+  MinInstitution = 1,
+  UncertDate = 365,
+  MinNGro = 30,
+  MinNIGro = 30,
   models = "vonBertalanffy",
   percentiles = c(2.5, 97.5),
   PlotDir = NULL,
-  mindate = "1980-01-01"
+  MinDate = "1980-01-01",
+  PlotName = ""
 )
 }
 \arguments{
-\item{data}{\code{data.frame} including the following columns \emph{MeasurementValue}, \emph{MeasurementDate}, \emph{CollectionScopeType}, \emph{UnitOfMeasure}, \emph{ExcludedFromNorms}, \emph{EstimatedMeasurement}, \emph{RecordType}, \emph{MeasurementType}, \emph{anonID} and \emph{AnonInstitutionID}.}
+\item{data}{\code{data.frame} including the following columns \emph{MeasurementValue}, \emph{MeasurementDate}, \emph{UnitOfMeasure}, \emph{EstimatedMeasurement}, \emph{RecordType}, \emph{MeasurementType}, \emph{AnimalAnonID} and \emph{RecordingInstitution}.}
 
-\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{Sex}, \emph{anonID} and \emph{Birthdate} (\code{date})}
+\item{coresubse}{\code{data.frame} including at least the following columns \emph{binSpecies}, \emph{SexType}, \emph{AnimalAnonID}, \emph{BirthType} and \emph{Birthdate} (\code{date})}
 
-\item{taxa}{\code{character} the name of the taxa studied}
+\item{Taxa}{\code{character} the name of the taxa studied}
 
-\item{species}{\code{character} the name of the species studied}
+\item{Species}{\code{character} the name of the species studied}
 
-\item{BirthType}{\code{vector of character} NULL, Captive and/or Wild Default =  NULL}
+\item{BirthType}{\code{vector of character} "Captive", "Wild", and/or "All"}
 
-\item{agemat}{\code{numeric} age at sexual maturity . Default = NULL}
+\item{AgeMat}{\code{numeric} age at sexual maturity.}
 
-\item{type}{\code{character} Either 'weight' or 'length'. Default =  'weight}
+\item{type}{\code{character} Either 'weight' or 'length'.ht}
 
-\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.}
+\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included.  Default: all measurement types are included.}
 
-\item{minNgro}{\code{numeric} Minimum number of weight needed to fit the growth models}
+\item{MinInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the analysis.}
 
-\item{minNIgro}{\code{numeric} Minimum number of unique individuals needed to fit the growth models}
+\item{UncertDate}{\code{numeric}: Maximum uncertainty accepted for measurement dates, in days}
 
-\item{models}{\code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
+\item{MinNGro}{\code{numeric} Minimum number of weight needed to fit the growth models}
+
+\item{MinNIGro}{\code{numeric} Minimum number of unique individuals needed to fit the growth models}
+
+\item{models}{\code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.}
 
 \item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95\% predicted interval.}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = NULL, no plot is saved}
+\item{PlotDir}{\code{character} Directory to save the plots. Default: no plot is saved.}
 
-\item{mindate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+
+\item{PlotName}{\code{character} Name used to save the plot.}
 }
 \value{
 A list including an analysis by sex and by birth type as included in the input. Each analysis includes:
@@ -59,13 +68,12 @@ A list including an analysis by sex and by birth type as included in the input. 
 \itemize{
 \item NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 \item NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid  measurment from Husbandry have been selected
-\item NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 \item NJuv= 0 and NAd indicate the number of weights of juveniles and adults selected
 \item NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing
 outliers
 \item NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
 \item a logical indicated if the growth analysis was performed
-\item If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro #' 5/NInd < minNIgro 6/Best model did not fit.
+\item If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < MinNGro #' 5/NInd < MinNIGro 6/Best model did not fit.
 If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 }
 }
@@ -73,12 +81,12 @@ If PlotDir is filled, 2 plots are produced: one showing the outliers removed fro
 Select measures, remove outliers, select the best growth model and produce the percentile of the best fitting growth model for the sexes and birth types selected.
 }
 \examples{
-data(raw_weights)
+data(weights)
 data(core)
-output= Gro_Main(data = raw_weights, coresubse = core,
-                 taxa = "Mammalia", species = "Gorilla gorilla" ,
-                 BirthType = c("Captive", "Wild"), agemat = 1,
+output= Gro_Main(data = weights, coresubse = core,
+                 Taxa = "Reptilia", Species = "Testudo hermanni" ,
+                 BirthType = c("Captive", "Wild"), AgeMat = 1,
                  type = "weight", MeasureType = "Live weight",
-                 minNgro = 30, minNIgro = 30, 
+                 MinNGro = 30, MinNIGro = 30, 
                  models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 }

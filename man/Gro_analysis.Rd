@@ -11,11 +11,11 @@ Gro_analysis(
 )
 }
 \arguments{
-\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{anonID}}
+\item{data_weight}{\code{data.frame} including at least the numeric columns \emph{Age}, \emph{MeasurementValue} and \emph{AnimalAnonID}.}
 
-\item{all_mods}{\code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
+\item{all_mods}{\code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.}
 
-\item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95\% predicted interval.}
+\item{percentiles}{\code{vector of numeric} indicating the percentiles that need to be estimated. default: 95\% predicted interval.}
 }
 \value{
 a list including:
@@ -27,13 +27,15 @@ a list including:
 }
 }
 \description{
-This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
+This function fits a series of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 }
 \examples{
 Age <- sample(c(0:10), 100, replace = TRUE)
-anonID <- sample(c(0:20), 100, replace = TRUE)
-MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
+                          rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 out = Gro_analysis(dat, 
                    all_mods = c("logistic", "vonBertalanffy", "gam"), 

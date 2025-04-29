@@ -4,12 +4,12 @@
 \alias{find_gaps}
 \title{Find gaps in an integer variable}
 \usage{
-find_gaps(x, maxAlive = NA, plot = FALSE, ...)
+find_gaps(x, MaxAlive = NA, plot = FALSE, ...)
 }
 \arguments{
 \item{x}{\code{vector of numeric} variable to analyze}
 
-\item{maxAlive}{\code{numeric} Return gaps higher than this maximum, only. Default = NA}
+\item{MaxAlive}{\code{numeric} Return gaps higher than this maximum, only.}
 
 \item{plot}{\code{logical} whether to actually plot the histogram}
 
@@ -19,9 +19,9 @@ find_gaps(x, maxAlive = NA, plot = FALSE, ...)
 A data frame where each line is a gap described by its initial/starting age, its final/ending age and its length
 }
 \description{
-Looks for gaps within a continuous variable. Number are rounded and gaps are found if one number is not represented. Gaps are returned only if the length of the gaps is 20\% higher than the starting age of this gap.
+Looks for gaps within a continuous variable. Values of the variable are rounded and gaps are found if one integer is not represented. Gaps are returned only if the length of the gaps is 20\% higher than the starting age of this gap.
 }
 \examples{
 x = runif(10,0,40)
-out<-find_gaps(x,maxAlive = 5, plot = FALSE)
+out<-find_gaps(x,MaxAlive = 5, plot = FALSE)
 }

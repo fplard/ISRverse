@@ -4,39 +4,22 @@
 \alias{Sur_relex}
 \title{Remaining life expectancy}
 \usage{
-Sur_relex(
-  theMat,
-  model = "GO",
-  shape = "bathtub",
-  ncpus = 1,
-  xMax = 120,
-  dx = 0.01
-)
+Sur_relex(Lx, dx = 0.01, xv)
 }
 \arguments{
-\item{theMat}{\code{array} including the posteriors estimates of the model parameter}
+\item{Lx}{\code{numeric} Survivorship}
 
-\item{model}{\code{character} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
+\item{dx}{\code{numeric} Precision for age}
 
-\item{shape}{\code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
-
-\item{ncpus}{\code{numeric} Number of core to use}
-
-\item{xMax}{\code{numeric} Maximum age in years Default = 120}
-
-\item{dx}{\code{numeric} precision for age Default = 0.01}
+\item{xv}{\code{numeric} Age vector}
 }
 \value{
 a data frame including age, the mean and 95\% credible interval of the remaining life expectancy
 }
 \description{
-Estimate remaining life expectancy over age from the parameters outputs of a Basta model.
+Estimate remaining life expectancy over ages.
 }
 \examples{
-theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
-                               b1= rnorm(10, 0.1, 0.01)))
-
-
-out <- Sur_relex(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-                 xMax = 50, dx = 0.1)
+Lx = matrix(c(seq(1,0,by = -0.1), 1,seq(0.5,0,length.out = 10)),nrow =2)
+out <- Sur_relex(Lx, dx = 1, xv = c(0:10))
 }

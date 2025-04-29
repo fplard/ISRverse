@@ -7,21 +7,22 @@
 Gro_fitlog(num = 1, data, all_mods = "vonBertalanffy")
 }
 \arguments{
-\item{num}{\code{numeric} index of the model to run}
+\item{num}{\code{numeric} index of the model to run .}
 
-\item{data}{\code{data.frame} including at least the numeric columns \emph{logx} and \emph{logz}}
+\item{data}{\code{data.frame} including at least the numeric columns \emph{logx} and \emph{logz} .}
 
-\item{all_mods}{\code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial}
+\item{all_mods}{\code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.}
 }
 \value{
 The fit and AIC of the model
 }
 \description{
-Fit a growth model to data, return its fit and AIC
+Fits a growth model to data, return its fit and AIC
 }
 \examples{
 logx <- rnorm(100, 0, 1)
 logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
-dat = data.frame(logx = logx, logz = logz)
-Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
+dat = data.frame(logx = logx, logz = logz,AnimalAnonID = sample(c(0:20), 100, replace = TRUE)
+)
+out <- Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
 }

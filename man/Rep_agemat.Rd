@@ -4,10 +4,10 @@
 \alias{Rep_agemat}
 \title{Age of reproduction}
 \usage{
-Rep_agemat(Reprodata)
+Rep_agemat(ReproData)
 }
 \arguments{
-\item{Reprodata}{\code{data frame} including at least the columns \emph{ParentAnonID} and \emph{ageBirth}}
+\item{ReproData}{\code{data frame} including at least the columns \emph{ParentAnonID} and \emph{Parent_Age}.}
 }
 \value{
 A data frame including:
@@ -36,9 +36,10 @@ data(collection)
 data(parent)
 data(moves)
 #prepare Data
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves, 
+                      MinNRepro = 1, MinNPaRepro = 1)
 #Calculate summary for reproductive ages
-out <- Rep_agemat(Data$Reprodata)
+out <- Rep_agemat(Data$ReproData)
 out
 
 }

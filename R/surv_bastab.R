@@ -4,16 +4,17 @@
 #' 
 #' Check column names and succession of dates to prepare the data for BASTA.
 #'
-#' @param coresubset  \code{data.frame} including at least the following columns *anonID*, *species*, *binSpecies*, *Class*, *Order*, *Family*, *common*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, *DepartType*, and *causeDeath*
-#' @param earliestDate \code{character 'YYYY-MM-DD'} Earlier date to be included. Default = NA
-#' @param latestDate \code{character 'YYYY-MM-DD'} LAtest date to be included. Default = NA
-#' @param otherCovars \code{vector of character}. Additional variables to include in the data Default = NA
-#' @param excludeStillbirth \code{logical} Whether to exclude still births. Default = FALSE
+#' @param coresubset  \code{data.frame} including at least the following columns *AnimalAnonID*, *binSpecies*, *Class*, *Order*, *Family*, *CommonName*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *EntryType*, and *DepartType*.
+#' @param DeathInformation  \code{data.frame} including at least the following columns *AnimalAnonID* and *RelevantDeathInformationType*.
+#' @param EarliestDate \code{character 'YYYY-MM-DD'} Earlier date to be included.
+#' @param LatestDate \code{character 'YYYY-MM-DD'} Latest date to be included.
+#' @param OtherCovars \code{vector of character}. Additional variables to include in the data.
+#' @param ExcludeStillBirth \code{logical} Whether to exclude still births.
 #' 
 #' @details
 #' This function removes:
 #' * individuals with NA in the columns BirthDate, MinBirthDate, MaxBirthDate, EntryDate, and DepartDate.
-#' * individuals for which the dates from min birth date/ entry date to Depart date do not follow one another.
+#' * individuals for which the dates from min birth date/entry date to Depart date do not follow one another in a logical order.
 #' * Still born individuals if required
 #' * individuals with depart date anterior to earliest date
 #' * individuals with entry date posterior to latest date
@@ -22,47 +23,61 @@
 #' @return the subset dataset in the basta format
 #' 
 #' @export
+#' @importFrom tidyr replace_na
 #'
 #' @examples
 #' data(core)
-#' out<- surv_Bastab(core, earliestDate = '1990-01-01', latestDate = '2020-12-31', 
-#'                   otherCovars = NA, excludeStillbirth = TRUE)
+#' data(deathinformation)
+#' out<- surv_Bastab(core, DeathInformation = deathinformation,
+#'                   EarliestDate = '1990-01-01', LatestDate = '2020-12-31', 
+#'                   OtherCovars = "SexType", ExcludeStillBirth = TRUE)
 #'
 #'
-surv_Bastab <- function (coresubset, earliestDate = NA, latestDate = NA, 
-                         otherCovars = NA, excludeStillbirth = FALSE) 
-{ 
-  inclcols <- c("anonID", "species", "binSpecies", "Class", 
-                "Order", "Family", "common", "BirthDate", "MinBirthDate", 
+surv_Bastab <- function (coresubset, DeathInformation, 
+                         EarliestDate = NA, LatestDate = NA, 
+                         OtherCovars = NA, ExcludeStillBirth = FALSE) 
+{   
+  
+  # Check correct format for inputs --------------------------------------------
+inclcols <- c("AnimalAnonID", "binSpecies", "Class", 
+                "Order", "Family", "CommonName", "BirthDate", "MinBirthDate", 
                 "MaxBirthDate", "EntryDate", "DepartDate", "EntryType", 
-                "DepartType", "causeDeath")
+                "DepartType")
   assert_that(coresubset %has_name% inclcols)
-  assert_that(is.logical(excludeStillbirth))
-  
-  
-  if (!is.na(otherCovars)) {
-    assert_that(coresubset %has_name% otherCovars)
-    inclcols <- c(inclcols, otherCovars)
-    ncolnames <- c(ncolnames, otherCovars)
+  assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
+  assert_that(is.logical(ExcludeStillBirth))
+  if (all(!is.na(OtherCovars))) {
+    assert_that(coresubset %has_name% OtherCovars)
+    inclcols <- c(inclcols, OtherCovars)
   }
   
-  bastadat <- coresubset[, inclcols]
-  colnames(bastadat) <- c("anonID", "species", "binSpecies", "Class", 
-                          "Order", "Family", "common", "Birth.Date", "Min.Birth.Date", 
-                          "Max.Birth.Date", "Entry.Date", "Depart.Date", "Entry.Type", 
-                          "Depart.Type", "causeDeath")
-  
-  
-  #Earliest and latest dates
-  if (is.na(earliestDate)) {
-    earliestDate <- min(bastadat$Min.Birth.Date, na.rm = TRUE)
+  # Select columns and join RDI  -----------------------------------------------
+  bastadat <- coresubset[, inclcols]%>%
+    left_join(DeathInformation%>%select(AnimalAnonID, RelevantDeathInformationType)%>%
+                filter(RelevantDeathInformationType %in% c("Stillborn","Fetal death")), by = "AnimalAnonID")
+  if (all(!is.na(OtherCovars))) {
+    colnames(bastadat) <- c("AnimalAnonID", "binSpecies", "Class", 
+                            "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", 
+                            "Max.Birth.Date", "Entry.Date", "Depart.Date", "Entry.Type", 
+                            "Depart.Type",OtherCovars, "RelevantDeathInformationType")
   }else{
-    earliestDate <- lubridate::as_date(earliestDate)
+    colnames(bastadat) <- c("AnimalAnonID", "binSpecies", "Class", 
+                            "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", 
+                            "Max.Birth.Date", "Entry.Date", "Depart.Date", "Entry.Type", 
+                            "Depart.Type","RelevantDeathInformationType")
+    
   }
-  if (is.na(latestDate)) {
-    latestDate <- lubridate::today()
+  
+  # Remove individuals with too Early or too late dates, and check logical succession of dates ------------------------
+  if (is.na(EarliestDate)) {
+    EarliestDate <- min(bastadat$Min.Birth.Date, na.rm = TRUE)
   }else{
-    latestDate <- lubridate::as_date(latestDate)
+    EarliestDate <- lubridate::as_date(EarliestDate)
+  }
+  if (is.na(LatestDate)) {
+    LatestDate <- lubridate::today()
+  }else{
+    LatestDate <- lubridate::as_date(LatestDate)
   }
   
   bastadat <- bastadat%>%
@@ -72,28 +87,27 @@ surv_Bastab <- function (coresubset, earliestDate = NA, latestDate = NA,
            Max.Birth.Date = lubridate::as_date(Max.Birth.Date),
            Birth.Date = lubridate::as_date(Birth.Date)
     )%>%
-    filter(Depart.Date >= earliestDate,
-           Entry.Date <= latestDate)%>%
+    filter(Depart.Date >= EarliestDate,
+           Entry.Date <= LatestDate)%>%
     tidyr::drop_na(c(Birth.Date, Min.Birth.Date, Max.Birth.Date, Entry.Date, Depart.Date))%>%
-    filter(Min.Birth.Date <= Birth.Date, 
-           Birth.Date <= Max.Birth.Date, 
-           Birth.Date <= Entry.Date, 
-           Entry.Date <= Depart.Date)%>%
-    mutate(Depart.Type = if_else (Depart.Date > latestDate, "C", Depart.Type),
-           Depart.Date = if_else (Depart.Date > latestDate, latestDate, Depart.Date),
-           Entry.Type  = if_else (Entry.Date < earliestDate, "C", Entry.Type),
-           Entry.Date  = if_else (Entry.Date < earliestDate, earliestDate, Entry.Date)
+    filter((Min.Birth.Date <= Birth.Date)%>% replace_na(TRUE), 
+           (Birth.Date <= Max.Birth.Date)%>% replace_na(TRUE), 
+           (Birth.Date <= Entry.Date)%>% replace_na(TRUE), 
+           (Entry.Date <= Depart.Date)%>% replace_na(TRUE))%>%
+    mutate(Depart.Type = if_else (Depart.Date > LatestDate, "C", Depart.Type),
+           Depart.Date = if_else (Depart.Date > LatestDate, LatestDate, Depart.Date),
+           Entry.Type  = if_else (Entry.Date < EarliestDate, "C", Entry.Type),
+           Entry.Date  = if_else (Entry.Date < EarliestDate, EarliestDate, Entry.Date)
     )
   
-  if(excludeStillbirth){
-    #Remove Stillborn
+  # Remove Stillborn if required ------------------------------------------------
+  if(ExcludeStillBirth){
     bastadat <- bastadat%>%
-      filter(Depart.Date != Birth.Date,
-             stringr::str_detect(causeDeath, "Stillborn", negate = T),
-             stringr::str_detect(causeDeath, "Fetal death", negate = T))
-  }
-  
-  # class(bastadat) <- "bastazimstab"
-  
+      filter((Depart.Date != Birth.Date)%>% replace_na(TRUE),
+             stringr::str_detect(RelevantDeathInformationType, "Stillborn", negate = T)%>% replace_na(TRUE),
+             stringr::str_detect(RelevantDeathInformationType, "Fetal death", negate = T)%>% replace_na(TRUE))
+  }%>%
+    select(-"RelevantDeathInformationType")
+
   return(bastadat)
 }

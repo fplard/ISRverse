@@ -20,8 +20,8 @@ tools to :
 
 ## Installation
 
-First you will need install paramDemo from [GitHub](https://github.com/)
-with:
+First you will need install paramDemo on your computer from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -44,85 +44,32 @@ Full documentation website on: <https://fplard.github.io/ISRverse>
 You can also open the documentation locally on your machine using
 
 ``` r
-path <- system.file("docs", "index.html", package = "ISRverse")
+path <- system.file("site", "index.html", package = "ISRverse")
 browseURL(path)
 ```
 
-## Tutorial for reproduction
-
-### Age at first reproduction
-
-``` r
-library(tidyverse)
-library(ISRverse)
-library(glue)
-
-# CHANGE THIS to Path to the ZIMSdata directory: 
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/Data/ZIMSdata_ext231204"
-extractDate = "2023-12-04"
-minDate = "1980-01-01"
-Global = TRUE
-
-taxa = "Mammalia"
-List_species = c("Panthera leo", "Capreolus capreolus", "Alces alces", "Gorilla gorilla", "Suricata suricatta")
-
-load(glue("{ZIMSdir}/03.newcore/{extractDate}-Corrected-{taxa}.RData"))
-
-Data <- Load_Zimsdata(taxa = taxa, ZIMSdir = glue("{ZIMSdir}/01.rawData"), 
-              extractDate = extractDate, 
-              type = c('collections', 'parent', 'moves')) 
-
-TAB = tibble()
-for (species in List_species){
-  print(species)
-  Dataspe <- select_species(species, newcore, Data$collection,
-                         minDate = minDate , extractDate = extractDate,
-                         Global = Global) 
-  
-  for (sx in c("Male", "Female", "All")){
-    
-    if(sx != "All"){
-      coresubset <- Dataspe$data%>%filter(Sex == sx)
-    }else{coresubset <- Dataspe$data}
-    #prepare Reproduction data
-    Datarep <- Rep_prepdata(coresubset = coresubset, 
-                         Data$collection, Data$parent, Data$moves,
-                         BirthType_parent = "Captive", BirthType_offspring = "Captive",
-                         Age_uncert = 365, Global = Global)
-    #Calculate reproductive age statistics
-    out <- Rep_agemat(Datarep$Reprodata)%>%
-      mutate(Species = species,
-             Class = taxa,
-             Sex = sx)
-    
-    TAB <- rbind(TAB, out)
-  }
-}
-
-TAB
-```
-
-## Tutorial to run Taxon profiles
-
-### Set up your Rstudio environnement
+## Set up your Rstudio environnement
 
 Use the correct directories to find data and run the analyses
 
 #### On your own computer
 
 ``` r
+library(glue)
 # Path to the ZIMSdata directory:
-ZIMSdir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/"
+ZIMSDir <- "C:/Users/flopy/Documents/ISR/TaxonProfiles/"
 
-analysisDir <- "C:/Users/flopy/Documents/ISR/Data/ISR"
+ZIMSDirdata <- glue ("{ZIMSDir}Data")
+AnalysisDir <- glue ("{ZIMSDir}Analyses/")
 
-# ISR data directory:
-ISRdatDir <- sprintf("%sISRdata/", analysisDir)
+# directory to save Rdata:
+RdataDir <-  glue ("{AnalysisDir}Rdata/")
+# Plot directory:
+PlotDir <- glue ("{ZIMSDir}Plot")
 
-# Global data directory:
-globDir <- sprintf("%sglobal/", analysisDir)
-
-setwd(analysisDir)
+setwd(AnalysisDir)
+library(ISRverse)
+library(tidyverse)
 ```
 
 #### On Ucloud
@@ -134,150 +81,619 @@ instPacks <- installed.packages()[, 1]
 if (!"snowfall" %in% instPacks) {
   install.packages("snowfall")
 }
-if (!"RColorBrewer" %in% instPacks) {
-  install.packages("RColorBrewer")
-}
 if (!"rjson" %in% instPacks) {
   install.packages("rjson")
 }
 if (!"ggpubr" %in% instPacks) {
   install.packages("ggpubr")
 }
-# Set one thread (core) for BLAS operations: 
-if (!"RhpcBLASctl" %in% instPacks) {
-  install.packages("RhpcBLASctl")
-  library(RhpcBLASctl)
-  blas_set_num_threads(1)
+if (!"bbmle" %in% instPacks) {
+  install.packages("bbmle")
+}
+if (!"BasTA" %in% instPacks) {
+  install.packages("BaSTA")
+}
+if (!"assertthat" %in% instPacks) {
+  install.packages("assertthat")
+}
+if (!"glue" %in% instPacks) {
+  install.packages("glue")
+}
+if (!"checkmate" %in% instPacks) {
+  install.packages("checkmate")
 }
 
-# if (!"extractZIMS" %in% instPacks) {
-#   install.packages("/work/Species360/Rpackages/latestVersion/extractZIMS_0.1.1.tar.gz", 
-#                    type = "source", repos = NULL)
-# }
-# if (!"paramDemo" %in% instPacks) {
-#   install.packages("/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz", 
-#                    type = "source", repos = NULL)
-# }
-if (!"BaSTA2.0" %in% instPacks) {
-  install.packages("/work/Species360/Rpackages/latestVersion/BaSTA2.0_2.0.0.tar.gz", 
+if (!"paramDemo" %in% instPacks) {
+  install.packages("/work/Species360/Rpackages/latestVersion/paramDemo_1.0.0.tar.gz",
                    type = "source", repos = NULL)
 }
 if (!"ISRverse" %in% instPacks) {
-  install.packages("/work/Species360/Rpackages/latestVersion/ISRverse_1.0.0.tar.gz", 
+  install.packages("/work/Species360/Rpackages/latestVersion/ISRverse_0.0.0.9000.tar.gz", 
                    type = "source", repos = NULL)
 }
-# Set one thread (core) for BLAS operations: 
-if (!"RhpcBLASctl" %in% instPacks) {
-  install.packages("RhpcBLASctl")
-  library(RhpcBLASctl)
-  blas_set_num_threads(1)
-}
+library(glue)
 
-# Path to the ZIMSdata directory:
-ZIMSdir <- "/work/Species360/ZIMSdata_ext231204/"
+# ZIMS directory where to find data:
+ZIMSDirdata <- "/work/Species360/ZIMSdata_ext240829"
 
 # General directory:
-analysisDir <- "/work/Species360/ISR/"
+AnalysisDir <- glue ("/work/Species360/Demo_Analyses/")
 
-# ISR data directory:
-ISRdatDir <- sprintf("%sISRdata/", analysisDir)
+# directory to save Rdata:
+RdataDir <-  glue ("{AnalysisDir}Rdata/")
+# Plot directory:
+PlotDir <- glue ("{AnalysisDir}Plot/")
 
-# Global data directory:
-globDir <- sprintf("%sglobal/", analysisDir)
-
-
-setwd(analysisDir)
+# Download the needed libraries
+library(ISRverse)
+library(tidyverse)
 ```
 
-### Libraries
+## Split Science extract per taxa
 
-Download the needed libraries
+DO NOT DO THAT IN MOST CASES
+
+To be done !!!!!ONLY ONCE!!!! after the download of the science extract.
+This function will load the science extract and: \* split it by taxa \*
+select only “Individual” for Animal Type \* add binSpecies name \*
+weights and lengths: check that measurement are \> 0, add the following
+columns: Age in years, UnitOfMeasure and MeasurementValue
 
 ``` r
-library(ISRverse)
-library(BaSTA2.0)
-library(snowfall)
-library(RColorBrewer)
-library(tidyverse)
-library(rjson)
-library(stringi)
-library(ISRverse)
-library(ggplot2)
-library(ggpubr)
-# library(paramDemo)
-# library(extractZIMS)
+# Path to the ZIMSdata directory:
+ExtractDate ="2024-08-29"
+Split_Zimsdata  (ZIMSDir = ZIMSDirdata, ExtractDate = ExtractDate) 
 ```
+
+## Tutorial for survival
+
+``` r
+ExtractDate ="2024-08-29"
+Taxa = "Mammalia"
+List_species = list(Mammalia = c("Capra sibirica", "Cuon alpinus", "Nanger granti"))
+
+#Filters -----------------------------------------------------------------------
+# Earliest date to include records
+MinDate <- "1980-01-01"
+# Earliest birth date to include records
+MinBirthDate <- "1900-01-01"
+# Whether to include only Global individuals
+Global = TRUE
+# Birth Type of Animals: "Captive", "Wild" or "All"
+BirthType = "Captive"
+# Minimum number of individuals to run the taxon profile
+MinN <- 50
+# Maximum threshold in the longevity distribution to use
+MaxOutl <- 99 
+# Minimum number of Institutions that hold individuals from one species
+MinInstitution = 2 
+# Maximum uncertainty accepted for birth dates, in days
+UncertBirth = 365
+# Maximum uncertainty accepted for death dates, in days
+UncertDeath = 365
+# Maximum possible age
+MaxAge = 120
+# Age when to start the analysis
+MinAge = 0
+
+
+# Survival Models ------------------------------------------------------------
+# Survival Models to run: "GO", "LO", "EX" or/and "WE"
+ModelsSur <- c("GO", "LO")
+# Shape of the survival model: "simple", "bathtub" or "Makeham"
+Shape = "bathtub"
+
+# Number of CPUS:
+ncpus <- 4
+# MCMC settings:
+niter <- 10000
+burnin <- 3001
+thinning <- 20
+nchain <- 3
+
+# Conditions to run the survival analysis
+MinNSur = 50 #Minimum number of individuals
+MaxNSur = 1000 #Maximum number of individuals
+MinLx = 0.1  #Minimum survivorship reach by life table (Kaplan-Meier estimator)
+MinBirthKnown = 0.3 #Minimum proportions of known birth dates (within a month)
+#Goodness of fit
+MinMLE = 0.1 #Minimum survivorship at Mean life expectancy
+MaxLE = 2     #Maximum remaining life expectancy at max age
+
+# Table with species that require rerruning with higher outlier level:
+MaxOutlev <- read.csv(glue("{AnalysisDir}MaxOutlierLevel.csv"), header = TRUE,
+                      stringsAsFactors = FALSE)
+spOutLev <- MaxOutlev$Specie
+
+#Load Data -----------------------------------------------------------------------
+Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
+                      species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', 'DeathInformation')) 
+Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = lubridate::as_date("2024/08/29"))
+
+# Run survival Analysis---------------------------------------------------------
+## Loop over species
+for (species in List_species[[Taxa]]){
+  print(species)
+  if (species %in% spOutLev) {MaxOutl1 <- 99.9
+  }else{MaxOutl1 <- MaxOutl}
+  Dataspe <- select_species(Species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
+                            BirthType = BirthType,
+                            MinDate = MinDate , ExtractDate = ExtractDate,
+                            Global = Global) 
+  if(nrow(Dataspe$data)>0){
+    out = list()
+    ## Loop over sexes
+    for (sx in c("Male", "Female")){
+      print(sx)
+      #Check for gaps in longevity distribution to define a threshold 
+      #after which individuals will be deleted (possible outiers or errors in data)
+      sexDat <- select_Longthreshold( Dataspe$data,  SexCats = sx, 
+                                      PlotDir= glue::glue("{PlotDir}test2/"),
+                                      MinN = MinN ,
+                                      PlotName = glue::glue("{Taxa}_{species}_{sx}") )
+      OutlLev1 = min(sexDat$summar$GapThresh,MaxOutl, na.rm = T)
+      
+      
+      if(nrow(sexDat$data)>0){ 
+        out[[sx]] <-  Sur_main(DataCore = sexDat$data,  DeathInformation =  Data[[Taxa]]$DeathInformation,
+                               BirthType = BirthType, LastDead = T,
+                               PlotDir = glue::glue("{PlotDir}test2/"),
+                               MaxAge = MaxAge,
+                               models = ModelsSur, Shape= Shape, 
+                               OutlLev1 =OutlLev1,
+                               MinMLE = MinMLE, MaxLE =  MaxLE,
+                               MinDate = MinDate, MinNSur = MinNSur, MaxNSur = MaxNSur, 
+                               MinInstitution = MinInstitution,UncertDeath= UncertDeath,
+                               MinLx = MinLx , MinBirthKnown = MinBirthKnown, 
+                               niter = niter, burnin = burnin, thinning = thinning, nchain = nchain, 
+                               ncpus = ncpus, PlotName = glue("{Taxa}_{species}_{sx}") )
+        print(out$summary$error)
+      }
+    }
+  }
+}
+
+#Plot predictions and fit from Basta survival model
+plot(out$bastaRes, plot.type = 'gof')
+```
+
+## Tutorial for reproduction
+
+### Litter size
+
+``` r
+ExtractDate ="2024-08-29"
+MinDate = "1980-01-01"
+Global = TRUE
+
+Taxa = "Mammalia"
+List_species = list(Mammalia = c("Panthera leo", "Panthera onca","Panthera uncia", "Panthera tigris", "Panthera pardus"))
+
+#Filters ------------------------------------------------------------------------
+# Conditions to run the reproduction analyses
+UncertBirth = 365  #Maximum uncertainty accepted for birth dates, in days
+UncertDeath = 10000 #Maximum uncertainty accepted for death dates, in days
+MinNRepro = 100   #Minimum number of birth records
+MinNPaRepro = 30  #Minimum number of unique parent records
+MinNLitter = 30 #Minimum number of litter sizes
+ParentPercDam = 80 #Minimum parentage probability for Dam
+ParentPercSire = 80 #Minimum parentage probability for Sire
+NDay = 7  #Group all offspring born within this interval of days in one litter
+BirthType = "All"
+
+#Load Data -----------------------------------------------------------------------
+Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
+                      Species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', 'Parent', 'Move')) 
+Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = lubridate::as_date("2024/08/29"))
+
+# Run Reproduction Analysis---------------------------------------------------------
+## Loop over species
+TAB = tibble()
+for (species in List_species[[Taxa]]){
+  print(species)
+  Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
+                            BirthType = BirthType,
+                            MinDate = MinDate , ExtractDate = ExtractDate,
+                            Global = Global) 
+  
+  #prepare Reproduction data
+  Datarep <- Rep_prepdata(Dataspe$data, 
+                          Data[[Taxa]]$Collection, Data[[Taxa]]$Parent, Data[[Taxa]]$Move,
+                          BirthType_parent = "Captive", BirthType_offspring = "Captive",
+                          MinNrepro = MinNRepro, MinNparepro = MinNPaRepro, Global = Global)
+  if(nrow(Datarep$Reprodata)>0){
+    #Litter size Analysis
+    out <- Rep_littersize(Datarep$Reprodata, 
+                          NDay = NDay, ParentPercDam = ParentPercDam,
+                          ParentPercSire = ParentPercSire,  
+                          MinNLitter = MinNLitter)
+    
+    df = out$littSizeDf%>%mutate(Species = species)
+    
+    TAB <- rbind(TAB, df)
+  }
+}
+
+TAB
+```
+
+### Age at first reproduction
+
+``` r
+ExtractDate ="2024-08-29"
+MinDate = "1980-01-01"
+Global = TRUE
+
+Taxa = "Mammalia"
+List_species = list(Mammalia = c("Panthera leo", "Alces alces","Lasiurus cinereus", "Gorilla gorilla"))
+
+#Filters ------------------------------------------------------------------------
+# Conditions to run the reproduction analyses
+UncertBirth = 365  #Maximum uncertainty accepted for birth dates, in days
+MinNRepro = 100   #Minimum number of birth records
+MinNPaRepro = 30  #Minimum number of unique parent records
+
+#Load Data -----------------------------------------------------------------------
+Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
+                      Species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', 'Parent', 'Move')) 
+Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = lubridate::as_date("2024/08/29"))
+
+# Run Reproduction Analysis---------------------------------------------------------
+## Loop over species
+TAB = tibble()
+for (species in List_species[[Taxa]]){
+  print(species)
+  Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
+                            BirthType = BirthType,UncertDeath= UncertDeath,
+                            MinDate = MinDate , ExtractDate = ExtractDate,
+                            Global = Global) 
+  if(nrow(Dataspe$data)>0){
+    for (sx in c("Male", "Female", "All")){
+      print(sx)
+      if(sx != "All"){
+        coresubset <- Dataspe$data%>%filter(SexType == sx)
+      }else{coresubset <- Dataspe$data}
+      if(nrow(coresubset)>0){
+        #prepare Reproduction data
+        Datarep <- Rep_prepdata(coresubset = coresubset, 
+                                Data[[Taxa]]$Collection, Data[[Taxa]]$Parent, Data[[Taxa]]$Move,
+                                BirthType_parent = "Captive", BirthType_offspring = "Captive",
+                                MinNrepro = MinNRepro, MinNparepro = MinNPaRepro, Global = Global)
+        if(nrow(Datarep$Reprodata)>0){
+          #Calculate reproductive age statistics
+          out <- Rep_agemat(Datarep$Reprodata)%>%
+            mutate(Species = species,
+                   Class = Taxa,
+                   Sex = sx)
+          
+          TAB <- rbind(TAB, out)
+        }
+      }
+    }
+  }
+}
+
+TAB
+```
+
+## Tutorial for growth
+
+### Outliers
+
+``` r
+#Directory where to save results
+SaveDir = glue ("{AnalysisDir}savegrowth")
+PlotDir = glue ("{AnalysisDir}plotgrowth")
+ExtractDate ="2024-08-29"
+
+
+Taxa = "Mammalia"
+List_species = list(Mammalia = c("Panthera leo", "Panthera onca","Panthera uncia", "Panthera tigris", "Panthera pardus"))
+
+c# Earliest date to include records
+MinDate <- "1980-01-01"
+# Earliest birth date to include records
+MinBirthDate <- "1900-01-01"
+#Whether to include only Global individuals
+Global = TRUE
+#Birth Type of Animals: "Captive", "Wild" or "All"
+BirthType = "Captive"
+#Maximum uncertainty accepted for birth dates, in days
+UncertBirth = 365
+#Maximum uncertainty accepted for measurement dates: weight, in days
+UncertDate = 365
+
+# Measure type to select
+MeasureType = "Live weight"
+
+# Conditions to estimate age at sexual maturity
+MinNRepro = 100   #Minimum number of birth records
+MinNPaRepro = 30  #Minimum number of unique parent records
+
+#Load Data -----------------------------------------------------------------------
+Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
+                      Species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', "Weight", 'Parent', 'Move')) 
+Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = ExtractDate, MinBirthDate =MinBirthDate)
+
+
+#Choose Species and sex ----------------------------------------------------------------
+species = List_species[[Taxa]][1]
+sx = "All" #can also be "Female" or "Male"
+
+Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
+                          BirthType = BirthType,UncertDeath= 3600,
+                          MinDate = MinDate , ExtractDate = ExtractDate,
+                          Global = Global) 
+
+# Run outlier analysis-----------------------------------------------------------
+if(nrow(Dataspe$data)>0){
+  repr = list()
+  if(sx != "All"){
+    coresubset <- Dataspe$data%>%filter(SexType == sx)
+  }else{coresubset <- Dataspe$data}
+  if(nrow(coresubset)>0){
+    #Estimate age at sexual maturity
+    repr[[sx]] <- Rep_main(coresubset= coresubset, Data[[Taxa]]$Collection, 
+                           Data[[Taxa]]$Parent, Data[[Taxa]]$Move,  
+                           Repsect = "agemat",
+                           BirthType_parent = BirthType, BirthType_offspring = BirthType, 
+                           Global = Global, 
+                           MinNRepro = MinNRepro, MinNPaRepro =  MinNPaRepro
+    )
+    
+    agemat = NULL
+    if(length(repr[[sx]])>0){
+      if(repr[[sx]]$summary$amat_analyzed){
+        agemat =repr[[sx]]$agemat$ageMat
+      }
+    }
+    
+    #Clean measures
+    ouput <- Gro_cleanmeasures(data = Data[[Taxa]]$Weight, coresubse = coresubset,
+                               BirthType = BirthType, type ="weight", 
+                               UncertDate = UncertDate,
+                               MeasureType = MeasureType,
+                               MinDate = MinDate)
+    #Look for outliers
+    if(nrow(ouput$data)>0){
+      data_weight <- ouput$data%>%
+        Gro_remoutliers (Taxa = Taxa, AgeMat = agemat, maxweight = NULL, 
+                         variableid = "AnimalAnonID", min_Nmeasures = 7,
+                         perc_weight_min=0.2, perc_weight_max=2.5,
+                         IQR=2.75, minq=0.025, Ninterval_juv = 10)
+      
+      #plot outliers: Look at ?Gro_outplot to understand the different colors
+      if(!is.null(PlotDir)){
+        p1 <-Gro_outplot(data_weight, title = glue("{species} {sx}"), ylimit = NULL, xlimit = NULL)
+        ggsave(p1, filename = glue("{PlotDir}/{species}_{sx}_outliers.png"), height = 6, width = 6)
+      }
+      
+    }
+  }
+}      
+```
+
+### Growth models
+
+``` r
+#Directory where to save results
+SaveDir = glue ("{AnalysisDir}savegrowth")
+PlotDir = glue ("{AnalysisDir}plotgrowth")
+ExtractDate ="2024-08-29"
+
+Taxa = "Mammalia"
+List_species = list(Mammalia = c("Panthera leo", "Panthera onca","Panthera uncia", "Panthera tigris", "Panthera pardus"))
+SexCats = c("Female", "Male", "All")
+
+#Load Data -----------------------------------------------------------------------
+# Earliest date to include records
+MinDate <- "1980-01-01"
+# Earliest birth date to include records
+MinBirthDate <- "1900-01-01"
+#Whether to include only Global individuals
+Global = TRUE
+#Birth Type of Animals: "Captive", "Wild" or "All"
+BirthType = "Captive"
+# Maximum threshold in the longevity distribution to use
+MaxOutl <- 99 
+#Maximum uncertainty accepted for birth dates, in days
+UncertBirth = 365
+#Maximum uncertainty accepted for measurement dates: weight, in days
+UncertDate = 365
+
+#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "gam", and/or "polynomial"
+ModelsGro <- c("vonBertalanffy", "gompertz") 
+
+# Measure type to select
+MeasureType = "Live weight"
+# Conditions to run the growth analysis
+MinNGro = 100 #Minimum number of weights
+MinNIGro = 50 #Minimum number of individuals
+
+# Conditions to estimate age at sexual maturity
+MinNRepro = 100   #Minimum number of birth records
+MinNPaRepro = 30  #Minimum number of unique parent records
+
+#Load Data -----------------------------------------------------------------------
+Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
+                      species = List_species,
+                      Animal = TRUE,
+                      tables= c('Collection', "Weight", 'Parent', 'Move')) 
+Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = ExtractDate, MinBirthDate =MinBirthDate)
+
+# Run Growth Analysis---------------------------------------------------------
+## Loop over species
+for (species in List_species[[Taxa]]){
+  print(species)
+  Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
+                            BirthType = BirthType,UncertDeath= UncertDeath,
+                            MinDate = MinDate , ExtractDate = ExtractDate,
+                            Global = Global) 
+  
+  if(nrow(Dataspe$data)>0){
+    repr = weig = list()
+    for (sx in SexCats){
+      cat(paste0(" ****************************  ",sx,"  ****************************\n"))
+      if(sx != "All"){
+        coresubset <- Dataspe$data%>%filter(SexType == sx)
+      }else{coresubset <- Dataspe$data}
+      if(nrow(coresubset)>0){
+        #Estimate age at sexual maturity
+        repr[[sx]] <- Rep_main(coresubset= coresubset, Data[[Taxa]]$Collection, 
+                               Data[[Taxa]]$Parent, Data[[Taxa]]$Move,  
+                               Repsect = "agemat",
+                               BirthType_parent = BirthType, BirthType_offspring = BirthType, 
+                               Global = Global, 
+                               MinNRepro = MinNRepro, MinNPaRepro =  MinNPaRepro
+        )
+        
+        agemat = NULL
+        if(length(repr[[sx]])>0){
+          if(repr[[sx]]$summary$amat_analyzed){
+            agemat =repr[[sx]]$agemat$ageMat
+          }
+        }
+        #Run growth model
+        weig[[sx]] <- Gro_Main(data = Data[[Taxa]]$Weight, coresubse = coresubset,
+                               Taxa = Taxa, species = species,
+                               BirthType = BirthType, 
+                               agemat = agemat, percentiles = c(2.5,97.5),
+                               PlotDir = PlotDir, type = "weight",
+                               UncertDate = UncertDate,
+                               MeasureType = MeasureType,
+                               MinNGro = MinNGro, MinNIGro = MinNIGro, 
+                               models = ModelsGro,
+                               MinDate = MinDate, PlotName = glue("{species}_{sx}") )
+        
+      }
+    }
+    save(weig, file = glue("{SaveDir}/{species}_growth.Rdata"))   
+  }      
+  }
+```
+
+## Tutorial to run Taxon profiles
 
 ### Choose important arguments
 
 ``` r
-# Data --------------------------------------------
-extractDate = "2024-07-01"
+# Data -------------------------------------------------------------------------
+ExtractDate = "2024-08-29"
 
-# List of taxa to analyze -------------------------
-taxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-              "Chondrichthyes", "Actinopterygii")
+# List of taxa to analyze -------------------------------------------------------
+TaxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+              "Chondrichthyes", "Osteichthyes")
 
-# Sex categories ----------------------------------
-BySex <- c(Mammalia = c("Male", "Female"), 
-           Aves = c("Male", "Female"), 
-           Reptilia = c("Male", "Female", "All"), 
-           Amphibia = c("Male", "Female", "All"), 
-           Chondrichthyes = c("Male", "Female", "All"), 
-           Actinopterygii = "All")
+# Sex categories -----------------------------------------------------------------
+BySex <- list(Mammalia = c("Male", "Female", "All"), 
+              Aves = c("Male", "Female", "All"), 
+              Reptilia = c("Male", "Female", "All"), 
+              Amphibia = c("Male", "Female", "All"), 
+              Chondrichthyes = c("Male", "Female", "All"), 
+              Osteichthyes = c("Male", "Female", "All"))
 
 
-#Filters ----------------------------------
+#Filters -------------------------------------------------------------------------
 # Earliest date to include records
-minDate <- "1980-01-01"
+MinDate <- "1980-01-01"
+# Earliest birth date to include records
+MinBirthDate <- "1900-01-01"
+#Whether to include only Global individuals
+Global = TRUE
+#Birth Type of Animals: "Captive", "Wild" or "All"
+BirthType = "Captive"
 # Minimum number of individuals to run the taxon profile
-minN <- 50
+MinN <- 50
 # Maximum threshold in the longevity distribution to use
-maxOutl <- 99 
+MaxOutl <- 99 
+# Minimum number of Institutions that hold individuals from one species
+MinInstitution = 2 
+# Maximum uncertainty accepted for birth dates, in days
+UncertBirth = 365
+# Maximum uncertainty accepted for death dates, in days
+UncertDeath = 365
+# Maximum uncertainty accepted for measurement dates: weight, in days
+UncertDate = 365
+
+# Maximum possible age
+MaxAge = 120
+
+# Age when to start the analysis
+MinAge =0
+# Whether the oldest individuals should be considered as dead by the model
+LastDead = FALSE
 
 
-#      Survival Models --------------------------------
-models_sur <- c("GO", "LO")
-shape = "bathtub"
+# Survival Models --------------------------------------------------------------------
+# Survival Models to run: "GO", "LO", "EX" or/and "WE"
+ModelsSur <- c("GO", "LO")
+#Shape of the survival model: "simple", "bathtub" or "Makeham"
+Shape = "bathtub"
 
 # Number of CPUS:
 ncpus <- 4
 
 # MCMC settings:
-niter <- 25000
-burnin <- 5001
+niter <- 10000
+burnin <- 3001
 thinning <- 20
+nchain <- 3
 
 # Conditions to run the survival analysis
-minNsur = 50 #Minimum number of individuals
-minlx = 0.1  #Minimum survivorship reach by raw life table
+MinNSur = 50 #Minimum number of individuals
+MaxNSur = 1000 #Maximum number of individuals
+MinLx = 0.1  #Minimum survivorship reach by raw life table
 MinBirthKnown = 0.3 #Minimum proportions of known birth date (within a month)
 
-#     Reproduction Models ------------------------------
-# Conditions to run the reproduction analysis
-parentProb = 80
-minNrepro = 100
-minNparepro = 30
-minNseas = 50
+#Goodness of fit
+MinMLE = 0.1 #Minimum survivorship at Mean life expectancy
+MaxLE = 2     #Maximum remaining life expectancy at max age
 
-#      Growth Models -----------------------------------
-models_gro <- c("GO", "LO") 
+
+# Reproduction Models -----------------------------------------------------------
+# Reproductive Analyses to run: "agemat" or/and "litter"
+Repsect = c('agemat', 'litter')
+
+# Conditions to run the reproduction analyses
+MinNRepro = 100   #Minimum number of birth records
+MinNPaRepro = 30  #Minimum number of unique parent records
+
+#Litter/clutch size
+ParentPercDam = 80 #Minimum percentage of parentage probability to include for Dam in litter size
+ParentPercSire = 80 #Minimum percentage of parentage probability to include for Sire in litter size
+MinNLitter = 30 #Minimum number of litters to run the analysis
+NDay = 7 #Number of days to group all offspring in one litter/clutch
+
+#Seasonnality
+MinNseas = 50  #Minimum number of births to run the seasonnality analysis
+
+# Growth Models -----------------------------------------------------------------
+#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"
+ModelsGro <- c("vonBertalanffy", "gam") 
 
 # Measure type to select
-MeasureType = ""
+MeasureType = "Live weight"
 
 # Conditions to run the growth analysis
-minNgro = 100 #Minimum number of individuals
-minNIgro = 50 #Minimum number of weights
+MinNGro = 100 #Minimum number of weights
+MinNIGro = 30 #Minimum number of individuals
 ```
 
 ### Other Inputs
 
 ``` r
 # Table with species that require rerruning with higher outlier level:
-maxOutLev <- read.csv("ISRanalysisData/tables/maxOutlierLevel.csv", header = TRUE,
+MaxOutlev <- read.csv(glue("{AnalysisDir}MaxOutlierLevel.csv"), header = TRUE,
                       stringsAsFactors = FALSE)
-spOutLev <- maxOutLev$Specie
+spOutLev <- MaxOutlev$Specie
 ```
 
 ### Run taxon profiles by taxa
@@ -294,91 +710,157 @@ profile results: “sur”, “rep” and/or “gro”
 #### Option 1: Run all species of one taxa
 
 ``` r
-
-taxa <- 1
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
+Sections = c("sur")
 
-run_txprofile (taxa, Species_list = "All", ZIMSdir, analysisDir,
-               Sections = Sections, 
-               extractDate = extractDate, minDate = minDate,
-               sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  maxOutl = maxOutl,  spOutLev = spOutLev,
-               minNsur = minNsur, minlx = minlx, MinBirthKnown = MinBirthKnown, 
-               models_sur = models_sur, shape = shape,
+run_txprofile (TaxaList[Taxa], Species_list = "All", ZIMSDirdata, 
+               AnalysisDir = AnalysisDir, PlotDir = PlotDir,
+               Sections = Sections, ErasePrevious = FALSE,
+               ExtractDate = ExtractDate, MinDate = MinDate,
+               SexCats = BySex[[TaxaList[Taxa]]], 
+               MinN = MinN,  Global =  Global,
+               MaxOutl = MaxOutl,  spOutLev = spOutLev, BirthType = BirthType, 
+               UncertBirth = UncertBirth, UncertDeath= UncertDeath,
+               UncertDate = UncertDate,
+               MinInstitution = MinInstitution, 
+               MinNSur = MinNSur, MaxNSur = MaxNSur, MaxAge = MaxAge,
+               MinLx = MinLx, MinBirthKnown = MinBirthKnown, 
+               MinMLE = MinMLE, MaxLE =  MaxLE,
+               ModelsSur = ModelsSur, Shape = Shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
-               minNparepro = minNparepro, minNseas = minNseas, 
-               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               model_gro = model_gro
-               
+               parentProb = parentProb, MinNRepro = MinNRepro, 
+               MinNPaRepro = MinNPaRepro, MinNseas = MinNseas, 
+               MinNLitter = MinNLitter, NDay = NDay, 
+               MinNGro = MinNGro, MinNIGro = MinNIGro, MeasureType = MeasureType,
+               ModelsGro = ModelsGro
 )
 ```
 
 #### Option 2: Run one or a group of species from one taxa
 
 ``` r
+list_surv= readxl::read_xlsx(glue("{AnalysisDir}Liste_Survival.xlsx"), sheet =1)%>%
+  filter(Class == "Mammalia")%>%
+  pull(Species)%>%unique()
 
-taxa <- 1
+Taxa <- 4
 #Sections to run or to update
-Sections = c("sur", "rep", "gro")
-Species_list = c('Panthera leo', 'Panthera uncia', 'Panthera tigra')
+Sections = c("sur")
+# Species_list =list_surv
+Species_list =c("Panthera onca", "Loris_tardigradus", "Pteropus_livingstonii")
 
-run_txprofile (taxa, Species_list = Species_list, ZIMSdir, analysisDir,
-               Sections = Sections, 
-               extractDate = extractDate, minDate = minDate,
-               sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  maxOutl = maxOutl,  spOutLev = spOutLev,
-               minNsur = minNsur, minlx = minlx, MinBirthKnown = MinBirthKnown, 
-               models_sur = models_sur, shape = shape,
+
+run_txprofile (Taxa = TaxaList[Taxa], 
+               ZIMSDir =ZIMSDirdata,AnalysisDir = AnalysisDir, PlotDir = PlotDir,
+               ErasePrevious = FALSE,    inparallel = FALSE,
+               BirthType = BirthType, 
+               SexCats = BySex[[TaxaList[Taxa]]],
+               Species_list = Species_list,  Sections = Sections,  
+               ExtractDate = ExtractDate, MinDate = MinDate, 
+               MinAge = MinAge, LastDead =LastDead,
+               MinBirthDate = MinBirthDate, MinN = MinN,  Global =  Global,
+               MaxOutl = MaxOutl,  spOutLev = spOutLev, 
+               UncertBirth = UncertBirth, UncertDeath= UncertDeath,
+               UncertDate = UncertDate,
+               MinInstitution = MinInstitution, 
+               MinNSur = MinNSur, MaxNSur = MaxNSur, MaxAge = MaxAge,
+               MinLx = MinLx, MinBirthKnown = MinBirthKnown, 
+               MinMLE = MinMLE, MaxLE =  MaxLE,
+               ModelsSur = ModelsSur, Shape = Shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
-               minNparepro = minNparepro, minNseas = minNseas, 
-               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               model_gro = model_gro
-               
+               ParentPercDam = ParentPercDam, ParentPercSire = ParentPercSire, 
+               MinNRepro = MinNRepro, 
+               MinNPaRepro = MinNPaRepro, MinNseas = MinNseas, 
+               MinNLitter = MinNLitter, NDay = NDay, 
+               MinNGro = MinNGro, MinNIGro = MinNIGro, MeasureType = MeasureType,
+               ModelsGro = ModelsGro
 )
 ```
 
 #### Option 3: Run all species from one taxa in parallel on different computers
 
 ``` r
-#Run this code changing ipara on each different computer
 # for example on the first computer:
 ipara = 1
 
-taxa <- 1
+
+Taxa = 2
+#Run this code changing ipara on each different computer
+XX = 5
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
 #Number of different computers
-XX = 3
 
-run_txprofile (taxa, Species_list = "All", ZIMSdir, analysisDir,
+run_txprofile (TaxaList[Taxa], Species_list = "All", ZIMSDirdata, 
                inparallel = TRUE, ipara = ipara, npara = XX, 
-               Sections = Sections, 
-               extractDate = extractDate, minDate = minDate,
-               sexCats = BySex[[taxaList[taxa]]], 
-               minN = minN,  maxOutl = maxOutl,  spOutLev = spOutLev,
-               minNsur = minNsur, minlx = minlx, MinBirthKnown = MinBirthKnown, 
-               models_sur = models_sur, shape = shape,
+               AnalysisDir = AnalysisDir, PlotDir = PlotDir,
+               Sections = Sections, ErasePrevious = FALSE,
+               MinAge = MinAge, LastDead =LastDead,
+               ExtractDate = ExtractDate, MinDate = MinDate,
+               SexCats = BySex[[TaxaList[Taxa]]], 
+               MinN = MinN,  Global =  Global,
+               MaxOutl = MaxOutl,  spOutLev = spOutLev, BirthType = BirthType, 
+               UncertBirth = UncertBirth, UncertDeath= UncertDeath,
+               UncertDate = UncertDate,
+               MinInstitution = MinInstitution, 
+               MinNSur = MinNSur, MaxNSur = MaxNSur, MaxAge = MaxAge,
+               MinLx = MinLx, MinBirthKnown = MinBirthKnown, 
+               MinMLE = MinMLE, MaxLE =  MaxLE,
+               ModelsSur = ModelsSur, Shape = Shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, minNrepro = minNrepro, 
-               minNparepro = minNparepro, minNseas = minNseas, 
-               minNgro = minNgro, minNIgro = minNIgro, MeasureType = MeasureType,
-               model_gro = model_gro
+               ParentPercSire =  ParentPercSire,
+               ParentPercDam =  ParentPercDam,
+               MinNRepro = MinNRepro, 
+               MinNPaRepro = MinNPaRepro, MinNseas = MinNseas, 
+               MinNLitter = MinNLitter, NDay = NDay, 
+               MinNGro = MinNGro, MinNIGro = MinNIGro, MeasureType = MeasureType,
+               ModelsGro = ModelsGro
+               
+)
+save(ipara, file = glue("{AnalysisDir}/finished_{TaxaList[Taxa]}{ipara}.Rdata"))
+```
+
+### Make the summary tables
+
+``` r
+# List of taxa to summarize -------------------------
+TaxaList <- c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+              "Chondrichthyes", "Osteichthyes")
+
+# Sex categories ----------------------------------
+BySex <- list(Mammalia = c("Male", "Female", "All"), 
+              Aves = c("Male", "Female", "All"), 
+              Reptilia = c("Male", "Female", "All"), 
+              Amphibia = c("Male", "Female", "All"), 
+              Chondrichthyes = c("Male", "Female", "All"), 
+              Osteichthyes = c("Male", "Female", "All"))
+
+
+SummTab <- make_summary2(AnalysisDir=glue("{AnalysisDir}Rdata"), 
+                         SaveDir = glue("{AnalysisDir}"),
+                         TaxaList = TaxaList,
+                         BySex = BySex ,
+                         Sections = c("sur"),
+                         MinAge = 0
 )
 ```
 
-### Run taxon profiles by taxa
-
-### Group all outputs in one compressed file
-
-### To Json
+### Make the output for the Dev Team
 
 ``` r
+# directory to save Json for the dev team:
+JsonDir <-  glue ("{AnalysisDir}Json/")
 write(toJSON(repout), file = sprintf("ISRdata/global/json/%s.json", 
                                      repout$general$speciesID))
+```
+
+### Compress the output
+
+``` r
+system("zip -r Species360/Demo_Analyses/plot2.zip Species360/Demo_Analyses/Plot/")
+#> [1] 12
 ```

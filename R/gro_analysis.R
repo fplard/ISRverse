@@ -3,11 +3,11 @@
 
 #' Growth model selection
 #' 
-#' This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
+#' This function fits a series of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 #' 
-#' @param data_weight \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
-#' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
-#' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
+#' @param data_weight \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID*.
+#' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
+#' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default: 95% predicted interval.
 #' 
 #' @import dplyr assertthat
 #' @importFrom stats quantile qlnorm sd shapiro.test
@@ -24,21 +24,24 @@
 #' @export
 #' @examples
 #' Age <- sample(c(0:10), 100, replace = TRUE)
-#' anonID <- sample(c(0:20), 100, replace = TRUE)
-#' MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
-#' dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+#' AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+#' MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
+#'                           rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
+#' dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+#'                  AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 #'
 #' out = Gro_analysis(dat, 
 #'                    all_mods = c("logistic", "vonBertalanffy", "gam"), 
 #'                    percentiles = c(2.5, 97.5))
 Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles = c(2.5,97.5)
 ) {
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.numeric(percentiles))
   assert_that(min(percentiles) > 0)
   assert_that(max(percentiles) < 100)
   assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
   assert_that(is.data.frame(data_weight))
-  assert_that(data_weight %has_name% c("MeasurementValue","Age", 'anonID'))
+  assert_that(data_weight %has_name% c("MeasurementValue","Age", 'AnimalAnonID'))
   assert_that(all(data_weight$Age >= 0 ))
   assert_that(all(data_weight$MeasurementValue > 0 ))
   
@@ -67,7 +70,7 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   }
   
   if('gam' %in% all_mods){
-    fit_gam <-   mgcv::gam(logz~s(logx, bs = 'cr', k = 6) + s(anonID, bs = 're'),
+    fit_gam <-   mgcv::gam(logz~s(logx, bs = 'cr', k = 6) + s(AnimalAnonID, bs = 're'),
                            data = data_weight,
                            method = "ML",
                            drop.unused.levels = FALSE # do not drop empty level for prediction
@@ -93,7 +96,7 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
     conv = fit_gam$converged
     elogz <- fit_gam$residuals
     lzexp <- predict.gam(fit_gam, newdata = tibble(logx = log(zQuant$Age+1),
-                                                   anonID = 1), exclude = c("s(anonID)"))
+                                                   AnimalAnonID = 1), exclude = c("s(AnimalAnonID)"))
   }else{
     growthMod <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$growthMod
     gam <- bbmle::coef(best_std)
@@ -108,8 +111,9 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   #GOF
   GOF = list(normal = T, X = T, var = T, conv = conv)
   elogz2 <- elogz^2
+  if(length(elogz)<5000 & length(elogz)> 2){
   test  = shapiro.test(elogz)
-  if(test$p.value<0.01){GOF$normal = FALSE}
+  if(test$p.value<0.01){GOF$normal = FALSE}}
   a = summary(lm(elogz2 ~ data_weight$logx)) #test variance?
   if(a$coefficients[2,4]<0.01){GOF$X = FALSE}
   b = summary(lm(elogz ~ data_weight$logx)) #test pour senescence??

@@ -4,39 +4,47 @@
 \alias{Load_Zimsdata}
 \title{Load Zims data}
 \usage{
-Load_Zimsdata(taxa, ZIMSdir, extractDate, type = "core", silent = FALSE)
+Load_Zimsdata(
+  Taxa,
+  ZIMSDir,
+  Species,
+  Animal = FALSE,
+  tables = c(),
+  silent = FALSE
+)
 }
 \arguments{
-\item{taxa}{\code{character} the name of the taxa studied}
+\item{Taxa}{\code{character} Names of the taxa.}
 
-\item{ZIMSdir}{\code{character} directory where to find data}
+\item{ZIMSDir}{\code{character} Directory where to find data.}
 
-\item{extractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
+\item{Species}{\code{list of character} names of the species studied. A list per taxa should be used, or "All".}
 
-\item{type}{\code{vector character} the type of data to load. Default = 'core'}
+\item{Animal}{\code{logical} Whether the core animal data should be loaded.}
 
-\item{silent}{\code{logical} Whether information of advancement should be printed}
+\item{tables}{\code{vector character} the type of data to load.}
+
+\item{silent}{\code{logical} Whether information of advancement should be printed.}
 }
 \value{
 A list of the data frames
 }
 \description{
-Check if selected data are already in the global environment. If not, it load them.
+Load ZIMS data frames of given taxa
 }
 \details{
-\code{type} can take the following values : "core", "health", "institution", "moves", "parent", "weights", "lengths", "collections", "simplified_collections"
+\code{tables} can take the following values : "Contraception", "HealthStatus", "DeathInformation","Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", "Collection"
 }
 \examples{
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSDirtest = dirname(file)
+Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 
-# #example of an environmental ncdf file saved with the package
-# file = system.file("coretest.csv", package = 'ISRverse')
-# ZIMSdirtest = dirname(file)
-# 
-# data <- Load_Zimsdata	(taxa = "Mammalia", 
-#                            ZIMSdir = ZIMSdirtest, 
-#                            extractDate = "2023-12-04", 
-#                            type = 'core') 
-# data$core
-# unlink(ZIMSdirtest, recursive = TRUE)
-
+data <- Load_Zimsdata	(Taxa = "Reptilia", 
+                       ZIMSDir = ZIMSDirtest, 
+                       Species = list(Reptilia = "All"),
+                       Animal = TRUE,
+                       tables = 'Weight') 
+data$Reptilia$Animal
+unlink(glue::glue("{ZIMSDirtest}/Split_Reptilia"), recursive = FALSE)
 }

@@ -7,9 +7,9 @@
 Gro_ModSettings(data, model = "vonBertalanffy")
 }
 \arguments{
-\item{data}{\code{data.frame} including at least the numeric columns \emph{logx} and \emph{logz}}
+\item{data}{\code{data.frame} including at least the numeric columns \emph{logx} and \emph{logz} .}
 
-\item{model}{\code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial}
+\item{model}{\code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial .}
 }
 \value{
 a list including the function of the growth model,  the number of parameter, their names, their initial values and their lowest possible values

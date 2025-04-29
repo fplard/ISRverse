@@ -5,9 +5,9 @@
 #' 
 #'Plot predicted percentiles from a growth model with data points
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID*.
 #' @param data_percent \code{data.frame} including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
-#' @param title \code{character} Title of the plot
+#' @param title \code{character} Title of the plot.
 #' 
 #' @import dplyr assertthat 
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle geom_ribbon aes
@@ -18,9 +18,11 @@
 #' @export
 #' @examples
 #' Age <- sample(c(0:10), 100, replace = TRUE)
-#' anonID <- sample(c(0:20), 100, replace = TRUE)
-#' MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
-#' dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+#' AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+#' MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
+#'                           rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
+#' dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+#'                  AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 #'
 #' out = Gro_analysis(dat, 
 #'                    all_mods = c("logistic", "vonBertalanffy", "gam"), 
@@ -33,7 +35,7 @@
 Gro_plot <- function(data, data_percent, title = "") {
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(data_percent))
-  assert_that(data %has_name% c("MeasurementValue","Age", 'anonID'))
+  assert_that(data %has_name% c("MeasurementValue","Age", 'AnimalAnonID'))
   assert_that(data_percent %has_name% c("percent50","Age"))
   
   assert_that(is.numeric(data$MeasurementValue))
@@ -47,7 +49,8 @@ Gro_plot <- function(data, data_percent, title = "") {
   
   
   p <- ggplot(data, aes (x = Age))+
-    ggtitle(title)
+    ggtitle(title)+
+    geom_point(aes(y = MeasurementValue))
   
   if (length(percentiles)/2 == 1){
     colorrib ="grey80"
@@ -57,10 +60,9 @@ Gro_plot <- function(data, data_percent, title = "") {
     per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
     p <- p +
       geom_ribbon(data = data_percent,aes ( ymin = !!sym(per[1]), ymax = !!sym(per[2])),
-                  fill = colorrib[i])
+                  fill = colorrib[i], alpha = 0.25)
   }
   p <- p +
-    geom_point(aes(y = MeasurementValue))+
     geom_line(data = data_percent,aes ( y = percent50 ))   
   return(p)
 }

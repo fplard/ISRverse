@@ -2,96 +2,106 @@
 
 #' Load Zims data
 #' 
-#' Check if selected data are already in the global environment. If not, it load them.
+#' Load ZIMS data frames of given taxa
 #'
-#' @param taxa  \code{character} the name of the taxa studied
-#' @param ZIMSdir \code{character} directory where to find data
-#' @param type \code{vector character} the type of data to load. Default = 'core' 
-#' @param extractDate \code{character 'YYYY-MM-DD'} Date of data extraction
-#' @param silent \code{logical} Whether information of advancement should be printed
+#' @param Taxa  \code{character} Names of the taxa.
+#' @param ZIMSDir \code{character} Directory where to find data.
+#' @param Species  \code{list of character} names of the species studied. A list per taxa should be used, or "All".
+#' @param Animal \code{logical} Whether the core animal data should be loaded.
+#' @param tables \code{vector character} the type of data to load. 
+#' @param silent \code{logical} Whether information of advancement should be printed.
 #' 
 #' @details
-#' \code{type} can take the following values : "core", "health", "institution", "moves", "parent", "weights", "lengths", "collections", "simplified_collections"
+#' \code{tables} can take the following values : "Contraception", "HealthStatus", "DeathInformation","Institution","InstitutionAssociation", "Move","Parent", "Weight", "Length","DeathInformation", "Collection"
 #'
 #' @return A list of the data frames
 #' @importFrom glue glue
+#' @importFrom utils read.csv
 #' @importFrom checkmate assert_directory_exists
 #' @export
 #'
 #' @examples
+#' file = system.file("sci_Animal.csv", package = 'ISRverse')
+#' ZIMSDirtest = dirname(file)
+#' Split_Zimsdata(ZIMSDir = ZIMSDirtest)
 #'
-#' # #example of an environmental ncdf file saved with the package
-#' # file = system.file("coretest.csv", package = 'ISRverse')
-#' # ZIMSdirtest = dirname(file)
-#' # 
-#' # data <- Load_Zimsdata	(taxa = "Mammalia", 
-#' #                            ZIMSdir = ZIMSdirtest, 
-#' #                            extractDate = "2023-12-04", 
-#' #                            type = 'core') 
-#' # data$core
-#' # unlink(ZIMSdirtest, recursive = TRUE)
-#'
-Load_Zimsdata	<- function (taxa, 
-                           ZIMSdir, 
-                           extractDate, 
-                           type = 'core',
+#' data <- Load_Zimsdata	(Taxa = "Reptilia", 
+#'                        ZIMSDir = ZIMSDirtest, 
+#'                        Species = list(Reptilia = "All"),
+#'                        Animal = TRUE,
+#'                        tables = 'Weight') 
+#' data$Reptilia$Animal
+#' unlink(glue::glue("{ZIMSDirtest}/Split_Reptilia"), recursive = FALSE)
+Load_Zimsdata	<- function (Taxa, ZIMSDir,
+                           Species,
+                           Animal = FALSE,
+                           tables = c(),
                            silent = FALSE) 
-{ out <- list()
-  assert_directory_exists(ZIMSdir)
-  assert_that(is.character(taxa))
-  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                          "Chondrichthyes", "Actinopterygii"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
-  assert_that(is.logical( silent))
-  assert_that(is.character(extractDate))
+{ 
+  out <- list()
+ # Check correct format for inputs ---------------------------------------------
+ checkmate::assert_directory_exists(ZIMSDir)
+  assert_that(is.character(Taxa))
+  assert_that(is.logical(silent))
+  assert_that(is.list(Species))
+  assert_that (all(Taxa %in% names(Species)), 
+               msg = "Species must be a list with the different Taxa as names")
+  if(length(tables)>0){  
+    assert_that(is.character(tables))
+    assert_that(all(tables %in%  c("Contraception", "HealthStatus", 
+                                   "Institution","InstitutionAssociation", 
+                                   "Move","Parent", "Weight", "Length",
+                                   'DeathInformation', 'Collection')), 
+                msg = "The table names must be 'Contraception', 'HealthStatus',
+                'Institution','InstitutionAssociation', 'Move','Parent', 'Weight', 
+                'Length', 'DeathInformation', and/or 'Collection'")
+  }
+  idTaxa <- list.files(glue::glue("{ZIMSDir}/"), "Split")%>%
+    stringr::str_remove("Split_")
+  assert_that(Taxa %in% c(idTaxa, "All"),
+              msg = glue::glue("Taxa must one of {stringr::str_flatten_comma(idTaxa)}, or 'All'"))
+  if (Taxa == "All") Taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+                              "Chondrichthyes", "Osteichthyes")
   
-  assert_that(is.character(type))
-  assert_that(all(type %in%  c("contraception", "core", "health", 
-                               "institution", "moves", "parent", "weights", 
-                               "lengths", "collections", "simplified_collections")))
-  
-  ZIMSfilesdate <- stringr::str_subset(list.files(ZIMSdir), pattern = extractDate)
-  
-  idTaxa <-  stringr::str_subset(ZIMSfilesdate, taxa)
-  assert_that(length(idTaxa) > 0,
-              msg =glue("Folder for {extractDate}_{taxa} not found. Verify ZIMSdir path.")
-  )
-  for (ty in type){
-    # Check if the data have already been load
-    if (exists(sym(ty), envir = globalenv())) {
-      b <- eval(sym(ty))
-      if (unique(b$Class) == taxa) {
-        if (!silent) {
-          cat(glue::glue("{ty} already loaded."))
-        }
-        continue <- FALSE
-      }else {
-        continue <- TRUE
-      }
-    }else {
-      continue <- TRUE}
-    
-    if (continue) {
-      idfiles <- list.files(glue("{ZIMSdir}/{idTaxa}"), glue("sci_{ty}"))
-      idfilesn <- list.files(glue("{ZIMSdir}/{idTaxa}"), glue("template_{ty}"))
-      
-      assert_that(length(idfiles )> 0,
-                  msg =glue("{ty} file for{taxa} not found.")
-      )
-      assert_that(length(idfiles) < 2,
-                  msg = glue("More than one {ty} file for {taxa}.")
-      )
-      if (!silent) {
-        cat("Loading {ty}")
-      }
-      namesvar = readr::read_delim(glue::glue("{ZIMSdir}/{idTaxa}/{idfilesn}"), delim = "@")
-      b <- readr::read_delim(glue::glue("{ZIMSdir}/{idTaxa}/{idfiles}"), delim = "@", col_names = colnames(namesvar))
-        out[[ty]]<- b}
+  # Loop over taxa ---------------------------------------------------------------
+  for (ta in Taxa){
     if (!silent) {
-      cat("Done.\n")
+      cat(glue::glue("{ta}"))
     }
-
+    if(any(Species[[ta]] != "All")){Species1 = Species[[ta]]}
+    #Load Animal File ----------------------------------------------------------
+    idfiles <- list.files(glue::glue("{ZIMSDir}/Split_{ta}/"), "Animal.csv")
+    assert_that(length(idfiles )> 0,
+                msg =glue::glue("Animal file for {ta} not found."))
+    assert_that(length(idfiles) < 2,
+                msg = glue::glue("More than one Animal file for {ta}."))
+     Ani <- read.csv(glue::glue("{ZIMSDir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
+    
+    #Filter Species List
+    if(any(Species[[ta]] != "All")){
+      Ani <- Ani%>%
+        filter(binSpecies %in% Species1)
+    }
+    if(nrow(Ani) == 0) warnings("There are no data for selected species of {ta}")
+    if(Animal){out[[ta]][["Animal"]]<- Ani}
+    
+     #Load other tables --------------------------------------------------------
+    if(length(tables)>0){  
+      for (ty in tables){
+         idfiles <- list.files(glue::glue("{ZIMSDir}/Split_{ta}/"), glue::glue("{ty}.csv"))
+        if(length(idfiles)== 0) error(glue::glue("{ty} file of {ta} not found."))
+        if(length(idfiles) >= 2) error(glue::glue("More than one {ty} file for {ta}."))
+          if (!silent) {cat(glue::glue("Loading {ty} of {ta}.\n"))}
+         b <- read.csv(glue::glue("{ZIMSDir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
+        
+        if("AnimalAnonID" %in% colnames(b)){
+          b <- b%>%
+            filter(AnimalAnonID %in% Ani$AnimalAnonID)
+        }
+        out[[Taxa]][[ty]]<- b
+      }
+    }
+    if (!silent) {cat(glue::glue("{Taxa} Done.\n"))}
   }
   return(out)
 }

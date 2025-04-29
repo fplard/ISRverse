@@ -2,14 +2,14 @@
 
 
 test_that("Gro_remoutliers errors", {
-  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10),
+  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5, MeasurementType ="Weight"), Taxa = "Mammalia", AgeMat = 10),
                msg = "data_weight does not have all of these name(s): 'MeasurementValue', 'Age'")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "mammalia", ageMat = 10),
-               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), Taxa = "mammalia", AgeMat = 10),
+               msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Actinopterygii'")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3.3),
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5, MeasurementType ="Weight"), Taxa = "Mammalia", AgeMat = 10, min_Nmeasures = 3.3),
                msg = "min_Nmeasures should be an integer")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3),
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5, MeasurementType ="Weight"), Taxa = "Mammalia", AgeMat = 10, min_Nmeasures = 3),
                msg = "min_Nmeasures not greater than or equal to 5")
 })
 
@@ -17,9 +17,10 @@ test_that("Gro_remoutliers errors", {
 test_that("Gro_remoutliers works", {
   data = tibble(Age = c(rep(c(1:5),2),4),
                 MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
-                anonID = c(rep(1:2, each = 5),3))
+                MeasurementType = "Weight",
+                AnimalAnonID = c(rep(1:2, each = 5),3))
   
-  a= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
+  a= Gro_remoutliers(data, Taxa = "Mammalia", AgeMat = 10,
                      min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
   expect_true(sum(a$keep1) == 10)
   expect_true(sum(a$keep2) == 9)

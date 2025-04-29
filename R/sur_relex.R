@@ -2,15 +2,12 @@
 
 #' Remaining life expectancy
 #' 
-#' Estimate remaining life expectancy over age from the parameters outputs of a Basta model.
+#' Estimate remaining life expectancy over ages.
 #' 
 #'
-#' @param theMat \code{array} including the posteriors estimates of the model parameter
-#' @param model \code{character} names of the basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"
-#' @param shape \code{character} shape of the basta model: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"
-#' @param ncpus  \code{numeric} Number of core to use
-#' @param xMax \code{numeric} Maximum age in years Default = 120
-#' @param dx \code{numeric} precision for age Default = 0.01
+#' @param Lx \code{numeric} Survivorship
+#' @param dx \code{numeric} Precision for age
+#' @param xv \code{numeric} Age vector
 #'
 #' @return a data frame including age, the mean and 95% credible interval of the remaining life expectancy
 #' 
@@ -20,83 +17,24 @@
 #' @importFrom snowfall sfInit sfLibrary sfClusterApplyLB  sfStop
 #' 
 #' @examples
-#' theMat = as.matrix(data.frame( b0 = rnorm(10, -6, 0.01),
-#'                                b1= rnorm(10, 0.1, 0.01)))
-#'
-#'
-#' out <- Sur_relex(theMat, model = 'GO', shape = 'simple', ncpus = 2,
-#'                  xMax = 50, dx = 0.1)
-Sur_relex <- function(theMat, model = 'GO', shape = 'bathtub', ncpus = 1,
-                      xMax = 120, dx = 0.01) {
-  
-  assert_that(is.array(theMat))
-  assert_that(is.numeric(xMax))
-  assert_that(xMax > 1)
+#' Lx = matrix(c(seq(1,0,by = -0.1), 1,seq(0.5,0,length.out = 10)),nrow =2)
+#' out <- Sur_relex(Lx, dx = 1, xv = c(0:10))
+Sur_relex <- function(Lx, dx = 0.01,xv) {
   assert_that(is.numeric(dx))
   assert_that(dx > 0)
-  assert_that(is.numeric(ncpus))
-  assert_that(ncpus > 0)
-  assert_that(is.character(model))
-  assert_that(all(model %in% c("GO", "EX", "LO", "WE")))
-  assert_that(is.character(shape))
-  assert_that(all(shape %in% c("simple", "bathtub", "Makeham")))
-  
-  iseq <- floor(seq(0, nrow(theMat), length = ncpus + 1))
-   xv <- seq(0, xMax, by = dx)
- 
-  # run parallel estimation:
-  sfInit(parallel = TRUE, cpus = ncpus)
-  # Upload paramDemo:
-  # sfLibrary(paramDemo)
-  # export variables:
-  # sfExport(list = c("iseq", "theMat", "model", "shape", "xMax", "dx"))
-  # Run parallel function:
-  exparal <- sfClusterApplyLB(1:ncpus, Sur_relex_0, theMat = theMat,
-                              model = model, shape = shape,  
-                              iseq = iseq, 
-                              xMax = xMax, dx = dx, xv = xv )
-  
-  # Stop application:
-  sfStop()
-  
-  # Gather estimates:
-  for (jj in 1:ncpus) {
-    if (jj == 1) {
-      exMat <- exparal[[jj]]
-    } else {
-      exMat <- rbind(exMat, exparal[[jj]])
-    }
-  }
-  
-  exQuants <- data.frame(Age = xv[which(xv <= xMax)], 
-                         RemLExp = apply(exMat, 2, mean), 
-                         Lower = apply(exMat, 2, quantile, 0.025),
-                         Upper = apply(exMat, 2, quantile, 0.975))
-  return(exQuants)
-}
-
-
-#' Raw remaining life expectancy
-#'
-#' @return a data frame including age, the mean and 95% credible interval of the remaining life expectancy
-#' 
-#' @importFrom paramDemo CalcSurv
-#' 
-#'
-#' @noRd
-Sur_relex_0 <- function(sim= 1, theMat ,model = 'GO', shape = 'bathtub',  
-                        iseq = 1:nrow(theMat), xMax = 120, dx = 0.01 , xv = seq(0, xMax, by = dx)
- ) {
-  
-  idseq <- (iseq[sim] + 1):iseq[sim + 1]
-  
-  remex <- t(sapply(idseq, function(ith) {
-    theta <- theMat[ith, ]
-    Sx <- paramDemo::CalcSurv(theta = theta, x = xv, model = model, shape = shape)
+  assert_that(is.numeric(Lx))
+  Sur_relex_0 <- function( Sx, dx = 0.01) {
     ex <- Sx * 0
     idn0 <- which(Sx > 0.001)
     ex[idn0] <- rev(cumsum(rev(Sx[idn0] * dx))) / Sx[idn0]
     return(ex)
-  }))
-  return(remex)
+  }
+  
+  exMat <-apply(Lx,1, Sur_relex_0,  dx = dx)
+  exQuants <- data.frame(Age = xv, 
+                         RemLExp = apply(exMat, 1,quantile, 0.5), 
+                         Lower = apply(exMat, 1, quantile, 0.025),
+                         Upper = apply(exMat, 1, quantile, 0.975))
+  return(exQuants)
 }
+

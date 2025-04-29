@@ -5,126 +5,191 @@
 \title{Taxon profile report}
 \usage{
 tx_report(
-  species,
-  taxa,
-  core,
-  collection,
+  Species,
+  Taxa,
+  Animal,
+  Collection,
   PlotDir = NULL,
-  weights = NULL,
-  parents = NULL,
-  contraceptions = NULL,
+  Weights = NULL,
+  Parents = NULL,
+  Move = NULL,
+  Contraceptions = NULL,
+  DeathInformation = NULL,
   repout = list(),
   Sections = c("sur", "rep", "gro"),
-  sexCats = c("Male", "Female"),
-  minN = 50,
-  minDate = "1980-01-01",
-  extractDate = NULL,
-  minNsur = 50,
-  minlx = 0.1,
+  SexCats = c("Male", "Female"),
+  MinN = 50,
+  MinDate = "1980-01-01",
+  Global = TRUE,
+  MinBirthDate = "1900-01-01",
+  ExtractDate = NULL,
+  UncertBirth = 365,
+  UncertDeath = 365,
+  UncertDate = 365,
+  MinNSur = 50,
+  MaxNSur = NULL,
+  MinInstitution = 2,
+  MinLx = 0.1,
   MinBirthKnown = 0.3,
-  maxOutl = 100,
-  models_sur = "GO",
-  shape = "bathtub",
+  MaxOutl = 100,
+  MaxAge = 120,
+  MinMLE = 0.1,
+  MaxLE = 2,
+  ModelsSur = "GO",
+  Shape = "bathtub",
   niter = 25000,
   burnin = 5001,
   thinning = 20,
   nchain = 3,
   ncpus = 2,
-  parentProb = 80,
-  minNrepro = 100,
-  minNparepro = 30,
-  minNseas = 50,
-  minNgro = 100,
-  minNIgro = 50,
-  MeasureType = "",
-  models_gro = "vonBertalanffy"
+  MinAge = 0,
+  LastDead = FALSE,
+  RepSect = c("agemat", "litter"),
+  BirthType = "Captive",
+  ParentPercDam = 80,
+  ParentPercSire = 80,
+  MinNLitter = 20,
+  NDay = 7,
+  MinNRepro = 100,
+  MinNPaRepro = 30,
+  MinNSeas = 50,
+  MinNGro = 100,
+  MinNIGro = 50,
+  MeasureType = "Live weight",
+  ModelsGro = "vonBertalanffy"
 )
 }
 \arguments{
-\item{species}{\code{character} the name of the species studied}
+\item{Species}{\code{character} name of the species studied}
 
-\item{taxa}{\code{character} the name of the taxa studied}
+\item{Taxa}{\code{character} name of the taxa studied}
 
-\item{core}{\code{data.frame} core data}
+\item{Animal}{\code{data.frame} core data}
 
-\item{collection}{\code{data.frame} collection data}
+\item{Collection}{\code{data.frame} Collection data}
 
-\item{PlotDir}{\code{character} Directory to save the plots. Default = NULL, no plot is saved}
+\item{PlotDir}{\code{character} Directory to save the plots. Default: no plot is saved}
 
-\item{weights}{\code{data.frame} weights data if the growth analysis is run}
+\item{Weights}{\code{data.frame} Weights data if the growth analysis is run}
 
-\item{parents}{\code{data.frame} parents data if the reproduction analysis is run}
+\item{Parents}{\code{data.frame} Parents data if the reproduction analysis is run}
 
-\item{contraceptions}{\code{data.frame} contraception data if the reproduction analysis is run}
+\item{Move}{\code{data frame} Move data including at least the following columns: \emph{AnimalAnonID}, \emph{To}, \emph{Date}}
+
+\item{Contraceptions}{\code{data.frame} Contraception data if the reproduction analysis is run}
+
+\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}}
 
 \item{repout}{\code{list} Previous result of the taxon profile for this species if it needs to be updated only}
 
-\item{Sections}{\code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")}
+\item{Sections}{\code{vector of character} names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro".}
 
-\item{sexCats}{\code{character} Male, Female or All Default =  "All"}
+\item{SexCats}{\code{character} Male, Female or All.}
 
-\item{minN}{\code{numeric} Minimum number of individuals. Default = 50}
+\item{MinN}{\code{numeric} Minimum number of individuals needed to run the analyses.}
 
-\item{minDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earliest date to include data}
 
-\item{extractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
+\item{Global}{\code{logical} Whether only individuals belonging to global Collections should be used.}
 
-\item{minNsur}{\code{numeric} Minimum number of individual records needed to run the survival analysis. Default = 50}
+\item{MinBirthDate}{\code{character}: Earliest possible date: date used when minimum birth date unknown}
 
-\item{minlx}{\code{numeric} between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis needed to run the survival analysis. Default = 0.1}
+\item{ExtractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
 
-\item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data. Default = 0.3}
+\item{UncertBirth}{\code{numeric}: Maximum uncertainty accepted for birth dates, in days}
 
-\item{maxOutl}{\code{numeric} Maximum threshold for the longevity distribution. Default = 100}
+\item{UncertDeath}{\code{numeric}: Maximum uncertainty accepted for death dates, in days.}
 
-\item{models_sur}{\code{vector of characters} names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information. Default = "GO"}
+\item{UncertDate}{\code{numeric}: Maximum uncertainty accepted for measurement dates: weight, in days.}
 
-\item{shape}{\code{character} shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information. Default = "simple"}
+\item{MinNSur}{\code{numeric} Minimum number of individual records needed to run the survival analysis.}
 
-\item{niter}{\code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information. Default = 25000}
+\item{MaxNSur}{\code{numeric} Maximum number of individual records to run the survival analysis.}
 
-\item{burnin}{\code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information. Default = 5001}
+\item{MinInstitution}{\code{numeric} Minimum number of institutions that should hold records to run the analyses.}
 
-\item{thinning}{\code{numeric} Number of iteration to run the survival model before saving a set of parameters. see ?basta for more information. Default = 20}
+\item{MinLx}{\code{numeric} Value used for longevity threshold and for checks. between 0 and 1. Minimum reached survivorship from the raw Kaplan Meier analysis. This number avoids running survival analysis if there are too few dead individuals in the data. Lower is better.}
 
-\item{nchain}{\code{numeric} Number of chains to run the survival model. Default = 5001}
+\item{MinBirthKnown}{\code{numeric} between 0 and 1. Minimum proportion of individuals with a known birth month in the data to run the survival analysis.}
 
-\item{ncpus}{\code{numeric} Number of computer core to use. Default = 2}
+\item{MaxOutl}{\code{numeric} Start threshold to select individuals based on the longevity distribution: 100\%, 99.9, 99 or 95\%. This number must decrease when many errors are expected in longevity data.}
 
-\item{parentProb}{\code{numeric} XXXXXXXXXXX}
+\item{MaxAge}{\code{numeric} Maximum possible age in years. Only used for model predictions. This argument is not used to select data.}
 
-\item{minNrepro}{\code{numeric} XXXXXXXXXXX}
+\item{MinMLE}{\code{numeric} Value used for checks. Minimum survivorship allowed at mean life expectancy. Between 0 and 1.}
 
-\item{minNparepro}{\code{numeric} XXXXXXXXXXX}
+\item{MaxLE}{\code{numeric} Value used for checks. Maximum remaining life expectancy at last observed age. In years.}
 
-\item{minNseas}{\code{numeric} XXXXXXXXXXX}
+\item{ModelsSur}{\code{vector of characters} Names of the survival basta models to run: "G0", "EX", "LO" and/or "WE". see ?basta for more information.}
 
-\item{minNgro}{\code{numeric} Minimum number of weight needed to fit the growth models}
+\item{Shape}{\code{character} Shape of the survival basta model to run: "simple", "Makeham", "bathtub".  see ?basta for more information.}
 
-\item{minNIgro}{\code{numeric} Minimum number of unique individuals needed to fit the growth models}
+\item{niter}{\code{numeric}. number of MCMC iterations to run the survival model. see ?basta for more information.}
 
-\item{MeasureType}{\code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.}
+\item{burnin}{\code{numeric} Number of iterations removed so that the survival model has time to converge. see ?basta for more information.}
 
-\item{models_gro}{\code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"}
+\item{thinning}{\code{numeric} Number of iterations to run the survival model before saving a set of parameters. see ?basta for more information.}
+
+\item{nchain}{\code{numeric} Number of chains to run the survival model.}
+
+\item{ncpus}{\code{numeric} Number of computer cores to use.}
+
+\item{MinAge}{\code{numeric} Ages at which the survival analysis should start, in years.  see ?basta for more information.}
+
+\item{LastDead}{\code{logical} Whether the longest lived individuals should be considered dead.}
+
+\item{RepSect}{\code{character} Names of the reproductive analyses to run: "agemat", "litter" and/or ...}
+
+\item{BirthType}{\code{character} Captive, Wild, or All.}
+
+\item{ParentPercDam}{\code{numeric} Minimum percentage of parentage probability to include Dam.}
+
+\item{ParentPercSire}{\code{numeric} Minimum percentage of parentage probability to include Sire.}
+
+\item{MinNLitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.}
+
+\item{NDay}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread.}
+
+\item{MinNRepro}{\code{numeric} Minimum number of birth records needed to run reproductive analyses.}
+
+\item{MinNPaRepro}{\code{numeric} Minimum number of unique parent records needed to run reproductive analyses.}
+
+\item{MinNSeas}{\code{numeric} XXXXXXXXXXX}
+
+\item{MinNGro}{\code{numeric} Minimum number of weights needed to fit the growth models.}
+
+\item{MinNIGro}{\code{numeric} Minimum number of unique individuals needed to fit the growth models.}
+
+\item{MeasureType}{\code{vector of characters} Name of the types of measurement that should be included.  Default =  all measurement type are included.}
+
+\item{ModelsGro}{\code{vector of characters} Names of the growth models that need to be fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.}
 }
 \value{
-a list including the results and summary of each analysis
+a list including the results and summary of each analysis. See each function ?Sur_main, ?Rep_main and ?Gro_main for more details about survival, reproduction and growth analyses, respectively.
 }
 \description{
 Run the survival, reproduction and growth analysis for the selected species
 }
 \examples{
-data(core)
-data(collection)
-PlotDir = paste0(tempdir(check = TRUE),'\\\\temp')
+file = system.file("sci_Animal.csv", package = 'ISRverse')
+ZIMSDirtest = dirname(file)
+data <- Load_Zimsdata	(Taxa = "Reptilia",
+                       Species = list(Reptilia = "All"),
+                       ZIMSDir = ZIMSDirtest,
+                       Animal = TRUE, tables = c("Collection","DeathInformation"))
+
+Animal<- Prep_Animal(data[["Reptilia"]]$Animal, ExtractDate="2024/08/29"  )
+PlotDir = paste0(tempdir(check = TRUE),'/temp')
 dir.create(PlotDir)
 
-out <- tx_report(species = "Gorilla gorilla", taxa = "Mammalia",
-                 core, collection, 
+out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
+                 Animal, data$Reptilia$Collection, 
+                 BirthType = "All", UncertBirth = 3500,UncertDeath = 3500, 
+                 DeathInformation =data$Reptilia$DeathInformation,
                  PlotDir = PlotDir,Sections = c('sur'),
-                 sexCats = c("Male", "Female"),
-                 models_sur = "GO", shape = "simple",
-                 models_gro = "vonBertalanffy",
+                 SexCats = c("Male", "Female"),
+                 ModelsSur = "GO", Shape = "simple",
+                 ModelsGro = "vonBertalanffy",
                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
 )
 

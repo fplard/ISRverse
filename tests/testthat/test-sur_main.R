@@ -2,9 +2,12 @@
 
 test_that("Sur_main works", {
   data(core)
-  out <- Sur_main(core, BirthType = "Captive", 
-                  models = "LO", shape = "bathtub",
+  data(deathinformation)
+  out <- Sur_main(core, DeathInformation = deathinformation, BirthType = "Captive", 
+                  Models = "LO", Shape = "bathtub",
                   niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
-  expect_named(out, c("summary",  "bastaRes", "DICmods", "relex", 'Sur1', 'Sur5'))
-
+  expect_named(out, c("from0"))
+  expect_named(out$from0, c('summary', 'metrics', 'bastaRes', 'DICmods', 'KM_estimator', 'relex', 'Sur1', 'Sur5', 'L90', 'L50', 'check', 'relex_from0', 'Sur1m'))
+  expect_named(out$from0$summary, c('NSelect', 'NUncertdeath', 'NBasta', 'Ndead', 'Nrc', 'N8090', 'N9000', 'N0010', 'N1020', 'N2030', 'QBD10', 'QBD50', 'QBD90', 'BDincert', 'maxAge', 'maxAlive', 'lxMin', 'outLev', 'model', 'analyzed', 'Nerr', 'error'))
+  expect_named(out$from0$DICmods, c("Models", "DIC"))
 })

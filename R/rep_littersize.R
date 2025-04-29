@@ -4,11 +4,11 @@
 #' 
 #' Make a data frame of litter size per parent and birth date and produce summary tables of litter size. it selects only offspring/mother couples
 #'
-#' @param Reprodata \code{data frame} including at least the columns *AnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *ageBirth*
-#' @param perAge \code{logical} Whether to estimate litter size per mother age. Default = FALSE
-#' @param Nday \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7
-#' @param parentProb \code{numeric} Minimum percentage of parentage probability to include. Default = 80
-#' @param minNlitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30
+#' @param ReproData \code{data frame} including at least the columns *AnimalAnonID*, *ParentAnonID*, *ParentType*, *Probability*, *Offspring_BirthDate*, *Offspring_Inst* and *Parent_Age*.
+#' @param NDay \code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread.
+#' @param ParentPercDam \code{numeric} Minimum percentage of parentage probability to include for Dam.
+#' @param ParentPercSire \code{numeric} Minimum percentage of parentage probability to include for Sire.
+#' @param MinNLitter \code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.
 #'
 #' @return A list including:
 #' * A data frame with the litter size per mother and birth date
@@ -21,9 +21,9 @@
 #' - MedLittSize: Median litter size 
 #' - SdLittSize: Standard deviation of litter size 
 #' - analyzed = FALSE,
-#' - error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {minNlitter}
+#' - error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {MinNLitter}
 #' - Nerr: The number id of the error
-#' * if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
+#' * a table including the mean and standard deviation of litter size per maternal age
 #' 
 #' @export
 #'
@@ -33,107 +33,123 @@
 #' data(parent)
 #' data(moves)
 #' #prepare Data
-#' Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+#' Data <- Rep_prepdata (coresubset = core, collection, parent, moves, MinNRepro = 1, MinNPaRepro = 1,
+#'                       BirthType_parent = "All", BirthType_offspring = "All" )
 #'
 #' #Estimate litter size
-#' out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
-#'                            Nday = 7)
+#' out <- Rep_littersize(Data$ReproData, 
+#'                       NDay = 7)
 #'
-#' out$littSizeTab
-Rep_littersize <- function(Reprodata, perAge = FALSE,
-                           Nday = 7, 
-                           parentProb = 80,  minNlitter =30
-                           ) {
-  
-   assert_that(is.data.frame(Reprodata))
-  
-  assert_that(Reprodata %has_name% c("AnonID", "ParentAnonID", "Probability", 
+#' out
+Rep_littersize <- function(ReproData,
+                           NDay = 7, 
+                           ParentPercDam = 80,ParentPercSire = 80,  MinNLitter =30
+) {
+  # Check correct format for inputs -------------------------------------------
+  assert_that(is.data.frame(ReproData))
+  assert_that(ReproData %has_name% c("AnimalAnonID", "ParentAnonID", "Probability", 
                                      "ParentType", "Offspring_BirthDate",
-                                     "Offspring_Inst"))
+                                     "Offspring_Inst", "Parent_Age"))
+  assert_that(is.numeric(NDay))
+  assert_that(is.numeric(ParentPercDam))
+  assert_that(is.numeric(ParentPercSire))
+  assert_that(is.numeric(MinNLitter))
   
-     assert_that(is.logical(perAge))
-     if(perAge){  assert_that(Reprodata %has_name%  "ageBirth")}
-   assert_that(is.numeric(Nday))
-  assert_that(is.numeric(parentProb))
-  assert_that(is.numeric(minNlitter))
-
-
-  
-  littSumm <- tibble(NOffsp_prob = NULL, NParent_prob = NULL, NReprEvent = NULL,
+  # Initialize outputs ----------------------------------------------------------
+  littSumm <- list(NOffsp_prob = NULL, NParent_prob = NULL, NReprEvent = NULL,
                    analyzed = FALSE,error = "", Nerr= 0,
                    MeanLittSize = NULL, MedLittSize = NULL, SdLittSize = NULL)
   littSizeDf <- tibble()
   littSizeTab <- NULL
   littSizeperAge <- NULL
   
-  subpar <- Reprodata %>%
-    filter(ParentType == "Parentage_Dam",
-            Probability >= parentProb)
+  # Select Fathers
+  subpar_sire <- ReproData %>%
+    filter(ParentType == "Parentage_Sire",
+           Probability >= ParentPercSire)%>%
+    select("ParentAnonID", "AnimalAnonID", "Parent_Age", "ParentAnonID", "Parent_Age")%>%
+    mutate(Father_Age =round(Parent_Age,2))%>%
+    select(-'Parent_Age')%>%
+    rename(FatherAnonID = ParentAnonID)
   
-  littSumm$NOffsp_prob <- length(unique(subpar$AnonID))
+  subpar <- ReproData %>%
+    filter(ParentType == "Parentage_Dam",
+           Probability >= ParentPercDam)%>%
+    left_join(subpar_sire, by = "AnimalAnonID",relationship = "many-to-many" )
+  
+  littSumm$NOffsp_prob <- length(unique(subpar$AnimalAnonID))
   littSumm$NParent_prob <- length(unique(subpar$ParentAnonID))
   
-    
-      if(nrow(subpar >0)){
+  col = c("ParentAnonID", "AnimalAnonID", "Offspring_BirthDate", "Offspring_Inst", "FatherAnonID", "Father_Age", "Parent_Age")
+ 
+  if(nrow(subpar) >0){
     #remove duplicated lines
-      subpar <- subpar%>%
-        dplyr::select(ParentAnonID, AnonID, Offspring_BirthDate, Offspring_Inst)%>%
-        distinct()
+    subpar <- subpar%>%
+      dplyr::select(all_of(col))%>%
+      distinct()
+ 
+    for (id in unique(subpar$ParentAnonID)) {
+      parid <- subpar%>%filter(ParentAnonID == id)
       
-
-        
-        for (id in unique(subpar$ParentAnonID)) {
-          parid <- subpar%>%filter(ParentAnonID == id)%>%
-            sort(Offspring_BirthDate)
-
-          
-          parid$diff=   as.numeric(diff(parid$Offspring_BirthDate))
-          parid$litt=   as.numeric(diff > Nday)
-          
-          if(!perAge){
-            pardid$ageBirth = 0
-          }
-          
-          parid <- pardid%>%
-            group_by (Offspring_BirthDate, Offspring_Istitution, ageBirth)%>%
-            summarize(litterSize = n())
-          
-          littSizeDf <- rbind(littSizeDf, parid)
-        }
-if (nrow(subpar)>= minNlitter)  {
-          littSizeTab <- littSizeDf%>%
-            group_by(litterSize)%>%
-           summarise( N = n(),
-                      prop = n()/nrow(littSizeDf))
-        
-        if(perAge){
-          littSizeperAge <- littSizeDf%>%
-            group_by(Age)%>%
-            summarise(littSizeMean = mean(litterSize),
-                      littSizeMean = sd(litterSize),
-                      Nlitter = n())
-          
-        }else{
-          littSizeDf <- littSizeDf%>%
-            dplyr::select(-ageBirth)
-          
-        }
-
-        # Summary
-        littSumm$MeanLittSize =  mean(littSizeDf$litterSize)
-        littSumm$MedLittSize = median(littSizeDf$litterSize)
-        littSumm$SdLittSize = median(littSizeDf$litterSize)
-        littSumm$analyzed = TRUE 
-        littSumm$NReprEvent= sum(littSize$N)
-}else{
-  error = glue::glue("N birts with Parentage probability higher than {parentProb}")
-          Nerr = 2
-}
-      }else{
-        error = glue::glue("N litter < {minNlitter}")
-          Nerr = 1
-        
-      }
-return(list(summary = littSumm, littSizeDf = littSizeDf,  
-            littSizeTab =  littSizeTab, littSizeperAge = littSizeperAge))
+      parid <- parid %>%
+        arrange(Offspring_BirthDate)
+      diff=  c((NDay+1), as.numeric(diff(parid$Offspring_BirthDate)))
+      parid$litter=  cumsum(ifelse(diff > NDay, 1, 0))
+      
+      parid <- parid%>%
+        mutate(Mother_Age = round(Parent_Age,2)
+        )%>%
+        group_by (ParentAnonID, Offspring_Inst, litter, Mother_Age)%>%
+        summarize(litterSize = length(unique(AnimalAnonID)),
+                  MeanBirthDate = median(Offspring_BirthDate),
+                  FatherAnonID = list(FatherAnonID),
+                  Father_Age = list(Father_Age),
+                  .groups = 'drop')%>%
+        # ungroup()%>%
+        dplyr::select(-litter)%>%
+        rename(MotherAnonID = ParentAnonID,
+               InstitutionAnonID = Offspring_Inst)
+      
+      littSizeDf <- rbind(littSizeDf, parid)
+    }
+    
+    littSizeDf<- littSizeDf%>%tidyr::unnest(c(FatherAnonID,Father_Age))%>%distinct()%>%
+      group_by (MotherAnonID, InstitutionAnonID, litterSize, MeanBirthDate, Mother_Age)%>%
+      summarize(FatherAnonID = list(FatherAnonID),
+                Father_Age = list(Father_Age),
+                .groups = 'drop')
+    
+    if (nrow(littSizeDf)>= MinNLitter)  {
+      littSizeTab <- littSizeDf%>%
+        group_by(litterSize)%>%
+        summarise( N = n(),
+                   prop = n()/nrow(littSizeDf),
+                   .groups = 'drop')
+      
+      
+      littSizeperAge <- littSizeDf%>%
+        group_by(Mother_Age)%>%
+        summarise(MeanlittSize = mean(litterSize),
+                  SDlittSize = sd(litterSize),
+                  Nlitter = n(),
+                  .groups = 'drop')%>%
+        ungroup()
+      
+      # Summary
+      littSumm$MeanLittSize =  mean(littSizeDf$litterSize)
+      littSumm$MedLittSize = median(littSizeDf$litterSize)
+      littSumm$SdLittSize = median(littSizeDf$litterSize)
+      littSumm$analyzed = TRUE 
+      littSumm$NReprEvent= sum(littSizeTab$N)
+    }else{
+      littSumm$error = glue::glue("N litter < {MinNLitter}")
+      littSumm$Nerr = 5
+    }
+  }else{
+    littSumm$error = glue::glue("No births with Parentage probability higher than {parentProb}")
+    littSumm$Nerr = 4
+    
+  }
+  return(list(summary = littSumm, littSizeDf = littSizeDf,  
+              littSizeTab =  littSizeTab, littSizeperAge = littSizeperAge))
 }

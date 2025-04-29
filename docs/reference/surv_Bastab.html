@@ -71,6 +71,7 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">surv_Bastab</span><span class="op">(</span></span>
 <span>  <span class="va">coresubset</span>,</span>
+<span>  <span class="va">DeathInformation</span>,</span>
 <span>  earliestDate <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  latestDate <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  otherCovars <span class="op">=</span> <span class="cn">NA</span>,</span>
@@ -81,7 +82,11 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>coresubset</dt>
-<dd><p><code>data.frame</code> including at least the following columns <em>anonID</em>, <em>species</em>, <em>binSpecies</em>, <em>Class</em>, <em>Order</em>, <em>Family</em>, <em>common</em>, <em>BirthDate</em>, <em>DepartDate</em>, <em>EntryDate</em>, <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>EntryType</em>, <em>DepartType</em>, and <em>causeDeath</em></p></dd>
+<dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em>, <em>binSpecies</em>, <em>Class</em>, <em>Order</em>, <em>Family</em>, <em>CommonName</em>, <em>BirthDate</em>, <em>DepartDate</em>, <em>EntryDate</em>, <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>EntryType</em>, and <em>DepartType</em></p></dd>
+
+
+<dt>DeathInformation</dt>
+<dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em> and <em>RelevantDeathInformationType</em></p></dd>
 
 
 <dt>earliestDate</dt>
@@ -119,8 +124,10 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">out</span><span class="op">&lt;-</span> <span class="fu">surv_Bastab</span><span class="op">(</span><span class="va">core</span>, earliestDate <span class="op">=</span> <span class="st">'1990-01-01'</span>, latestDate <span class="op">=</span> <span class="st">'2020-12-31'</span>, </span></span>
-<span class="r-in"><span>                  otherCovars <span class="op">=</span> <span class="cn">NA</span>, excludeStillbirth <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span><span class="op">&lt;-</span> <span class="fu">surv_Bastab</span><span class="op">(</span><span class="va">core</span>, DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>,</span></span>
+<span class="r-in"><span>                  earliestDate <span class="op">=</span> <span class="st">'1990-01-01'</span>, latestDate <span class="op">=</span> <span class="st">'2020-12-31'</span>, </span></span>
+<span class="r-in"><span>                  otherCovars <span class="op">=</span> <span class="st">"SexType"</span>, excludeStillbirth <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

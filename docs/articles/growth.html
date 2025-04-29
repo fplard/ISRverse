@@ -115,7 +115,7 @@ model for the sexes and birth types selected. It takes as arguments:</p>
 <li>
 <code>species</code>: the name of the species studied</li>
 <li>
-<code>BirthType</code>: Captive and/or Wild Default = NULL</li>
+<code>Birth_Type</code>: “Captive”, “Wild”, and/or “All”</li>
 <li>
 <code>agemat</code>: age at sexual maturity</li>
 <li>
@@ -126,6 +126,9 @@ chapmanRichards, vonBertalanffy, polynomial</li>
 <code>percentiles</code>: indicating the percentiles that need to be
 estimated. default = c(2.5,97.5) corresponding to the 95% predicted
 interval.</li>
+<li>
+<code>minInstitution</code> Minimum number of institutions that
+should hold records to run the analysis.</li>
 <li>
 <code>minNgro</code>: Minimum number of weight needed to fit the
 growth models</li>
@@ -155,9 +158,7 @@ NWeight_raw indicate the number of unique individuals and the number of
 weights once the sex, the birth type, the measurment type from global
 collection have been selected - NWeight_val and NInd_val indicate the
 number of unique individuals and the number of weights once valid
-measurment from Husbandry have been selected - NWeight_age = 0 and
-NInd_age indicate the number of unique individuals and the number of
-weights once negative age has been removed. - NJuv= 0 and NAd indicate
+measurment from Husbandry have been selected - NJuv= 0 and NAd indicate
 the number of weights of juveniles and adults selected - NJuv_keep= 0
 and NAd_keep indicate the number of weights of juveniles and adults
 selected after removing outliers - NWeight and NInd indicate the total
@@ -168,11 +169,11 @@ are returned: The possibility for this functions are: 1/No raw data and
 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight &lt;
 minNgro 5/NInd &lt; minNIgro 6/Best model did not fit.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">raw_weights</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
-<span><span class="va">output</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_Main.html">Gro_Main</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw_weights</span>, coresubse <span class="op">=</span> <span class="va">core</span>,</span>
-<span>                 taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, species <span class="op">=</span> <span class="st">"Gorilla gorilla"</span> ,</span>
-<span>                 BirthType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, agemat <span class="op">=</span> <span class="fl">1</span>,</span>
+<span><span class="va">output</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_Main.html">Gro_Main</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, coresubse <span class="op">=</span> <span class="va">core</span>,</span>
+<span>                 taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, species <span class="op">=</span> <span class="st">"Testudo hermanni"</span> ,</span>
+<span>                 Birth_Type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, agemat <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                 type <span class="op">=</span> <span class="st">"weight"</span>, MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span>
 <span>                 minNgro <span class="op">=</span> <span class="fl">30</span>, minNIgro <span class="op">=</span> <span class="fl">30</span>, </span>
 <span>                 models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"logistic"</span><span class="op">)</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
@@ -189,10 +190,13 @@ measure. This function takes as arguments:</p>
 <li>
 <code>coresubse</code>: the core data of the species from ZIMS</li>
 <li>
-<code>BirthType</code> Captive, Wild, or All Default = “All”</li>
+<code>Birth_Type</code> Captive, Wild, or All Default = “All”</li>
 <li>
 <code>mindate</code> Earlier date to include data
 (‘YYYY-MM-DD’)</li>
+<li>
+<code>uncert_date</code> Maximum uncertainty accepted for
+measurement dates, in days</li>
 <li>
 <code>MeasureType</code> Name of the type of measurement that should
 be included. Default = NULL, all measurement type are included.</li>
@@ -206,16 +210,14 @@ NInd_raw and, NWeight_raw indicate the number of unique individuals and
 the number of weights once the sex, the birth type, the measurment type
 from global collection have been selected - NWeight_val and NInd_val
 indicate the number of unique individuals and the number of weights once
-valid measurment from Husbandry have been selected - NWeight_age = 0 and
-NInd_age indicate the number of unique individuals and the number of
-weights once negative age has been removed. - If no data are selected,
-an error and its number (Nerr) are returned: The possibility for this
-functions are: 1/No raw data and 2/No valid weight measure.</p>
+valid measurment from Husbandry have been selected - If no data are
+selected, an error and its number (Nerr) are returned: The possibility
+for this functions are: 1/No raw data and 2/No valid weight measure.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">raw_weights</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
-<span><span class="va">data_weights</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_cleanmeasures.html">Gro_cleanmeasures</a></span><span class="op">(</span><span class="va">raw_weights</span>, <span class="va">core</span>,</span>
-<span>                                BirthType <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span><span class="va">data_weights</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_cleanmeasures.html">Gro_cleanmeasures</a></span><span class="op">(</span><span class="va">weights</span>, <span class="va">core</span>,</span>
+<span>                                Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>                                MeasureType <span class="op">=</span> <span class="st">'Live weight'</span>,</span>
 <span>                                mindate <span class="op">=</span> <span class="st">"1980-01-01"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -223,47 +225,17 @@ functions are: 1/No raw data and 2/No valid weight measure.</p>
 <h2 id="gro_remoutliers">gro_remoutliers<a class="anchor" aria-label="anchor" href="#gro_remoutliers"></a>
 </h2>
 <p>This function removes the outliers from a dataset of weights. This
-function takes as arguments:</p>
-<ul>
-<li>
-<code>data_weight</code> a data frame that must include at least the
-columns <code>MeasurementValue</code> and <code>Age</code>.</li>
-<li>
-<code>taxa</code> the name of the taxa studied</li>
-<li>
-<code>ageMat</code> the MINIMUM age at sexual maturity. The function
-takes as threshold 1.2*ageMat to differentiate juveniles (still growing)
-from adults</li>
-<li><code>maxweight</code></li>
-<li>
-<code>variableid</code> name of the column including individual IDs.
-Defaut = “anonID”. It must also be a column of
-<code>data_weight</code>
-</li>
-<li>
-<code>minq</code> Sensitivity of the function to remove outliers
-using percentiles, between 0 and 1. Default = 0.025</li>
-<li>
-<code>IQR</code> influences the sensitivity of the function to
-remove outliers using generalized additive model of growth. It should be
-above 1 Default = 2.75. A higher number makes the function less
-sensitive to find outliers.</li>
-<li>
-<code>perc_weight_min</code> Minimum percentage of weight that an
-individual can naturally lose or gain during a year . Default = 0.2
-(20%)</li>
-<li>
-<code>perc_weight_max</code> Maximum percentage of weight that an
-individual can naturally lose or gain during a year . Default = 2.5
-(250%)</li>
-</ul>
+function takes as arguments:
+<code>*</code>data_weight<code>a data frame that must include at least the columns</code>MeasurementValue<code>,</code>MeasurementType<code>, and</code>Age<code>. *</code>taxa<code>the name of the taxa studied *</code>ageMat<code>the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults *</code>maxweight<code>*</code>variableid<code>name of the column including individual IDs. Defaut = "AnimalAnonID". It must also be a column of</code>data_weight<code>*</code>minq<code>Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025 *</code>IQR<code>influences the sensitivity of the function to remove outliers using generalized additive model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers. *</code>perc_weight_min<code>Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%) *</code>perc_weight_max`
+Maximum percentage of weight that an individual can naturally lose or
+gain during a year . Default = 2.5 (250%)</p>
 <p>This function follow 4 different steps to highlight outliers: 1/ It
 removes the measures higher than the argument <code>maxweight</code>
 (Instead of using the OrdMag Fernando that was removing only very
 extreme values, a maximum value was set for each taxa). In the default
 case, default values are in kilograms and are set at 7000kg for
 Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia,
-1000kg for Chondrichthyes and 500kg for Actinopterygii. 2/ Independently
+1000kg for Chondrichthyes and 500kg for Osteichthyes. 2/ Independently
 on adults and juveniles, it uses the function Gro_Rout_quan() to removes
 outliers based on percentiles on adults and juveniles. It uses sliding
 windows of age for juveniles. You can choose the number of intervals
@@ -283,7 +255,8 @@ to 3, and the column juv indicates which individuals have been
 classified as juveniles.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
-<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span>
+<span>                          taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="remove-outliers-from-percentiles">Remove outliers from percentiles<a class="anchor" aria-label="anchor" href="#remove-outliers-from-percentiles"></a>
 </h3>
@@ -298,7 +271,7 @@ does not remove the 2 youngest and 2 oldest individuals.</p>
 <span><span class="fu"><a href="../reference/Gro_Rout_quan.html">Gro_Rout_quan</a></span> <span class="op">(</span><span class="va">z</span>,<span class="va">x</span>, minq <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt;  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="linearize-individual-trajectories">Linearize individual trajectories<a class="anchor" aria-label="anchor" href="#linearize-individual-trajectories"></a>
@@ -308,7 +281,7 @@ does not remove the 2 youngest and 2 oldest individuals.</p>
 <li>
 <code>data_weight</code> a data frame that must include at least the
 columns <code>MeasurementValue</code> and <code>Age</code>and
-<code>anonID</code>
+<code>AnimalAnonID</code>
 </li>
 <li>
 <code>perc_weight_min</code> Minimum percentage of weight that an
@@ -342,66 +315,89 @@ values that must be considered as outliers.</p>
 <span></span>
 <span><span class="co">#We use only trajectories for which the number of individual datapoints is &gt; 6</span></span>
 <span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">anonID</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">AnimalAnonID</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>nb<span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nb</span> <span class="op">&gt;</span><span class="fl">6</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">weights_ind</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">weights_ind</span><span class="op">$</span><span class="va">Keep2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;   [38] 1 1 0 1 1 1 1 1 1 1 1 1 1 0 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;    [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1</span></span>
+<span><span class="co">#&gt;   [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt;   [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [112] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [149] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [186] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0</span></span>
-<span><span class="co">#&gt;  [223] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [260] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
-<span><span class="co">#&gt;  [297] 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
-<span><span class="co">#&gt;  [334] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [371] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1</span></span>
-<span><span class="co">#&gt;  [408] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [445] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0</span></span>
-<span><span class="co">#&gt;  [482] 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [519] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [556] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0</span></span>
-<span><span class="co">#&gt;  [593] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [630] 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [667] 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1</span></span>
-<span><span class="co">#&gt;  [704] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [741] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [778] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [815] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [852] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [889] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [926] 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [963] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1</span></span>
-<span><span class="co">#&gt; [1000] 1 1 1 1 1 0 1 0 1 1 1 0 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1037] 1 1 0 1 1 0 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1</span></span>
-<span><span class="co">#&gt; [1074] 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 1 0 1 1</span></span>
-<span><span class="co">#&gt; [1111] 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1</span></span>
-<span><span class="co">#&gt; [1148] 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1185] 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1222] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1259] 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1296] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 0 1 1</span></span>
-<span><span class="co">#&gt; [1333] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 0 1 1</span></span>
-<span><span class="co">#&gt; [1370] 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1444] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1481] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1518] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1555] 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1592] 1 0 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 0 1 1 1</span></span>
-<span><span class="co">#&gt; [1629] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1666] 1 1 1 1 0 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1703] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1740] 1 1 1 0 1 1 1 0 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0</span></span>
-<span><span class="co">#&gt; [1777] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1814] 1 1 0 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 0 1 1 1 1 1 0 0 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1851] 1 1 1 0 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1888] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1925] 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [112] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [149] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [186] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [223] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [260] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0</span></span>
+<span><span class="co">#&gt;  [297] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [334] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 0 0 0 0 1 1</span></span>
+<span><span class="co">#&gt;  [371] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [408] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 1 1 1 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [445] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [482] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [519] 1 1 0 0 1 0 1 0 0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [556] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [593] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [630] 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [667] 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [704] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 1 0 1 0</span></span>
+<span><span class="co">#&gt;  [741] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1</span></span>
+<span><span class="co">#&gt;  [778] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [815] 1 1 1 1 1 1 1 1 1 1 1 0 0 1 0 0 0 0 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [852] 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [889] 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 0 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [926] 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;  [963] 1 1 1 1 1 1 1 1 1 0 0 1 1 0 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1000] 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1037] 1 1 1 1 0 0 0 0 1 0 1 0 0 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1074] 1 1 1 0 0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 0 1 1 0 0 0 0 0 1 0 0 0 1</span></span>
+<span><span class="co">#&gt; [1111] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1148] 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1185] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 0 0 0 1 0 0 0</span></span>
+<span><span class="co">#&gt; [1222] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1259] 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1296] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1333] 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 0 1 0 0 0 1 1 0 1 0 0 1 0 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1370] 0 0 1 0 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
+<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1444] 1 1 1 0 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0</span></span>
+<span><span class="co">#&gt; [1481] 0 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 0 0 1 1</span></span>
+<span><span class="co">#&gt; [1518] 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1555] 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1592] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1629] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1666] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1703] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1740] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1777] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1814] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1851] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1888] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1925] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1962] 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 0 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1999] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2036] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2073] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2110] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2147] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2184] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2221] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2258] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2295] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2332] 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2369] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
+<span><span class="co">#&gt; [2406] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2443] 1 0 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0</span></span>
+<span><span class="co">#&gt; [2480] 0 0 0 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2517] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2554] 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2591] 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0</span></span>
+<span><span class="co">#&gt; [2628] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2665] 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0</span></span>
+<span><span class="co">#&gt; [2702] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2739] 1 1 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; [2776] 0 0 1 1 0</span></span>
 <span></span>
 <span><span class="va">weights_pop</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -425,10 +421,16 @@ the inter quartile range * in cyan if detected using individual
 trajectories * in blue if detected from the global log-linear model</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
-<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span>
+<span>                          taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gro_outplot.html">Gro_outplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, </span>
 <span>                 title <span class="op">=</span> <span class="st">"Species A"</span>, ylimit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">p</span></span></code></pre></div>
+<span><span class="va">p</span></span>
+<span><span class="co">#&gt; Warning: Removed 3 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_point()`).</span></span>
+<span><span class="co">#&gt; Removed 3 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_point()`).</span></span></code></pre></div>
 <p><img src="growth_files/figure-html/example-Gro_outplot-1.png" width="700"></p>
 </div>
 </div>
@@ -443,7 +445,7 @@ best one by AIC and estimates the percentiles of the predicted
 distribution of values. It takes as arguments:</p>
 <ul>
 <li>data_weight including at least the numeric columns <em>Age</em>,
-<em>MeasurementValue</em> and <em>anonID</em>
+<em>MeasurementValue</em> and <em>AnimalAnonID</em>
 </li>
 <li>all_mods indicating the growth models that need to be fit.The
 following models are supported : logistic, gompertz, chapmanRichards,
@@ -453,9 +455,11 @@ default = c(2.5,97.5) corresponding to the 95% predicted interval.</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">anonID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span> <span class="op">+</span> <span class="va">anonID</span><span class="op">*</span><span class="fl">0.1</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
-<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span>, anonID <span class="op">=</span> <span class="va">anonID</span><span class="op">)</span></span>
+<span><span class="va">AnimalAnonID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> </span>
+<span>                          <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span> <span class="op">+</span> <span class="va">AnimalAnonID</span><span class="op">*</span><span class="fl">0.1</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span>, </span>
+<span>                 AnimalAnonID <span class="op">=</span> <span class="va">AnimalAnonID</span>, MeasurementType <span class="op">=</span> <span class="st">"Live Weight"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_analysis.html">Gro_analysis</a></span><span class="op">(</span><span class="va">dat</span>, </span>
 <span>                   all_mods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"vonBertalanffy"</span>, <span class="st">"gam"</span><span class="op">)</span>, </span>
@@ -480,49 +484,9 @@ polynomial</li>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">logz</span> <span class="op">&lt;-</span> <span class="fl">0.2</span><span class="op">+</span> <span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">logx</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>logx <span class="op">=</span> <span class="va">logx</span>, logz <span class="op">=</span> <span class="va">logz</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/Gro_fitlog.html">Gro_fitlog</a></span><span class="op">(</span>num <span class="op">=</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">dat</span>, all_mods <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $fit</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; bbmle::mle2(minuslogl = modSett$growthMod, start = modSett$gamstart, </span></span>
-<span><span class="co">#&gt;     fixed = list(LL = T), data = data, parnames = modSett$namesCoef)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Coefficients:</span></span>
-<span><span class="co">#&gt;         gamma          zinf            z0            LL </span></span>
-<span><span class="co">#&gt; -1.084526e-02 -2.380124e+03 -9.044891e+00  1.000000e+00 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Log-likelihood: -37609.58 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Warning: optimization did not converge (code 1: )</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tab</span></span>
-<span><span class="co">#&gt; $tab$index</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tab$model</span></span>
-<span><span class="co">#&gt; [1] "vonBertalanffy"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tab$k</span></span>
-<span><span class="co">#&gt; [1] 3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tab$LSQ</span></span>
-<span><span class="co">#&gt; 'log Lik.' 37609.58 (df=3)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $growthMod</span></span>
-<span><span class="co">#&gt; function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span></span>
-<span><span class="co">#&gt; {</span></span>
-<span><span class="co">#&gt;     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span></span>
-<span><span class="co">#&gt;     if (LL) {</span></span>
-<span><span class="co">#&gt;         return(sum((logz - zEst)^2))</span></span>
-<span><span class="co">#&gt;     }</span></span>
-<span><span class="co">#&gt;     else {</span></span>
-<span><span class="co">#&gt;         return(zEst)</span></span>
-<span><span class="co">#&gt;     }</span></span>
-<span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x000001d93be41a38&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span></code></pre></div>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>logx <span class="op">=</span> <span class="va">logx</span>, logz <span class="op">=</span> <span class="va">logz</span>,AnimalAnonID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gro_fitlog.html">Gro_fitlog</a></span><span class="op">(</span>num <span class="op">=</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">dat</span>, all_mods <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="growth-model-setting">Growth Model Setting<a class="anchor" aria-label="anchor" href="#growth-model-setting"></a>
@@ -546,17 +510,13 @@ polynomial</li>
 <span></span>
 <span><span class="fu"><a href="../reference/Gro_ModSettings.html">Gro_ModSettings</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, model <span class="op">=</span> <span class="st">"vonBertalanffy"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $growthMod</span></span>
-<span><span class="co">#&gt; function (gamma = 0.5, zinf = 0, z0 = 0, LL = F, logx, logz = 0) </span></span>
-<span><span class="co">#&gt; {</span></span>
-<span><span class="co">#&gt;     zEst &lt;- z0 + zinf * (1 - exp(-gamma * logx))</span></span>
-<span><span class="co">#&gt;     if (LL) {</span></span>
-<span><span class="co">#&gt;         return(sum((logz - zEst)^2))</span></span>
-<span><span class="co">#&gt;     }</span></span>
-<span><span class="co">#&gt;     else {</span></span>
-<span><span class="co">#&gt;         return(zEst)</span></span>
-<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt; function(gamma = 0.5 , zinf = 0, z0 = 0, LL = F, logx, logz = 0) {</span></span>
+<span><span class="co">#&gt;   zEst &lt;-z0 + zinf * (1 - exp(- gamma * logx))</span></span>
+<span><span class="co">#&gt;   if(LL){</span></span>
+<span><span class="co">#&gt;     return(sum((logz - zEst)^2))</span></span>
+<span><span class="co">#&gt;   }else{return(zEst)}</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x000001d93be41a38&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x000001758a7b1550&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $np</span></span>
@@ -570,13 +530,13 @@ polynomial</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart</span></span>
 <span><span class="co">#&gt; $gamstart$zinf</span></span>
-<span><span class="co">#&gt; [1] 116.7573</span></span>
+<span><span class="co">#&gt; [1] 136.2628</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$z0</span></span>
-<span><span class="co">#&gt; [1] -102.7867</span></span>
+<span><span class="co">#&gt; [1] -121.8487</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$gamma</span></span>
-<span><span class="co">#&gt; [1] 0.1317197</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.078123</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-model-prediction">Plot model prediction<a class="anchor" aria-label="anchor" href="#plot-model-prediction"></a>
@@ -585,7 +545,7 @@ polynomial</li>
 model with data points. It takes as arguments:</p>
 <ul>
 <li>data including at least the numeric columns <em>Age</em>,
-<em>MeasurementValue</em> and <em>anonID</em>
+<em>MeasurementValue</em> and <em>AnimalAnonID</em>
 </li>
 <li>data_percent including the predicted percentile from the growth
 model and the numeric columns <em>Age</em>, <em>percentiles50</em> and
@@ -594,9 +554,11 @@ other percentiles to plot.</li>
 </ul>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">anonID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span> <span class="op">+</span> <span class="va">anonID</span><span class="op">*</span><span class="fl">0.1</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
-<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span>, anonID <span class="op">=</span> <span class="va">anonID</span><span class="op">)</span></span>
+<span><span class="va">AnimalAnonID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fl">100</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">MeasurementValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">+</span><span class="fl">15</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Age</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> </span>
+<span>                          <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0</span>,<span class="fl">0.01</span><span class="op">)</span> <span class="op">+</span> <span class="va">AnimalAnonID</span><span class="op">*</span><span class="fl">0.1</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span> </span>
+<span><span class="va">dat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="va">Age</span>, MeasurementValue <span class="op">=</span> <span class="va">MeasurementValue</span>, </span>
+<span>                 AnimalAnonID <span class="op">=</span> <span class="va">AnimalAnonID</span>, MeasurementType <span class="op">=</span> <span class="st">"Live Weight"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">out</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_analysis.html">Gro_analysis</a></span><span class="op">(</span><span class="va">dat</span>, </span>
 <span>                   all_mods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logistic"</span>, <span class="st">"vonBertalanffy"</span>, <span class="st">"gam"</span><span class="op">)</span>, </span>

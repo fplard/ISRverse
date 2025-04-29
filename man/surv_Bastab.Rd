@@ -6,22 +6,25 @@
 \usage{
 surv_Bastab(
   coresubset,
-  earliestDate = NA,
-  latestDate = NA,
-  otherCovars = NA,
-  excludeStillbirth = FALSE
+  DeathInformation,
+  EarliestDate = NA,
+  LatestDate = NA,
+  OtherCovars = NA,
+  ExcludeStillBirth = FALSE
 )
 }
 \arguments{
-\item{coresubset}{\code{data.frame} including at least the following columns \emph{anonID}, \emph{species}, \emph{binSpecies}, \emph{Class}, \emph{Order}, \emph{Family}, \emph{common}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, \emph{DepartType}, and \emph{causeDeath}}
+\item{coresubset}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{binSpecies}, \emph{Class}, \emph{Order}, \emph{Family}, \emph{CommonName}, \emph{BirthDate}, \emph{DepartDate}, \emph{EntryDate}, \emph{MaxBirthDate}, \emph{MinBirthDate}, \emph{EntryType}, and \emph{DepartType}.}
 
-\item{earliestDate}{\code{character 'YYYY-MM-DD'} Earlier date to be included. Default = NA}
+\item{DeathInformation}{\code{data.frame} including at least the following columns \emph{AnimalAnonID} and \emph{RelevantDeathInformationType}.}
 
-\item{latestDate}{\code{character 'YYYY-MM-DD'} LAtest date to be included. Default = NA}
+\item{EarliestDate}{\code{character 'YYYY-MM-DD'} Earlier date to be included.}
 
-\item{otherCovars}{\code{vector of character}. Additional variables to include in the data Default = NA}
+\item{LatestDate}{\code{character 'YYYY-MM-DD'} Latest date to be included.}
 
-\item{excludeStillbirth}{\code{logical} Whether to exclude still births. Default = FALSE}
+\item{OtherCovars}{\code{vector of character}. Additional variables to include in the data.}
+
+\item{ExcludeStillBirth}{\code{logical} Whether to exclude still births.}
 }
 \value{
 the subset dataset in the basta format
@@ -33,7 +36,7 @@ Check column names and succession of dates to prepare the data for BASTA.
 This function removes:
 \itemize{
 \item individuals with NA in the columns BirthDate, MinBirthDate, MaxBirthDate, EntryDate, and DepartDate.
-\item individuals for which the dates from min birth date/ entry date to Depart date do not follow one another.
+\item individuals for which the dates from min birth date/entry date to Depart date do not follow one another in a logical order.
 \item Still born individuals if required
 \item individuals with depart date anterior to earliest date
 \item individuals with entry date posterior to latest date
@@ -42,8 +45,10 @@ This function removes:
 }
 \examples{
 data(core)
-out<- surv_Bastab(core, earliestDate = '1990-01-01', latestDate = '2020-12-31', 
-                  otherCovars = NA, excludeStillbirth = TRUE)
+data(deathinformation)
+out<- surv_Bastab(core, DeathInformation = deathinformation,
+                  EarliestDate = '1990-01-01', LatestDate = '2020-12-31', 
+                  OtherCovars = "SexType", ExcludeStillBirth = TRUE)
 
 
 }

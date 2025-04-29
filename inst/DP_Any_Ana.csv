@@ -1,0 +1,3 @@
+﻿"Class";"Species";"Sex";"Nselect";"Nlifespan";"GapThresh";"NThres";"Surv_Ana";"Surv_error";"Surv_model"
+"Reptilia";"Testudo hermanni";"Male";"234";"234";"99";"234";TRUE;"Kaplan-Meier does not fit";"GO"
+"Reptilia";"Testudo hermanni";"Female";"235";"235";"99";"235";TRUE;"Kaplan-Meier does not fit";"GO"

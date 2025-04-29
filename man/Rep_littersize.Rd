@@ -5,23 +5,23 @@
 \title{Litter Size}
 \usage{
 Rep_littersize(
-  Reprodata,
-  perAge = FALSE,
-  Nday = 7,
-  parentProb = 80,
-  minNlitter = 30
+  ReproData,
+  NDay = 7,
+  ParentPercDam = 80,
+  ParentPercSire = 80,
+  MinNLitter = 30
 )
 }
 \arguments{
-\item{Reprodata}{\code{data frame} including at least the columns \emph{AnonID}, \emph{ParentAnonID}, \emph{ParentType}, \emph{Probability}, \emph{Offspring_BirthDate}, \emph{Offspring_Inst} and \emph{ageBirth}}
+\item{ReproData}{\code{data frame} including at least the columns \emph{AnimalAnonID}, \emph{ParentAnonID}, \emph{ParentType}, \emph{Probability}, \emph{Offspring_BirthDate}, \emph{Offspring_Inst} and \emph{Parent_Age}.}
 
-\item{perAge}{\code{logical} Whether to estimate litter size per mother age. Default = FALSE}
+\item{NDay}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread.}
 
-\item{Nday}{\code{numeric} Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7}
+\item{ParentPercDam}{\code{numeric} Minimum percentage of parentage probability to include for Dam.}
 
-\item{parentProb}{\code{numeric} Minimum percentage of parentage probability to include. Default = 80}
+\item{ParentPercSire}{\code{numeric} Minimum percentage of parentage probability to include for Sire.}
 
-\item{minNlitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30}
+\item{MinNLitter}{\code{numeric} Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.}
 }
 \value{
 A list including:
@@ -38,11 +38,11 @@ A list including:
 \item MedLittSize: Median litter size
 \item SdLittSize: Standard deviation of litter size
 \item analyzed = FALSE,
-\item error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {minNlitter}
+\item error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than {parentProb} or  N litter < {MinNLitter}
 \item Nerr: The number id of the error
 }
 \itemize{
-\item if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age
+\item a table including the mean and standard deviation of litter size per maternal age
 }
 }
 \description{
@@ -54,11 +54,12 @@ data(collection)
 data(parent)
 data(moves)
 #prepare Data
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
+Data <- Rep_prepdata (coresubset = core, collection, parent, moves, MinNRepro = 1, MinNPaRepro = 1,
+                      BirthType_parent = "All", BirthType_offspring = "All" )
 
 #Estimate litter size
-out <- Rep_littersize(Data$Reprodata, perAge = TRUE,
-                           Nday = 7)
+out <- Rep_littersize(Data$ReproData, 
+                      NDay = 7)
 
-out$littSizeTab
+out
 }

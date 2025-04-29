@@ -13,6 +13,7 @@ library(testthat)
 library(assertthat)
 library(tidyverse)
 library(glue)
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 
@@ -30,17 +31,18 @@ This function is the main function used to run the growth analysis for taxon pro
 
 * `data`: the weight or length data from ZIMS
 * `coresubse`: the core data of the species from ZIMS
-* `taxa`: the name of the taxa studied
-* `species`: the name of the species studied
-* `BirthType`: Captive and/or Wild Default =  NULL
-* `agemat`: age at sexual maturity 
+* `Taxa`: the name of the taxa studied
+* `Species`: the name of the species studied
+* `BirthType`: "Captive", "Wild", and/or "All"
+* `AgeMat`: age at sexual maturity 
 * `models`: indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
 * `percentiles`: indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
-* `minNgro`: Minimum number of weight needed to fit the growth models
-* `minNIgro`: Minimum number of unique individuals needed to fit the growth models
+* `MinInstitution` Minimum number of institutions that should hold records to run the analysis. 
+* `MinNGro`: Minimum number of weight needed to fit the growth models
+* `MinNIGro`: Minimum number of unique individuals needed to fit the growth models
 * `type`: Either 'weight' or 'length'. Default =  'weight
 * `MeasureType`: Name of the type of measurements that should be included. 
-* `mindate`: Earlier date to include data
+* `MinDate`: Earlier date to include data
 * `PlotDir`: Directory to save the plots showing outliers and predictions from best models
 
 
@@ -49,45 +51,46 @@ The function returns a list including an analysis by sex and by birth type as in
 * A summary with the number of individuals and weight used for the analysis:
 - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
-- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 - NJuv= 0 and NAd indicate the number of weights of juveniles and adults selected
 - NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing outliers
 - NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
 - a logical indicated if the growth analysis was performed
--  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro 5/NInd < minNIgro 6/Best model did not fit.
+-  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < MinNGro 5/NInd < MinNIGro 6/Best model did not fit.
 
 ```{r function-Gro_Main}
 #' Main growth analysis for Taxon Profiles
 #'
 #'Select measures, remove outliers, select the best growth model and produce the percentile of the best fitting growth model for the sexes and birth types selected.
 #'
-#' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *CollectionScopeType*, *UnitOfMeasure*, *ExcludedFromNorms*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *anonID* and *AnonInstitutionID*.
-#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *Sex*, *anonID* and *Birthdate* (\code{date})
-#' @param taxa  \code{character} the name of the taxa studied
-#' @param species \code{character} the name of the species studied
-#' @param BirthType \code{vector of character} NULL, Captive and/or Wild Default =  NULL
-#' @param agemat \code{numeric} age at sexual maturity . Default = NULL
-#' @param models \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
+#' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *UnitOfMeasure*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *AnimalAnonID* and *RecordingInstitution*.
+#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID*, *BirthType* and *Birthdate* (\code{date})
+#' @param Taxa  \code{character} the name of the taxa studied
+#' @param Species \code{character} the name of the species studied
+#' @param BirthType \code{vector of character} "Captive", "Wild", and/or "All"
+#' @param AgeMat \code{numeric} age at sexual maturity.
+#' @param models \code{vector of characters} indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
 #' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
-#' @param minNgro \code{numeric} Minimum number of weight needed to fit the growth models
-#' @param minNIgro \code{numeric} Minimum number of unique individuals needed to fit the growth models
-#' @param type \code{character} Either 'weight' or 'length'. Default =  'weight
-#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default = NULL, all measurement type are included.
-#' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param PlotDir \code{character} Directory to save the plots. Default = NULL, no plot is saved
+#' @param UncertDate \code{numeric}: Maximum uncertainty accepted for measurement dates, in days
+#' @param MinNGro \code{numeric} Minimum number of weight needed to fit the growth models
+#' @param MinNIGro \code{numeric} Minimum number of unique individuals needed to fit the growth models
+#' @param MinInstitution \code{numeric} Minimum number of institutions that should hold records to run the analysis.
+#' @param type \code{character} Either 'weight' or 'length'.ht
+#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included.  Default: all measurement types are included.
+#' @param MinDate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param PlotDir \code{character} Directory to save the plots. Default: no plot is saved.
+#' @param PlotName \code{character} Name used to save the plot.
 #' 
 #' @return A list including an analysis by sex and by birth type as included in the input. Each analysis includes: 
 #' *  The fit of the growth models with the AIC table of the model, the fit of the best model, a data frame with the percentile selected and 3 GOF test including the normality of residuals and the test of trend in residuals against X and in the variance of the residuals.
 #' * A summary with the number of individuals and weight used for the analysis:
 #' - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 #' - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid  measurment from Husbandry have been selected
-#' - NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 #' - NJuv= 0 and NAd indicate the number of weights of juveniles and adults selected
 #' - NJuv_keep= 0 and NAd_keep indicate the number of weights of juveniles and adults selected after removing 
 #' outliers
 #' - NWeight and NInd indicate the total number of unique individuals and the number of weights used for the analysis
 #' - a logical indicated if the growth analysis was performed
-#' -  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < minNgro #' 5/NInd < minNIgro 6/Best model did not fit.
+#' -  If the growth analysis was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 1/No raw data and 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight < MinNGro #' 5/NInd < MinNIGro 6/Best model did not fit.
 #' If PlotDir is filled, 2 plots are produced: one showing the outliers removed from the data, and one showing the fit of the model on the data.
 #' 
 #' @import dplyr assertthat
@@ -98,32 +101,34 @@ The function returns a list including an analysis by sex and by birth type as in
 #'
 #' @examples
 Gro_Main <- function(data, coresubse,
-                     taxa, species ,
-                     BirthType = NULL, 
-                     agemat = NULL,
-                     type = "weight", MeasureType = NULL,
-                     minNgro = 30, minNIgro = 30, 
+                     Taxa, Species ,
+                     BirthType = "All", 
+                     AgeMat = NA,
+                     type = "weight", MeasureType = NULL, 
+                     MinInstitution = 1, UncertDate = 365,
+                     MinNGro = 30, MinNIGro = 30, 
                      models = "vonBertalanffy", percentiles = c(2.5,97.5),
                      PlotDir = NULL,
-                     mindate = "1980-01-01") 
+                     MinDate = "1980-01-01", PlotName = '') 
 {
-  mindate = lubridate::as_date(mindate)
+   # Check correct format for inputs ---------------------------------------------
+  MinDate = lubridate::as_date(MinDate)
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(coresubse))
-  assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
-  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "Sex", "anonID", "birthType"))
-  assert_that(is.date(mindate))
-  assert_that(is.character(taxa))
-  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+  assert_that(data %has_name% c("MeasurementValue", "MeasurementDate", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution"))
+  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "SexType", "AnimalAnonID", "BirthType"))
+  assert_that(is.date(MinDate))
+  assert_that(is.character(Taxa))
+  assert_that(Taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                           "Chondrichthyes", "Actinopterygii"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+              msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Actinopterygii'")
-  assert_that(is.character(species))
-   if(!is.null(BirthType)){
+  assert_that(is.character(Species))
     assert_that(is.character(BirthType))
-    assert_that(all(BirthType %in% c("Captive", "Wild")))
-  }
-  
+    assert_that(all(BirthType %in% c("Captive", "Wild", "All")))
+
+  assert_that(is.numeric(UncertDate))
+   assert_that(is.character(PlotName))
   
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
@@ -136,36 +141,35 @@ Gro_Main <- function(data, coresubse,
   if(!is.null(PlotDir)){
     checkmate::assert_directory_exists(PlotDir)
   }
-    assert_that(is.numeric( minNIgro))
-  assert_that( minNIgro > 0)
-  assert_that(is.numeric(minNgro))
-  assert_that(minNgro > 0)
-    assert_that(is.character(MeasureType))
+    assert_that(is.numeric( MinNIGro))
+  assert_that( MinNIGro > 0)
+  assert_that(is.numeric(MinNGro))
+  assert_that(MinNGro > 0)
 assert_that(is.character(models))
     assert_that(all(models %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
 
   output = list()
   
-  # ANALYSIS BY SEX ------------------------------------------------------------------
-   
+
   # ANALYSIS BY BIRTH TYPE ------------------------------------------------------------------
     for (bt in BirthType) {
       ouput <- Gro_cleanmeasures(data, coresubse = coresubse,
                                   BirthType = bt, type = type, 
+                                 UncertDate = UncertDate,
                                   MeasureType = MeasureType,
-                                  mindate = mindate,
+                                  MinDate = MinDate,
                                   corevariable = NULL, variablekeep =NULL)
       
       wAnalysis <- NULL    
-      list2 = list( agemat = agemat,
+      list2 = list( AgeMat = AgeMat,
                     NJuv = 0, NJuv_keep = 0,
                     NAd = 0, NAd_keep = 0, 
                     NWeight = 0, NInd = 0, analyzed = FALSE)
       summar = append(ouput$summar,list2)
       if(nrow(ouput$data)>0){
         data_weight <- ouput$data%>%
-          Gro_remoutliers (taxa = taxa, ageMat = agemat, maxweight = NULL, 
-                           variableid = "anonID", min_Nmeasures = 7,
+          Gro_remoutliers (Taxa = Taxa, AgeMat = AgeMat, maxweight = NULL, 
+                           variableid = "AnimalAnonID", min_Nmeasures = 7,
                            perc_weight_min=0.2, perc_weight_max=2.5,
                            IQR=2.75, minq=0.025, Ninterval_juv = 10)
         summar$NJuv = nrow(data_weight%>%filter(juv==1))
@@ -174,24 +178,24 @@ assert_that(is.character(models))
         summar$NAd_keep = nrow(data_weight%>%filter(juv==0, KEEP == 1))
         
         if(!is.null(PlotDir)){
-          p1 <-Gro_outplot(data, title = glue("{species}_{bt}"), ylimit = NULL, xlimit = NULL)
-          ggsave(p1, filename = glue("{PlotDir}/{species}_{bt}_outliers.png"))
+          p1 <-Gro_outplot(data_weight, title = glue("{PlotName}_{bt}"), ylimit = NULL, xlimit = NULL)
+          ggsave(p1, filename = glue("{PlotDir}/{PlotName}_{bt}_outliers.png"), height = 6, width = 6)
         }
         
         data_weight <- data_weight %>%filter(KEEP ==1)
         
-        if(length(unique(data_weight$AnonInstitutionID))>1){
+        if(length(unique(data_weight$RecordingInstitution))>= MinInstitution){
           
           #Take distinct measures are there are some duplicates within raw data
           datsub = data_weight%>%
-            dplyr::select(-AnonInstitutionID)%>%
+            dplyr::select(-RecordingInstitution)%>%
             distinct()
           
           summar$NWeight <- nrow(datsub)
-          summar$NInd <-  length(unique(datsub$anonID))
+          summar$NInd <-  length(unique(datsub$AnimalAnonID))
           
-          if (summar$NWeight >= minNgro) {
-            if (summar$NInd >= minNIgro) {
+          if (summar$NWeight >= MinNGro) {
+            if (summar$NInd >= MinNIGro) {
               summar$analyzed = TRUE
               wAnalysis <- Gro_analysis(data_weight = datsub, 
                                         all_mods = models, 
@@ -199,8 +203,8 @@ assert_that(is.character(models))
               
               if(!is.null(PlotDir)){
                 p2 <-Gro_plot(data = datsub, data_percent = wAnalysis$percent,
-                              title =  glue("{species}_{bt}"))
-                ggsave(p2, filename = glue("{PlotDir}/{species}_{bt}_growth.png"))
+                              title =  glue("{PlotName}_{bt}"))
+                ggsave(p2, filename = glue("{PlotDir}/{PlotName}_{bt}_growth.png"), height = 6, width = 6)
               }
               
               #condition on model fit
@@ -210,12 +214,12 @@ assert_that(is.character(models))
               }
             } else {
               summar$Nerr = 5 
-              summar$error = "NInds < minNIgro"
+              summar$error = "NInds < MinNIGro"
               wAnalysis<-  NULL
             }
           } else {
             summar$Nerr = 4 
-            summar$error = "NWeight < minNgro"
+            summar$error = "NWeight < MinNGro"
             wAnalysis<-  NULL 
           }
         } else {
@@ -234,48 +238,48 @@ assert_that(is.character(models))
 
 
 ```{r examples-Gro_Main}
-data(raw_weights)
+data(weights)
 data(core)
-output= Gro_Main(data = raw_weights, coresubse = core,
-                 taxa = "Mammalia", species = "Gorilla gorilla" ,
-                 BirthType = c("Captive", "Wild"), agemat = 1,
+output= Gro_Main(data = weights, coresubse = core,
+                 Taxa = "Reptilia", Species = "Testudo hermanni" ,
+                 BirthType = c("Captive", "Wild"), AgeMat = 1,
                  type = "weight", MeasureType = "Live weight",
-                 minNgro = 30, minNIgro = 30, 
+                 MinNGro = 30, MinNIGro = 30, 
                  models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
 ```
 
 
 
 ```{r tests-Gro_Main}
-data(raw_weights)
+data(weights)
 data(core)
 
 
 test_that("Gro_ana Captive works", {
-  output= Gro_Main(data = raw_weights, coresubse = core,
-                   taxa = "Mammalia", species = "Gorilla gorilla" ,
+  output= Gro_Main(data = weights, coresubse = core,
+                   Taxa = "Reptilia", Species = "Testudo hermanni" ,
                    BirthType = c("Captive", "Wild"), 
-                   agemat = 1,
+                   AgeMat = 1,
                    type = "weight", MeasureType = "Live weight",
-                   minNgro = 30, minNIgro = 30, 
+                   MinNGro = 30, MinNIGro = 30, 
                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
   
   expect_named(output,c("Captive", "Wild"))
   expect_named(output$Captive,c("wSummar", "weightQ"))
   expect_named(output$Captive$wSummar,
                c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", 
-                 "NWeight_age", "NInd_age", "error", "Nerr", "agemat", "NJuv", 
+                 "error", "Nerr", "AgeMat", "NJuv", 
                  "NJuv_keep", "NAd", "NAd_keep", "NWeight", "NInd", "analyzed"))
-  expect_equal(output$Captive$wSummar$NWeight_raw, 1072)
+  expect_equal(output$Captive$wSummar$NWeight_raw, 2393)
   expect_equal(output$Captive$wSummar$Nerr, 6)
-  expect_equal(output$Captive$wSummar$NWeight, 753)
+  expect_equal(output$Captive$wSummar$NWeight, 2307)
   expect_true(output$Captive$wSummar$analyzed)
   expect_match(output$Captive$wSummar$error,"Model did not fit")
-  expect_equal(output$Wild$wSummar$NJuv, 0)
-  expect_equal(output$Wild$wSummar$Nerr, 1)
-  expect_equal(output$Wild$wSummar$NAd, 0)
-  expect_false(output$Wild$wSummar$analyzed)
-  expect_match(output$Wild$wSummar$error,"No raw data")
+  expect_equal(output$Wild$wSummar$NJuv, 183)
+  expect_equal(output$Wild$wSummar$Nerr, 6)
+  expect_equal(output$Wild$wSummar$NAd, 2205)
+  expect_true(output$Wild$wSummar$analyzed)
+  expect_match(output$Wild$wSummar$error,"Model did not fit")
   expect_named(output$Captive$weightQ, c("percent", "fit", "AIC_tab", "GOF"))
   
 })
@@ -290,7 +294,8 @@ This function is used to prepare weight and length dataset. It unify the unity u
 * `data`: the weight or length data from ZIMS
 * `coresubse`: the core data of the species from ZIMS
 * `BirthType` Captive, Wild, or All Default =  "All"
-* `mindate` Earlier date to include data ('YYYY-MM-DD')
+* `MinDate` Earlier date to include data ('YYYY-MM-DD')
+* `UncertDate` Maximum uncertainty accepted for measurement dates, in days
 * `MeasureType` Name of the type of measurement that should be included. Default = NULL, all measurement type are included.
 * `type` Either 'weight' or 'length'.
 
@@ -299,7 +304,6 @@ The function returns a list including:
 * A summary with the number of individuals and weight:
 - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
-- NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 -  If no data are selected, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure.
 
 
@@ -308,21 +312,21 @@ The function returns a list including:
 #'
 #'Select clean measures, unify the unity used and add individual age at each measure
 #'
-#' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *CollectionScopeType*, *UnitOfMeasure*, *ExcludedFromNorms*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *anonID* and *AnonInstitutionID*.
-#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *Sex*, *anonID* and *Birthdate* (\code{date})
-#' @param BirthType \code{character} Captive, Wild, or All Default =  TRUE
-#' @param mindate \code{character 'YYYY-MM-DD'} Earlier date to include data
-#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included. Default = NULL, all measurement type are included.
-#' @param type \code{character} Either 'weight' or 'length'. Default =  'weight
-#' @param corevariable \code{vector character} Name of the core columns that must be added to data
-#' @param variablekeep \code{vector character} Name of the data columns that must also be returned
+#' @param data \code{data.frame} including the following columns *MeasurementValue*, *MeasurementDate*, *MeasurementDateStart*, *MeasurementDateEnd*, *UnitOfMeasure*, *EstimatedMeasurement*, *RecordType*, *MeasurementType*, *AnimalAnonID*, *RecordingInstitution*, and *Age*.
+#' @param coresubse \code{data.frame} including at least the following columns *binSpecies*, *SexType*, *AnimalAnonID* and *BirthType*.
+#' @param BirthType \code{character} Captive, Wild, or All.
+#' @param MinDate \code{character 'YYYY-MM-DD'} Earlier date to include data
+#' @param UncertDate \code{numeric}: Maximum uncertainty accepted for measurement dates, in days.
+#' @param MeasureType \code{vector of characters} Name of the type of measurements that should be included. Default: all measurement type are included.
+#' @param type \code{character} Either 'weight' or 'length'.
+#' @param corevariable \code{vector character} Name of the core columns that must be added to data.
+#' @param variablekeep \code{vector character} Name of the data columns that must also be returned.
 #' 
 #' @return A list including
 #' * The data frame including selected measures, plus individual birth date and individual age at each measure
 #' * A summary with the number of individuals and weight:
 #'         - NInd_raw  and, NWeight_raw indicate the number of unique individuals and the number of weights once the sex, the birth type, the measurment type from global collection have been selected
 #'           - NWeight_val and NInd_val indicate the number of unique individuals and the number of weights once valid measurment from Husbandry have been selected
-#'          - NWeight_age = 0 and NInd_age indicate the number of unique individuals and the number of weights once negative age has been removed.
 #'          -  If no data are selected, an error and its number (Nerr) are returned: The possibility for this functions are: 1/No raw data and 2/No valid weight measure.
 #' 
 #' @import dplyr assertthat
@@ -332,17 +336,19 @@ The function returns a list including:
 #' @examples
 Gro_cleanmeasures <- function(data, coresubse,
                               BirthType = "All", type = "weight", MeasureType = NULL,
-                               mindate = "1980-01-01",
+                               MinDate = "1980-01-01", UncertDate = 365,
                               corevariable = NULL, variablekeep =NULL) 
 {
-  mindate = lubridate::as_date(mindate)
+   # Check correct format for inputs ---------------------------------------------
+  MinDate = lubridate::as_date(MinDate)
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(coresubse))
-  assert_that(data %has_name% c("MeasurementValue", "MeasurementValue", "MeasurementDate", "CollectionScopeType", "UnitOfMeasure", "ExcludedFromNorms", "EstimatedMeasurement", "RecordType", "MeasurementType", "anonID", "AnonInstitutionID"))
-  assert_that(coresubse %has_name% c("BirthDate", "binSpecies", "Sex", "anonID", "birthType"))
+  assert_that(data %has_name% c("MeasurementValue", "MeasurementDate","MeasurementDateEstimateStart","MeasurementDateEstimateEnd", "UnitOfMeasure", "EstimatedMeasurement", "RecordType", "MeasurementType", "AnimalAnonID", "RecordingInstitution", "Age"))
+  assert_that(coresubse %has_name% c("binSpecies", "SexType", "AnimalAnonID", "BirthType"))
    assert_that(is.character(BirthType))
   assert_that(BirthType %in% c("Captive", "Wild", "All"))
-  assert_that(is.date(mindate))
+  assert_that(is.date(MinDate))
+  assert_that(is.numeric(UncertDate))
   
   
   if(!is.null(corevariable)) {
@@ -361,56 +367,37 @@ Gro_cleanmeasures <- function(data, coresubse,
   assertthat::assert_that(type %in% c("weight",'length'))
   summar <- list(NInd_raw = 0, NWeight_raw = 0, 
                  NWeight_val = 0, NInd_val =0, 
-                 NWeight_age = 0, NInd_age =0, 
                  error = "", Nerr = 0)
   
-  if(type =="weight"){
-    Units <- data.frame(unit = c("kilogram", "gram", 
-                                 "micrograms", "milligram", "ounce", 
-                                 "pound", "stone", "tonne"), 
-                        toKg = c(1,1/1000, 
-                                 10^{
-                                   -9
-                                 }, 10^{
-                                   -6
-                                 }, 0.0283495, 0.453592, 6.35029, 1000),
-                        stringsAsFactors = FALSE)
-    
-  }
-  if(type =="length"){
-    Units <- data.frame(unit = c("meter","m", "dm", "cm", "mm", 
-                                 "foot", "inch", 
-                                 "metre", "centimetre", "millimetre",  "kilometre"), 
-                        toKg = c(1,1, 10^{-1}, 10^{-2},10^{-3},
-                                 0.3048, 0.0254,
-                                 1, 10^{-2},10^{-3},10^{3}),
-                        stringsAsFactors = FALSE)
-    
-  }
-  Corevariable = c("binSpecies", "BirthDate", "Sex", "anonID", corevariable) 
-  Variablekeep = c(Corevariable,"AnonInstitutionID","MeasurementType", 
-                   "MeasurementDate", "Age", "MeasurementValue", "Unit", variablekeep)
+
+  Corevariable = c("binSpecies", "SexType", "AnimalAnonID", corevariable) 
+  Variablekeep = c(Corevariable,"RecordingInstitution","MeasurementType", "UnitOfMeasure",
+                   "MeasurementDate", "Age", "MeasurementValue",  variablekeep)
   
   
   
   if (BirthType != "All"){
     coresubse<- coresubse%>%
-      filter(stringr::str_detect(birthType, pattern = BirthType))
+      filter(stringr::str_detect(BirthType, pattern = BirthType))
   }
 
   
   data <- data%>%
-    filter(anonID %in% coresubse$anonID)%>%
-    mutate(MeasurementDate = lubridate::as_date(MeasurementDate))%>%
-    left_join(coresubse%>%dplyr::select(all_of(Corevariable)), by = "anonID")
+    filter(AnimalAnonID %in% coresubse$AnimalAnonID)%>%
+    mutate(MeasurementDate = lubridate::as_date(MeasurementDate),
+           MeasurementDateEstimateStart = lubridate::as_date(MeasurementDateEstimateStart),
+           MeasurementDateEstimateEnd = lubridate::as_date(MeasurementDateEstimateEnd),
+           Date_Uncert = MeasurementDateEstimateEnd - MeasurementDateEstimateStart)%>%
+    filter((Date_Uncert <= UncertDate)%>% replace_na(TRUE))%>%
+    left_join(coresubse%>%dplyr::select(all_of(Corevariable)), by = "AnimalAnonID")
   
   
   if(nrow(data)>0){
     if(!is.null(MeasureType)){
       data<- data%>%
-        filter(MeasurementType %in% MeasureType,
-               CollectionScopeType == "Global")}
-    summar$NInd_raw = length(unique(data$anonID))
+        filter(MeasurementType %in% MeasureType)
+      }
+    summar$NInd_raw = length(unique(data$AnimalAnonID))
     summar$NWeight_raw = nrow(data)
   }else{
     warnings('no common ID between measured data and core data')
@@ -418,71 +405,51 @@ Gro_cleanmeasures <- function(data, coresubse,
   
   if(nrow(data)>0){
     data<- data%>%
-      filter(MeasurementDate>= mindate,
+      filter(MeasurementDate>= MinDate,
              !is.na(MeasurementValue),
-             as.character(UnitOfMeasure) %in% Units$unit,
-             ExcludedFromNorms == 0 , 
+             !is.na(Age),
              EstimatedMeasurement == 0 , 
              MeasurementValue > 0,
-             RecordType == "Husbandry"
-      )
-    summar$NInd_val = length(unique(data$anonID))
+             RecordType == "",
+             Age >= 0
+      )%>%
+      dplyr::select(all_of(Variablekeep))
+    summar$NInd_val = length(unique(data$AnimalAnonID))
     summar$NWeight_val = nrow(data)
   }else{
-    summar$error = "No raw data"
+    summar$error = "No valid weight measure"
     summar$Nerr = 1
-  }
-  if (nrow(data) > 0) {
-    data <- data%>%
-      mutate(Age = as.numeric((MeasurementDate - BirthDate)/365.25))%>%
-      filter(Age >= 0)%>%
-      left_join(Units, by =c("UnitOfMeasure"= "unit"))%>%
-      mutate(MeasurementValue = MeasurementValue * toKg,
-             Unit = Units$unit[1])%>%
-      dplyr::select(all_of(Variablekeep))
-    summar$NInd_age = length(unique(data$anonID))
-    summar$NWeight_age = nrow(data)
-    
-  }
-  
-  if (nrow(data)== 0) {
-    data <- data.frame()
-    if(summar$Nerr==0){
-      summar$error = "No valid weight measure"
-      summar$Nerr = 2
-    }
-  }
-  
+    data <- data.frame()}
+
   return(list(data = data, summar = summar))
 }
 ```
 
 
 ```{r examples-Gro_cleanmeasures}
-data(raw_weights)
+data(weights)
 data(core)
-data_weights= Gro_cleanmeasures(raw_weights, core,
+data_weights= Gro_cleanmeasures(weights, core,
                                 BirthType = "All",
                                 MeasureType = 'Live weight',
-                                mindate = "1980-01-01")
+                                MinDate = "1980-01-01")
 ```
 
 
 
 ```{r tests-Gro_cleanmeasures}
-data(raw_weights)
+data(weights)
 data(core)
 
 test_that("Gro_cleanmeasures works", {
-  d=Gro_cleanmeasures(raw_weights, core)
+  d=Gro_cleanmeasures(weights, core)
   expect_named(
     d$data,
-    c("binSpecies", "BirthDate", "Sex", "anonID", "AnonInstitutionID", "MeasurementType", "MeasurementDate", "Age", "MeasurementValue", "Unit"))
+    c("binSpecies", "SexType", "AnimalAnonID", "RecordingInstitution", "MeasurementType", "UnitOfMeasure", "MeasurementDate", "Age", "MeasurementValue"))
   expect_named(
     d$summar,
-    c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", "NWeight_age", 
-      "NInd_age", "error", "Nerr"))
-  expect_true(unique(d$data$Unit) == "kilogram")
+    c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", "error", "Nerr"))
+  expect_true(unique(d$data$UnitOfMeasure) == "kg")
 })
 ```
 
@@ -491,19 +458,19 @@ test_that("Gro_cleanmeasures works", {
 # gro_remoutliers
 
 This function removes the outliers from a dataset of weights. This function takes as arguments:
-
-* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`.
-* `taxa` the name of the taxa studied
-* `ageMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults
+`
+* `data_weight` a data frame that must include at least the columns `MeasurementValue`, `MeasurementType`, and `Age`.
+* `Taxa` the name of the taxa studied
+* `AgeMat` the MINIMUM age at sexual maturity. The function takes as threshold 1.2*AgeMat to differentiate juveniles (still growing) from adults
 * `maxweight`
-* `variableid` name of the column including individual IDs. Defaut = "anonID". It must also be a column of `data_weight`
+* `variableid` name of the column including individual IDs. Defaut = "AnimalAnonID". It must also be a column of `data_weight`
 * `minq` Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
 * `IQR` influences the sensitivity of the function to remove outliers using generalized additive model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
 * `perc_weight_min`  Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
 * `perc_weight_max`  Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
 
 This function follow 4 different steps to highlight outliers:
-1/ It removes the measures higher than the argument `maxweight` (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).  In the default case, default values are in kilograms and are set at 7000kg for Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia, 1000kg for Chondrichthyes and 500kg for Actinopterygii.
+1/ It removes the measures higher than the argument `maxweight` (Instead of using the OrdMag Fernando that was removing only very extreme values, a maximum value was set for each taxa).  In the default case, default values are in kilograms and are set at 7000kg for Mammalia, 200kg for Aves, 1500kg for Reptilia, 100kg for Amphibia, 1000kg for Chondrichthyes and 500kg for Osteichthyes.
 2/ Independently on adults and juveniles, it uses the function Gro_Rout_quan() to removes outliers based on percentiles on adults and juveniles. It uses sliding windows of age for juveniles. You can choose the number of intervals used for the sliding windows using the argument `Ninterval_juv`.
 3/  Independently on adults and juveniles, it uses the function Gro_lin_ind() to build generalized additive models for each individual trajectories with at least `min_Nmeasures` measures and remove outliers based on the residuals of the models.
 4/  It uses the function Gro_lin_ind() to build a common generalized additive model for all growth trajectories and remove outliers based on the residuals of the models.
@@ -518,17 +485,17 @@ The function returns the data frame including the column `KEEP` a numeric vector
 #'
 #'Takes a data frame including weight measures and Age and look for possible outliers
 #'
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric})
-#' @param taxa  \code{character} the name of the taxa studied
-#' @param ageMat \code{numeric} the age at sexual maturity to differentiate juveniles (still growing) from adults
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *MeasurementType*,  *Age*  (\code{numeric}).
+#' @param Taxa  \code{character} Name of the taxa.
+#' @param AgeMat \code{numeric} Age at sexual maturity to differentiate juveniles (still growing) from adults.
 #' @param maxweight \code{numeric} the maximum weight allowed for the dataset
-#' @param variableid \code{character} name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight.Default = 6. It must be at least 5
-#' @param min_Nmeasures \code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5
-#' @param minq \code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025
+#' @param variableid \code{character} name of the variable including individual ids. It must also be a column of data_weight.
+#' @param min_Nmeasures \code{integer} Minimum number of measures for an individual to check outliers along its growth trajectory. It must be at least 5.
+#' @param minq \code{numeric} Sensitivity of the function to remove outliers using percentiles, between 0 and 1.
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers using log-linear model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers.
-#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)
-#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)
-#' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles. Default = 10
+#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default: 20%.
+#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250%.
+#' @param Ninterval_juv \code{integer} Number of intervals used for the sliding windows for juveniles.
 #' 
 #' @return The data frame including the additional column `KEEP` a numeric vector of 1 and 0 indicating the measures to keep. The 0 signal outliers. Other additional columns keep1, keep2, keep3 indicates the individuals highlighted as outliers (0) in steps 1 to 3 and the column juv indicates which individuals have been classified as juveniles.
 #' 
@@ -545,24 +512,27 @@ The function returns the data frame including the column `KEEP` a numeric vector
 #' @export
 #'
 #' @examples
-Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL, 
-                            variableid = "anonID", min_Nmeasures = 7,
+Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL, 
+                            variableid = "AnimalAnonID", min_Nmeasures = 7,
                             perc_weight_min=0.2, perc_weight_max=2.5,
                             IQR=2.75, minq=0.025, Ninterval_juv = 10) {
   
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(data_weight))
-  assert_that(data_weight %has_name% c("MeasurementValue", "Age"))
-  assert_that(taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                          "Chondrichthyes", "Actinopterygii"),
-              msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
-                          'Chondrichthyes', or 'Actinopterygii'")
+  assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
+  if(length(unique(data_weight$MeasurementType))==1){warnings( glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data should often include only one Measurement Type"))}
+  assert_that(Taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
+                          "Chondrichthyes", "Osteichthyes"),
+              msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+                          'Chondrichthyes', or 'Osteichthyes'")
   if(is.null(maxweight)){
-    if(taxa == "Mammalia")       maxweight = 7000
-    if(taxa == "Aves")           maxweight = 200
-    if(taxa == "Reptilia")       maxweight = 1500
-    if(taxa == "Amphibia")       maxweight = 100
-    if(taxa == "Chondrichthyes") maxweight = 1000
-    if(taxa == "Actinopterygii") maxweight = 500
+    maxweight = 10000000
+    if(Taxa == "Mammalia")       maxweight = 7000
+    if(Taxa == "Aves")           maxweight = 200
+    if(Taxa == "Reptilia")       maxweight = 1500
+    if(Taxa == "Amphibia")       maxweight = 100
+    if(Taxa == "Chondrichthyes") maxweight = 1000
+    if(Taxa == "Osteichthyes") maxweight = 500
   }
   assert_that(is.numeric(maxweight))
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
@@ -571,13 +541,13 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   assert_that(all(data_weight$MeasurementValue>0))
   assert_that(all(data_weight$Age>=0))
   
-  if(variableid != "anonID"){
+  if(variableid != "AnimalAnonID"){
     data_weight <- data_weight%>%
-      rename(anonID = !!sym(variableid))
+      rename(AnimalAnonID = !!sym(variableid))
   }
   
-  if(is.null(ageMat)){ageMat=1.5}
-  assert_that(is.numeric(ageMat))
+  if(is.na(AgeMat)){AgeMat=1.5}
+  assert_that(is.numeric(AgeMat))
   
   #1) Removes very large weights using maxweight ----
   data_weight <- data_weight%>%
@@ -587,13 +557,13 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   ### JUVENILES ----
   juv <- data_weight%>%
     mutate(juv = 1)%>%
-    filter(Age >= 0, Age < ageMat*1.2)
+    filter(Age >= 0, Age < AgeMat*1.2)
   if (nrow(juv) > 0) {
     
     ##a/Uses sliding windows to check outliers based on percentile of the distribution 
     #Make Ninterval_juv for sliding windows
     nInts = Ninterval_juv
-    windInts <- seq(0, ageMat, length = nInts+1)
+    windInts <- seq(0, AgeMat, length = nInts+1)
     numInt <- table(findInterval(juv$Age[juv$keep1==1], windInts))
     nWindInts <- 0
     ii <- 1
@@ -608,7 +578,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
         ii <- nInts
       }
     }
-    if (!ageMat %in% nWindInts)  nWindInts <- c(nWindInts, ageMat)
+    if (!AgeMat %in% nWindInts)  nWindInts <- c(nWindInts, AgeMat)
     nInts <- length(nWindInts) - 1
     juv$keep2 = juv$keep1
     for (iints in 1:nInts) {
@@ -622,7 +592,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
     
     ##b/Uses individual trajectories to find outliers for juveniles with at least 7 measures
     juv <-juv %>%
-      group_by(anonID,keep2)%>%
+      group_by(AnimalAnonID,keep2)%>%
       mutate(nb =  sum(keep2),
              la = length(unique(Age)))%>%
       dplyr::ungroup()
@@ -642,7 +612,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
   ### ADULTS ----
   ad <- data_weight%>%
     mutate(juv = 0)%>%
-    filter(Age >=  ageMat*1.2)
+    filter(Age >=  AgeMat*1.2)
   if (nrow(ad) > 0) {
     
     ##a/Check outliers based on percentile of the distribution 
@@ -652,7 +622,7 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
     
     ##b/Uses individual trajectories to find outliers for adults with at least 7 measures
     ad <-ad %>%
-      group_by(anonID,keep2)%>%
+      group_by(AnimalAnonID,keep2)%>%
       mutate(nb =  sum(keep2),
              la = length(unique(Age)))%>%
       dplyr::ungroup()
@@ -691,11 +661,12 @@ Gro_remoutliers <- function(data_weight, taxa, ageMat = NULL, maxweight = NULL,
 
 ```{r examples-Gro_remoutliers}
 data(weights)
-weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+                          Taxa = "Mammalia", AgeMat = 10)
 ```
 
 
-```{r development_examples-Gro_remoutliers}
+```{r development-Gro_remoutliers}
 plot(MeasurementValue ~Age, data = weights, ylim = c(0,400), xlim = c(0,50))
 #Show the four steps used to remove outliers
 #1/ using maximum value
@@ -713,25 +684,25 @@ points(MeasurementValue ~Age, data = weights%>%filter(KEEP==0, keep3==1),
 
 1#Individual trajectories
 i=0
-anon = unique(weights$anonID[weights$keep3==0 & weights$keep2==1 ])
+anon = unique(weights$AnimalAnonID[weights$keep3==0 & weights$keep2==1 ])
 i=i+1
 plot(MeasurementValue ~Age, data = weights%>%
-       filter(keep2==1, anonID == anon[i]))
+       filter(keep2==1, AnimalAnonID == anon[i]))
 points(MeasurementValue ~Age, data = weights%>%
-         filter(keep3==0, anonID == anon[i], keep2==1),
+         filter(keep3==0, AnimalAnonID == anon[i], keep2==1),
        col = "cyan", pch = 16)
 
 #Other tests
 # data(weights_lion)
-# weights = Gro_remoutliers(weights_lion, taxa = "Mammalia", ageMat =2, IQR = 2.75, minq=0.025)
+# weights = Gro_remoutliers(weights_lion, Taxa = "Mammalia", AgeMat =2, IQR = 2.75, minq=0.025)
 # data(weights_bison)
-# weights = Gro_remoutliers(weights_bison, taxa = "Mammalia", ageMat =10, IQR = 2.75, minq=0.025)
+# weights = Gro_remoutliers(weights_bison, Taxa = "Mammalia", AgeMat =10, IQR = 2.75, minq=0.025)
 # data(weights_meerkat)
-# weights = Gro_remoutliers(weights_meerkat, taxa = "Mammalia", ageMat =1, IQR = 2.75, minq=0.025)
+# weights = Gro_remoutliers(weights_meerkat, Taxa = "Mammalia", AgeMat =1, IQR = 2.75, minq=0.025)
 # data(weights_gorilla)
-# weights = Gro_remoutliers(weights_gorilla, taxa = "Mammalia", ageMat =12, IQR = 2.75, minq=0.025)
+# weights = Gro_remoutliers(weights_gorilla, Taxa = "Mammalia", AgeMat =12, IQR = 2.75, minq=0.025)
 # data(weights_chev)
-# weights = Gro_remoutliers(weights_chev, taxa = "Mammalia", ageMat =1, IQR = 2.75, minq=0.025,variableid ="AnonID")
+# weights = Gro_remoutliers(weights_chev, Taxa = "Mammalia", AgeMat =1, IQR = 2.75, minq=0.025,variableid ="AnimalAnonID")
 ```
 
 
@@ -739,14 +710,14 @@ points(MeasurementValue ~Age, data = weights%>%
 ```{r tests-Gro_remoutliers}
 
 test_that("Gro_remoutliers errors", {
-  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10),
+  expect_error(Gro_remoutliers(tibble(age = 2,MeasurementValue=5, MeasurementType ="Weight"), Taxa = "Mammalia", AgeMat = 10),
                msg = "data_weight does not have all of these name(s): 'MeasurementValue', 'Age'")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "mammalia", ageMat = 10),
-               msg = "taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), Taxa = "mammalia", AgeMat = 10),
+               msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
                           'Chondrichthyes', or 'Actinopterygii'")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3.3),
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5, MeasurementType ="Weight"), Taxa = "Mammalia", AgeMat = 10, min_Nmeasures = 3.3),
                msg = "min_Nmeasures should be an integer")
-  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5), taxa = "Mammalia", ageMat = 10, min_Nmeasures = 3),
+  expect_error(Gro_remoutliers(tibble(Age = 2,MeasurementValue=5, MeasurementType ="Weight"), Taxa = "Mammalia", AgeMat = 10, min_Nmeasures = 3),
                msg = "min_Nmeasures not greater than or equal to 5")
 })
 
@@ -754,9 +725,10 @@ test_that("Gro_remoutliers errors", {
 test_that("Gro_remoutliers works", {
   data = tibble(Age = c(rep(c(1:5),2),4),
                 MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
-                anonID = c(rep(1:2, each = 5),3))
+                MeasurementType = "Weight",
+                AnimalAnonID = c(rep(1:2, each = 5),3))
   
-  a= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
+  a= Gro_remoutliers(data, Taxa = "Mammalia", AgeMat = 10,
                      min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
   expect_true(sum(a$keep1) == 10)
   expect_true(sum(a$keep2) == 9)
@@ -778,8 +750,8 @@ The measurement values must be positive
 #'
 #' @param z  \code{numeric vector} Measurement values
 #' @param x  \code{numeric vector} Age
-#' @param minq \code{numeric} Sensitivity of the function to remove outliers, between 0 and 1. Default =  0.05
-#' @param type \code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened. Default =  0.05
+#' @param minq \code{numeric} Sensitivity of the function to remove outliers, between 0 and 1.
+#' @param type \code{character} "both", "lower", or "upper" to choose if the lower or upper part of the distribution should be screened.
 #'
 #' @return
 #' Vector of 0 and 1 indicating the measurement values to keep (=1) vs. the outliers (=0).
@@ -794,6 +766,7 @@ The measurement values must be positive
 #' @examples
 Gro_Rout_quan <- function (z, x, minq = 0.05, type = "both") 
 {
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.numeric(z))
   assert_that(is.numeric(x))
   assert_that(length(z) == length(x))
@@ -847,7 +820,7 @@ test_that("Gro_Rout_quan works", {
 
 This function takes as arguments:
 
-* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`and `anonID`
+* `data_weight` a data frame that must include at least the columns `MeasurementValue` and `Age`and `AnimalAnonID`
 * `perc_weight_min`  Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
 * `perc_weight_max`  Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
 * `IQR` influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
@@ -861,12 +834,12 @@ The function uses build generalized additive model of the measurement value in r
 #' 
 #' This function flag 
 #' 
-#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric}) and *anonID*
-#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default =  0.2 (20%)
-#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default =  2.5 (250%). This value is used only after 1 year old 
+#' @param data_weight \code{data.frame} including at least the following columns : *MeasurementValue* (\code{numeric}), *Age*  (\code{numeric}) and *AnimalAnonID*.
+#' @param perc_weight_min  \code{numeric} Minimum percentage of weight that an individual can naturally lose or gain during a year. Default : 20%.
+#' @param perc_weight_max  \code{numeric} Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250%. This value is used only after 1 year old.
 #' @param IQR \code{numeric} influences the sensitivity of the function to remove outliers. It should be above 1 Default =  1.5. A higher number makes the function less sensitive to find outliers.
-#' @param remove_ext \code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers. Default =  TRUE
-#' @param traj_ind \code{logical} Do you want to build linear model at the level of the individual trajectory  Default =  TRUE. If yes, each individual trajectory must have at least 5 measures. 
+#' @param remove_ext \code{logical} Do you want to keep the two first and two last observations of individual trajectories? These points may often be highlighted as false outliers.
+#' @param traj_ind \code{logical} Do you want to build linear model at the level of the individual trajectory. If TRUE, each individual trajectory must have at least 5 measures. 
 #' 
 #' @details
 #' The function uses a log-linear model of the measurement value in relation to a quadratic effect of age for each individual trajectories. It flags as outliers all measures for which the residuals from the linear model are above  IQR * the inter quantile interval (quantile(0.9) - quantile(0.1)) of the residuals. \code{perc_weight_min} and \code{perc_weight_max} limit the values that must be considered as outliers.
@@ -885,7 +858,7 @@ Gro_lin_ind <- function(data_weight,
                         remove_ext = T,
                         traj_ind = T
 ) {
-  
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.numeric(perc_weight_min ))
   assert_that(perc_weight_min  >0 )
   assert_that(perc_weight_min  <1)
@@ -895,7 +868,7 @@ Gro_lin_ind <- function(data_weight,
   assert_that(IQR  > 1, msg = 'IQR should be higher than 1 to avoid removing real data')
   assert_that(is.logical(remove_ext))
   assert_that(is.logical(traj_ind))
-  assert_that(data_weight %has_name% c("MeasurementValue","Age", "anonID"))
+  assert_that(data_weight %has_name% c("MeasurementValue","Age", "AnimalAnonID"))
   
   
   data_weight<-data_weight%>%
@@ -944,7 +917,7 @@ data(weights)
 
 #We use only trajectories for which the number of individual datapoints is > 6
 weights <- weights%>%
-  dplyr::group_by(anonID)%>%
+  dplyr::group_by(AnimalAnonID)%>%
   dplyr::mutate(nb= dplyr::n())%>%
   dplyr::ungroup()%>%
   dplyr::filter(nb >6)
@@ -957,7 +930,7 @@ weights_pop <- weights%>%Gro_lin_ind(traj_ind = FALSE)
 
 
 ```{r tests-Gro_lin_ind}
-data <- tibble(anonID = rep(c(1,2), c(10,15)),
+data <- tibble(AnimalAnonID = rep(c(1,2), c(10,15)),
                Age = c(c(1:10), c(1:15)),
                MeasurementValue = 2+3*Age)
 data$MeasurementValue[1] = 0.5
@@ -983,7 +956,7 @@ test_that(
   { 
     expect_named(
       data %>% Gro_lin_ind(),
-      c("anonID", "Age", "MeasurementValue", "Keep2"))
+      c("AnimalAnonID", "Age", "MeasurementValue", "Keep2"))
     expect_equal(
       sum(data %>% Gro_lin_ind(IQR= 1.5, remove_ext = F, traj_ind = F)%>%pull(Keep2)),
       25-3)
@@ -1021,10 +994,10 @@ The plot of the data points showed the outliers :
 #' 
 #'Plot higlighting the outliers found by \code{Gro_remoutliers()}
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*
-#' @param title \code{character} Title of the plot
-#' @param xlimit \code{vector of 2 numeric} x limit for the plot
-#' @param ylimit \code{vector of 2 numeric} y limit for the plot
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue*, *keep1*, *keep2*, *keep3*, and *KEEP*.
+#' @param title \code{character} Title of the plot.
+#' @param xlimit \code{vector of 2 numeric} x limit for the plot.
+#' @param ylimit \code{vector of 2 numeric} y limit for the plot.
 #' 
 #' @import dplyr assertthat 
 #' @importFrom ggplot2 ggplot geom_point ggtitle aes xlim ylim
@@ -1037,6 +1010,7 @@ The plot of the data points showed the outliers :
 #' 
 #' @export
 Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
+  # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c("MeasurementValue","Age", 'keep1', 'keep2', 'keep3', "KEEP"))
   assert_that(is.numeric(data$MeasurementValue))
@@ -1070,7 +1044,9 @@ Gro_outplot <- function(data, title = "", ylimit = NULL, xlimit = NULL) {
 
 ```{r example-Gro_outplot}
 data(weights)
-weights = Gro_remoutliers(weights, taxa = "Mammalia", ageMat = 10)
+weights = Gro_remoutliers(weights[weights$MeasurementType == "Live weight",], 
+                          Taxa = "Reptilia", AgeMat = 10)
+
 p <- Gro_outplot(data = weights, 
                  title = "Species A", ylimit = c(0,2000))
 p
@@ -1080,9 +1056,10 @@ p
 ```{r tests-Gro_outplot}
 data = tibble(Age = c(rep(c(1:5),2),4),
               MeasurementValue= c(5,10000,3,6,5,4,100,2,5,3,4),
-              anonID = c(rep(1:2, each = 5),3))
+              AnimalAnonID = c(rep(1:2, each = 5),3),
+              MeasurementType = "Live weight")
 
-out= Gro_remoutliers(data, taxa = "Mammalia", ageMat = 10,
+out= Gro_remoutliers(data, Taxa = "Reptilia", AgeMat = 10,
                      min_Nmeasures = 5, minq = 0.1, IQR = 1.2)
 
 test_that(
@@ -1111,7 +1088,7 @@ test_that(
 ## Growth analysis
 This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values. It takes as arguments:
 
-* data_weight including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+* data_weight including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID* 
 * all_mods indicating the growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
 * percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
 
@@ -1120,11 +1097,11 @@ This function fit a serie of growth models to a dataset, select the best one by 
 
 #' Growth model selection
 #' 
-#' This function fit a serie of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
+#' This function fits a series of growth models to a dataset, select the best one by AIC and estimates the percentiles of the predicted distribution of values.
 #' 
-#' @param data_weight \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
-#' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial. default = "vonBertalanffy"
-#' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default = c(2.5,97.5) corresponding to the 95% predicted interval.
+#' @param data_weight \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID*.
+#' @param all_mods \code{vector of character} indicatingthe growth models that need to be fit.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
+#' @param percentiles \code{vector of numeric} indicating the percentiles that need to be estimated. default: 95% predicted interval.
 #' 
 #' @import dplyr assertthat
 #' @importFrom stats quantile qlnorm sd shapiro.test
@@ -1141,12 +1118,13 @@ This function fit a serie of growth models to a dataset, select the best one by 
 #' @export
 Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles = c(2.5,97.5)
 ) {
+   # Check correct format for inputs ---------------------------------------------
   assert_that(is.numeric(percentiles))
   assert_that(min(percentiles) > 0)
   assert_that(max(percentiles) < 100)
   assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial", "gam")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy, and polynomial, in addition to GAM.")
   assert_that(is.data.frame(data_weight))
-  assert_that(data_weight %has_name% c("MeasurementValue","Age", 'anonID'))
+  assert_that(data_weight %has_name% c("MeasurementValue","Age", 'AnimalAnonID'))
   assert_that(all(data_weight$Age >= 0 ))
   assert_that(all(data_weight$MeasurementValue > 0 ))
   
@@ -1175,7 +1153,7 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   }
   
   if('gam' %in% all_mods){
-    fit_gam <-   mgcv::gam(logz~s(logx, bs = 'cr', k = 6) + s(anonID, bs = 're'),
+    fit_gam <-   mgcv::gam(logz~s(logx, bs = 'cr', k = 6) + s(AnimalAnonID, bs = 're'),
                            data = data_weight,
                            method = "ML",
                            drop.unused.levels = FALSE # do not drop empty level for prediction
@@ -1201,7 +1179,7 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
     conv = fit_gam$converged
     elogz <- fit_gam$residuals
     lzexp <- predict.gam(fit_gam, newdata = tibble(logx = log(zQuant$Age+1),
-                                                   anonID = 1), exclude = c("s(anonID)"))
+                                                   AnimalAnonID = 1), exclude = c("s(AnimalAnonID)"))
   }else{
     growthMod <- all_fits[[as.numeric(all_fits_tab[1, "index"]) ]]$growthMod
     gam <- bbmle::coef(best_std)
@@ -1216,8 +1194,9 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   #GOF
   GOF = list(normal = T, X = T, var = T, conv = conv)
   elogz2 <- elogz^2
+  if(length(elogz)<5000 & length(elogz)> 2){
   test  = shapiro.test(elogz)
-  if(test$p.value<0.01){GOF$normal = FALSE}
+  if(test$p.value<0.01){GOF$normal = FALSE}}
   a = summary(lm(elogz2 ~ data_weight$logx)) #test variance?
   if(a$coefficients[2,4]<0.01){GOF$X = FALSE}
   b = summary(lm(elogz ~ data_weight$logx)) #test pour senescence??
@@ -1248,9 +1227,11 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
 
 ```{r example-Gro_analysis}
 Age <- sample(c(0:10), 100, replace = TRUE)
-anonID <- sample(c(0:20), 100, replace = TRUE)
-MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
+                          rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 out = Gro_analysis(dat, 
                    all_mods = c("logistic", "vonBertalanffy", "gam"), 
@@ -1258,11 +1239,44 @@ out = Gro_analysis(dat,
 ```
 
 
+```{r dev-Gro_analysis}
+Age <- sample(c(0:10), 10000, replace = TRUE)
+AnimalAnonID <- sample(c(0:20), 10000, replace = TRUE)
+
+id =  rnorm(21,0, 0.1)
+MeasurementValue <- exp(0.2 + id[AnimalAnonID+1]+ 15 * (1 - exp(-(0.1) * log(Age+1))))-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
+
+
+ data<-dat%>%
+    mutate(logx = log(Age + 1),
+           logz = log(MeasurementValue + 1),
+           IND = factor(AnimalAnonID, labels = c(1:length(unique(AnimalAnonID)))))
+  
+  model = "vonBertalanffy_re"
+  modSett <- Gro_ModSettings(data, model)
+  out = list()
+  suppressWarnings(out$fit <- bbmle::mle2(modSett$growthMod, 
+                                          data = data, 
+                                          parnames = modSett$namesCoef, 
+                                          fixed = list(LL = T),
+                                          start = modSett$gamstart,
+                                           lower = modSett$low
+  ))
+out$fit
+
+out = Gro_analysis(dat, 
+                   all_mods = c("logistic", "vonBertalanffy", "gam"), 
+                   percentiles = c(2.5, 97.5))
+```
+
 ```{r tests-Gro_analysis}
 Age <- sample(c(0:10), 1000, replace = T)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
-anonID <- sample(c(0:20), 100, replace = TRUE)
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 test_that(
   "Gro_analysis error",
@@ -1295,7 +1309,7 @@ test_that(
 
 ## Fit growth model
 
-This function fit a given growth model to a dataset. It takes as arguments:
+This function fits a given growth model to a dataset. It takes as arguments:
 
 * num index of the model to run 
 * `data`, a data frame including at least the numeric columns *logx* and *logz* 
@@ -1306,11 +1320,11 @@ This function fit a given growth model to a dataset. It takes as arguments:
 
 #' Fit growth model
 #' 
-#' Fit a growth model to data, return its fit and AIC
+#' Fits a growth model to data, return its fit and AIC
 #' 
-#' @param num \code{numeric} index of the model to run 
-#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
-#' @param all_mods \code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial
+#' @param num \code{numeric} index of the model to run .
+#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* .
+#' @param all_mods \code{vector of character} indicating growth models.The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial.
 #' 
 #' @import dplyr assertthat
 #' @importFrom bbmle mle2 logLik
@@ -1319,13 +1333,17 @@ This function fit a given growth model to a dataset. It takes as arguments:
 #' 
 #' @export
 Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
+ # Check correct format for inputs ---------------------------------------------
   assert_that(all(all_mods %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial")), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))
-  assert_that(data %has_name% c('logx', 'logz'))
+  assert_that(data %has_name% c('logx', 'logz', 'AnimalAnonID'))
   assert_that(is.numeric(data$logx))
   assert_that(is.numeric(data$logz))
   assert_that(is.numeric(num))
   assert_that(num <= length(all_mods))
+  
+  data <- data %>%
+    mutate(IND = factor(AnimalAnonID, labels = c(1:length(unique(AnimalAnonID)))))
   
   model = all_mods[num]
   modSett <- Gro_ModSettings(data, model)
@@ -1349,15 +1367,17 @@ Gro_fitlog <- function(num = 1, data, all_mods = "vonBertalanffy") {
 ```{r example-Gro_fitlog}
 logx <- rnorm(100, 0, 1)
 logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
-dat = data.frame(logx = logx, logz = logz)
-Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
+dat = data.frame(logx = logx, logz = logz,AnimalAnonID = sample(c(0:20), 100, replace = TRUE)
+)
+out <- Gro_fitlog(num = 1, data = dat, all_mods = "vonBertalanffy")
 ```
 
 
 ```{r tests-Gro_fitlog}
 logx <- rnorm(100, 0, 1)
 logz <- 0.2+ 15 * (1 - exp(-(1) * logx)) +rnorm(100, 0, 0.01)
-dat = data.frame(logx = logx, logz = logz)
+dat = data.frame(logx = logx, logz = logz,AnimalAnonID = sample(c(0:20), 100, replace = TRUE)
+)
 
 test_that(
   "Gro_fitlog error",
@@ -1402,8 +1422,8 @@ This function gets the parameter and equations for the growth model and takes as
 #' 
 #' This function gets the parameter and equations for the growth model
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* 
-#' @param model \code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial 
+#' @param data \code{data.frame} including at least the numeric columns *logx* and *logz* .
+#' @param model \code{character} Name of the model to fit. The following models are supported : logistic, gompertz, chapmanRichards, vonBertalanffy, polynomial .
 #' 
 #' 
 #' @import dplyr assertthat
@@ -1414,8 +1434,8 @@ This function gets the parameter and equations for the growth model and takes as
 #' @export
 # Set growth model parameters:
 Gro_ModSettings <- function(data, model = "vonBertalanffy") {
-  
-  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+ # Check correct format for inputs ---------------------------------------------
+  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "vonBertalanffy_re", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c('logx', 'logz'))
   assert_that(is.numeric(data$logx))
@@ -1566,6 +1586,43 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     # Fill-up gamStart:
     gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma)
     
+  
+    } else if (model == "vonBertalanffy_re") {
+    growthMod <- vbGrowthtest 
+    np <- 4
+    namesCoef <- c("z0", "zinf", "gamma", "sigma")
+    lowCoef <- rep(0, np)
+    # Find starting z0 parameter:
+    logxLow <- min(logx) + c(0, logxDiff * 0.01)
+    id0 <- which(logx >= logxLow[1] & logx < logxLow[2])
+    z0 <- mean(logz[id0], na.rm = TRUE)
+    
+    # Find starting zInf parameter:
+    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
+    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
+    zInf <- mean(logz[idInf], na.rm = TRUE) - z0
+    
+    if (zInf <= 0) {
+      zInf <- z0 + diff(range(logz))
+    }
+    # find starting gamma:
+    nGams <- 5
+    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
+    dxInts <- logxInts[2] - logxInts[1]
+    logzMeans <- sapply(1:5, function(ii) {
+      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
+      logzmean <- mean(logz[idint])
+      return(logzmean)
+    })
+    inlog <- 1 - (logzMeans - z0) / zInf
+    idkeep <- which(inlog > 0)
+    gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
+    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
+      gamma <- 0.5
+    }
+    # Fill-up gamStart:
+    gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma, sigma = 0)
+    
   } else if (model == "polynomial") {
     growthMod <- polyGrowth
     np <- 5
@@ -1635,7 +1692,7 @@ test_that(
 
 This function makes a plot of the predicted percentiles from a growth model with data points. It takes as arguments:
 
-* data including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+* data including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID* 
 * data_percent including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
 * title of the plot
 
@@ -1647,9 +1704,9 @@ This function makes a plot of the predicted percentiles from a growth model with
 #' 
 #'Plot predicted percentiles from a growth model with data points
 #' 
-#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *anonID* 
+#' @param data \code{data.frame} including at least the numeric columns *Age*, *MeasurementValue* and *AnimalAnonID*.
 #' @param data_percent \code{data.frame} including the predicted percentile from the growth model and  the numeric columns *Age*, *percentiles50* and other percentiles to plot.
-#' @param title \code{character} Title of the plot
+#' @param title \code{character} Title of the plot.
 #' 
 #' @import dplyr assertthat 
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle geom_ribbon aes
@@ -1661,7 +1718,7 @@ This function makes a plot of the predicted percentiles from a growth model with
 Gro_plot <- function(data, data_percent, title = "") {
   assert_that(is.data.frame(data))
   assert_that(is.data.frame(data_percent))
-  assert_that(data %has_name% c("MeasurementValue","Age", 'anonID'))
+  assert_that(data %has_name% c("MeasurementValue","Age", 'AnimalAnonID'))
   assert_that(data_percent %has_name% c("percent50","Age"))
   
   assert_that(is.numeric(data$MeasurementValue))
@@ -1675,7 +1732,8 @@ Gro_plot <- function(data, data_percent, title = "") {
   
   
   p <- ggplot(data, aes (x = Age))+
-    ggtitle(title)
+    ggtitle(title)+
+    geom_point(aes(y = MeasurementValue))
   
   if (length(percentiles)/2 == 1){
     colorrib ="grey80"
@@ -1685,10 +1743,9 @@ Gro_plot <- function(data, data_percent, title = "") {
     per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
     p <- p +
       geom_ribbon(data = data_percent,aes ( ymin = !!sym(per[1]), ymax = !!sym(per[2])),
-                  fill = colorrib[i])
+                  fill = colorrib[i], alpha = 0.25)
   }
   p <- p +
-    geom_point(aes(y = MeasurementValue))+
     geom_line(data = data_percent,aes ( y = percent50 ))   
   return(p)
 }
@@ -1696,9 +1753,11 @@ Gro_plot <- function(data, data_percent, title = "") {
 
 ```{r example-Gro_plot}
 Age <- sample(c(0:10), 100, replace = TRUE)
-anonID <- sample(c(0:20), 100, replace = TRUE)
-MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(100,0,0.01) + anonID*0.1)-1 
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ 
+                          rnorm(100,0,0.01) + AnimalAnonID*0.1)-1 
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 
 out = Gro_analysis(dat, 
                    all_mods = c("logistic", "vonBertalanffy", "gam"), 
@@ -1714,8 +1773,9 @@ p
 ```{r tests-Gro_plot}
 Age <- sample(c(0:10), 1000, replace = T)
 MeasurementValue <- exp(0.2+15 * (1 - exp(-(0.1) * log(Age+1)))+ rnorm(1000,0,0.01))-1 
-anonID <- sample(c(0:20), 100, replace = TRUE)
-dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, anonID = anonID)
+AnimalAnonID <- sample(c(0:20), 100, replace = TRUE)
+dat = data.frame(Age = Age, MeasurementValue = MeasurementValue, 
+                 AnimalAnonID = AnimalAnonID, MeasurementType = "Live Weight")
 out = dat %>% Gro_analysis()
 
 test_that(
@@ -1731,7 +1791,7 @@ test_that(
   "Gro_plot",
   { 
     p<- dat %>% Gro_plot(out$percent)
-    expect_named(p$labels,c("title", "x", "ymin", "ymax", "y"))
+    expect_named(p$labels,c("title", "x", "y", "ymin", "ymax"))
     expect_length(p$layers,3)
   })
 

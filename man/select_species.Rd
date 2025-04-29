@@ -5,52 +5,61 @@
 \title{Extract data}
 \usage{
 select_species(
-  speciesname,
+  SpeciesName,
   coresubset,
-  collection,
-  minDate,
-  extractDate,
-  Global = TRUE
+  Collection,
+  UncertBirth = 365,
+  BirthType = "Captive",
+  MinDate,
+  ExtractDate,
+  Global = TRUE,
+  na_birthdate = FALSE
 )
 }
 \arguments{
-\item{speciesname}{\code{character} latin name of the species selected}
+\item{SpeciesName}{\code{character} latin name of the Species selected}
 
-\item{coresubset}{\code{data.frame} including at least the following columns \emph{anonID}, \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), \emph{MaxBirthDate} (\code{date}), \emph{MinBirthDate} (\code{date}), \emph{EntryType}, \emph{DepartType}, \emph{DepartFrom}, \emph{firstInst}, \emph{LastTXDate}, \emph{DeathDate}, \emph{lastInst},\emph{globStat}, \emph{LastCollectionScopeType}, and \emph{FirstCollectionScopeType}}
+\item{coresubset}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{binSpecies}, \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), \emph{MaxBirthDate} (\code{date}), \emph{MinBirthDate} (\code{date}), \emph{MaxDeathDate} (\code{date}), \emph{MinDeathDate} (\code{date}), \emph{EntryType}, \emph{DepartType},  \emph{LastTXDate}, \emph{DeathDate}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{GlobalStatus}, \emph{LastCollectionScopeType}, and \emph{FirstCollectionScopeType}}
 
-\item{collection}{\code{data.frame} including at least the following columns\emph{RecordingInstitution}, \emph{ChangeDate}, \emph{ScopeType}, and \emph{AnimalID}.}
+\item{Collection}{\code{data.frame} including at least the following columns \emph{RecordingInstitution}, \emph{ChangeDate}, \emph{ScopeType}, and \emph{AnimalAnonID}.}
 
-\item{minDate}{\code{character 'YYYY-MM-DD'} Earlier date to include data}
+\item{UncertBirth}{\code{numeric}: Maximum uncertainty accepted for birth dates, in days}
 
-\item{extractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
+\item{BirthType}{\code{character} Captive, Wild, or All.}
 
-\item{Global}{\code{logical} Whether only individuals belonging to global collections should be used.}
+\item{MinDate}{\code{character 'YYYY-MM-DD'} Earliest date to include data}
+
+\item{ExtractDate}{\code{character 'YYYY-MM-DD'} Date of data extraction}
+
+\item{Global}{\code{logical} Whether only individuals belonging to global Collections should be used.}
+
+\item{na_birthdate}{\code{logical} Whether lines with unknown birth date should be kept.}
 }
 \value{
-The output of a list including:
+A list including:
 \itemize{
 \item a summary of the data used:
-}
 \itemize{
-\item Nraw : Raw number of individuals selected from global collections
-\item Ndate : Number of individuals with an entry date posterior to the minimum date
-\item Nglobal: Number of individuals selected from global collections
-\item Nalive: Number of individuals still alive
-\item firstDate: Date of first record
-\item maxAgeraw: Maximum observed age
+\item NRaw : Raw number of individuals
+\item NDate : Number of individuals with an entry date posterior to the minimum date
+\item NGlobal: Number of individuals selected from global Collections
+\item NBirthType: Number of individuals selected from birth type
+\item NUncertBirth: Number of individuals selected from uncertainty in birth
+\item NAlive: Number of individuals still alive
+\item FirstDate: Date of first record
+\item MaxAgeRaw: Maximum observed age
 }
-\itemize{
 \item The subseted dataset
 }
 }
 \description{
-Extract data of the specified species that fill the condition on minimum date and global collections
+Extract data of the specified Species that fill the condition on minimum date and global Collections
 }
 \examples{
 data(core)
 data(collection)
-out<- select_species(speciesname = "Gorilla gorilla", coresubset = core, collection,
-                     minDate = "1980-01-01", extractDate = "2023-01-01")
+out<- select_species(SpeciesName = "Testudo hermanni", coresubset = core, collection,
+                     MinDate = "1980-01-01", ExtractDate = "2023-01-01")
 out$summary
 out$data
 }

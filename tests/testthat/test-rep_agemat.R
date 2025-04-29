@@ -2,17 +2,18 @@
 
 test_that("Rep_agemat works", {
   data(core)
-data(collection)
-data(parent)
-data(moves)
-Data <- Rep_prepdata (coresubset = core, collection, parent, moves)
-out <- Rep_agemat(Data$Reprodata)
-
-expect_named(out, c("N_moth_agemat", "N_birth_agemat", "ageMat", "ageYouRep",
-                    "ageOldRep", "ageMean1Rep", "ageSd1Rep", "ageOld1Rep",
-                    "ageMeanRep", "ageSdRep", "ageMedRep", "ageMeanRepIC",
-                    "ageMean1RepIC"))
-expect_true(is.numeric(as.numeric(out[1:11])))
-expect_true(is.list(out[12]))
-expect_true(is.list(out[13]))
+  data(collection)
+  data(parent)
+  data(moves)
+  Data <- Rep_prepdata (coresubset = core, collection, parent, moves,
+                        MinNRepro = 1, MinNPaRepro = 1)
+  out <- Rep_agemat(Data$ReproData)
+  
+  expect_named(out, c("N_moth_agemat", "N_birth_agemat", "ageMat", "ageYouRep",
+                      "ageOldRep", "ageMean1Rep", "ageSd1Rep", "ageOld1Rep",
+                      "ageMeanRep", "ageSdRep", "ageMedRep", "ageMeanRepIC",
+                      "ageMean1RepIC"))
+  expect_true(is.numeric(as.numeric(out[1:11])))
+  expect_true(is.list(out[12]))
+  expect_true(is.list(out[13]))
 })

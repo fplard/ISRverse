@@ -7,7 +7,7 @@ test_that("Sur_ple works", {
     deparAge =  entryAge + sample(c(0:10), 200, replace = T),
     DepartType = sample(c('C', 'D'), 200, replace = T))
   out<-Sur_ple(data)
-  expect_named(out, c("Ages", "ple", "event"))
+  expect_named(out, c("Ages", "ple", "event", "Snd"))
   expect_true(min(out$ple)>=0)
   expect_true(max(out$ple)<=1)
 })
