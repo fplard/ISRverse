@@ -3,6 +3,8 @@ orbs:
  codecov: codecov/codecov@5
 jobs:
   upload_job:
+    docker:
+      - image: circleci/python:3.8
     steps:
       - checkout
       - codecov/upload
