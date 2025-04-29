@@ -4,7 +4,7 @@ test_that("run_txprofile works", {
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSDir = dirname(file)
   PlotDir = paste0(tempdir(check = TRUE),'/tem')
-  PlotDir2 = paste0(tempdir(check = TRUE),'/tem/Rdata')
+  PlotDir2 = paste0(PlotDir,'/Rdata')
   dir.create(PlotDir)
   dir.create(PlotDir2)
   
