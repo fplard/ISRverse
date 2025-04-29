@@ -71,10 +71,11 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">surv_Bastab</span><span class="op">(</span></span>
 <span>  <span class="va">coresubset</span>,</span>
-<span>  earliestDate <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  latestDate <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  otherCovars <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  excludeStillbirth <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="va">DeathInformation</span>,</span>
+<span>  EarliestDate <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  LatestDate <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  OtherCovars <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  ExcludeStillBirth <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,23 +84,27 @@
 
 
 <dl><dt id="arg-coresubset">coresubset<a class="anchor" aria-label="anchor" href="#arg-coresubset"></a></dt>
-<dd><p><code>data.frame</code> including at least the following columns <em>anonID</em>, <em>species</em>, <em>binSpecies</em>, <em>Class</em>, <em>Order</em>, <em>Family</em>, <em>common</em>, <em>BirthDate</em>, <em>DepartDate</em>, <em>EntryDate</em>, <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>EntryType</em>, <em>DepartType</em>, and <em>causeDeath</em></p></dd>
+<dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em>, <em>binSpecies</em>, <em>Class</em>, <em>Order</em>, <em>Family</em>, <em>CommonName</em>, <em>BirthDate</em>, <em>DepartDate</em>, <em>EntryDate</em>, <em>MaxBirthDate</em>, <em>MinBirthDate</em>, <em>EntryType</em>, and <em>DepartType</em>.</p></dd>
 
 
-<dt id="arg-earliestdate">earliestDate<a class="anchor" aria-label="anchor" href="#arg-earliestdate"></a></dt>
-<dd><p><code>character 'YYYY-MM-DD'</code> Earlier date to be included. Default = NA</p></dd>
+<dt id="arg-deathinformation">DeathInformation<a class="anchor" aria-label="anchor" href="#arg-deathinformation"></a></dt>
+<dd><p><code>data.frame</code> including at least the following columns <em>AnimalAnonID</em> and <em>RelevantDeathInformationType</em>.</p></dd>
 
 
-<dt id="arg-latestdate">latestDate<a class="anchor" aria-label="anchor" href="#arg-latestdate"></a></dt>
-<dd><p><code>character 'YYYY-MM-DD'</code> LAtest date to be included. Default = NA</p></dd>
+<dt id="arg-earliestdate">EarliestDate<a class="anchor" aria-label="anchor" href="#arg-earliestdate"></a></dt>
+<dd><p><code>character 'YYYY-MM-DD'</code> Earlier date to be included.</p></dd>
 
 
-<dt id="arg-othercovars">otherCovars<a class="anchor" aria-label="anchor" href="#arg-othercovars"></a></dt>
-<dd><p><code>vector of character</code>. Additional variables to include in the data Default = NA</p></dd>
+<dt id="arg-latestdate">LatestDate<a class="anchor" aria-label="anchor" href="#arg-latestdate"></a></dt>
+<dd><p><code>character 'YYYY-MM-DD'</code> Latest date to be included.</p></dd>
 
 
-<dt id="arg-excludestillbirth">excludeStillbirth<a class="anchor" aria-label="anchor" href="#arg-excludestillbirth"></a></dt>
-<dd><p><code>logical</code> Whether to exclude still births. Default = FALSE</p></dd>
+<dt id="arg-othercovars">OtherCovars<a class="anchor" aria-label="anchor" href="#arg-othercovars"></a></dt>
+<dd><p><code>vector of character</code>. Additional variables to include in the data.</p></dd>
+
+
+<dt id="arg-excludestillbirth">ExcludeStillBirth<a class="anchor" aria-label="anchor" href="#arg-excludestillbirth"></a></dt>
+<dd><p><code>logical</code> Whether to exclude still births.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -109,7 +114,7 @@
     <div id="details">
     <h2>Details</h2>
     <p>This function removes:</p><ul><li><p>individuals with NA in the columns BirthDate, MinBirthDate, MaxBirthDate, EntryDate, and DepartDate.</p></li>
-<li><p>individuals for which the dates from min birth date/ entry date to Depart date do not follow one another.</p></li>
+<li><p>individuals for which the dates from min birth date/entry date to Depart date do not follow one another in a logical order.</p></li>
 <li><p>Still born individuals if required</p></li>
 <li><p>individuals with depart date anterior to earliest date</p></li>
 <li><p>individuals with entry date posterior to latest date</p></li>
@@ -119,8 +124,10 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">out</span><span class="op">&lt;-</span> <span class="fu">surv_Bastab</span><span class="op">(</span><span class="va">core</span>, earliestDate <span class="op">=</span> <span class="st">'1990-01-01'</span>, latestDate <span class="op">=</span> <span class="st">'2020-12-31'</span>, </span></span>
-<span class="r-in"><span>                  otherCovars <span class="op">=</span> <span class="cn">NA</span>, excludeStillbirth <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span><span class="op">&lt;-</span> <span class="fu">surv_Bastab</span><span class="op">(</span><span class="va">core</span>, DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>,</span></span>
+<span class="r-in"><span>                  EarliestDate <span class="op">=</span> <span class="st">'1990-01-01'</span>, LatestDate <span class="op">=</span> <span class="st">'2020-12-31'</span>, </span></span>
+<span class="r-in"><span>                  OtherCovars <span class="op">=</span> <span class="st">"SexType"</span>, ExcludeStillBirth <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

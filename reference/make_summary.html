@@ -73,9 +73,10 @@
 <span>  <span class="va">AnalysisDir</span>,</span>
 <span>  <span class="va">SaveDir</span>,</span>
 <span>  namefile <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  taxaList <span class="op">=</span> <span class="st">"Mammalia"</span>,</span>
+<span>  TaxaList <span class="op">=</span> <span class="st">"Mammalia"</span>,</span>
 <span>  BySex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Mammalia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
+<span>  Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span>,</span>
+<span>  MinAge <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -84,27 +85,31 @@
 
 
 <dl><dt id="arg-analysisdir">AnalysisDir<a class="anchor" aria-label="anchor" href="#arg-analysisdir"></a></dt>
-<dd><p><code>character</code> directory where to find the .Rdata files</p></dd>
+<dd><p><code>character</code> Directory where to find the .Rdata files: Results of the analyses</p></dd>
 
 
 <dt id="arg-savedir">SaveDir<a class="anchor" aria-label="anchor" href="#arg-savedir"></a></dt>
-<dd><p><code>character</code> directory where to save summary plots and tables</p></dd>
+<dd><p><code>character</code> Directory where to save summary plots and tables</p></dd>
 
 
 <dt id="arg-namefile">namefile<a class="anchor" aria-label="anchor" href="#arg-namefile"></a></dt>
-<dd><p><code>character</code> Suffix to add to the name of files produced if needed. Default = ""</p></dd>
+<dd><p><code>character</code> Suffix to add to the name of files produced if needed.</p></dd>
 
 
-<dt id="arg-taxalist">taxaList<a class="anchor" aria-label="anchor" href="#arg-taxalist"></a></dt>
-<dd><p><code>vector of character</code> names of the taxa studied. Default= "Mammalia"</p></dd>
+<dt id="arg-taxalist">TaxaList<a class="anchor" aria-label="anchor" href="#arg-taxalist"></a></dt>
+<dd><p><code>vector of character</code> names of the taxa studied.</p></dd>
 
 
 <dt id="arg-bysex">BySex<a class="anchor" aria-label="anchor" href="#arg-bysex"></a></dt>
-<dd><p><code>list</code> of the taxa names indicating the sexes analyzed. Default=list(Mammalia = c("Male", "Female"))</p></dd>
+<dd><p><code>list</code> of the taxa names indicating the sexes analyzed.</p></dd>
 
 
 <dt id="arg-sections">Sections<a class="anchor" aria-label="anchor" href="#arg-sections"></a></dt>
-<dd><p><code>vector of character</code> names of the sections to update in the taxon profile results: "sur", "rep" and/or "gro". Default = c("sur", "rep", "gro")</p></dd>
+<dd><p><code>vector of character</code> names of the sections: "sur", "rep" and/or "gro".</p></dd>
+
+
+<dt id="arg-minage">MinAge<a class="anchor" aria-label="anchor" href="#arg-minage"></a></dt>
+<dd><p><code>numeric</code> Ages at which the survival analyses started.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -114,21 +119,19 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># file = system.file("gorilla gorilla.Rdata", package = 'ISRverse')</span></span></span>
-<span class="r-in"><span><span class="co"># AnalysisDir  = dirname(file)</span></span></span>
-<span class="r-in"><span><span class="co"># SaveDir = paste0(tempdir(check = TRUE),'\temp')</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># file = system.file("sci_Animal.csv", package = 'ISRverse')</span></span></span>
+<span class="r-in"><span><span class="co"># AnalysisDir  = paste0(dirname(file),'/Rdata')</span></span></span>
+<span class="r-in"><span><span class="co"># SaveDir = paste0(tempdir(check = TRUE),'/temp')</span></span></span>
 <span class="r-in"><span><span class="co"># dir.create(SaveDir)</span></span></span>
 <span class="r-in"><span><span class="co"># </span></span></span>
-<span class="r-in"><span><span class="co"># SummTab &lt;- make_summary (AnalysisDir, SaveDir,</span></span></span>
-<span class="r-in"><span><span class="co">#                           taxaList = "Mammalia", </span></span></span>
-<span class="r-in"><span><span class="co">#                           BySex = list(Mammalia = c("Male", "Female")) , </span></span></span>
-<span class="r-in"><span><span class="co">#                           Sections = c("sur", 'gro')</span></span></span>
+<span class="r-in"><span><span class="co"># SummTab &lt;- make_summary(AnalysisDir, SaveDir,</span></span></span>
+<span class="r-in"><span><span class="co">#                         TaxaList = "Reptilia",</span></span></span>
+<span class="r-in"><span><span class="co">#                         BySex = list(Reptilia = c("Male", "Female")) ,</span></span></span>
+<span class="r-in"><span><span class="co">#                         Sections = c("sur", 'gro')</span></span></span>
 <span class="r-in"><span><span class="co"># )</span></span></span>
 <span class="r-in"><span><span class="co"># list.files(SaveDir)</span></span></span>
 <span class="r-in"><span><span class="co"># </span></span></span>
-<span class="r-in"><span><span class="co"># </span></span></span>
 <span class="r-in"><span><span class="co"># unlink(SaveDir, recursive = TRUE)</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

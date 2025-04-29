@@ -71,10 +71,10 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Gro_remoutliers</span><span class="op">(</span></span>
 <span>  <span class="va">data_weight</span>,</span>
-<span>  <span class="va">taxa</span>,</span>
-<span>  ageMat <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">Taxa</span>,</span>
+<span>  AgeMat <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  maxweight <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  variableid <span class="op">=</span> <span class="st">"anonID"</span>,</span>
+<span>  variableid <span class="op">=</span> <span class="st">"AnimalAnonID"</span>,</span>
 <span>  min_Nmeasures <span class="op">=</span> <span class="fl">7</span>,</span>
 <span>  perc_weight_min <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  perc_weight_max <span class="op">=</span> <span class="fl">2.5</span>,</span>
@@ -89,15 +89,15 @@
 
 
 <dl><dt id="arg-data-weight">data_weight<a class="anchor" aria-label="anchor" href="#arg-data-weight"></a></dt>
-<dd><p><code>data.frame</code> including at least the following columns : <em>MeasurementValue</em> (<code>numeric</code>), <em>Age</em>  (<code>numeric</code>)</p></dd>
+<dd><p><code>data.frame</code> including at least the following columns : <em>MeasurementValue</em> (<code>numeric</code>), <em>MeasurementType</em>,  <em>Age</em>  (<code>numeric</code>).</p></dd>
 
 
-<dt id="arg-taxa">taxa<a class="anchor" aria-label="anchor" href="#arg-taxa"></a></dt>
-<dd><p><code>character</code> the name of the taxa studied</p></dd>
+<dt id="arg-taxa">Taxa<a class="anchor" aria-label="anchor" href="#arg-taxa"></a></dt>
+<dd><p><code>character</code> Name of the taxa.</p></dd>
 
 
-<dt id="arg-agemat">ageMat<a class="anchor" aria-label="anchor" href="#arg-agemat"></a></dt>
-<dd><p><code>numeric</code> the age at sexual maturity to differentiate juveniles (still growing) from adults</p></dd>
+<dt id="arg-agemat">AgeMat<a class="anchor" aria-label="anchor" href="#arg-agemat"></a></dt>
+<dd><p><code>numeric</code> Age at sexual maturity to differentiate juveniles (still growing) from adults.</p></dd>
 
 
 <dt id="arg-maxweight">maxweight<a class="anchor" aria-label="anchor" href="#arg-maxweight"></a></dt>
@@ -105,19 +105,19 @@
 
 
 <dt id="arg-variableid">variableid<a class="anchor" aria-label="anchor" href="#arg-variableid"></a></dt>
-<dd><p><code>character</code> name of the variable including individual ids. Defaut = "anonID". It must also be a column of data_weight.Default = 6. It must be at least 5</p></dd>
+<dd><p><code>character</code> name of the variable including individual ids. It must also be a column of data_weight.</p></dd>
 
 
 <dt id="arg-min-nmeasures">min_Nmeasures<a class="anchor" aria-label="anchor" href="#arg-min-nmeasures"></a></dt>
-<dd><p><code>integer</code> Minimum number of measures for an individual to check outliers along its growth trajectory. Default = 7. It must be at least 5</p></dd>
+<dd><p><code>integer</code> Minimum number of measures for an individual to check outliers along its growth trajectory. It must be at least 5.</p></dd>
 
 
 <dt id="arg-perc-weight-min">perc_weight_min<a class="anchor" aria-label="anchor" href="#arg-perc-weight-min"></a></dt>
-<dd><p><code>numeric</code> Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%)</p></dd>
+<dd><p><code>numeric</code> Minimum percentage of weight that an individual can naturally lose or gain during a year. Default: 20%.</p></dd>
 
 
 <dt id="arg-perc-weight-max">perc_weight_max<a class="anchor" aria-label="anchor" href="#arg-perc-weight-max"></a></dt>
-<dd><p><code>numeric</code> Maximum percentage of weight that an individual can naturally lose or gain during a year . Default =  2.5 (250%)</p></dd>
+<dd><p><code>numeric</code> Maximum percentage of weight that an individual can naturally lose or gain during a year. Default: 250%.</p></dd>
 
 
 <dt id="arg-iqr">IQR<a class="anchor" aria-label="anchor" href="#arg-iqr"></a></dt>
@@ -125,11 +125,11 @@
 
 
 <dt id="arg-minq">minq<a class="anchor" aria-label="anchor" href="#arg-minq"></a></dt>
-<dd><p><code>numeric</code> Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025</p></dd>
+<dd><p><code>numeric</code> Sensitivity of the function to remove outliers using percentiles, between 0 and 1.</p></dd>
 
 
 <dt id="arg-ninterval-juv">Ninterval_juv<a class="anchor" aria-label="anchor" href="#arg-ninterval-juv"></a></dt>
-<dd><p><code>integer</code> Number of intervals used for the sliding windows for juveniles. Default = 10</p></dd>
+<dd><p><code>integer</code> Number of intervals used for the sliding windows for juveniles.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -148,7 +148,8 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">weights</span> <span class="op">=</span> <span class="fu">Gro_remoutliers</span><span class="op">(</span><span class="va">weights</span>, taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">weights</span> <span class="op">=</span> <span class="fu">Gro_remoutliers</span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span></span>
+<span class="r-in"><span>                          Taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, AgeMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

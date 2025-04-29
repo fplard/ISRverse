@@ -70,11 +70,11 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Rep_littersize</span><span class="op">(</span></span>
-<span>  <span class="va">Reprodata</span>,</span>
-<span>  perAge <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  Nday <span class="op">=</span> <span class="fl">7</span>,</span>
-<span>  parentProb <span class="op">=</span> <span class="fl">80</span>,</span>
-<span>  minNlitter <span class="op">=</span> <span class="fl">30</span></span>
+<span>  <span class="va">ReproData</span>,</span>
+<span>  NDay <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  ParentPercDam <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  ParentPercSire <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  MinNLitter <span class="op">=</span> <span class="fl">30</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -82,24 +82,24 @@
     <h2>Arguments</h2>
 
 
-<dl><dt id="arg-reprodata">Reprodata<a class="anchor" aria-label="anchor" href="#arg-reprodata"></a></dt>
-<dd><p><code>data frame</code> including at least the columns <em>AnonID</em>, <em>ParentAnonID</em>, <em>ParentType</em>, <em>Probability</em>, <em>Offspring_BirthDate</em>, <em>Offspring_Inst</em> and <em>ageBirth</em></p></dd>
+<dl><dt id="arg-reprodata">ReproData<a class="anchor" aria-label="anchor" href="#arg-reprodata"></a></dt>
+<dd><p><code>data frame</code> including at least the columns <em>AnimalAnonID</em>, <em>ParentAnonID</em>, <em>ParentType</em>, <em>Probability</em>, <em>Offspring_BirthDate</em>, <em>Offspring_Inst</em> and <em>Parent_Age</em>.</p></dd>
 
 
-<dt id="arg-perage">perAge<a class="anchor" aria-label="anchor" href="#arg-perage"></a></dt>
-<dd><p><code>logical</code> Whether to estimate litter size per mother age. Default = FALSE</p></dd>
+<dt id="arg-nday">NDay<a class="anchor" aria-label="anchor" href="#arg-nday"></a></dt>
+<dd><p><code>numeric</code> Number of consecutive days over which the birth dates of a litter/clutch can be spread.</p></dd>
 
 
-<dt id="arg-nday">Nday<a class="anchor" aria-label="anchor" href="#arg-nday"></a></dt>
-<dd><p><code>numeric</code> Number of consecutive days over which the birth dates of a litter/clutch can be spread. Default = 7</p></dd>
+<dt id="arg-parentpercdam">ParentPercDam<a class="anchor" aria-label="anchor" href="#arg-parentpercdam"></a></dt>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include for Dam.</p></dd>
 
 
-<dt id="arg-parentprob">parentProb<a class="anchor" aria-label="anchor" href="#arg-parentprob"></a></dt>
-<dd><p><code>numeric</code> Minimum percentage of parentage probability to include. Default = 80</p></dd>
+<dt id="arg-parentpercsire">ParentPercSire<a class="anchor" aria-label="anchor" href="#arg-parentpercsire"></a></dt>
+<dd><p><code>numeric</code> Minimum percentage of parentage probability to include for Sire.</p></dd>
 
 
-<dt id="arg-minnlitter">minNlitter<a class="anchor" aria-label="anchor" href="#arg-minnlitter"></a></dt>
-<dd><p><code>numeric</code> Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases. Default = 30</p></dd>
+<dt id="arg-minnlitter">MinNLitter<a class="anchor" aria-label="anchor" href="#arg-minnlitter"></a></dt>
+<dd><p><code>numeric</code> Minimum number of litters to run the analysis. The data frame for litter size will be produced in all cases.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -114,9 +114,9 @@
 <li><p>MedLittSize: Median litter size</p></li>
 <li><p>SdLittSize: Standard deviation of litter size</p></li>
 <li><p>analyzed = FALSE,</p></li>
-<li><p>error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than parentProb or  N litter &lt; minNlitter</p></li>
+<li><p>error: if the litter size where not analysze, the associated error is printed here. It can be :"No births with parentage probability higher than parentProb or  N litter &lt; MinNLitter</p></li>
 <li><p>Nerr: The number id of the error</p></li>
-</ul><ul><li><p>if perAge = TRUE, a table including the mean and standard deviation of litter size per maternal age</p></li>
+</ul><ul><li><p>a table including the mean and standard deviation of litter size per maternal age</p></li>
 </ul></div>
 
     <div id="ref-examples">
@@ -126,14 +126,61 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">#prepare Data</span></span></span>
-<span class="r-in"><span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                      BirthType_parent <span class="op">=</span> <span class="st">"All"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"All"</span> <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Estimate litter size</span></span></span>
-<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Rep_littersize</span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span>, perAge <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                           Nday <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Rep_littersize</span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">ReproData</span>, </span></span>
+<span class="r-in"><span>                      NDay <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">out</span><span class="op">$</span><span class="va">littSizeTab</span></span></span>
+<span class="r-in"><span><span class="va">out</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$NOffsp_prob</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$NParent_prob</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$NReprEvent</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$analyzed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$error</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> N litter &lt; 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$Nerr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$MeanLittSize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$MedLittSize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $summary$SdLittSize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $littSizeDf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   MotherAnonID InstitutionAnonID litterSize MeanBirthDate Mother_Age</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>       <span style="text-decoration: underline;">613</span>303             <span style="text-decoration: underline;">33</span>954          2 1998-04-30          8.43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          1 2018-12-05         11.9 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          1 2019-03-16         12.2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2020-07-04         13.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2020-10-26         13.8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2022-08-13         15.6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: FatherAnonID &lt;list&gt;, Father_Age &lt;list&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $littSizeTab</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $littSizeperAge</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </div>
