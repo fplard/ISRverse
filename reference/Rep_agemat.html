@@ -69,15 +69,15 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Rep_agemat</span><span class="op">(</span><span class="va">ReproData</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Rep_agemat</span><span class="op">(</span><span class="va">Reprodata</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
 
 
-<dl><dt id="arg-reprodata">ReproData<a class="anchor" aria-label="anchor" href="#arg-reprodata"></a></dt>
-<dd><p><code>data frame</code> including at least the columns <em>ParentAnonID</em> and <em>Parent_Age</em>.</p></dd>
+<dl><dt id="arg-reprodata">Reprodata<a class="anchor" aria-label="anchor" href="#arg-reprodata"></a></dt>
+<dd><p><code>data frame</code> including at least the columns <em>ParentAnonID</em> and <em>ageBirth</em></p></dd>
 
 </dl></div>
     <div id="value">
@@ -104,15 +104,14 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">#prepare Data</span></span></span>
-<span class="r-in"><span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, </span></span>
-<span class="r-in"><span>                      MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">#Calculate summary for reproductive ages</span></span></span>
-<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Rep_agemat</span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">ReproData</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">Rep_agemat</span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 13</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   N_moth_agemat N_birth_agemat ageMat ageYouRep ageOldRep ageMean1Rep ageSd1Rep</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>             3             13   2.27      1.94      15.6        7.43      5.06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            19             27   9.08      8.91      29.6        16.0      6.01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 6 more variables: ageOld1Rep &lt;dbl&gt;, ageMeanRep &lt;dbl&gt;, ageSdRep &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ageMedRep &lt;dbl&gt;, ageMeanRepIC &lt;list&gt;, ageMean1RepIC &lt;list&gt;</span></span>
 <span class="r-in"><span></span></span>

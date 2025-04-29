@@ -98,71 +98,28 @@
 <div class="section level2">
 <h2 id="rep_main">Rep_main<a class="anchor" aria-label="anchor" href="#rep_main"></a>
 </h2>
-<p><code>Rep_main</code> runs the age at sexual maturity and the litter
-size analysis. It uses at least the following arguments:</p>
-<ul>
-<li>cleaned <code>coresubset</code> including only the selected
-individuals. It must includes at least the following columns:
-<em>AnimalAnonID</em>, ‘BirthType’, <em>MaxBirthDate</em>,
-<em>MinBirthDate</em>, <em>DepartDate</em>,
-<em>BirthDate</em>,<em>SexType</em>, and
-<em>FirstHoldingInstitution</em>
-</li>
-<li>
-<code>collection</code>data including at least the following
-columns: <em>AnimalAnonID</em>, <em>ScopeType</em>,
-<em>ChangeDate</em>
-</li>
-<li>
-<code>parent</code> data including at least the following columns:
-<em>ParentAnonID</em>, <em>ParentCollectionScopeType</em>,
-<em>OffspringCollectionScopeType</em>, <em>AnimalAnonID</em>,
-<em>ParentOriginType</em>, <em>Probability</em>
-</li>
-<li>
-<code>move</code> data including at least the following columns:
-<em>AnimalAnonID</em>, <em>To</em>, <em>Date</em>
-</li>
-<li>
-<code>RepSect</code> names of the reproductive analyses to run:
-“agemat”, “litter” and/or …</li>
-</ul>
-<p>It return a list per sex category including: * a summary of the data
-used * the output for the age at maturity if the analysis is selected *
-the output for the litter size if the analysis is selected</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">collection</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_main.html">Rep_main</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>,  </span>
-<span>                 RepSect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'agemat'</span>, <span class="st">'litter'</span><span class="op">)</span>,</span>
-<span>                 MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                 BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>, </span>
-<span><span class="op">)</span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="age-at-first-reproduction">Age at first reproduction<a class="anchor" aria-label="anchor" href="#age-at-first-reproduction"></a>
 </h2>
 <p><code><a href="../reference/Rep_agemat.html">Rep_agemat()</a></code> returns summary statistics for ages of
-reproduction. It uses the following argument: * ReproData, a data frame
+reproduction. It uses the following argument: * Reprodata, a data frame
 including at least the columns <em>ParentAnonID</em> and
-<em>Parent_Age</em></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<em>ageBirth</em></p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">collection</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
 <span><span class="co">#prepare Data</span></span>
-<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, </span>
-<span>                      MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span><span class="op">)</span></span>
 <span><span class="co">#Calculate summary for reproductive ages</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">ReproData</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 13</span></span></span>
 <span><span class="co">#&gt;   N_moth_agemat N_birth_agemat ageMat ageYouRep ageOldRep ageMean1Rep ageSd1Rep</span></span>
 <span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>             3             13   2.27      1.94      15.6        7.43      5.06</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            19             27   9.08      8.91      29.6        16.0      6.01</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more variables: ageOld1Rep &lt;dbl&gt;, ageMeanRep &lt;dbl&gt;, ageSdRep &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ageMedRep &lt;dbl&gt;, ageMeanRepIC &lt;list&gt;, ageMean1RepIC &lt;list&gt;</span></span></span></code></pre></div>
 </div>
@@ -174,78 +131,36 @@ parent and birth date and produces summary tables of litter size. It
 uses the following arguments:</p>
 <ul>
 <li>
-<code>ReproData</code> including at least the columns
-<em>AnimalAnonID</em>, <em>ParentAnonID</em>, <em>ParentType</em>,
+<code>Reprodata</code> including at least the columns
+<em>AnonID</em>, <em>ParentAnonID</em>, <em>ParentType</em>,
 <em>Probability</em>, <em>Offspring_BirthDate</em>,
-<em>Offspring_Inst</em> and <em>Parent_Age</em>
+<em>Offspring_Inst</em> and <em>ageBirth</em>
 </li>
 <li>
-<code>NDay</code>: the number of consecutive days over which the
+<code>perAge</code>: Whether to estimate litter size per mother
+age</li>
+<li>
+<code>Nday</code>: the number of consecutive days over which the
 birth dates of a litter/clutch can be spread</li>
 </ul>
 <p>It returns a list including: * A data frame with the litter size per
 mother and birth date * A table including the number and proportion of
-each size of litter * Summary statistics * A table including the mean
-and standard deviation of litter size per maternal age</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+each size of litter * Summary statistics * if perAge = TRUE, a table
+including the mean and standard deviation of litter size per maternal
+age</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">collection</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
 <span><span class="co">#prepare Data</span></span>
-<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                      BirthType_parent <span class="op">=</span> <span class="st">"All"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"All"</span> <span class="op">)</span></span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Estimate litter size</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">ReproData</span>, </span>
-<span>                      NDay <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span>, perAge <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                           Nday <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">out</span></span>
-<span><span class="co">#&gt; $summary</span></span>
-<span><span class="co">#&gt; $summary$NOffsp_prob</span></span>
-<span><span class="co">#&gt; [1] 10</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$NParent_prob</span></span>
-<span><span class="co">#&gt; [1] 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$NReprEvent</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$analyzed</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$error</span></span>
-<span><span class="co">#&gt; N litter &lt; 30</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$Nerr</span></span>
-<span><span class="co">#&gt; [1] 5</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$MeanLittSize</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$MedLittSize</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $summary$SdLittSize</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $littSizeDf</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 7</span></span></span>
-<span><span class="co">#&gt;   MotherAnonID InstitutionAnonID litterSize MeanBirthDate Mother_Age</span></span>
-<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>       <span style="text-decoration: underline;">613</span>303             <span style="text-decoration: underline;">33</span>954          2 1998-04-30          8.43</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          1 2018-12-05         11.9 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          1 2019-03-16         12.2 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2020-07-04         13.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2020-10-26         13.8 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2022-08-13         15.6 </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: FatherAnonID &lt;list&gt;, Father_Age &lt;list&gt;</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $littSizeTab</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $littSizeperAge</span></span>
+<span><span class="va">out</span><span class="op">$</span><span class="va">littSizeTab</span></span>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -262,28 +177,26 @@ arguments:</p>
 <ul>
 <li>cleaned <code>coresubset</code> including only the selected
 individuals. It must includes at least the following columns:
-<em>AnimalAnonID</em>, ‘BirthType’, <em>MaxBirthDate</em>,
+<em>anonID</em>, ‘birthType’, <em>MaxBirthDate</em>,
 <em>MinBirthDate</em>, <em>DepartDate</em>,
-<em>BirthDate</em>,<em>SexType</em>, and
-<em>FirstHoldingInstitution</em>
+<em>BirthDate</em>,<em>Sex</em>, and <em>firstInst</em>
 </li>
 <li>
 <code>collection</code>data including at least the following
-columns: <em>AnimalAnonID</em>, <em>ScopeType</em>,
-<em>ChangeDate</em>
+columns: <em>AnimalID</em>, <em>ScopeType</em>, <em>ChangeDate</em>
 </li>
 <li>
 <code>parent</code> data including at least the following columns:
 <em>ParentAnonID</em>, <em>ParentCollectionScopeType</em>,
-<em>OffspringCollectionScopeType</em>, <em>AnimalAnonID</em>,
+<em>OffspringCollectionScopeType</em>, <em>AnonID</em>,
 <em>ParentOriginType</em>, <em>Probability</em>
 </li>
 <li>
 <code>moves</code> data including at least the following columns:
-<em>AnimalAnonID</em>, <em>To</em>, <em>Date</em>
+<em>AnonID</em>, <em>To</em>, <em>Date</em>
 </li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">collection</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
@@ -296,6 +209,13 @@ columns: <em>AnimalAnonID</em>, <em>ScopeType</em>,
 <div class="section level2">
 <h2 id="seasonnality">Seasonnality<a class="anchor" aria-label="anchor" href="#seasonnality"></a>
 </h2>
+</div>
+<div class="section level2">
+<h2 id="my_fun">my_fun<a class="anchor" aria-label="anchor" href="#my_fun"></a>
+</h2>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/my_fun.html">my_fun</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </div>
   </div>
 
