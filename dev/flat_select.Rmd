@@ -281,7 +281,7 @@ tx_report <- function(Species, Taxa,  Animal, Collection, PlotDir = NULL,
             agemat = NA
             if(length(repout$repr[[sx]])>0){
               if(repout$repr[[sx]]$summary$amat_analyzed){
-                agemat = repout$repr[[sx]]$agemat$ageMat
+                agemat = repout$repr[[sx]]$agemat$ageMat #nocov
               }
             }
           
@@ -361,7 +361,7 @@ tx_report <- function(Species, Taxa,  Animal, Collection, PlotDir = NULL,
       }
     }
   }else{
-    warnings(glue::glue("No data for {Species}"))
+    warnings(glue::glue("No data for {Species}")) #nocov
   }
   
   return(repout)
@@ -412,7 +412,7 @@ test_that("tx_report works", {
   dir.create(PlotDir)
   
   out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
-                   Animal, data$Reptilia$Collection,
+                   Animal, data$Reptilia$Collection,MaxNSur = 12000,
                    Move = data$Reptilia$Move, Parents =data$Reptilia$Parent,
                    Contraceptions = data$Reptilia$Contraception,
                    MinBirthKnown = 0,
@@ -752,15 +752,16 @@ if(Global){
                  LastTXDate = lubridate::as_date(ChangeDate),
                  DepartDate = lubridate::as_date(ChangeDate))%>%
           select(-ChangeDate, -ScopeType,-maxtime, -RecordingInstitution )%>%
-          distinct()
+          distinct()%>%select(-c("globStat", "lastInst", "DepartFrom"))
       }else{indloc<-indglobloc}
   
       data_sel <- coresubset1%>%
-        rows_update(indloc, by="AnimalAnonID")%>%
+        rows_update(indloc, 
+                    by="AnimalAnonID")%>%
         mutate()%>%
         filter(FirstCollectionScopeType == "Global")
       summar$NGlobal = nrow(data_sel)
-    }else {data_sel <- coresubset1}
+    }else {data_sel <- coresubset1} #nocov
     
     
     if (summar$NGlobal > 0) {  
@@ -797,9 +798,9 @@ if(Global){
           
           summar$MaxAgeRaw <- max(c(data_age$tempAges,data_age$tempAlive))
         } 
-      }else{data_sel1 = tibble()}
-    }else{data_sel1 = tibble()}
-   }else{data_sel1 = tibble()}
+      }else{data_sel1 = tibble()} #nocov
+    }else{data_sel1 = tibble()} #nocov
+   }else{data_sel1 = tibble()} #nocov
   
    sexDat <- list(summary = summar, data = data_sel1)
   return(sexDat)
@@ -831,6 +832,12 @@ test_that("select_species works", {
   expect_equal(nrow(out$data),out$summary$NUncertBirth)
   expect_true(is.numeric(out$summary$MaxAgeRaw))
   expect_true(is.date(out$summary$FirstDate))
+   out<- select_species (SpeciesName = "Testudo hermanni",
+                        coresubset = core%>%mutate(LastCollectionScopeType = "Local"), collection,
+                        MinDate = "1980-01-01", ExtractDate = "2023-01-01")
+ 
+  
+  
   })
 ```
 
@@ -1000,13 +1007,15 @@ test_that("select_Longthreshold works", {
                                PlotDir = TempDir, PlotName = "Testudo_hermanni")
   expect_true(file.exists(paste(TempDir, 'Testudo_hermanni_LongThres.pdf', sep = '/')))
   #reMove temporary folder
-  unlink(TempDir, recursive = TRUE)
   expect_named(out, c("summar",  "data"))
   expect_true("above95" %in% names(out$data))
   expect_named(out$summar, c("Sex", 'Nselect', "Nlifespan", "GapThresh", "NThres"))
   expect_true(out$summar$Sex == "All" )
   expect_equal(out$summar$Nselect, nrow(core))
+  out <- select_Longthreshold (Data = core[1:30,],  SexCats = "Female", 
+                               PlotDir = TempDir, PlotName = "Testudo_hermanni")
   unlink(TempDir, recursive = TRUE)
+
 })
 ```
 
@@ -1069,8 +1078,7 @@ find_gaps <- function(x,MaxAlive = NA, plot = FALSE,...) {
       fin <- TRUE
     }
   }
-  if(is.na(MaxAlive))(MaxAlive = max(x))
-  
+ 
   #Return gaps only if the gaps is 20% higher than the starting age of this gap-----
   idgap <- gaps%>%
     filter(Gap/iniAge > 0.2 ,
@@ -1089,6 +1097,7 @@ out<-find_gaps(x,MaxAlive = 5, plot = FALSE)
 test_that("find_gaps works", {
   x = runif(10,0,40)
   out<-find_gaps(x,MaxAlive = 5, plot = FALSE)
+  out<-find_gaps(x,MaxAlive = NA, plot = FALSE)
   expect_named(out,c('iniAge', 'finAge', 'Gap'))
   expect_equal(out$finAge-out$iniAge+1, out$Gap)
 })

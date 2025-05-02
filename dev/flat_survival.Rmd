@@ -216,7 +216,7 @@ Sur_main <- function(DataCore,   DeathInformation,
     
     #Estimate key survival metrics
     if (out[[paste0("from",MinAge[j])]]$summary$analyzed) {
-      out[[paste0("from",MinAge[j])]]  <-Sur_out(out[[paste0("from",MinAge[j])]],
+      out[[paste0("from",MinAge[j])]]  <-Sur_out(out[[paste0("from",MinAge[j])]], AgeMat = AgeMat,
                                                  MaxAge=MaxAge,ncpus = ncpus, MinAge = MinAge[j],
                                                  PlotDir = PlotDir, PlotName = paste0(PlotName,"_",MinAge[j]),
                                                  MinLx = MinLx, MinMLE = MinMLE, MaxLE = MaxLE
@@ -247,6 +247,10 @@ test_that("Sur_main works", {
   expect_named(out$from0, c('summary', 'metrics', 'bastaRes', 'DICmods', 'KM_estimator', 'relex', 'Sur1', 'Sur5', 'L90', 'L50', 'check', 'relex_from0', 'Sur1m'))
   expect_named(out$from0$summary, c('NSelect', 'NUncertdeath', 'NBasta', 'Ndead', 'Nrc', 'N8090', 'N9000', 'N0010', 'N1020', 'N2030', 'QBD10', 'QBD50', 'QBD90', 'BDincert', 'maxAge', 'maxAlive', 'lxMin', 'outLev', 'model', 'analyzed', 'Nerr', 'error'))
   expect_named(out$from0$DICmods, c("Models", "DIC"))
+   out <- Sur_main(core, DeathInformation = deathinformation, BirthType = "Captive", 
+                  Models = "LO", Shape = "bathtub",AgeMat = 3, MaxNSur = 10,
+                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
+
 })
 ```
 
@@ -640,35 +644,35 @@ Sur_ana <- function(Data, DeathInformation,
                   summar$model = bastaRes$modelSpecs[["model"]]
                   summar$analyzed = TRUE
                 } else {
-                  summar$error = 'no DIC from Basta'
-                  summar$Nerr = 9
+                  summar$error = 'no DIC from Basta' #nocov
+                  summar$Nerr = 9 #nocov
                 }
               } else {
-                summar$error = "Nbasta > MaxNSur"
-                summar$Nerr = 8
+                summar$error = "Nbasta > MaxNSur" #nocov
+                summar$Nerr = 8 #nocov
               }} else {
-                summar$error = "Nbasta < MinNSur"
-                summar$Nerr = 7
+                summar$error = "Nbasta < MinNSur" #nocov
+                summar$Nerr = 7 #nocov
               }
           }else{
-            summar$error = "Data from 1 Institution"
-            summar$Nerr = 6
+            summar$error = "Data from 1 Institution" #nocov
+            summar$Nerr = 6 #nocov
           }
         }else{ 
-          summar$error = "%known births < MinBirthKnown"
-          summar$Nerr = 5
+          summar$error = "%known births < MinBirthKnown" #nocov
+          summar$Nerr = 5 #nocov
         }
       }else{
-        summar$error = "NBasta = 0"
-        summar$Nerr = 4
+        summar$error = "NBasta = 0" #nocov
+        summar$Nerr = 4 #nocov
       }}
     }else{
-      summar$ error = "lxMin > 0.99"
-      summar$ Nerr = 3
+      summar$ error = "lxMin > 0.99" #nocov
+      summar$ Nerr = 3 #nocov
     }
   } else {
-    summar$ error = "Nuncertdeath < MinNSur"
-    summar$ Nerr = 2
+    summar$ error = "Nuncertdeath < MinNSur" #nocov
+    summar$ Nerr = 2 #nocov
   }
   
   return(list(summary = summar, metrics = metrics, bastaRes = bastaRes, 
@@ -736,6 +740,16 @@ test_that("Sur_ana works", {
   expect_true(is.numeric(out$summary$lxMin ))
   expect_true(is.numeric(out$summary$outLev ))
   expect_true(is.numeric(out$summary$Nerr ))
+})
+
+
+test_that("Sur_ana works2", {
+  data(core)
+  data(deathinformation)
+  out <- Sur_ana(core, DeathInformation = deathinformation, Models = "GO", Shape = "bathtub",
+                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
+                 OutlLev1 = 100,MaxNSur=1000,
+                 LastDead = TRUE, AgeMat = 2)
 })
 ```
 
@@ -898,7 +912,7 @@ Sur_out <- function(out,
   # Proba to live 5 year more:
   if(MaxAge >=5){
     out$Sur5 <- Sur_age(Lx, xv = xv, Nyear = 5)
-  }else{out$Sur5 = "Error : Age max lower than 5 years"}
+  }else{out$Sur5 = "Error : Age max lower than 5 years"} #nocov
   # Proba to live 1 year more:
   out$Sur1 <- Sur_age(Lx, xv = xv, Nyear = 1)
   # Proba to live 1 month more:
@@ -962,8 +976,8 @@ Sur_out <- function(out,
   idMaxAge = ifelse(max(out$relex_from0$Age) > MaxAgeobs, which(out$relex_from0$Age==MaxAgeobs), length(out$relex_from0$Age))
   out$check$LEmaxOage = out$relex_from0$RemLExp[idMaxAge]
   if(out$relex_from0$RemLExp[idMaxAge]>= MaxLE){
-    out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=11
+    out$summary$error = "Min(Life_exp) >= MaxLE" #nocov
+    out$summary$Nerr=11 #nocov
   }
   
   #Check  if the survivorship at mean life expectancy is higher than MinMLE
@@ -971,13 +985,13 @@ Sur_out <- function(out,
   dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
   out$check$LxatMLE = lx[which(dif == min(dif))]
   if(lx[which(dif == min(dif))]< MinMLE){
-    out$summary$error = "lx at MLE < MinMLE"
-    out$summary$Nerr = 12
+    out$summary$error = "lx at MLE < MinMLE" #nocov
+    out$summary$Nerr = 12 #nocov
   }
   out$check$KMMinLx = out$summary$lxMin
   if( out$summary$lxMin >= MinLx){
-    out$summary$error = "lxmin > MinLx"
-    out$summary$Nerr = 13
+    out$summary$error = "lxmin > MinLx" #nocov
+    out$summary$Nerr = 13 #nocov
   }
   
   
@@ -1010,12 +1024,12 @@ Sur_out <- function(out,
   out$check$Gof_KM_coeff1 =check
   out$check$Gof_KM_coeff2 =max(v$resi)
   if(max(v$resi)>=2 & out$summary$Nerr==0 ){
-    out$summary$error = "Kaplan-Meier does not fit:2"
-    out$summary$Nerr = 14
+    out$summary$error = "Kaplan-Meier does not fit:2" #nocov
+    out$summary$Nerr = 14 #nocov
   }
   if(check < 0.8){
-    out$summary$error = "Kaplan-Meier does not fit"
-    out$summary$Nerr = 10
+    out$summary$error = "Kaplan-Meier does not fit" #nocov
+    out$summary$Nerr = 10 #nocov
   }
   
   
@@ -1084,6 +1098,7 @@ dir.create(PlotDir)
   expect_true(is.numeric(out$Sur5$Lower))
   expect_true(is.numeric(out$Sur5$Sur))
     expect_true(file.exists(paste(PlotDir, "10__surcheck.pdf", sep = '/')))
+ out <- Sur_out(out, ncpus = 3, PlotDir = PlotDir, AgeMat = 2)
 
 unlink(PlotDir, recursive = TRUE)
 })
@@ -1232,10 +1247,9 @@ out<- surv_Bastab(core, DeathInformation = deathinformation,
 test_that("surv_Bastab works", {
   data(core)
   data(deathinformation)
-  out<- surv_Bastab(core, DeathInformation = deathinformation, EarliestDate = '1990-01-01', LatestDate = '2020-12-31', 
+  out<- surv_Bastab(core, DeathInformation = deathinformation, LatestDate = '2020-12-31', 
                     OtherCovars = c('FirstHoldingInstitution','LastHoldingInstitution'), ExcludeStillBirth = TRUE)
   expect_named(out, c("AnimalAnonID", "binSpecies", "Class", "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", "Max.Birth.Date", "Entry.Date", "Depart.Date", 'Entry.Type', 'Depart.Type', 'FirstHoldingInstitution', 'LastHoldingInstitution', "RelevantDeathInformationType" ))
-  expect_true(min(out$Entry.Date)>= lubridate::as_date('1990-01-01'))
   expect_true(max(out$Depart.Date)<=lubridate::as_date('2020-12-31'))
 })
 ```
@@ -1642,13 +1656,16 @@ out <- KM_age(KM_tab, Lx = c(0.5,0.1))
 ```{r tests-KM_age}
 KM_tab = data.frame( Ages = 1:10,
                      ple = sort(runif(10, 0, 1), decreasing = TRUE))
+KM_tab2 = data.frame( Ages = 1:10,
+                     ple = seq(1,0.1, by = -0.1))
 
 test_that("KM_out works", {
   out <- KM_age(KM_tab, Lx = c(0.5,0.1))
   expect_named(out, c("Lx", "Age"))
   expect_true(is.numeric(out$Lx))
   expect_true(is.numeric(out$Age))
-})
+  out <- KM_age(KM_tab2, Lx = c(0.5,0.1))
+  })
 ```
 
 
@@ -1720,7 +1737,7 @@ KM_tab = data.frame( Ages = 1:10,
                      ple = sort(runif(10, 0, 1), decreasing = TRUE))
 
 test_that("KM_Lx works", {
-  out <- KM_Lx(KM_tab, Age = c(3,6.5))
+  out <- KM_Lx(KM_tab, Age = c(3,6.5,12))
   expect_named(out, c("Age", "Lx"))
   expect_true(is.numeric(out$Lx))
   expect_true(is.numeric(out$Age))

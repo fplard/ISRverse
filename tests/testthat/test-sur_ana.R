@@ -20,3 +20,13 @@ test_that("Sur_ana works", {
   expect_true(is.numeric(out$summary$outLev ))
   expect_true(is.numeric(out$summary$Nerr ))
 })
+
+
+test_that("Sur_ana works2", {
+  data(core)
+  data(deathinformation)
+  out <- Sur_ana(core, DeathInformation = deathinformation, Models = "GO", Shape = "bathtub",
+                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
+                 OutlLev1 = 100,MaxNSur=1000,
+                 LastDead = TRUE, AgeMat = 2)
+})

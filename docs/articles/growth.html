@@ -111,13 +111,13 @@ model for the sexes and birth types selected. It takes as arguments:</p>
 <li>
 <code>coresubse</code>: the core data of the species from ZIMS</li>
 <li>
-<code>taxa</code>: the name of the taxa studied</li>
+<code>Taxa</code>: the name of the taxa studied</li>
 <li>
-<code>species</code>: the name of the species studied</li>
+<code>Species</code>: the name of the species studied</li>
 <li>
-<code>Birth_Type</code>: “Captive”, “Wild”, and/or “All”</li>
+<code>BirthType</code>: “Captive”, “Wild”, and/or “All”</li>
 <li>
-<code>agemat</code>: age at sexual maturity</li>
+<code>AgeMat</code>: age at sexual maturity</li>
 <li>
 <code>models</code>: indicating the growth models that need to be
 fit.The following models are supported : logistic, gompertz,
@@ -127,13 +127,13 @@ chapmanRichards, vonBertalanffy, polynomial</li>
 estimated. default = c(2.5,97.5) corresponding to the 95% predicted
 interval.</li>
 <li>
-<code>minInstitution</code> Minimum number of institutions that
+<code>MinInstitution</code> Minimum number of institutions that
 should hold records to run the analysis.</li>
 <li>
-<code>minNgro</code>: Minimum number of weight needed to fit the
+<code>MinNGro</code>: Minimum number of weight needed to fit the
 growth models</li>
 <li>
-<code>minNIgro</code>: Minimum number of unique individuals needed
+<code>MinNIGro</code>: Minimum number of unique individuals needed
 to fit the growth models</li>
 <li>
 <code>type</code>: Either ‘weight’ or ‘length’. Default =
@@ -142,7 +142,7 @@ to fit the growth models</li>
 <code>MeasureType</code>: Name of the type of measurements that
 should be included.</li>
 <li>
-<code>mindate</code>: Earlier date to include data</li>
+<code>MinDate</code>: Earlier date to include data</li>
 <li>
 <code>PlotDir</code>: Directory to save the plots showing outliers
 and predictions from best models</li>
@@ -167,15 +167,15 @@ analysis - a logical indicated if the growth analysis was performed - If
 the growth analysis was not performed, an error and its number (Nerr)
 are returned: The possibility for this functions are: 1/No raw data and
 2/No valid weight measure 3/Data from 1 Institution 4/ NWeight &lt;
-minNgro 5/NInd &lt; minNIgro 6/Best model did not fit.</p>
+MinNGro 5/NInd &lt; MinNIGro 6/Best model did not fit.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="va">output</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_Main.html">Gro_Main</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, coresubse <span class="op">=</span> <span class="va">core</span>,</span>
-<span>                 taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, species <span class="op">=</span> <span class="st">"Testudo hermanni"</span> ,</span>
-<span>                 Birth_Type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, agemat <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                 Taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, Species <span class="op">=</span> <span class="st">"Testudo hermanni"</span> ,</span>
+<span>                 BirthType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, AgeMat <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                 type <span class="op">=</span> <span class="st">"weight"</span>, MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span>
-<span>                 minNgro <span class="op">=</span> <span class="fl">30</span>, minNIgro <span class="op">=</span> <span class="fl">30</span>, </span>
+<span>                 MinNGro <span class="op">=</span> <span class="fl">30</span>, MinNIGro <span class="op">=</span> <span class="fl">30</span>, </span>
 <span>                 models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"logistic"</span><span class="op">)</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
 </div>
 <div class="section level2">
@@ -190,13 +190,13 @@ measure. This function takes as arguments:</p>
 <li>
 <code>coresubse</code>: the core data of the species from ZIMS</li>
 <li>
-<code>Birth_Type</code> Captive, Wild, or All Default = “All”</li>
+<code>BirthType</code> Captive, Wild, or All Default = “All”</li>
 <li>
-<code>mindate</code> Earlier date to include data
+<code>MinDate</code> Earlier date to include data
 (‘YYYY-MM-DD’)</li>
 <li>
-<code>uncert_date</code> Maximum uncertainty accepted for
-measurement dates, in days</li>
+<code>UncertDate</code> Maximum uncertainty accepted for measurement
+dates, in days</li>
 <li>
 <code>MeasureType</code> Name of the type of measurement that should
 be included. Default = NULL, all measurement type are included.</li>
@@ -217,16 +217,16 @@ for this functions are: 1/No raw data and 2/No valid weight measure.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span>
 <span><span class="va">data_weights</span><span class="op">=</span> <span class="fu"><a href="../reference/Gro_cleanmeasures.html">Gro_cleanmeasures</a></span><span class="op">(</span><span class="va">weights</span>, <span class="va">core</span>,</span>
-<span>                                Birth_Type <span class="op">=</span> <span class="st">"All"</span>,</span>
+<span>                                BirthType <span class="op">=</span> <span class="st">"All"</span>,</span>
 <span>                                MeasureType <span class="op">=</span> <span class="st">'Live weight'</span>,</span>
-<span>                                mindate <span class="op">=</span> <span class="st">"1980-01-01"</span><span class="op">)</span></span></code></pre></div>
+<span>                                MinDate <span class="op">=</span> <span class="st">"1980-01-01"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="gro_remoutliers">gro_remoutliers<a class="anchor" aria-label="anchor" href="#gro_remoutliers"></a>
 </h2>
 <p>This function removes the outliers from a dataset of weights. This
 function takes as arguments:
-<code>*</code>data_weight<code>a data frame that must include at least the columns</code>MeasurementValue<code>,</code>MeasurementType<code>, and</code>Age<code>. *</code>taxa<code>the name of the taxa studied *</code>ageMat<code>the MINIMUM age at sexual maturity. The function takes as threshold 1.2*ageMat to differentiate juveniles (still growing) from adults *</code>maxweight<code>*</code>variableid<code>name of the column including individual IDs. Defaut = "AnimalAnonID". It must also be a column of</code>data_weight<code>*</code>minq<code>Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025 *</code>IQR<code>influences the sensitivity of the function to remove outliers using generalized additive model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers. *</code>perc_weight_min<code>Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%) *</code>perc_weight_max`
+<code>*</code>data_weight<code>a data frame that must include at least the columns</code>MeasurementValue<code>,</code>MeasurementType<code>, and</code>Age<code>. *</code>Taxa<code>the name of the taxa studied *</code>AgeMat<code>the MINIMUM age at sexual maturity. The function takes as threshold 1.2*AgeMat to differentiate juveniles (still growing) from adults *</code>maxweight<code>*</code>variableid<code>name of the column including individual IDs. Defaut = "AnimalAnonID". It must also be a column of</code>data_weight<code>*</code>minq<code>Sensitivity of the function to remove outliers using percentiles, between 0 and 1. Default =  0.025 *</code>IQR<code>influences the sensitivity of the function to remove outliers using generalized additive model of growth. It should be above 1 Default =  2.75. A higher number makes the function less sensitive to find outliers. *</code>perc_weight_min<code>Minimum percentage of weight that an individual can naturally lose or gain during a year . Default =  0.2 (20%) *</code>perc_weight_max`
 Maximum percentage of weight that an individual can naturally lose or
 gain during a year . Default = 2.5 (250%)</p>
 <p>This function follow 4 different steps to highlight outliers: 1/ It
@@ -256,7 +256,7 @@ classified as juveniles.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span>
-<span>                          taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<span>                          Taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, AgeMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="remove-outliers-from-percentiles">Remove outliers from percentiles<a class="anchor" aria-label="anchor" href="#remove-outliers-from-percentiles"></a>
 </h3>
@@ -271,7 +271,7 @@ does not remove the 2 youngest and 2 oldest individuals.</p>
 <span><span class="fu"><a href="../reference/Gro_Rout_quan.html">Gro_Rout_quan</a></span> <span class="op">(</span><span class="va">z</span>,<span class="va">x</span>, minq <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt;  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="linearize-individual-trajectories">Linearize individual trajectories<a class="anchor" aria-label="anchor" href="#linearize-individual-trajectories"></a>
@@ -322,82 +322,63 @@ values that must be considered as outliers.</p>
 <span></span>
 <span><span class="va">weights_ind</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">weights_ind</span><span class="op">$</span><span class="va">Keep2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 1</span></span>
-<span><span class="co">#&gt;   [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;   [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [112] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [149] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [186] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [223] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [260] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0</span></span>
-<span><span class="co">#&gt;  [297] 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [334] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 0 0 0 0 1 1</span></span>
-<span><span class="co">#&gt;  [371] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [408] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 1 1 1 0 0 0 0</span></span>
-<span><span class="co">#&gt;  [445] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [482] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [519] 1 1 0 0 1 0 1 0 0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [556] 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [593] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [630] 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [667] 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [704] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 1 0 1 0</span></span>
-<span><span class="co">#&gt;  [741] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1</span></span>
-<span><span class="co">#&gt;  [778] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [815] 1 1 1 1 1 1 1 1 1 1 1 0 0 1 0 0 0 0 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [852] 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [889] 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 0 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [926] 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [963] 1 1 1 1 1 1 1 1 1 0 0 1 1 0 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1000] 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1037] 1 1 1 1 0 0 0 0 1 0 1 0 0 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1074] 1 1 1 0 0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 0 1 1 0 0 0 0 0 1 0 0 0 1</span></span>
-<span><span class="co">#&gt; [1111] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1148] 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1185] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 0 0 0 1 0 0 0</span></span>
-<span><span class="co">#&gt; [1222] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1259] 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1296] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1333] 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 0 1 0 0 0 1 1 0 1 0 0 1 0 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1370] 0 0 1 0 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
-<span><span class="co">#&gt; [1407] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1444] 1 1 1 0 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0</span></span>
-<span><span class="co">#&gt; [1481] 0 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 0 0 1 1</span></span>
-<span><span class="co">#&gt; [1518] 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0</span></span>
-<span><span class="co">#&gt; [1555] 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1592] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1629] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1666] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1703] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1740] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1777] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1814] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1851] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1888] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1925] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1962] 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 0 1 1 1 1</span></span>
-<span><span class="co">#&gt; [1999] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2036] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2073] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2110] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2147] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2184] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2221] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2258] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2295] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2332] 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2369] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1</span></span>
-<span><span class="co">#&gt; [2406] 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2443] 1 0 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0</span></span>
-<span><span class="co">#&gt; [2480] 0 0 0 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2517] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2554] 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2591] 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0</span></span>
-<span><span class="co">#&gt; [2628] 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2665] 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0</span></span>
-<span><span class="co">#&gt; [2702] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2739] 1 1 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt; [2776] 0 0 1 1 0</span></span>
+<span><span class="co">#&gt;    [1] 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;   [38] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;   [75] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [112] 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [149] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [186] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [223] 0 0 0 0 0 0 0 1 1 0 0 1 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [260] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [297] 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [334] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [371] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [408] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [445] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [482] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [519] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [556] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [593] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [630] 0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 1 0 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [667] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [704] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [741] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [778] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [815] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [852] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [889] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [926] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;  [963] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1000] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1037] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1074] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1111] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1148] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1185] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1222] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1259] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1296] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1333] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1370] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1407] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1444] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1481] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1518] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1555] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1592] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1629] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1666] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1703] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1740] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1777] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1814] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1851] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1888] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1925] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1962] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [1999] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [2036] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt; [2073] 0 0 0</span></span>
 <span></span>
 <span><span class="va">weights_pop</span> <span class="op">&lt;-</span> <span class="va">weights</span><span class="op"><a href="../reference/pipe.html">%&gt;%</a></span><span class="fu"><a href="../reference/Gro_lin_ind.html">Gro_lin_ind</a></span><span class="op">(</span>traj_ind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -422,15 +403,11 @@ trajectories * in blue if detected from the global log-linear model</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span>
-<span>                          taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, ageMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span>                          Taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, AgeMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gro_outplot.html">Gro_outplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, </span>
 <span>                 title <span class="op">=</span> <span class="st">"Species A"</span>, ylimit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">p</span></span>
-<span><span class="co">#&gt; Warning: Removed 3 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">#&gt; (`geom_point()`).</span></span>
-<span><span class="co">#&gt; Removed 3 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">#&gt; (`geom_point()`).</span></span></code></pre></div>
+<span><span class="va">p</span></span></code></pre></div>
 <p><img src="growth_files/figure-html/example-Gro_outplot-1.png" width="700"></p>
 </div>
 </div>
@@ -468,7 +445,7 @@ default = c(2.5,97.5) corresponding to the 95% predicted interval.</li>
 <div class="section level3">
 <h3 id="fit-growth-model">Fit growth model<a class="anchor" aria-label="anchor" href="#fit-growth-model"></a>
 </h3>
-<p>This function fit a given growth model to a dataset. It takes as
+<p>This function fits a given growth model to a dataset. It takes as
 arguments:</p>
 <ul>
 <li>num index of the model to run</li>
@@ -516,7 +493,7 @@ polynomial</li>
 <span><span class="co">#&gt;     return(sum((logz - zEst)^2))</span></span>
 <span><span class="co">#&gt;   }else{return(zEst)}</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x000001758a7b1550&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x000001bb62c2d5a8&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $np</span></span>
@@ -530,13 +507,13 @@ polynomial</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart</span></span>
 <span><span class="co">#&gt; $gamstart$zinf</span></span>
-<span><span class="co">#&gt; [1] 136.2628</span></span>
+<span><span class="co">#&gt; [1] 197.0802</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$z0</span></span>
-<span><span class="co">#&gt; [1] -121.8487</span></span>
+<span><span class="co">#&gt; [1] -182.6683</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$gamma</span></span>
-<span><span class="co">#&gt; [1] 1.078123</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.6368966</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-model-prediction">Plot model prediction<a class="anchor" aria-label="anchor" href="#plot-model-prediction"></a>

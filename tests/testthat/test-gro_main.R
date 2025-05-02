@@ -4,12 +4,12 @@ data(weights)
 data(core)
 
 
-test_that("Gro_ana Captive works", {
+test_that("Gro_Main Captive works", {
   output= Gro_Main(data = weights, coresubse = core,
                    Taxa = "Reptilia", Species = "Testudo hermanni" ,
                    BirthType = c("Captive", "Wild"), 
-                   AgeMat = 1,
-                   type = "weight", MeasureType = "Live weight",
+                   AgeMat = 1, MeasureType = "Live weight",
+                   type = "weight", 
                    MinNGro = 30, MinNIGro = 30, 
                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
   

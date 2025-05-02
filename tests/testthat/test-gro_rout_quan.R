@@ -10,4 +10,6 @@ test_that("Gro_Rout_quan error", {
 
 test_that("Gro_Rout_quan works", {
   expect_true(sum(Gro_Rout_quan(z1, x1, minq = 0.05)) >= 95)
+ expect_true(sum(Gro_Rout_quan(z1, x1, minq = 0.05, type = "lower")) >= 95)
+ expect_true(sum(Gro_Rout_quan(z1, x1, minq = 0.05, type = "upper")) >= 95)
 })

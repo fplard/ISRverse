@@ -213,18 +213,18 @@ assert_that(is.character(models))
                 summar$error = "Model did not fit"
               }
             } else {
-              summar$Nerr = 5 
-              summar$error = "NInds < MinNIGro"
-              wAnalysis<-  NULL
+              summar$Nerr = 5  #nocov
+              summar$error = "NInds < MinNIGro" #nocov
+              wAnalysis<-  NULL  #nocov
             }
           } else {
-            summar$Nerr = 4 
-            summar$error = "NWeight < MinNGro"
-            wAnalysis<-  NULL 
+            summar$Nerr = 4  #nocov
+            summar$error = "NWeight < MinNGro" #nocov
+            wAnalysis<-  NULL  #nocov
           }
         } else {
-          summar$Nerr = 3
-          summar$error = "Data from 1 Institution"
+          summar$Nerr = 3 #nocov
+          summar$error = "Data from 1 Institution" #nocov
           
         }
       }
@@ -255,12 +255,12 @@ data(weights)
 data(core)
 
 
-test_that("Gro_ana Captive works", {
+test_that("Gro_Main Captive works", {
   output= Gro_Main(data = weights, coresubse = core,
                    Taxa = "Reptilia", Species = "Testudo hermanni" ,
                    BirthType = c("Captive", "Wild"), 
-                   AgeMat = 1,
-                   type = "weight", MeasureType = "Live weight",
+                   AgeMat = 1, MeasureType = "Live weight",
+                   type = "weight", 
                    MinNGro = 30, MinNIGro = 30, 
                    models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) 
   
@@ -400,7 +400,7 @@ Gro_cleanmeasures <- function(data, coresubse,
     summar$NInd_raw = length(unique(data$AnimalAnonID))
     summar$NWeight_raw = nrow(data)
   }else{
-    warnings('no common ID between measured data and core data')
+    warnings('no common ID between measured data and core data')  # nocov
   }
   
   if(nrow(data)>0){
@@ -443,13 +443,18 @@ data(core)
 
 test_that("Gro_cleanmeasures works", {
   d=Gro_cleanmeasures(weights, core)
-  expect_named(
+   expect_named(
     d$data,
     c("binSpecies", "SexType", "AnimalAnonID", "RecordingInstitution", "MeasurementType", "UnitOfMeasure", "MeasurementDate", "Age", "MeasurementValue"))
   expect_named(
     d$summar,
     c("NInd_raw", "NWeight_raw", "NWeight_val", "NInd_val", "error", "Nerr"))
-  expect_true(unique(d$data$UnitOfMeasure) == "kg")
+  expect_true(unique(d$data$UnitOfMeasure) == "kg")  
+  d=Gro_cleanmeasures(weights, core[1,])
+ d=Gro_cleanmeasures(weights, core,  MeasureType = 'Live weight',
+                     corevariable = "FirstAcquisitionDate", 
+                     variablekeep= "MeasurementType")
+
 })
 ```
 
@@ -527,12 +532,12 @@ Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL,
                           'Chondrichthyes', or 'Osteichthyes'")
   if(is.null(maxweight)){
     maxweight = 10000000
-    if(Taxa == "Mammalia")       maxweight = 7000
-    if(Taxa == "Aves")           maxweight = 200
-    if(Taxa == "Reptilia")       maxweight = 1500
-    if(Taxa == "Amphibia")       maxweight = 100
-    if(Taxa == "Chondrichthyes") maxweight = 1000
-    if(Taxa == "Osteichthyes") maxweight = 500
+    if(Taxa == "Mammalia")       maxweight = 7000 #nocov
+    if(Taxa == "Aves")           maxweight = 200 #nocov
+    if(Taxa == "Reptilia")       maxweight = 1500 #nocov
+    if(Taxa == "Amphibia")       maxweight = 100 #nocov
+    if(Taxa == "Chondrichthyes") maxweight = 1000 #nocov
+    if(Taxa == "Osteichthyes") maxweight = 500 #nocov
   }
   assert_that(is.numeric(maxweight))
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
@@ -542,8 +547,8 @@ Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL,
   assert_that(all(data_weight$Age>=0))
   
   if(variableid != "AnimalAnonID"){
-    data_weight <- data_weight%>%
-      rename(AnimalAnonID = !!sym(variableid))
+    data_weight <- data_weight%>%               #nocov
+      rename(AnimalAnonID = !!sym(variableid))  #nocov
   }
   
   if(is.na(AgeMat)){AgeMat=1.5}
@@ -812,6 +817,8 @@ test_that("Gro_Rout_quan error", {
 
 test_that("Gro_Rout_quan works", {
   expect_true(sum(Gro_Rout_quan(z1, x1, minq = 0.05)) >= 95)
+ expect_true(sum(Gro_Rout_quan(z1, x1, minq = 0.05, type = "lower")) >= 95)
+ expect_true(sum(Gro_Rout_quan(z1, x1, minq = 0.05, type = "upper")) >= 95)
 })
 ```
 
@@ -1198,10 +1205,10 @@ Gro_analysis <- function(data_weight, all_mods =c("vonBertalanffy"), percentiles
   test  = shapiro.test(elogz)
   if(test$p.value<0.01){GOF$normal = FALSE}}
   a = summary(lm(elogz2 ~ data_weight$logx)) #test variance?
-  if(a$coefficients[2,4]<0.01){GOF$X = FALSE}
+  if(a$coefficients[2,4]<0.01) GOF$X = FALSE
   b = summary(lm(elogz ~ data_weight$logx)) #test pour senescence??
-  if(b$coefficients[2,4]<0.01){GOF$var = FALSE}
-  
+  if(b$coefficients[2,4]<0.01) GOF$var = FALSE
+
   # Quantile calculation:
   sig <- sd(elogz) 
   for (al in 1:length(percentiles)) {
@@ -1435,7 +1442,7 @@ This function gets the parameter and equations for the growth model and takes as
 # Set growth model parameters:
 Gro_ModSettings <- function(data, model = "vonBertalanffy") {
  # Check correct format for inputs ---------------------------------------------
-  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "vonBertalanffy_re", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
+  assert_that(model %in% c("logistic", "gompertz", "chapmanRichards", "vonBertalanffy", "polynomial"), msg = "The growth models supported are: logistic, gompertz, chapmanRichards, vonBertalanffy , and polynomial")
   assert_that(is.data.frame(data))
   assert_that(data %has_name% c('logx', 'logz'))
   assert_that(is.numeric(data$logx))
@@ -1587,43 +1594,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma)
     
   
-    } else if (model == "vonBertalanffy_re") {
-    growthMod <- vbGrowthtest 
-    np <- 4
-    namesCoef <- c("z0", "zinf", "gamma", "sigma")
-    lowCoef <- rep(0, np)
-    # Find starting z0 parameter:
-    logxLow <- min(logx) + c(0, logxDiff * 0.01)
-    id0 <- which(logx >= logxLow[1] & logx < logxLow[2])
-    z0 <- mean(logz[id0], na.rm = TRUE)
-    
-    # Find starting zInf parameter:
-    logxUpp <- max(logx) + c(-logxDiff * 0.01, 0)
-    idInf <- which(logx >= logxUpp[1] & logx <= logxUpp[2])
-    zInf <- mean(logz[idInf], na.rm = TRUE) - z0
-    
-    if (zInf <= 0) {
-      zInf <- z0 + diff(range(logz))
-    }
-    # find starting gamma:
-    nGams <- 5
-    logxInts <- seq(min(logx), max(logx), length = nGams + 1)
-    dxInts <- logxInts[2] - logxInts[1]
-    logzMeans <- sapply(1:5, function(ii) {
-      idint <- which(logx >= logxInts[ii] & logx <= logxInts[ii + 1])
-      logzmean <- mean(logz[idint])
-      return(logzmean)
-    })
-    inlog <- 1 - (logzMeans - z0) / zInf
-    idkeep <- which(inlog > 0)
-    gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
-    if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
-    }
-    # Fill-up gamStart:
-    gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma, sigma = 0)
-    
-  } else if (model == "polynomial") {
+    } else if (model == "polynomial") {
     growthMod <- polyGrowth
     np <- 5
     namesCoef <- sprintf("gam%s", 0:np - 1)
@@ -1738,7 +1709,7 @@ Gro_plot <- function(data, data_percent, title = "") {
   if (length(percentiles)/2 == 1){
     colorrib ="grey80"
   }else{
-    colorrib = paste0("grey", seq(30:90, length.out = length(percentiles)/2))}
+    colorrib = paste0("grey", seq(10,90, length.out = length(percentiles)/2))}
   for (i in 1:(length(percentiles)/2) ){
     per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
     p <- p +
@@ -1793,6 +1764,9 @@ test_that(
     p<- dat %>% Gro_plot(out$percent)
     expect_named(p$labels,c("title", "x", "y", "ymin", "ymax"))
     expect_length(p$layers,3)
+    out = dat %>% Gro_analysis(percentiles = c(2.5,20,80, 97.5))
+    p<- dat %>% Gro_plot(out$percent)
+   
   })
 
 ```

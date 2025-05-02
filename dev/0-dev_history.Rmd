@@ -105,6 +105,18 @@ pkgdown::build_site()
 devtools::build(vignettes = TRUE)
 ```
 
+## Code coverage
+```{r, eval=FALSE}
+library(covr)
+cov = package_coverage()
+zero_coverage(cov)
+
+
+cov2 =package_coverage(line_exclusions = list("R/make_summary.R", "R/tx_devout.R"))
+cov2
+zero_coverage(cov2)
+```
+
 # Share the package
 
 ```{r, eval=FALSE}

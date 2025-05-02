@@ -128,9 +128,9 @@ Rep_main <- function( coresubset, collection, parent, move,  RepSect = c('agemat
         out$summary$litt_analyzed = out$litter$summary$analyzed
       }
     }else{
-      outsummary$error = glue::glue("Data from {length(unique(Datarep$ReproData$currentInst)} Institution(s)")
-      outsummary$Nerr = 3
-      outsummary$analyzed = FALSE
+      outsummary$error = glue::glue("Data from {length(unique(Datarep$ReproData$currentInst)} Institution(s)") #nocov
+      outsummary$Nerr = 3 #nocov
+      outsummary$analyzed = FALSE #nocov
     }
   }
   return(out)

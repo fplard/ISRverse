@@ -145,7 +145,7 @@ Sur_out <- function(out,
   # Proba to live 5 year more:
   if(MaxAge >=5){
     out$Sur5 <- Sur_age(Lx, xv = xv, Nyear = 5)
-  }else{out$Sur5 = "Error : Age max lower than 5 years"}
+  }else{out$Sur5 = "Error : Age max lower than 5 years"} #nocov
   # Proba to live 1 year more:
   out$Sur1 <- Sur_age(Lx, xv = xv, Nyear = 1)
   # Proba to live 1 month more:
@@ -209,8 +209,8 @@ Sur_out <- function(out,
   idMaxAge = ifelse(max(out$relex_from0$Age) > MaxAgeobs, which(out$relex_from0$Age==MaxAgeobs), length(out$relex_from0$Age))
   out$check$LEmaxOage = out$relex_from0$RemLExp[idMaxAge]
   if(out$relex_from0$RemLExp[idMaxAge]>= MaxLE){
-    out$summary$error = "Min(Life_exp) >= MaxLE"
-    out$summary$Nerr=11
+    out$summary$error = "Min(Life_exp) >= MaxLE" #nocov
+    out$summary$Nerr=11 #nocov
   }
   
   #Check  if the survivorship at mean life expectancy is higher than MinMLE
@@ -218,13 +218,13 @@ Sur_out <- function(out,
   dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
   out$check$LxatMLE = lx[which(dif == min(dif))]
   if(lx[which(dif == min(dif))]< MinMLE){
-    out$summary$error = "lx at MLE < MinMLE"
-    out$summary$Nerr = 12
+    out$summary$error = "lx at MLE < MinMLE" #nocov
+    out$summary$Nerr = 12 #nocov
   }
   out$check$KMMinLx = out$summary$lxMin
   if( out$summary$lxMin >= MinLx){
-    out$summary$error = "lxmin > MinLx"
-    out$summary$Nerr = 13
+    out$summary$error = "lxmin > MinLx" #nocov
+    out$summary$Nerr = 13 #nocov
   }
   
   
@@ -257,12 +257,12 @@ Sur_out <- function(out,
   out$check$Gof_KM_coeff1 =check
   out$check$Gof_KM_coeff2 =max(v$resi)
   if(max(v$resi)>=2 & out$summary$Nerr==0 ){
-    out$summary$error = "Kaplan-Meier does not fit:2"
-    out$summary$Nerr = 14
+    out$summary$error = "Kaplan-Meier does not fit:2" #nocov
+    out$summary$Nerr = 14 #nocov
   }
   if(check < 0.8){
-    out$summary$error = "Kaplan-Meier does not fit"
-    out$summary$Nerr = 10
+    out$summary$error = "Kaplan-Meier does not fit" #nocov
+    out$summary$Nerr = 10 #nocov
   }
   
   

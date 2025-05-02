@@ -14,11 +14,21 @@ test_that("run_txprofile works", {
                 PlotDir = PlotDir, MeasureType="Live weight",
                 ExtractDate = "",MinLx=0.4,
                 MinDate = "1980-01-01",
-                Sections = c("sur", "rep", "gro"),
+                Sections = c("sur", "gro"),
                 SexCats = c('Male', 'Female'),
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
   )
-  
+    run_txprofile(Taxa = "Reptilia", SpeciesList = "Testudo hermanni",
+                ZIMSDir = ZIMSDir, AnalysisDir = PlotDir,
+                InParallel = TRUE,
+                PlotDir = PlotDir, MeasureType="Live weight",
+                ExtractDate = "",MinLx=0.4,
+                MinDate = "1980-01-01",
+                Sections = c( "rep"),ErasePrevious=TRUE, spOutLev = c("Testudo hermanni"),
+                SexCats = c('Male', 'Female'),
+                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
+  )
   # expect_true(file.exists(paste(PlotDir2, "Reptilia_Testudo_hermanni.Rdata", sep = '/')))
   unlink(PlotDir, recursive = TRUE)
+  
 })

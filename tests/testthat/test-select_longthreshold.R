@@ -8,11 +8,13 @@ test_that("select_Longthreshold works", {
                                PlotDir = TempDir, PlotName = "Testudo_hermanni")
   expect_true(file.exists(paste(TempDir, 'Testudo_hermanni_LongThres.pdf', sep = '/')))
   #reMove temporary folder
-  unlink(TempDir, recursive = TRUE)
   expect_named(out, c("summar",  "data"))
   expect_true("above95" %in% names(out$data))
   expect_named(out$summar, c("Sex", 'Nselect', "Nlifespan", "GapThresh", "NThres"))
   expect_true(out$summar$Sex == "All" )
   expect_equal(out$summar$Nselect, nrow(core))
+  out <- select_Longthreshold (Data = core[1:30,],  SexCats = "Female", 
+                               PlotDir = TempDir, PlotName = "Testudo_hermanni")
   unlink(TempDir, recursive = TRUE)
+
 })

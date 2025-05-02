@@ -2,10 +2,13 @@
 
 KM_tab = data.frame( Ages = 1:10,
                      ple = sort(runif(10, 0, 1), decreasing = TRUE))
+KM_tab2 = data.frame( Ages = 1:10,
+                     ple = seq(1,0.1, by = -0.1))
 
 test_that("KM_out works", {
   out <- KM_age(KM_tab, Lx = c(0.5,0.1))
   expect_named(out, c("Lx", "Age"))
   expect_true(is.numeric(out$Lx))
   expect_true(is.numeric(out$Age))
-})
+  out <- KM_age(KM_tab2, Lx = c(0.5,0.1))
+  })

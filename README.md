@@ -207,7 +207,7 @@ spOutLev <- MaxOutlev$Specie
 
 #Load Data -----------------------------------------------------------------------
 Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
-                      species = List_species,
+                      Species = List_species,
                       Animal = TRUE,
                       tables= c('Collection', 'DeathInformation')) 
 Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = lubridate::as_date("2024/08/29"))
@@ -230,7 +230,7 @@ for (species in List_species[[Taxa]]){
       #Check for gaps in longevity distribution to define a threshold 
       #after which individuals will be deleted (possible outiers or errors in data)
       sexDat <- select_Longthreshold( Dataspe$data,  SexCats = sx, 
-                                      PlotDir= glue::glue("{PlotDir}test2/"),
+                                      PlotDir= glue::glue("{PlotDir}/"),
                                       MinN = MinN ,
                                       PlotName = glue::glue("{Taxa}_{species}_{sx}") )
       OutlLev1 = min(sexDat$summar$GapThresh,MaxOutl, na.rm = T)
@@ -239,9 +239,9 @@ for (species in List_species[[Taxa]]){
       if(nrow(sexDat$data)>0){ 
         out[[sx]] <-  Sur_main(DataCore = sexDat$data,  DeathInformation =  Data[[Taxa]]$DeathInformation,
                                BirthType = BirthType, LastDead = T,
-                               PlotDir = glue::glue("{PlotDir}test2/"),
+                               PlotDir = glue::glue("{PlotDir}/"),
                                MaxAge = MaxAge,
-                               models = ModelsSur, Shape= Shape, 
+                               Models = ModelsSur, Shape= Shape, 
                                OutlLev1 =OutlLev1,
                                MinMLE = MinMLE, MaxLE =  MaxLE,
                                MinDate = MinDate, MinNSur = MinNSur, MaxNSur = MaxNSur, 
@@ -304,10 +304,10 @@ for (species in List_species[[Taxa]]){
   Datarep <- Rep_prepdata(Dataspe$data, 
                           Data[[Taxa]]$Collection, Data[[Taxa]]$Parent, Data[[Taxa]]$Move,
                           BirthType_parent = "Captive", BirthType_offspring = "Captive",
-                          MinNrepro = MinNRepro, MinNparepro = MinNPaRepro, Global = Global)
-  if(nrow(Datarep$Reprodata)>0){
+                          MinNRepro = MinNRepro, MinNPaRepro = MinNPaRepro, Global = Global)
+  if(nrow(Datarep$ReproData)>0){
     #Litter size Analysis
-    out <- Rep_littersize(Datarep$Reprodata, 
+    out <- Rep_littersize(Datarep$ReproData, 
                           NDay = NDay, ParentPercDam = ParentPercDam,
                           ParentPercSire = ParentPercSire,  
                           MinNLitter = MinNLitter)
@@ -350,7 +350,7 @@ TAB = tibble()
 for (species in List_species[[Taxa]]){
   print(species)
   Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
-                            BirthType = BirthType,UncertDeath= UncertDeath,
+                            BirthType = BirthType,
                             MinDate = MinDate , ExtractDate = ExtractDate,
                             Global = Global) 
   if(nrow(Dataspe$data)>0){
@@ -364,10 +364,10 @@ for (species in List_species[[Taxa]]){
         Datarep <- Rep_prepdata(coresubset = coresubset, 
                                 Data[[Taxa]]$Collection, Data[[Taxa]]$Parent, Data[[Taxa]]$Move,
                                 BirthType_parent = "Captive", BirthType_offspring = "Captive",
-                                MinNrepro = MinNRepro, MinNparepro = MinNPaRepro, Global = Global)
-        if(nrow(Datarep$Reprodata)>0){
+                                MinNRepro = MinNRepro, MinNPaRepro = MinNPaRepro, Global = Global)
+        if(nrow(Datarep$ReproData)>0){
           #Calculate reproductive age statistics
-          out <- Rep_agemat(Datarep$Reprodata)%>%
+          out <- Rep_agemat(Datarep$ReproData)%>%
             mutate(Species = species,
                    Class = Taxa,
                    Sex = sx)
@@ -428,8 +428,9 @@ Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = ExtractDate, MinBirthDa
 species = List_species[[Taxa]][1]
 sx = "All" #can also be "Female" or "Male"
 
-Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
-                          BirthType = BirthType,UncertDeath= 3600,
+Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, 
+                          UncertBirth = UncertBirth,
+                          BirthType = BirthType,
                           MinDate = MinDate , ExtractDate = ExtractDate,
                           Global = Global) 
 
@@ -443,8 +444,9 @@ if(nrow(Dataspe$data)>0){
     #Estimate age at sexual maturity
     repr[[sx]] <- Rep_main(coresubset= coresubset, Data[[Taxa]]$Collection, 
                            Data[[Taxa]]$Parent, Data[[Taxa]]$Move,  
-                           Repsect = "agemat",
-                           BirthType_parent = BirthType, BirthType_offspring = BirthType, 
+                           RepSect = "agemat",
+                           BirthType_parent = BirthType, 
+                           BirthType_offspring = BirthType, 
                            Global = Global, 
                            MinNRepro = MinNRepro, MinNPaRepro =  MinNPaRepro
     )
@@ -524,7 +526,7 @@ MinNPaRepro = 30  #Minimum number of unique parent records
 
 #Load Data -----------------------------------------------------------------------
 Data <- Load_Zimsdata(Taxa = Taxa, ZIMSDir = ZIMSDirdata, 
-                      species = List_species,
+                      Species = List_species,
                       Animal = TRUE,
                       tables= c('Collection', "Weight", 'Parent', 'Move')) 
 Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = ExtractDate, MinBirthDate =MinBirthDate)
@@ -534,7 +536,7 @@ Animal <- Prep_Animal(Data[[Taxa]]$Animal, ExtractDate = ExtractDate, MinBirthDa
 for (species in List_species[[Taxa]]){
   print(species)
   Dataspe <- select_species(species, Animal, Data[[Taxa]]$Collection, UncertBirth = UncertBirth,
-                            BirthType = BirthType,UncertDeath= UncertDeath,
+                            BirthType = BirthType,
                             MinDate = MinDate , ExtractDate = ExtractDate,
                             Global = Global) 
   
@@ -549,7 +551,7 @@ for (species in List_species[[Taxa]]){
         #Estimate age at sexual maturity
         repr[[sx]] <- Rep_main(coresubset= coresubset, Data[[Taxa]]$Collection, 
                                Data[[Taxa]]$Parent, Data[[Taxa]]$Move,  
-                               Repsect = "agemat",
+                               RepSect = "agemat",
                                BirthType_parent = BirthType, BirthType_offspring = BirthType, 
                                Global = Global, 
                                MinNRepro = MinNRepro, MinNPaRepro =  MinNPaRepro
@@ -563,9 +565,9 @@ for (species in List_species[[Taxa]]){
         }
         #Run growth model
         weig[[sx]] <- Gro_Main(data = Data[[Taxa]]$Weight, coresubse = coresubset,
-                               Taxa = Taxa, species = species,
+                               Taxa = Taxa, Species = species,
                                BirthType = BirthType, 
-                               agemat = agemat, percentiles = c(2.5,97.5),
+                               AgeMat = agemat, percentiles = c(2.5,97.5),
                                PlotDir = PlotDir, type = "weight",
                                UncertDate = UncertDate,
                                MeasureType = MeasureType,
@@ -673,7 +675,7 @@ MinNLitter = 30 #Minimum number of litters to run the analysis
 NDay = 7 #Number of days to group all offspring in one litter/clutch
 
 #Seasonnality
-MinNseas = 50  #Minimum number of births to run the seasonnality analysis
+MinNSeas = 50  #Minimum number of births to run the seasonnality analysis
 
 # Growth Models -----------------------------------------------------------------
 #Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"
@@ -713,8 +715,8 @@ profile results: “sur”, “rep” and/or “gro”
 #Sections to run or to update
 Sections = c("sur", "rep", "gro")
 Sections = c("sur")
-
-run_txprofile (TaxaList[Taxa], Species_list = "All", ZIMSDirdata, 
+Taxa <- 3
+run_txprofile (TaxaList[Taxa], SpeciesList = "All", ZIMSDirdata, 
                AnalysisDir = AnalysisDir, PlotDir = PlotDir,
                Sections = Sections, ErasePrevious = FALSE,
                ExtractDate = ExtractDate, MinDate = MinDate,
@@ -730,8 +732,9 @@ run_txprofile (TaxaList[Taxa], Species_list = "All", ZIMSDirdata,
                ModelsSur = ModelsSur, Shape = Shape,
                niter = niter, burnin = burnin, thinning = thinning, 
                nchain = nchain, ncpus = ncpus,
-               parentProb = parentProb, MinNRepro = MinNRepro, 
-               MinNPaRepro = MinNPaRepro, MinNseas = MinNseas, 
+              ParentPercDam = ParentPercDam, ParentPercSire = ParentPercSire, 
+              MinNRepro = MinNRepro, 
+               MinNPaRepro = MinNPaRepro, MinNSeas = MinNSeas, 
                MinNLitter = MinNLitter, NDay = NDay, 
                MinNGro = MinNGro, MinNIGro = MinNIGro, MeasureType = MeasureType,
                ModelsGro = ModelsGro
@@ -748,16 +751,16 @@ list_surv= readxl::read_xlsx(glue("{AnalysisDir}Liste_Survival.xlsx"), sheet =1)
 Taxa <- 4
 #Sections to run or to update
 Sections = c("sur")
-# Species_list =list_surv
-Species_list =c("Panthera onca", "Loris_tardigradus", "Pteropus_livingstonii")
+# SpeciesList =list_surv
+SpeciesList =c("Panthera onca", "Loris_tardigradus", "Pteropus_livingstonii")
 
 
 run_txprofile (Taxa = TaxaList[Taxa], 
                ZIMSDir =ZIMSDirdata,AnalysisDir = AnalysisDir, PlotDir = PlotDir,
-               ErasePrevious = FALSE,    inparallel = FALSE,
+               ErasePrevious = FALSE,    InParallel = FALSE,
                BirthType = BirthType, 
                SexCats = BySex[[TaxaList[Taxa]]],
-               Species_list = Species_list,  Sections = Sections,  
+               SpeciesList = SpeciesList,  Sections = Sections,  
                ExtractDate = ExtractDate, MinDate = MinDate, 
                MinAge = MinAge, LastDead =LastDead,
                MinBirthDate = MinBirthDate, MinN = MinN,  Global =  Global,
@@ -773,7 +776,7 @@ run_txprofile (Taxa = TaxaList[Taxa],
                nchain = nchain, ncpus = ncpus,
                ParentPercDam = ParentPercDam, ParentPercSire = ParentPercSire, 
                MinNRepro = MinNRepro, 
-               MinNPaRepro = MinNPaRepro, MinNseas = MinNseas, 
+               MinNPaRepro = MinNPaRepro, MinNSeas = MinNSeas, 
                MinNLitter = MinNLitter, NDay = NDay, 
                MinNGro = MinNGro, MinNIGro = MinNIGro, MeasureType = MeasureType,
                ModelsGro = ModelsGro
@@ -787,15 +790,15 @@ run_txprofile (Taxa = TaxaList[Taxa],
 ipara = 1
 
 
-Taxa = 2
+Taxa = 4
 #Run this code changing ipara on each different computer
 XX = 5
 #Sections to run or to update
-Sections = c("sur", "rep", "gro")
+Sections = c("rep")
 #Number of different computers
 
-run_txprofile (TaxaList[Taxa], Species_list = "All", ZIMSDirdata, 
-               inparallel = TRUE, ipara = ipara, npara = XX, 
+run_txprofile (TaxaList[Taxa], SpeciesList = "All", ZIMSDirdata, 
+               InParallel = TRUE, ipara = ipara, npara = XX, 
                AnalysisDir = AnalysisDir, PlotDir = PlotDir,
                Sections = Sections, ErasePrevious = FALSE,
                MinAge = MinAge, LastDead =LastDead,
@@ -815,7 +818,7 @@ run_txprofile (TaxaList[Taxa], Species_list = "All", ZIMSDirdata,
                ParentPercSire =  ParentPercSire,
                ParentPercDam =  ParentPercDam,
                MinNRepro = MinNRepro, 
-               MinNPaRepro = MinNPaRepro, MinNseas = MinNseas, 
+               MinNPaRepro = MinNPaRepro, MinNSeas = MinNSeas, 
                MinNLitter = MinNLitter, NDay = NDay, 
                MinNGro = MinNGro, MinNIGro = MinNIGro, MeasureType = MeasureType,
                ModelsGro = ModelsGro
@@ -844,8 +847,7 @@ SummTab <- make_summary2(AnalysisDir=glue("{AnalysisDir}Rdata"),
                          SaveDir = glue("{AnalysisDir}"),
                          TaxaList = TaxaList,
                          BySex = BySex ,
-                         Sections = c("sur"),
-                         MinAge = 0
+                         Sections = c("sur")
 )
 ```
 

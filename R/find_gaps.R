@@ -50,8 +50,7 @@ find_gaps <- function(x,MaxAlive = NA, plot = FALSE,...) {
       fin <- TRUE
     }
   }
-  if(is.na(MaxAlive))(MaxAlive = max(x))
-  
+ 
   #Return gaps only if the gaps is 20% higher than the starting age of this gap-----
   idgap <- gaps%>%
     filter(Gap/iniAge > 0.2 ,

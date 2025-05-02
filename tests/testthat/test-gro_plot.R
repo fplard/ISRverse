@@ -22,5 +22,8 @@ test_that(
     p<- dat %>% Gro_plot(out$percent)
     expect_named(p$labels,c("title", "x", "y", "ymin", "ymax"))
     expect_length(p$layers,3)
+    out = dat %>% Gro_analysis(percentiles = c(2.5,20,80, 97.5))
+    p<- dat %>% Gro_plot(out$percent)
+   
   })
 

@@ -267,7 +267,7 @@ tx_report <- function(Species, Taxa,  Animal, Collection, PlotDir = NULL,
             agemat = NA
             if(length(repout$repr[[sx]])>0){
               if(repout$repr[[sx]]$summary$amat_analyzed){
-                agemat = repout$repr[[sx]]$agemat$ageMat
+                agemat = repout$repr[[sx]]$agemat$ageMat #nocov
               }
             }
           
@@ -347,7 +347,7 @@ tx_report <- function(Species, Taxa,  Animal, Collection, PlotDir = NULL,
       }
     }
   }else{
-    warnings(glue::glue("No data for {Species}"))
+    warnings(glue::glue("No data for {Species}")) #nocov
   }
   
   return(repout)

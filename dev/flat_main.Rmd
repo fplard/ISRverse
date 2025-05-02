@@ -382,7 +382,7 @@ dir.create(PlotDir)
 #This code run the survival analysis
 run_txprofile(Taxa = "Reptilia", SpeciesList = "All",
               ZIMSDir = ZIMSDir, AnalysisDir = ZIMSDir,
-              PlotDir = PlotDir,MinLx=0.4,
+              PlotDir = PlotDir,MinLx=0.4, maxNsur=1000,
               ExtractDate = "", MeasureType="Live weight",
               MinDate = "1980-01-01",
               Sections = c("sur",'rep',"gro"),
@@ -411,13 +411,23 @@ test_that("run_txprofile works", {
                 PlotDir = PlotDir, MeasureType="Live weight",
                 ExtractDate = "",MinLx=0.4,
                 MinDate = "1980-01-01",
-                Sections = c("sur", "rep", "gro"),
+                Sections = c("sur", "gro"),
                 SexCats = c('Male', 'Female'),
                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
   )
-  
+    run_txprofile(Taxa = "Reptilia", SpeciesList = "Testudo hermanni",
+                ZIMSDir = ZIMSDir, AnalysisDir = PlotDir,
+                InParallel = TRUE,
+                PlotDir = PlotDir, MeasureType="Live weight",
+                ExtractDate = "",MinLx=0.4,
+                MinDate = "1980-01-01",
+                Sections = c( "rep"),ErasePrevious=TRUE, spOutLev = c("Testudo hermanni"),
+                SexCats = c('Male', 'Female'),
+                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3
+  )
   # expect_true(file.exists(paste(PlotDir2, "Reptilia_Testudo_hermanni.Rdata", sep = '/')))
   unlink(PlotDir, recursive = TRUE)
+  
 })
 ```
 
@@ -1119,6 +1129,11 @@ test_that("make_summary2 works", {
   expect_true(file.exists(paste( dirname(file), 'DP_Analyses.csv', sep = '/')))
   expect_true(file.exists(paste( dirname(file), 'DP_Any_Ana.csv', sep = '/')))
   expect_named(SummTab , c('Class', 'Species', 'Sex', 'NRaw', 'NDate', 'NGlobal', 'NBirthType', 'NUncertBirth', 'NAlive', 'FirstDate', 'MaxAgeRaw', 'ExtractDate'))
+   SummTab <- make_summary2(AnalysisDir, dirname(file),
+                           TaxaList = "Reptilia",
+                           BySex = list(Reptilia = c("Male", "Female")) ,
+                           Sections = c("rep")
+  )
 })
 
 ```
@@ -1422,8 +1437,8 @@ Load_Zimsdata	<- function (Taxa, ZIMSDir,
     stringr::str_remove("Split_")
   assert_that(Taxa %in% c(idTaxa, "All"),
               msg = glue::glue("Taxa must one of {stringr::str_flatten_comma(idTaxa)}, or 'All'"))
-  if (Taxa == "All") Taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                              "Chondrichthyes", "Osteichthyes")
+  if (Taxa == "All") Taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia",    #nocov
+                              "Chondrichthyes", "Osteichthyes")   #nocov
   
   # Loop over taxa ---------------------------------------------------------------
   for (ta in Taxa){
@@ -1444,15 +1459,15 @@ Load_Zimsdata	<- function (Taxa, ZIMSDir,
       Ani <- Ani%>%
         filter(binSpecies %in% Species1)
     }
-    if(nrow(Ani) == 0) warnings("There are no data for selected species of {ta}")
+    if(nrow(Ani) == 0) {warnings("There are no data for selected species of {ta}")}
     if(Animal){out[[ta]][["Animal"]]<- Ani}
     
      #Load other tables --------------------------------------------------------
     if(length(tables)>0){  
       for (ty in tables){
          idfiles <- list.files(glue::glue("{ZIMSDir}/Split_{ta}/"), glue::glue("{ty}.csv"))
-        if(length(idfiles)== 0) error(glue::glue("{ty} file of {ta} not found."))
-        if(length(idfiles) >= 2) error(glue::glue("More than one {ty} file for {ta}."))
+        if(length(idfiles)== 0) error(glue::glue("{ty} file of {ta} not found.")) #nocov
+        if(length(idfiles) >= 2) error(glue::glue("More than one {ty} file for {ta}."))  #nocov
           if (!silent) {cat(glue::glue("Loading {ty} of {ta}.\n"))}
          b <- read.csv(glue::glue("{ZIMSDir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
         
@@ -1500,6 +1515,27 @@ test_that("Load_Zimsdata works", {
   expect_true(is.data.frame(data$Reptilia$Animal))
   expect_true(is.data.frame(data$Reptilia$Weight))
   expect_named(data$Reptilia$Weight, c("AnimalAnonID", "RecordingInstitution", "MeasurementType", "RecordType", "MeasurementValue", "EstimatedMeasurement", "ExcludededFromNorms", "MeasurementDate", "MeasurementDateEstimateType", "MeasurementDateEstimateStart", "MeasurementDateEstimateEnd", "CollectionScopeType",  "AnimalAgeMonths", "AnimalAgeDays", "Age", "UnitOfMeasure")) 
+  
+}
+)
+
+test_that("Load_Zimsdata works2", {
+  
+  file = system.file("sci_Animal.csv", package = 'ISRverse')
+  ZIMSDirtest = dirname(file)
+  Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
+
+  Load_Zimsdata	(Taxa = "Reptilia", 
+                         ZIMSDir = ZIMSDirtest, 
+                         Species = list(Reptilia = c('bb')),
+                         Animal = TRUE,
+                         tables = 'Weight')
+  
+    Load_Zimsdata	(Taxa = "Reptilia", 
+                         ZIMSDir = ZIMSDirtest, 
+                         Species = list(Reptilia = c("Testudo hermanni")),
+                         Animal = TRUE,
+                         tables = 'Weight')
   
 }
 )

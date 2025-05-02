@@ -21,6 +21,7 @@ dir.create(PlotDir)
   expect_true(is.numeric(out$Sur5$Lower))
   expect_true(is.numeric(out$Sur5$Sur))
     expect_true(file.exists(paste(PlotDir, "10__surcheck.pdf", sep = '/')))
+ out <- Sur_out(out, ncpus = 3, PlotDir = PlotDir, AgeMat = 2)
 
 unlink(PlotDir, recursive = TRUE)
 })

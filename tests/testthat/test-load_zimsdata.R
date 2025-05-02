@@ -19,3 +19,24 @@ test_that("Load_Zimsdata works", {
   
 }
 )
+
+test_that("Load_Zimsdata works2", {
+  
+  file = system.file("sci_Animal.csv", package = 'ISRverse')
+  ZIMSDirtest = dirname(file)
+  Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
+
+  Load_Zimsdata	(Taxa = "Reptilia", 
+                         ZIMSDir = ZIMSDirtest, 
+                         Species = list(Reptilia = c('bb')),
+                         Animal = TRUE,
+                         tables = 'Weight')
+  
+    Load_Zimsdata	(Taxa = "Reptilia", 
+                         ZIMSDir = ZIMSDirtest, 
+                         Species = list(Reptilia = c("Testudo hermanni")),
+                         Animal = TRUE,
+                         tables = 'Weight')
+  
+}
+)

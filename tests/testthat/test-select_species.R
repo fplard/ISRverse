@@ -15,4 +15,10 @@ test_that("select_species works", {
   expect_equal(nrow(out$data),out$summary$NUncertBirth)
   expect_true(is.numeric(out$summary$MaxAgeRaw))
   expect_true(is.date(out$summary$FirstDate))
+   out<- select_species (SpeciesName = "Testudo hermanni",
+                        coresubset = core%>%mutate(LastCollectionScopeType = "Local"), collection,
+                        MinDate = "1980-01-01", ExtractDate = "2023-01-01")
+ 
+  
+  
   })

@@ -270,7 +270,7 @@
 <span></span>
 <span><span class="co">#Load Data -----------------------------------------------------------------------</span></span>
 <span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>Taxa <span class="op">=</span> <span class="va">Taxa</span>, ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirdata</span>, </span>
-<span>                      species <span class="op">=</span> <span class="va">List_species</span>,</span>
+<span>                      Species <span class="op">=</span> <span class="va">List_species</span>,</span>
 <span>                      Animal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      tables<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Collection'</span>, <span class="st">'DeathInformation'</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, ExtractDate <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/as_date.html" class="external-link">as_date</a></span><span class="op">(</span><span class="st">"2024/08/29"</span><span class="op">)</span><span class="op">)</span></span>
@@ -293,7 +293,7 @@
 <span>      <span class="co">#Check for gaps in longevity distribution to define a threshold </span></span>
 <span>      <span class="co">#after which individuals will be deleted (possible outiers or errors in data)</span></span>
 <span>      <span class="va">sexDat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_Longthreshold.html">select_Longthreshold</a></span><span class="op">(</span> <span class="va">Dataspe</span><span class="op">$</span><span class="va">data</span>,  SexCats <span class="op">=</span> <span class="va">sx</span>, </span>
-<span>                                      PlotDir<span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{PlotDir}test2/"</span><span class="op">)</span>,</span>
+<span>                                      PlotDir<span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{PlotDir}/"</span><span class="op">)</span>,</span>
 <span>                                      MinN <span class="op">=</span> <span class="va">MinN</span> ,</span>
 <span>                                      PlotName <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{Taxa}_{species}_{sx}"</span><span class="op">)</span> <span class="op">)</span></span>
 <span>      <span class="va">OutlLev1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">sexDat</span><span class="op">$</span><span class="va">summar</span><span class="op">$</span><span class="va">GapThresh</span>,<span class="va">MaxOutl</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
@@ -302,9 +302,9 @@
 <span>      <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sexDat</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span> </span>
 <span>        <span class="va">out</span><span class="op">[[</span><span class="va">sx</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span>  <span class="fu"><a href="reference/Sur_main.html">Sur_main</a></span><span class="op">(</span>DataCore <span class="op">=</span> <span class="va">sexDat</span><span class="op">$</span><span class="va">data</span>,  DeathInformation <span class="op">=</span>  <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">DeathInformation</span>,</span>
 <span>                               BirthType <span class="op">=</span> <span class="va">BirthType</span>, LastDead <span class="op">=</span> <span class="cn">T</span>,</span>
-<span>                               PlotDir <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{PlotDir}test2/"</span><span class="op">)</span>,</span>
+<span>                               PlotDir <span class="op">=</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{PlotDir}/"</span><span class="op">)</span>,</span>
 <span>                               MaxAge <span class="op">=</span> <span class="va">MaxAge</span>,</span>
-<span>                               models <span class="op">=</span> <span class="va">ModelsSur</span>, Shape<span class="op">=</span> <span class="va">Shape</span>, </span>
+<span>                               Models <span class="op">=</span> <span class="va">ModelsSur</span>, Shape<span class="op">=</span> <span class="va">Shape</span>, </span>
 <span>                               OutlLev1 <span class="op">=</span><span class="va">OutlLev1</span>,</span>
 <span>                               MinMLE <span class="op">=</span> <span class="va">MinMLE</span>, MaxLE <span class="op">=</span>  <span class="va">MaxLE</span>,</span>
 <span>                               MinDate <span class="op">=</span> <span class="va">MinDate</span>, MinNSur <span class="op">=</span> <span class="va">MinNSur</span>, MaxNSur <span class="op">=</span> <span class="va">MaxNSur</span>, </span>
@@ -368,10 +368,10 @@
 <span>  <span class="va">Datarep</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_prepdata.html">Rep_prepdata</a></span><span class="op">(</span><span class="va">Dataspe</span><span class="op">$</span><span class="va">data</span>, </span>
 <span>                          <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Parent</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Move</span>,</span>
 <span>                          BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>,</span>
-<span>                          MinNrepro <span class="op">=</span> <span class="va">MinNRepro</span>, MinNparepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
+<span>                          MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">ReproData</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
 <span>    <span class="co">#Litter size Analysis</span></span>
-<span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">Reprodata</span>, </span>
+<span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">ReproData</span>, </span>
 <span>                          NDay <span class="op">=</span> <span class="va">NDay</span>, ParentPercDam <span class="op">=</span> <span class="va">ParentPercDam</span>,</span>
 <span>                          ParentPercSire <span class="op">=</span> <span class="va">ParentPercSire</span>,  </span>
 <span>                          MinNLitter <span class="op">=</span> <span class="va">MinNLitter</span><span class="op">)</span></span>
@@ -414,7 +414,7 @@
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">species</span> <span class="kw">in</span> <span class="va">List_species</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span></span>
 <span>  <span class="va">Dataspe</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_species.html">select_species</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">Animal</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, UncertBirth <span class="op">=</span> <span class="va">UncertBirth</span>,</span>
-<span>                            BirthType <span class="op">=</span> <span class="va">BirthType</span>,UncertDeath<span class="op">=</span> <span class="va">UncertDeath</span>,</span>
+<span>                            BirthType <span class="op">=</span> <span class="va">BirthType</span>,</span>
 <span>                            MinDate <span class="op">=</span> <span class="va">MinDate</span> , ExtractDate <span class="op">=</span> <span class="va">ExtractDate</span>,</span>
 <span>                            Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span> </span>
 <span>  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Dataspe</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
@@ -428,10 +428,10 @@
 <span>        <span class="va">Datarep</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_prepdata.html">Rep_prepdata</a></span><span class="op">(</span>coresubset <span class="op">=</span> <span class="va">coresubset</span>, </span>
 <span>                                <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Parent</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Move</span>,</span>
 <span>                                BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>,</span>
-<span>                                MinNrepro <span class="op">=</span> <span class="va">MinNRepro</span>, MinNparepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span></span>
-<span>        <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
+<span>                                MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span></span>
+<span>        <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">ReproData</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span></span>
 <span>          <span class="co">#Calculate reproductive age statistics</span></span>
-<span>          <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>          <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Datarep</span><span class="op">$</span><span class="va">ReproData</span><span class="op">)</span><span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>            <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Species <span class="op">=</span> <span class="va">species</span>,</span>
 <span>                   Class <span class="op">=</span> <span class="va">Taxa</span>,</span>
 <span>                   Sex <span class="op">=</span> <span class="va">sx</span><span class="op">)</span></span>
@@ -494,8 +494,9 @@
 <span><span class="va">species</span> <span class="op">=</span> <span class="va">List_species</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">sx</span> <span class="op">=</span> <span class="st">"All"</span> <span class="co">#can also be "Female" or "Male"</span></span>
 <span></span>
-<span><span class="va">Dataspe</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_species.html">select_species</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">Animal</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, UncertBirth <span class="op">=</span> <span class="va">UncertBirth</span>,</span>
-<span>                          BirthType <span class="op">=</span> <span class="va">BirthType</span>,UncertDeath<span class="op">=</span> <span class="fl">3600</span>,</span>
+<span><span class="va">Dataspe</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_species.html">select_species</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">Animal</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, </span>
+<span>                          UncertBirth <span class="op">=</span> <span class="va">UncertBirth</span>,</span>
+<span>                          BirthType <span class="op">=</span> <span class="va">BirthType</span>,</span>
 <span>                          MinDate <span class="op">=</span> <span class="va">MinDate</span> , ExtractDate <span class="op">=</span> <span class="va">ExtractDate</span>,</span>
 <span>                          Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span> </span>
 <span></span>
@@ -509,8 +510,9 @@
 <span>    <span class="co">#Estimate age at sexual maturity</span></span>
 <span>    <span class="va">repr</span><span class="op">[[</span><span class="va">sx</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_main.html">Rep_main</a></span><span class="op">(</span>coresubset<span class="op">=</span> <span class="va">coresubset</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, </span>
 <span>                           <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Parent</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Move</span>,  </span>
-<span>                           Repsect <span class="op">=</span> <span class="st">"agemat"</span>,</span>
-<span>                           BirthType_parent <span class="op">=</span> <span class="va">BirthType</span>, BirthType_offspring <span class="op">=</span> <span class="va">BirthType</span>, </span>
+<span>                           RepSect <span class="op">=</span> <span class="st">"agemat"</span>,</span>
+<span>                           BirthType_parent <span class="op">=</span> <span class="va">BirthType</span>, </span>
+<span>                           BirthType_offspring <span class="op">=</span> <span class="va">BirthType</span>, </span>
 <span>                           Global <span class="op">=</span> <span class="va">Global</span>, </span>
 <span>                           MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, MinNPaRepro <span class="op">=</span>  <span class="va">MinNPaRepro</span></span>
 <span>    <span class="op">)</span></span>
@@ -590,7 +592,7 @@
 <span></span>
 <span><span class="co">#Load Data -----------------------------------------------------------------------</span></span>
 <span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Load_Zimsdata.html">Load_Zimsdata</a></span><span class="op">(</span>Taxa <span class="op">=</span> <span class="va">Taxa</span>, ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirdata</span>, </span>
-<span>                      species <span class="op">=</span> <span class="va">List_species</span>,</span>
+<span>                      Species <span class="op">=</span> <span class="va">List_species</span>,</span>
 <span>                      Animal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      tables<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Collection'</span>, <span class="st">"Weight"</span>, <span class="st">'Parent'</span>, <span class="st">'Move'</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="va">Animal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Prep_Animal.html">Prep_Animal</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Animal</span>, ExtractDate <span class="op">=</span> <span class="va">ExtractDate</span>, MinBirthDate <span class="op">=</span><span class="va">MinBirthDate</span><span class="op">)</span></span>
@@ -600,7 +602,7 @@
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">species</span> <span class="kw">in</span> <span class="va">List_species</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span></span>
 <span>  <span class="va">Dataspe</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_species.html">select_species</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">Animal</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, UncertBirth <span class="op">=</span> <span class="va">UncertBirth</span>,</span>
-<span>                            BirthType <span class="op">=</span> <span class="va">BirthType</span>,UncertDeath<span class="op">=</span> <span class="va">UncertDeath</span>,</span>
+<span>                            BirthType <span class="op">=</span> <span class="va">BirthType</span>,</span>
 <span>                            MinDate <span class="op">=</span> <span class="va">MinDate</span> , ExtractDate <span class="op">=</span> <span class="va">ExtractDate</span>,</span>
 <span>                            Global <span class="op">=</span> <span class="va">Global</span><span class="op">)</span> </span>
 <span>  </span>
@@ -615,7 +617,7 @@
 <span>        <span class="co">#Estimate age at sexual maturity</span></span>
 <span>        <span class="va">repr</span><span class="op">[[</span><span class="va">sx</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Rep_main.html">Rep_main</a></span><span class="op">(</span>coresubset<span class="op">=</span> <span class="va">coresubset</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Collection</span>, </span>
 <span>                               <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Parent</span>, <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Move</span>,  </span>
-<span>                               Repsect <span class="op">=</span> <span class="st">"agemat"</span>,</span>
+<span>                               RepSect <span class="op">=</span> <span class="st">"agemat"</span>,</span>
 <span>                               BirthType_parent <span class="op">=</span> <span class="va">BirthType</span>, BirthType_offspring <span class="op">=</span> <span class="va">BirthType</span>, </span>
 <span>                               Global <span class="op">=</span> <span class="va">Global</span>, </span>
 <span>                               MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, MinNPaRepro <span class="op">=</span>  <span class="va">MinNPaRepro</span></span>
@@ -629,9 +631,9 @@
 <span>        <span class="op">}</span></span>
 <span>        <span class="co">#Run growth model</span></span>
 <span>        <span class="va">weig</span><span class="op">[[</span><span class="va">sx</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Gro_Main.html">Gro_Main</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Data</span><span class="op">[[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Weight</span>, coresubse <span class="op">=</span> <span class="va">coresubset</span>,</span>
-<span>                               Taxa <span class="op">=</span> <span class="va">Taxa</span>, species <span class="op">=</span> <span class="va">species</span>,</span>
+<span>                               Taxa <span class="op">=</span> <span class="va">Taxa</span>, Species <span class="op">=</span> <span class="va">species</span>,</span>
 <span>                               BirthType <span class="op">=</span> <span class="va">BirthType</span>, </span>
-<span>                               agemat <span class="op">=</span> <span class="va">agemat</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span>,</span>
+<span>                               AgeMat <span class="op">=</span> <span class="va">agemat</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span>,</span>
 <span>                               PlotDir <span class="op">=</span> <span class="va">PlotDir</span>, type <span class="op">=</span> <span class="st">"weight"</span>,</span>
 <span>                               UncertDate <span class="op">=</span> <span class="va">UncertDate</span>,</span>
 <span>                               MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
@@ -741,7 +743,7 @@
 <span><span class="va">NDay</span> <span class="op">=</span> <span class="fl">7</span> <span class="co">#Number of days to group all offspring in one litter/clutch</span></span>
 <span></span>
 <span><span class="co">#Seasonnality</span></span>
-<span><span class="va">MinNseas</span> <span class="op">=</span> <span class="fl">50</span>  <span class="co">#Minimum number of births to run the seasonnality analysis</span></span>
+<span><span class="va">MinNSeas</span> <span class="op">=</span> <span class="fl">50</span>  <span class="co">#Minimum number of births to run the seasonnality analysis</span></span>
 <span></span>
 <span><span class="co"># Growth Models -----------------------------------------------------------------</span></span>
 <span><span class="co">#Models: "logistic", "gompertz", "chapmanRichards", "vonBertalanffy", and/or "polynomial"</span></span>
@@ -775,8 +777,8 @@
 <code class="sourceCode R"><span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">TaxaList</span><span class="op">[</span><span class="va">Taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSDirdata</span>, </span>
+<span><span class="va">Taxa</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">TaxaList</span><span class="op">[</span><span class="va">Taxa</span><span class="op">]</span>, SpeciesList <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSDirdata</span>, </span>
 <span>               AnalysisDir <span class="op">=</span> <span class="va">AnalysisDir</span>, PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span>
 <span>               Sections <span class="op">=</span> <span class="va">Sections</span>, ErasePrevious <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               ExtractDate <span class="op">=</span> <span class="va">ExtractDate</span>, MinDate <span class="op">=</span> <span class="va">MinDate</span>,</span>
@@ -792,8 +794,9 @@
 <span>               ModelsSur <span class="op">=</span> <span class="va">ModelsSur</span>, Shape <span class="op">=</span> <span class="va">Shape</span>,</span>
 <span>               niter <span class="op">=</span> <span class="va">niter</span>, burnin <span class="op">=</span> <span class="va">burnin</span>, thinning <span class="op">=</span> <span class="va">thinning</span>, </span>
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
-<span>               parentProb <span class="op">=</span> <span class="va">parentProb</span>, MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, </span>
-<span>               MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, MinNseas <span class="op">=</span> <span class="va">MinNseas</span>, </span>
+<span>              ParentPercDam <span class="op">=</span> <span class="va">ParentPercDam</span>, ParentPercSire <span class="op">=</span> <span class="va">ParentPercSire</span>, </span>
+<span>              MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, </span>
+<span>               MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, MinNSeas <span class="op">=</span> <span class="va">MinNSeas</span>, </span>
 <span>               MinNLitter <span class="op">=</span> <span class="va">MinNLitter</span>, NDay <span class="op">=</span> <span class="va">NDay</span>, </span>
 <span>               MinNGro <span class="op">=</span> <span class="va">MinNGro</span>, MinNIGro <span class="op">=</span> <span class="va">MinNIGro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
 <span>               ModelsGro <span class="op">=</span> <span class="va">ModelsGro</span></span>
@@ -810,16 +813,16 @@
 <span><span class="va">Taxa</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
 <span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
-<span><span class="co"># Species_list =list_surv</span></span>
-<span><span class="va">Species_list</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Panthera onca"</span>, <span class="st">"Loris_tardigradus"</span>, <span class="st">"Pteropus_livingstonii"</span><span class="op">)</span></span>
+<span><span class="co"># SpeciesList =list_surv</span></span>
+<span><span class="va">SpeciesList</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Panthera onca"</span>, <span class="st">"Loris_tardigradus"</span>, <span class="st">"Pteropus_livingstonii"</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span>Taxa <span class="op">=</span> <span class="va">TaxaList</span><span class="op">[</span><span class="va">Taxa</span><span class="op">]</span>, </span>
 <span>               ZIMSDir <span class="op">=</span><span class="va">ZIMSDirdata</span>,AnalysisDir <span class="op">=</span> <span class="va">AnalysisDir</span>, PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span>
-<span>               ErasePrevious <span class="op">=</span> <span class="cn">FALSE</span>,    inparallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>               ErasePrevious <span class="op">=</span> <span class="cn">FALSE</span>,    InParallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               BirthType <span class="op">=</span> <span class="va">BirthType</span>, </span>
 <span>               SexCats <span class="op">=</span> <span class="va">BySex</span><span class="op">[[</span><span class="va">TaxaList</span><span class="op">[</span><span class="va">Taxa</span><span class="op">]</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>               Species_list <span class="op">=</span> <span class="va">Species_list</span>,  Sections <span class="op">=</span> <span class="va">Sections</span>,  </span>
+<span>               SpeciesList <span class="op">=</span> <span class="va">SpeciesList</span>,  Sections <span class="op">=</span> <span class="va">Sections</span>,  </span>
 <span>               ExtractDate <span class="op">=</span> <span class="va">ExtractDate</span>, MinDate <span class="op">=</span> <span class="va">MinDate</span>, </span>
 <span>               MinAge <span class="op">=</span> <span class="va">MinAge</span>, LastDead <span class="op">=</span><span class="va">LastDead</span>,</span>
 <span>               MinBirthDate <span class="op">=</span> <span class="va">MinBirthDate</span>, MinN <span class="op">=</span> <span class="va">MinN</span>,  Global <span class="op">=</span>  <span class="va">Global</span>,</span>
@@ -835,7 +838,7 @@
 <span>               nchain <span class="op">=</span> <span class="va">nchain</span>, ncpus <span class="op">=</span> <span class="va">ncpus</span>,</span>
 <span>               ParentPercDam <span class="op">=</span> <span class="va">ParentPercDam</span>, ParentPercSire <span class="op">=</span> <span class="va">ParentPercSire</span>, </span>
 <span>               MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, </span>
-<span>               MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, MinNseas <span class="op">=</span> <span class="va">MinNseas</span>, </span>
+<span>               MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, MinNSeas <span class="op">=</span> <span class="va">MinNSeas</span>, </span>
 <span>               MinNLitter <span class="op">=</span> <span class="va">MinNLitter</span>, NDay <span class="op">=</span> <span class="va">NDay</span>, </span>
 <span>               MinNGro <span class="op">=</span> <span class="va">MinNGro</span>, MinNIGro <span class="op">=</span> <span class="va">MinNIGro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
 <span>               ModelsGro <span class="op">=</span> <span class="va">ModelsGro</span></span>
@@ -849,15 +852,15 @@
 <span><span class="va">ipara</span> <span class="op">=</span> <span class="fl">1</span></span>
 <span></span>
 <span></span>
-<span><span class="va">Taxa</span> <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="va">Taxa</span> <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="co">#Run this code changing ipara on each different computer</span></span>
 <span><span class="va">XX</span> <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="co">#Sections to run or to update</span></span>
-<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span>, <span class="st">"rep"</span>, <span class="st">"gro"</span><span class="op">)</span></span>
+<span><span class="va">Sections</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rep"</span><span class="op">)</span></span>
 <span><span class="co">#Number of different computers</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">TaxaList</span><span class="op">[</span><span class="va">Taxa</span><span class="op">]</span>, Species_list <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSDirdata</span>, </span>
-<span>               inparallel <span class="op">=</span> <span class="cn">TRUE</span>, ipara <span class="op">=</span> <span class="va">ipara</span>, npara <span class="op">=</span> <span class="va">XX</span>, </span>
+<span><span class="fu"><a href="reference/run_txprofile.html">run_txprofile</a></span> <span class="op">(</span><span class="va">TaxaList</span><span class="op">[</span><span class="va">Taxa</span><span class="op">]</span>, SpeciesList <span class="op">=</span> <span class="st">"All"</span>, <span class="va">ZIMSDirdata</span>, </span>
+<span>               InParallel <span class="op">=</span> <span class="cn">TRUE</span>, ipara <span class="op">=</span> <span class="va">ipara</span>, npara <span class="op">=</span> <span class="va">XX</span>, </span>
 <span>               AnalysisDir <span class="op">=</span> <span class="va">AnalysisDir</span>, PlotDir <span class="op">=</span> <span class="va">PlotDir</span>,</span>
 <span>               Sections <span class="op">=</span> <span class="va">Sections</span>, ErasePrevious <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>               MinAge <span class="op">=</span> <span class="va">MinAge</span>, LastDead <span class="op">=</span><span class="va">LastDead</span>,</span>
@@ -877,7 +880,7 @@
 <span>               ParentPercSire <span class="op">=</span>  <span class="va">ParentPercSire</span>,</span>
 <span>               ParentPercDam <span class="op">=</span>  <span class="va">ParentPercDam</span>,</span>
 <span>               MinNRepro <span class="op">=</span> <span class="va">MinNRepro</span>, </span>
-<span>               MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, MinNseas <span class="op">=</span> <span class="va">MinNseas</span>, </span>
+<span>               MinNPaRepro <span class="op">=</span> <span class="va">MinNPaRepro</span>, MinNSeas <span class="op">=</span> <span class="va">MinNSeas</span>, </span>
 <span>               MinNLitter <span class="op">=</span> <span class="va">MinNLitter</span>, NDay <span class="op">=</span> <span class="va">NDay</span>, </span>
 <span>               MinNGro <span class="op">=</span> <span class="va">MinNGro</span>, MinNIGro <span class="op">=</span> <span class="va">MinNIGro</span>, MeasureType <span class="op">=</span> <span class="va">MeasureType</span>,</span>
 <span>               ModelsGro <span class="op">=</span> <span class="va">ModelsGro</span></span>
@@ -907,8 +910,7 @@
 <span>                         SaveDir <span class="op">=</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue</a></span><span class="op">(</span><span class="st">"{AnalysisDir}"</span><span class="op">)</span>,</span>
 <span>                         TaxaList <span class="op">=</span> <span class="va">TaxaList</span>,</span>
 <span>                         BySex <span class="op">=</span> <span class="va">BySex</span> ,</span>
-<span>                         Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span>,</span>
-<span>                         MinAge <span class="op">=</span> <span class="fl">0</span></span>
+<span>                         Sections <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sur"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">

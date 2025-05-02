@@ -3,6 +3,7 @@
 test_that("find_gaps works", {
   x = runif(10,0,40)
   out<-find_gaps(x,MaxAlive = 5, plot = FALSE)
+  out<-find_gaps(x,MaxAlive = NA, plot = FALSE)
   expect_named(out,c('iniAge', 'finAge', 'Gap'))
   expect_equal(out$finAge-out$iniAge+1, out$Gap)
 })

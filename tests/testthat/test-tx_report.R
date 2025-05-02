@@ -13,7 +13,7 @@ test_that("tx_report works", {
   dir.create(PlotDir)
   
   out <- tx_report(Species = "Testudo hermanni", Taxa = "Reptilia",
-                   Animal, data$Reptilia$Collection,
+                   Animal, data$Reptilia$Collection,MaxNSur = 12000,
                    Move = data$Reptilia$Move, Parents =data$Reptilia$Parent,
                    Contraceptions = data$Reptilia$Contraception,
                    MinBirthKnown = 0,

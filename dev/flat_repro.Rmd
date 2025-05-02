@@ -151,9 +151,9 @@ Rep_main <- function( coresubset, collection, parent, move,  RepSect = c('agemat
         out$summary$litt_analyzed = out$litter$summary$analyzed
       }
     }else{
-      outsummary$error = glue::glue("Data from {length(unique(Datarep$ReproData$currentInst)} Institution(s)")
-      outsummary$Nerr = 3
-      outsummary$analyzed = FALSE
+      outsummary$error = glue::glue("Data from {length(unique(Datarep$ReproData$currentInst)} Institution(s)") #nocov
+      outsummary$Nerr = 3 #nocov
+      outsummary$analyzed = FALSE #nocov
     }
   }
   return(out)
@@ -458,8 +458,8 @@ Rep_littersize <- function(ReproData,
       littSumm$Nerr = 5
     }
   }else{
-    littSumm$error = glue::glue("No births with Parentage probability higher than {parentProb}")
-    littSumm$Nerr = 4
+    littSumm$error = glue::glue("No births with Parentage probability higher than {parentProb}") #nocov
+    littSumm$Nerr = 4 #nocov
     
   }
   return(list(summary = littSumm, littSizeDf = littSizeDf,  

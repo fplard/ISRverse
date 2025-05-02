@@ -125,7 +125,7 @@ columns: <em>AnimalAnonID</em>, <em>ScopeType</em>,
 <em>AnimalAnonID</em>, <em>To</em>, <em>Date</em>
 </li>
 <li>
-<code>Repsect</code> names of the reproductive analyses to run:
+<code>RepSect</code> names of the reproductive analyses to run:
 “agemat”, “litter” and/or …</li>
 </ul>
 <p>It return a list per sex category including: * a summary of the data
@@ -137,8 +137,8 @@ the output for the litter size if the analysis is selected</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
 <span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_main.html">Rep_main</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>,  </span>
-<span>                 Repsect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'agemat'</span>, <span class="st">'litter'</span><span class="op">)</span>,</span>
-<span>                 minNrep <span class="op">=</span> <span class="fl">1</span>, minNparep <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                 RepSect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'agemat'</span>, <span class="st">'litter'</span><span class="op">)</span>,</span>
+<span>                 MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                 BirthType_parent <span class="op">=</span> <span class="st">"Captive"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"Captive"</span>, </span>
 <span><span class="op">)</span> </span></code></pre></div>
 </div>
@@ -146,7 +146,7 @@ the output for the litter size if the analysis is selected</p>
 <h2 id="age-at-first-reproduction">Age at first reproduction<a class="anchor" aria-label="anchor" href="#age-at-first-reproduction"></a>
 </h2>
 <p><code><a href="../reference/Rep_agemat.html">Rep_agemat()</a></code> returns summary statistics for ages of
-reproduction. It uses the following argument: * Reprodata, a data frame
+reproduction. It uses the following argument: * ReproData, a data frame
 including at least the columns <em>ParentAnonID</em> and
 <em>Parent_Age</em></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -156,14 +156,14 @@ including at least the columns <em>ParentAnonID</em> and
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
 <span><span class="co">#prepare Data</span></span>
 <span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, </span>
-<span>                      minNrep <span class="op">=</span> <span class="fl">1</span>, minNparep <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>                      MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#Calculate summary for reproductive ages</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_agemat.html">Rep_agemat</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">ReproData</span><span class="op">)</span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 13</span></span></span>
 <span><span class="co">#&gt;   N_moth_agemat N_birth_agemat ageMat ageYouRep ageOldRep ageMean1Rep ageSd1Rep</span></span>
 <span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>             1              3   11.5      11.5      14.5        11.5        <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>             3             13   2.27      1.94      15.6        7.43      5.06</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more variables: ageOld1Rep &lt;dbl&gt;, ageMeanRep &lt;dbl&gt;, ageSdRep &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ageMedRep &lt;dbl&gt;, ageMeanRepIC &lt;list&gt;, ageMean1RepIC &lt;list&gt;</span></span></span></code></pre></div>
 </div>
@@ -175,13 +175,13 @@ parent and birth date and produces summary tables of litter size. It
 uses the following arguments:</p>
 <ul>
 <li>
-<code>Reprodata</code> including at least the columns
+<code>ReproData</code> including at least the columns
 <em>AnimalAnonID</em>, <em>ParentAnonID</em>, <em>ParentType</em>,
 <em>Probability</em>, <em>Offspring_BirthDate</em>,
 <em>Offspring_Inst</em> and <em>Parent_Age</em>
 </li>
 <li>
-<code>Nday</code>: the number of consecutive days over which the
+<code>NDay</code>: the number of consecutive days over which the
 birth dates of a litter/clutch can be spread</li>
 </ul>
 <p>It returns a list including: * A data frame with the litter size per
@@ -194,20 +194,20 @@ and standard deviation of litter size per maternal age</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">parent</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moves</span><span class="op">)</span></span>
 <span><span class="co">#prepare Data</span></span>
-<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, minNrep <span class="op">=</span> <span class="fl">1</span>, minNparep <span class="op">=</span> <span class="fl">1</span>,</span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_prepdata.html">Rep_prepdata</a></span> <span class="op">(</span>coresubset <span class="op">=</span> <span class="va">core</span>, <span class="va">collection</span>, <span class="va">parent</span>, <span class="va">moves</span>, MinNRepro <span class="op">=</span> <span class="fl">1</span>, MinNPaRepro <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                      BirthType_parent <span class="op">=</span> <span class="st">"All"</span>, BirthType_offspring <span class="op">=</span> <span class="st">"All"</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Estimate litter size</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">Reprodata</span>, </span>
-<span>                      Nday <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Rep_littersize.html">Rep_littersize</a></span><span class="op">(</span><span class="va">Data</span><span class="op">$</span><span class="va">ReproData</span>, </span>
+<span>                      NDay <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">out</span></span>
 <span><span class="co">#&gt; $summary</span></span>
 <span><span class="co">#&gt; $summary$NOffsp_prob</span></span>
-<span><span class="co">#&gt; [1] 6</span></span>
+<span><span class="co">#&gt; [1] 10</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $summary$NParent_prob</span></span>
-<span><span class="co">#&gt; [1] 4</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $summary$NReprEvent</span></span>
 <span><span class="co">#&gt; NULL</span></span>
@@ -232,14 +232,15 @@ and standard deviation of litter size per maternal age</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $littSizeDf</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 7</span></span></span>
 <span><span class="co">#&gt;   MotherAnonID InstitutionAnonID litterSize MeanBirthDate Mother_Age</span></span>
 <span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>      1<span style="text-decoration: underline;">378</span>072             <span style="text-decoration: underline;">87</span>126          1 2008-07-01         11.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>      1<span style="text-decoration: underline;">378</span>072             <span style="text-decoration: underline;">87</span>126          2 2011-07-10         14.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>      1<span style="text-decoration: underline;">552</span>859            <span style="text-decoration: underline;">108</span>112          1 1997-01-25          3.63</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>      3<span style="text-decoration: underline;">752</span>015            <span style="text-decoration: underline;">125</span>738          1 1992-08-11          1.36</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>      4<span style="text-decoration: underline;">224</span>544            <span style="text-decoration: underline;">114</span>122          1 2002-06-22         31.8 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>       <span style="text-decoration: underline;">613</span>303             <span style="text-decoration: underline;">33</span>954          2 1998-04-30          8.43</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          1 2018-12-05         11.9 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          1 2019-03-16         12.2 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2020-07-04         13.5 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2020-10-26         13.8 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>      2<span style="text-decoration: underline;">973</span>987            <span style="text-decoration: underline;">174</span>221          2 2022-08-13         15.6 </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: FatherAnonID &lt;list&gt;, Father_Age &lt;list&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $littSizeTab</span></span>

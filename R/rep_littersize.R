@@ -146,8 +146,8 @@ Rep_littersize <- function(ReproData,
       littSumm$Nerr = 5
     }
   }else{
-    littSumm$error = glue::glue("No births with Parentage probability higher than {parentProb}")
-    littSumm$Nerr = 4
+    littSumm$error = glue::glue("No births with Parentage probability higher than {parentProb}") #nocov
+    littSumm$Nerr = 4 #nocov
     
   }
   return(list(summary = littSumm, littSizeDf = littSizeDf,  

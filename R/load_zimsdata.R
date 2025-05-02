@@ -60,8 +60,8 @@ Load_Zimsdata	<- function (Taxa, ZIMSDir,
     stringr::str_remove("Split_")
   assert_that(Taxa %in% c(idTaxa, "All"),
               msg = glue::glue("Taxa must one of {stringr::str_flatten_comma(idTaxa)}, or 'All'"))
-  if (Taxa == "All") Taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia", 
-                              "Chondrichthyes", "Osteichthyes")
+  if (Taxa == "All") Taxa = c("Mammalia", "Aves", "Reptilia", "Amphibia",    #nocov
+                              "Chondrichthyes", "Osteichthyes")   #nocov
   
   # Loop over taxa ---------------------------------------------------------------
   for (ta in Taxa){
@@ -82,15 +82,15 @@ Load_Zimsdata	<- function (Taxa, ZIMSDir,
       Ani <- Ani%>%
         filter(binSpecies %in% Species1)
     }
-    if(nrow(Ani) == 0) warnings("There are no data for selected species of {ta}")
+    if(nrow(Ani) == 0) {warnings("There are no data for selected species of {ta}")}
     if(Animal){out[[ta]][["Animal"]]<- Ani}
     
      #Load other tables --------------------------------------------------------
     if(length(tables)>0){  
       for (ty in tables){
          idfiles <- list.files(glue::glue("{ZIMSDir}/Split_{ta}/"), glue::glue("{ty}.csv"))
-        if(length(idfiles)== 0) error(glue::glue("{ty} file of {ta} not found."))
-        if(length(idfiles) >= 2) error(glue::glue("More than one {ty} file for {ta}."))
+        if(length(idfiles)== 0) error(glue::glue("{ty} file of {ta} not found.")) #nocov
+        if(length(idfiles) >= 2) error(glue::glue("More than one {ty} file for {ta}."))  #nocov
           if (!silent) {cat(glue::glue("Loading {ty} of {ta}.\n"))}
          b <- read.csv(glue::glue("{ZIMSDir}/Split_{ta}/{idfiles}"), sep = "@",  header = T, skipNul = TRUE)
         

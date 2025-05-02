@@ -98,7 +98,7 @@ Gro_cleanmeasures <- function(data, coresubse,
     summar$NInd_raw = length(unique(data$AnimalAnonID))
     summar$NWeight_raw = nrow(data)
   }else{
-    warnings('no common ID between measured data and core data')
+    warnings('no common ID between measured data and core data')  # nocov
   }
   
   if(nrow(data)>0){

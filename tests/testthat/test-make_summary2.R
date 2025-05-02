@@ -12,5 +12,10 @@ test_that("make_summary2 works", {
   expect_true(file.exists(paste( dirname(file), 'DP_Analyses.csv', sep = '/')))
   expect_true(file.exists(paste( dirname(file), 'DP_Any_Ana.csv', sep = '/')))
   expect_named(SummTab , c('Class', 'Species', 'Sex', 'NRaw', 'NDate', 'NGlobal', 'NBirthType', 'NUncertBirth', 'NAlive', 'FirstDate', 'MaxAgeRaw', 'ExtractDate'))
+   SummTab <- make_summary2(AnalysisDir, dirname(file),
+                           TaxaList = "Reptilia",
+                           BySex = list(Reptilia = c("Male", "Female")) ,
+                           Sections = c("rep")
+  )
 })
 

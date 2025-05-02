@@ -50,12 +50,12 @@ Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL,
                           'Chondrichthyes', or 'Osteichthyes'")
   if(is.null(maxweight)){
     maxweight = 10000000
-    if(Taxa == "Mammalia")       maxweight = 7000
-    if(Taxa == "Aves")           maxweight = 200
-    if(Taxa == "Reptilia")       maxweight = 1500
-    if(Taxa == "Amphibia")       maxweight = 100
-    if(Taxa == "Chondrichthyes") maxweight = 1000
-    if(Taxa == "Osteichthyes") maxweight = 500
+    if(Taxa == "Mammalia")       maxweight = 7000 #nocov
+    if(Taxa == "Aves")           maxweight = 200 #nocov
+    if(Taxa == "Reptilia")       maxweight = 1500 #nocov
+    if(Taxa == "Amphibia")       maxweight = 100 #nocov
+    if(Taxa == "Chondrichthyes") maxweight = 1000 #nocov
+    if(Taxa == "Osteichthyes") maxweight = 500 #nocov
   }
   assert_that(is.numeric(maxweight))
   assert_that(min_Nmeasures%%1==0, msg = "min_Nmeasures should be an integer")
@@ -65,8 +65,8 @@ Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL,
   assert_that(all(data_weight$Age>=0))
   
   if(variableid != "AnimalAnonID"){
-    data_weight <- data_weight%>%
-      rename(AnimalAnonID = !!sym(variableid))
+    data_weight <- data_weight%>%               #nocov
+      rename(AnimalAnonID = !!sym(variableid))  #nocov
   }
   
   if(is.na(AgeMat)){AgeMat=1.5}

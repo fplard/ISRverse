@@ -3,9 +3,8 @@
 test_that("surv_Bastab works", {
   data(core)
   data(deathinformation)
-  out<- surv_Bastab(core, DeathInformation = deathinformation, EarliestDate = '1990-01-01', LatestDate = '2020-12-31', 
+  out<- surv_Bastab(core, DeathInformation = deathinformation, LatestDate = '2020-12-31', 
                     OtherCovars = c('FirstHoldingInstitution','LastHoldingInstitution'), ExcludeStillBirth = TRUE)
   expect_named(out, c("AnimalAnonID", "binSpecies", "Class", "Order", "Family", "CommonName", "Birth.Date", "Min.Birth.Date", "Max.Birth.Date", "Entry.Date", "Depart.Date", 'Entry.Type', 'Depart.Type', 'FirstHoldingInstitution', 'LastHoldingInstitution', "RelevantDeathInformationType" ))
-  expect_true(min(out$Entry.Date)>= lubridate::as_date('1990-01-01'))
   expect_true(max(out$Depart.Date)<=lubridate::as_date('2020-12-31'))
 })

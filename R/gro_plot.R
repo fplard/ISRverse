@@ -55,7 +55,7 @@ Gro_plot <- function(data, data_percent, title = "") {
   if (length(percentiles)/2 == 1){
     colorrib ="grey80"
   }else{
-    colorrib = paste0("grey", seq(30:90, length.out = length(percentiles)/2))}
+    colorrib = paste0("grey", seq(10,90, length.out = length(percentiles)/2))}
   for (i in 1:(length(percentiles)/2) ){
     per = paste0("percent",abs(c(percentiles[i], 100-percentiles[i])))
     p <- p +

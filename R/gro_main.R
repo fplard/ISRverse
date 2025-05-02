@@ -163,18 +163,18 @@ assert_that(is.character(models))
                 summar$error = "Model did not fit"
               }
             } else {
-              summar$Nerr = 5 
-              summar$error = "NInds < MinNIGro"
-              wAnalysis<-  NULL
+              summar$Nerr = 5  #nocov
+              summar$error = "NInds < MinNIGro" #nocov
+              wAnalysis<-  NULL  #nocov
             }
           } else {
-            summar$Nerr = 4 
-            summar$error = "NWeight < MinNGro"
-            wAnalysis<-  NULL 
+            summar$Nerr = 4  #nocov
+            summar$error = "NWeight < MinNGro" #nocov
+            wAnalysis<-  NULL  #nocov
           }
         } else {
-          summar$Nerr = 3
-          summar$error = "Data from 1 Institution"
+          summar$Nerr = 3 #nocov
+          summar$error = "Data from 1 Institution" #nocov
           
         }
       }

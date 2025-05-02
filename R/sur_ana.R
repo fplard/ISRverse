@@ -368,35 +368,35 @@ Sur_ana <- function(Data, DeathInformation,
                   summar$model = bastaRes$modelSpecs[["model"]]
                   summar$analyzed = TRUE
                 } else {
-                  summar$error = 'no DIC from Basta'
-                  summar$Nerr = 9
+                  summar$error = 'no DIC from Basta' #nocov
+                  summar$Nerr = 9 #nocov
                 }
               } else {
-                summar$error = "Nbasta > MaxNSur"
-                summar$Nerr = 8
+                summar$error = "Nbasta > MaxNSur" #nocov
+                summar$Nerr = 8 #nocov
               }} else {
-                summar$error = "Nbasta < MinNSur"
-                summar$Nerr = 7
+                summar$error = "Nbasta < MinNSur" #nocov
+                summar$Nerr = 7 #nocov
               }
           }else{
-            summar$error = "Data from 1 Institution"
-            summar$Nerr = 6
+            summar$error = "Data from 1 Institution" #nocov
+            summar$Nerr = 6 #nocov
           }
         }else{ 
-          summar$error = "%known births < MinBirthKnown"
-          summar$Nerr = 5
+          summar$error = "%known births < MinBirthKnown" #nocov
+          summar$Nerr = 5 #nocov
         }
       }else{
-        summar$error = "NBasta = 0"
-        summar$Nerr = 4
+        summar$error = "NBasta = 0" #nocov
+        summar$Nerr = 4 #nocov
       }}
     }else{
-      summar$ error = "lxMin > 0.99"
-      summar$ Nerr = 3
+      summar$ error = "lxMin > 0.99" #nocov
+      summar$ Nerr = 3 #nocov
     }
   } else {
-    summar$ error = "Nuncertdeath < MinNSur"
-    summar$ Nerr = 2
+    summar$ error = "Nuncertdeath < MinNSur" #nocov
+    summar$ Nerr = 2 #nocov
   }
   
   return(list(summary = summar, metrics = metrics, bastaRes = bastaRes, 

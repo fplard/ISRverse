@@ -111,15 +111,16 @@ if(Global){
                  LastTXDate = lubridate::as_date(ChangeDate),
                  DepartDate = lubridate::as_date(ChangeDate))%>%
           select(-ChangeDate, -ScopeType,-maxtime, -RecordingInstitution )%>%
-          distinct()
+          distinct()%>%select(-c("globStat", "lastInst", "DepartFrom"))
       }else{indloc<-indglobloc}
   
       data_sel <- coresubset1%>%
-        rows_update(indloc, by="AnimalAnonID")%>%
+        rows_update(indloc, 
+                    by="AnimalAnonID")%>%
         mutate()%>%
         filter(FirstCollectionScopeType == "Global")
       summar$NGlobal = nrow(data_sel)
-    }else {data_sel <- coresubset1}
+    }else {data_sel <- coresubset1} #nocov
     
     
     if (summar$NGlobal > 0) {  
@@ -156,9 +157,9 @@ if(Global){
           
           summar$MaxAgeRaw <- max(c(data_age$tempAges,data_age$tempAlive))
         } 
-      }else{data_sel1 = tibble()}
-    }else{data_sel1 = tibble()}
-   }else{data_sel1 = tibble()}
+      }else{data_sel1 = tibble()} #nocov
+    }else{data_sel1 = tibble()} #nocov
+   }else{data_sel1 = tibble()} #nocov
   
    sexDat <- list(summary = summar, data = data_sel1)
   return(sexDat)

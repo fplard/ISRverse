@@ -181,7 +181,7 @@ Sur_main <- function(DataCore,   DeathInformation,
     
     #Estimate key survival metrics
     if (out[[paste0("from",MinAge[j])]]$summary$analyzed) {
-      out[[paste0("from",MinAge[j])]]  <-Sur_out(out[[paste0("from",MinAge[j])]],
+      out[[paste0("from",MinAge[j])]]  <-Sur_out(out[[paste0("from",MinAge[j])]], AgeMat = AgeMat,
                                                  MaxAge=MaxAge,ncpus = ncpus, MinAge = MinAge[j],
                                                  PlotDir = PlotDir, PlotName = paste0(PlotName,"_",MinAge[j]),
                                                  MinLx = MinLx, MinMLE = MinMLE, MaxLE = MaxLE

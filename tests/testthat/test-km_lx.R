@@ -4,7 +4,7 @@ KM_tab = data.frame( Ages = 1:10,
                      ple = sort(runif(10, 0, 1), decreasing = TRUE))
 
 test_that("KM_Lx works", {
-  out <- KM_Lx(KM_tab, Age = c(3,6.5))
+  out <- KM_Lx(KM_tab, Age = c(3,6.5,12))
   expect_named(out, c("Age", "Lx"))
   expect_true(is.numeric(out$Lx))
   expect_true(is.numeric(out$Age))
