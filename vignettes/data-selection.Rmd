@@ -94,7 +94,7 @@ unlink(ZIMSDirtest, recursive = FALSE)
 
 This function extracts the data of the specified Species that fill the condition on minimum date and global collections. It includes the following argument:
 
-* `SpeciesName` latin name of the selected species
+* `SpeciesNamefun` latin name of the selected species
 * `coresubset`data frame including at least the following columns *AnimalAnonID*, *binSpecies*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *MaxDeathDate*, *MinDeathDate*, *EntryType*, *DepartType*,  *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 * `Collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 * `UncertBirth` Maximum uncertainty accepted for birth date, in days

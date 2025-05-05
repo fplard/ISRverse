@@ -4,7 +4,7 @@
 #' 
 #' Extract data of the specified Species that fill the condition on minimum date and global Collections
 #'
-#' @param SpeciesName \code{character} latin name of the Species selected
+#' @param SpeciesNamefun \code{character} latin name of the Species selected
 #' @param coresubset  \code{data.frame} including at least the following columns *AnimalAnonID*, *binSpecies*, *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate* (\code{date}), *MaxDeathDate* (\code{date}), *MinDeathDate* (\code{date}), *EntryType*, *DepartType*,  *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 #' @param Collection \code{data.frame} including at least the following columns *RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 #' @param MinDate \code{character 'YYYY-MM-DD'} Earliest date to include data
@@ -34,7 +34,7 @@
 #'                      MinDate = "1980-01-01", ExtractDate = "2023-01-01")
 #' out$summary
 #' out$data
-select_species <- function(SpeciesName, coresubset, Collection, UncertBirth = 365,                                     
+select_species <- function(SpeciesNamefun, coresubset, Collection, UncertBirth = 365,                                     
                            BirthType = "Captive",
                            MinDate, ExtractDate, Global = TRUE, na_birthdate = FALSE) {
    
@@ -59,7 +59,7 @@ select_species <- function(SpeciesName, coresubset, Collection, UncertBirth = 36
   
   # Select Data -------------------------------------------------------------------------
   coresubset0 <- coresubset%>%
-    filter(binSpecies == SpeciesName)
+    filter(binSpecies == SpeciesNamefun)
   
   # Subset by min date
   coresubset1 <- coresubset0%>%

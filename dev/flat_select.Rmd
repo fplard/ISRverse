@@ -623,7 +623,7 @@ test_that("Prep_Animal works", {
 
 This function extracts the data of the specified Species that fill the condition on minimum date and global collections. It includes the following argument:
 
-* `SpeciesName` latin name of the selected species
+* `SpeciesNamefun` latin name of the selected species
 * `coresubset`data frame including at least the following columns *AnimalAnonID*, *binSpecies*, *BirthDate*, *DepartDate*, *EntryDate*, *MaxBirthDate*, *MinBirthDate*, *MaxDeathDate*, *MinDeathDate*, *EntryType*, *DepartType*,  *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 * `Collection` data.frame including at least the following columns*RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 * `UncertBirth` Maximum uncertainty accepted for birth date, in days
@@ -651,7 +651,7 @@ The output is a list including:
 #' 
 #' Extract data of the specified Species that fill the condition on minimum date and global Collections
 #'
-#' @param SpeciesName \code{character} latin name of the Species selected
+#' @param SpeciesNamefun \code{character} latin name of the Species selected
 #' @param coresubset  \code{data.frame} including at least the following columns *AnimalAnonID*, *binSpecies*, *BirthDate* (\code{date}), *DepartDate* (\code{date}), *EntryDate* (\code{date}), *MaxBirthDate* (\code{date}), *MinBirthDate* (\code{date}), *MaxDeathDate* (\code{date}), *MinDeathDate* (\code{date}), *EntryType*, *DepartType*,  *LastTXDate*, *DeathDate*, *FirstHoldingInstitution*, *LastHoldingInstitution*, *GlobalStatus*, *LastCollectionScopeType*, and *FirstCollectionScopeType*
 #' @param Collection \code{data.frame} including at least the following columns *RecordingInstitution*, *ChangeDate*, *ScopeType*, and *AnimalAnonID*.
 #' @param MinDate \code{character 'YYYY-MM-DD'} Earliest date to include data
@@ -675,7 +675,7 @@ The output is a list including:
 #' @export
 #'
 #' @examples
-select_species <- function(SpeciesName, coresubset, Collection, UncertBirth = 365,                                     
+select_species <- function(SpeciesNamefun, coresubset, Collection, UncertBirth = 365,                                     
                            BirthType = "Captive",
                            MinDate, ExtractDate, Global = TRUE, na_birthdate = FALSE) {
    
@@ -700,7 +700,7 @@ select_species <- function(SpeciesName, coresubset, Collection, UncertBirth = 36
   
   # Select Data -------------------------------------------------------------------------
   coresubset0 <- coresubset%>%
-    filter(binSpecies == SpeciesName)
+    filter(binSpecies == SpeciesNamefun)
   
   # Subset by min date
   coresubset1 <- coresubset0%>%

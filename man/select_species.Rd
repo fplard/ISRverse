@@ -5,7 +5,7 @@
 \title{Extract data}
 \usage{
 select_species(
-  SpeciesName,
+  SpeciesNamefun,
   coresubset,
   Collection,
   UncertBirth = 365,
@@ -17,7 +17,7 @@ select_species(
 )
 }
 \arguments{
-\item{SpeciesName}{\code{character} latin name of the Species selected}
+\item{SpeciesNamefun}{\code{character} latin name of the Species selected}
 
 \item{coresubset}{\code{data.frame} including at least the following columns \emph{AnimalAnonID}, \emph{binSpecies}, \emph{BirthDate} (\code{date}), \emph{DepartDate} (\code{date}), \emph{EntryDate} (\code{date}), \emph{MaxBirthDate} (\code{date}), \emph{MinBirthDate} (\code{date}), \emph{MaxDeathDate} (\code{date}), \emph{MinDeathDate} (\code{date}), \emph{EntryType}, \emph{DepartType},  \emph{LastTXDate}, \emph{DeathDate}, \emph{FirstHoldingInstitution}, \emph{LastHoldingInstitution}, \emph{GlobalStatus}, \emph{LastCollectionScopeType}, and \emph{FirstCollectionScopeType}}
 
