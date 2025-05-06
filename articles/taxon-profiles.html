@@ -171,7 +171,7 @@ each species</p>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 14.64 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 14.30 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -182,7 +182,7 @@ each species</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 7.02 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 7.16 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -194,8 +194,6 @@ each species</p>
 <span><span class="co">#&gt; Joining with `by = join_by(Ages)`</span></span>
 <span><span class="co">#&gt;  ****************************  Female  ****************************</span></span>
 <span><span class="co">#&gt; Survival Running ------------------------------------------------</span></span>
-<span><span class="co">#&gt; Warning in min(which(rawPLE$Z10 &lt;= -1.96)): no non-missing arguments to min;</span></span>
-<span><span class="co">#&gt; returning Inf</span></span>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
@@ -209,7 +207,7 @@ each species</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 6.97 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 6.94 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; Convergence not reached for some parameters.</span></span>
@@ -218,7 +216,7 @@ each species</p>
 <span><span class="co">#&gt; [1] "GO"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Running sequence to find jump SDs... Done</span></span>
-<span><span class="co">#&gt; Total jump SDs computing time: 14.36 secs.</span></span>
+<span><span class="co">#&gt; Total jump SDs computing time: 14.44 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Multiple simulations started...</span></span>
 <span><span class="co">#&gt; snowfall 1.84-6.3 initialized (using snow 0.4-4): parallel execution on 3 CPUs.</span></span>
@@ -228,7 +226,7 @@ each species</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Stopping cluster</span></span>
 <span><span class="co">#&gt; Simulations finished.</span></span>
-<span><span class="co">#&gt; Total MCMC computing time: 16.10 secs.</span></span>
+<span><span class="co">#&gt; Total MCMC computing time: 15.89 secs.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculating summary statistics... Done.</span></span>
 <span><span class="co">#&gt; All parameters converged properly.</span></span>
@@ -246,8 +244,7 @@ each species</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">AnalysisDir</span>,<span class="st">'/Rdata'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Reptilia_Testudo_hermanni.RData"</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">PlotDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">AnalysisDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="summary-tables-plots">Summary tables &amp; plots<a class="anchor" aria-label="anchor" href="#summary-tables-plots"></a>
@@ -351,28 +348,13 @@ plots and tables</li>
 <span><span class="va">out</span> <span class="op">&lt;-</span><span class="fu"><a href="../reference/Make_SurFigTab.html">Make_SurFigTab</a></span> <span class="op">(</span><span class="va">AnalysisDir</span>, <span class="va">SaveDir</span>,</span>
 <span>                      Sections <span class="op">=</span> <span class="st">"sur"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"','"</span> as decimal and <span style="color: #0000BB;">"'.'"</span> as grouping mark. Use `read_delim()` for more control.</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">168</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">9</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Delimiter:</span> ";"</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">chr</span> (8): param, Species, Sex, Class, models, Data, firstage, stat</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">dbl</span> (1): value</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Using <span style="color: #0000BB;">"','"</span> as decimal and <span style="color: #0000BB;">"'.'"</span> as grouping mark. Use `read_delim()` for more control.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">2</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">10</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Delimiter:</span> ";"</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">chr</span> (5): Class, Species, Sex, Surv_error, Surv_model</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">dbl</span> (4): Nselect, Nlifespan, GapThresh, NThres</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">lgl</span> (1): Surv_Ana</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; Warning: Removed 4 rows containing non-finite outside the scale range</span></span>
+<span><span class="co">#&gt; Warning in Make_SurFigTab(AnalysisDir, SaveDir, Sections = "sur"): No analyses</span></span>
+<span><span class="co">#&gt; passed all checks, so all analyses are present in plots and tables (instead of</span></span>
+<span><span class="co">#&gt; none)</span></span>
+<span><span class="co">#&gt; Warning: Removed 2 rows containing non-finite outside the scale range</span></span>
 <span><span class="co">#&gt; (`stat_ydensity()`).</span></span>
-<span><span class="co">#&gt; Warning: Removed 4 rows containing non-finite outside the scale range</span></span>
+<span><span class="co">#&gt; Warning: Removed 2 rows containing non-finite outside the scale range</span></span>
 <span><span class="co">#&gt; (`stat_summary()`).</span></span></code></pre></div>
 <p><img src="taxon-profiles_files/figure-html/examples-Make_FigTab-1.png" width="700"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -401,9 +383,6 @@ loaded</li>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">'ISRverse'</span><span class="op">)</span></span>
 <span><span class="va">ZIMSDirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/Split_Zimsdata.html">Split_Zimsdata</a></span><span class="op">(</span>ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirtest</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Splitting Animal file.Splitting sci_AnimalCollection.csv.Splitting sci_AnimalContraception.csv.Splitting sci_AnimalMove.csv.Splitting sci_AnimalParent.csv.Splitting sci_AnimalRelevantDeathInformation.csv.Splitting sci_AnimalWeight.csv. Done.</span></span>
-<span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Load_Zimsdata.html">Load_Zimsdata</a></span>   <span class="op">(</span>Taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, </span>
 <span>                       ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirtest</span>, </span>
 <span>                       Species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Reptilia <span class="op">=</span> <span class="st">"All"</span><span class="op">)</span>,</span>
@@ -27712,7 +27691,7 @@ MeasurementValue.</p>
 <code class="sourceCode R"><span><span class="va">file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"sci_Animal.csv"</span>, package <span class="op">=</span> <span class="st">"ISRverse"</span><span class="op">)</span></span>
 <span><span class="va">ZIMSDirtest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">dirname</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/Split_Zimsdata.html">Split_Zimsdata</a></span><span class="op">(</span>ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirtest</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/Split_Zimsdata.html">Split_Zimsdata</a></span><span class="op">(</span>ZIMSDir <span class="op">=</span> <span class="va">ZIMSDirtest</span>, ExtractDate <span class="op">=</span> <span class="st">"2024-08-29"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Splitting Animal file.Splitting sci_AnimalCollection.csv.Splitting sci_AnimalContraception.csv.Splitting sci_AnimalMove.csv.Splitting sci_AnimalParent.csv.Splitting sci_AnimalRelevantDeathInformation.csv.Splitting sci_AnimalWeight.csv. Done.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">ZIMSDirtest</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -27829,13 +27808,13 @@ MeasurementValue.</p>
 <span><span class="co">#&gt; [111] "site/reference/tx_report.html"                                            </span></span>
 <span><span class="co">#&gt; [112] "site/reference/weights.html"                                              </span></span>
 <span><span class="co">#&gt; [113] "site/sitemap.xml"                                                         </span></span>
-<span><span class="co">#&gt; [114] "Split_Reptilia/Reptilia_Animal.csv"                                       </span></span>
-<span><span class="co">#&gt; [115] "Split_Reptilia/Reptilia_AnimalCollection.csv"                             </span></span>
-<span><span class="co">#&gt; [116] "Split_Reptilia/Reptilia_AnimalContraception.csv"                          </span></span>
-<span><span class="co">#&gt; [117] "Split_Reptilia/Reptilia_AnimalMove.csv"                                   </span></span>
-<span><span class="co">#&gt; [118] "Split_Reptilia/Reptilia_AnimalParent.csv"                                 </span></span>
-<span><span class="co">#&gt; [119] "Split_Reptilia/Reptilia_AnimalRelevantDeathInformation.csv"               </span></span>
-<span><span class="co">#&gt; [120] "Split_Reptilia/Reptilia_AnimalWeight.csv"</span></span></code></pre></div>
+<span><span class="co">#&gt; [114] "Split_Reptilia/Reptilia2024-08-29_Animal.csv"                             </span></span>
+<span><span class="co">#&gt; [115] "Split_Reptilia/Reptilia2024-08-29_AnimalCollection.csv"                   </span></span>
+<span><span class="co">#&gt; [116] "Split_Reptilia/Reptilia2024-08-29_AnimalContraception.csv"                </span></span>
+<span><span class="co">#&gt; [117] "Split_Reptilia/Reptilia2024-08-29_AnimalMove.csv"                         </span></span>
+<span><span class="co">#&gt; [118] "Split_Reptilia/Reptilia2024-08-29_AnimalParent.csv"                       </span></span>
+<span><span class="co">#&gt; [119] "Split_Reptilia/Reptilia2024-08-29_AnimalRelevantDeathInformation.csv"     </span></span>
+<span><span class="co">#&gt; [120] "Split_Reptilia/Reptilia2024-08-29_AnimalWeight.csv"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="output-for-dev-team">Output for Dev team<a class="anchor" aria-label="anchor" href="#output-for-dev-team"></a>
