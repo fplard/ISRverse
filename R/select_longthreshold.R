@@ -92,7 +92,7 @@ select_Longthreshold <- function(Data,  SexCats = "All", MinN = 50,
         MaxAlive <- max(corelong$alive, na.rm = TRUE)
       }
       if (MaxAlive < 5) {
-        MaxAlive <- 5
+        MaxAlive <- 5 # nocov
       } else if (MaxAlive > 50) {
         MaxAlive <- 50
       }
@@ -128,7 +128,7 @@ select_Longthreshold <- function(Data,  SexCats = "All", MinN = 50,
           }
         }
       } else {
-        outTab$GapThresh <-100
+        outTab$GapThresh <-100 # nocov
       }
       outTab$NThres <- nrow(coresex)
       dev.off()

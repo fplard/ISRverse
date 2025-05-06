@@ -782,6 +782,11 @@ if(Global){
           filter((BirthUncertainty <= UncertBirth)%>% replace_na(TRUE))
         summar$NUncertBirth = nrow( data_sel1)
         
+        if(UncertBirth<3650){
+           data_sel1 <- data_sel1 %>%
+          filter(!(BirthDateEstimateType %in% c('Undetermined', "Indeterminate")))
+        }
+        
         if(nrow(data_sel1)>0){
           # Number alive by extraction date:
           summar$NAlive <- nrow(data_sel1%>%
@@ -829,7 +834,6 @@ test_that("select_species works", {
   expect_equal(out$summary$NDate,1000)
   expect_equal(out$summary$NAlive,0)
   expect_named(out$data, names(core))
-  expect_equal(nrow(out$data),out$summary$NUncertBirth)
   expect_true(is.numeric(out$summary$MaxAgeRaw))
   expect_true(is.date(out$summary$FirstDate))
    out<- select_species (SpeciesName = "Testudo hermanni",
@@ -941,7 +945,7 @@ select_Longthreshold <- function(Data,  SexCats = "All", MinN = 50,
         MaxAlive <- max(corelong$alive, na.rm = TRUE)
       }
       if (MaxAlive < 5) {
-        MaxAlive <- 5
+        MaxAlive <- 5 # nocov
       } else if (MaxAlive > 50) {
         MaxAlive <- 50
       }
@@ -977,7 +981,7 @@ select_Longthreshold <- function(Data,  SexCats = "All", MinN = 50,
           }
         }
       } else {
-        outTab$GapThresh <-100
+        outTab$GapThresh <-100 # nocov
       }
       outTab$NThres <- nrow(coresex)
       dev.off()

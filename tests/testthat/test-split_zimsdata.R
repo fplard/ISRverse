@@ -4,8 +4,8 @@ test_that("Split_Zimsdata works", {
   
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSDirtest = dirname(file)
-  Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
-  expect_true(file.exists(glue::glue("{ZIMSDirtest}/Split_Reptilia/Reptilia_Animal.csv")))
-  expect_true(file.exists(glue::glue("{ZIMSDirtest}/Split_Reptilia/Reptilia_AnimalParent.csv")))
+  Split_Zimsdata	(ZIMSDir = ZIMSDirtest, ExtractDate = "2024-08-29")
+  expect_true(file.exists(glue::glue("{ZIMSDirtest}/Split_Reptilia/Reptilia2024-08-29_Animal.csv")))
+  expect_true(file.exists(glue::glue("{ZIMSDirtest}/Split_Reptilia/Reptilia2024-08-29_AnimalParent.csv")))
   
 })

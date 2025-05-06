@@ -59,7 +59,7 @@ Gro_cleanmeasures <- function(data, coresubse,
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
       MeasureType_not = which(!(MeasureType %in% unique(data$MeasurementType)))
-      warnings(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
+      warning(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
     }
   }
   assertthat::assert_that(type %in% c("weight",'length'))
@@ -98,7 +98,7 @@ Gro_cleanmeasures <- function(data, coresubse,
     summar$NInd_raw = length(unique(data$AnimalAnonID))
     summar$NWeight_raw = nrow(data)
   }else{
-    warnings('no common ID between measured data and core data')  # nocov
+    warning('no common ID between measured data and core data')  # nocov
   }
   
   if(nrow(data)>0){

@@ -251,7 +251,7 @@ Sur_ana <- function(Data, DeathInformation,
     metrics = rbind(metrics,
                     tibble(Data = 'KM',
                            firstage = "birth",
-                           param = c(rep(c("L50", "L90"), each =3),"S1month", "S1year"),
+                           param = c(rep(c("L90", "L50"), each =3),"S1month", "S1year"),
                            stat = c(rep(c("mean", "lower", "upper"), 2),rep('value',2)),
                            value = c(
                              KM_age(rawPLE, 0.1)[2]%>%as.numeric(), 

@@ -16,5 +16,6 @@ test_that("Gro_cleanmeasures works", {
  d=Gro_cleanmeasures(weights, core,  MeasureType = 'Live weight',
                      corevariable = "FirstAcquisitionDate", 
                      variablekeep= "MeasurementType")
+ expect_warning(Gro_cleanmeasures(weights, core, MeasureType = "b"))
 
 })

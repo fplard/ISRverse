@@ -193,5 +193,4 @@ list.files(PlotDir)
 list.files(paste0(AnalysisDir,'/Rdata'))
 
 unlink(AnalysisDir, recursive = TRUE)
-unlink(PlotDir, recursive = TRUE)
 }

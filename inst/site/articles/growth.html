@@ -176,7 +176,14 @@ MinNGro 5/NInd &lt; MinNIGro 6/Best model did not fit.</p>
 <span>                 BirthType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Captive"</span>, <span class="st">"Wild"</span><span class="op">)</span>, AgeMat <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                 type <span class="op">=</span> <span class="st">"weight"</span>, MeasureType <span class="op">=</span> <span class="st">"Live weight"</span>,</span>
 <span>                 MinNGro <span class="op">=</span> <span class="fl">30</span>, MinNIGro <span class="op">=</span> <span class="fl">30</span>, </span>
-<span>                 models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"logistic"</span><span class="op">)</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
+<span>                 models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vonBertalanffy"</span>, <span class="st">"logistic"</span><span class="op">)</span>, percentiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">97.5</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="co">#&gt; Warning in Gro_remoutliers(., Taxa = Taxa, AgeMat = AgeMat, maxweight = NULL, :</span></span>
+<span><span class="co">#&gt; Multiple measurment types found in the data: Live weight, Data should often</span></span>
+<span><span class="co">#&gt; include only one Measurement Type</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in Gro_remoutliers(., Taxa = Taxa, AgeMat = AgeMat, maxweight = NULL, :</span></span>
+<span><span class="co">#&gt; Multiple measurment types found in the data: Live weight, Data should often</span></span>
+<span><span class="co">#&gt; include only one Measurement Type</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="gro_cleanmeasures">Gro_cleanmeasures<a class="anchor" aria-label="anchor" href="#gro_cleanmeasures"></a>
@@ -256,7 +263,10 @@ classified as juveniles.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span>
-<span>                          Taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, AgeMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<span>                          Taxa <span class="op">=</span> <span class="st">"Mammalia"</span>, AgeMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in Gro_remoutliers(weights[weights$MeasurementType == "Live weight", :</span></span>
+<span><span class="co">#&gt; Multiple measurment types found in the data: Live weight, Data should often</span></span>
+<span><span class="co">#&gt; include only one Measurement Type</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="remove-outliers-from-percentiles">Remove outliers from percentiles<a class="anchor" aria-label="anchor" href="#remove-outliers-from-percentiles"></a>
 </h3>
@@ -269,9 +279,9 @@ does not remove the 2 youngest and 2 oldest individuals.</p>
 <code class="sourceCode R"><span><span class="va">z</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">5</span>,<span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">40</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">103</span>,<span class="fl">3</span>,<span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/Gro_Rout_quan.html">Gro_Rout_quan</a></span> <span class="op">(</span><span class="va">z</span>,<span class="va">x</span>, minq <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt;   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
 <span><span class="co">#&gt;  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
-<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="linearize-individual-trajectories">Linearize individual trajectories<a class="anchor" aria-label="anchor" href="#linearize-individual-trajectories"></a>
@@ -404,6 +414,9 @@ trajectories * in blue if detected from the global log-linear model</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="../reference/Gro_remoutliers.html">Gro_remoutliers</a></span><span class="op">(</span><span class="va">weights</span><span class="op">[</span><span class="va">weights</span><span class="op">$</span><span class="va">MeasurementType</span> <span class="op">==</span> <span class="st">"Live weight"</span>,<span class="op">]</span>, </span>
 <span>                          Taxa <span class="op">=</span> <span class="st">"Reptilia"</span>, AgeMat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in Gro_remoutliers(weights[weights$MeasurementType == "Live weight", :</span></span>
+<span><span class="co">#&gt; Multiple measurment types found in the data: Live weight, Data should often</span></span>
+<span><span class="co">#&gt; include only one Measurement Type</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gro_outplot.html">Gro_outplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">weights</span>, </span>
 <span>                 title <span class="op">=</span> <span class="st">"Species A"</span>, ylimit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2000</span><span class="op">)</span><span class="op">)</span></span>
@@ -493,7 +506,7 @@ polynomial</li>
 <span><span class="co">#&gt;     return(sum((logz - zEst)^2))</span></span>
 <span><span class="co">#&gt;   }else{return(zEst)}</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x000001c3f5aedea0&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x000001f6761e0c80&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ISRverse&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $np</span></span>
@@ -507,13 +520,13 @@ polynomial</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart</span></span>
 <span><span class="co">#&gt; $gamstart$zinf</span></span>
-<span><span class="co">#&gt; [1] 151.558</span></span>
+<span><span class="co">#&gt; [1] 246.4081</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$z0</span></span>
-<span><span class="co">#&gt; [1] -137.7072</span></span>
+<span><span class="co">#&gt; [1] -232.7235</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gamstart$gamma</span></span>
-<span><span class="co">#&gt; [1] 1.038585</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 2.553425</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-model-prediction">Plot model prediction<a class="anchor" aria-label="anchor" href="#plot-model-prediction"></a>

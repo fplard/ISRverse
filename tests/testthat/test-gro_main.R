@@ -30,5 +30,11 @@ test_that("Gro_Main Captive works", {
   expect_true(output$Wild$wSummar$analyzed)
   expect_match(output$Wild$wSummar$error,"Model did not fit")
   expect_named(output$Captive$weightQ, c("percent", "fit", "AIC_tab", "GOF"))
-  
+  expect_warning(Gro_Main(data = weights, coresubse = core,
+                   Taxa = "Reptilia", Species = "Testudo hermanni" ,
+                   BirthType = c("Captive", "Wild"), MeasureType = "b",
+                   AgeMat = 1, 
+                   type = "weight", 
+                   MinNGro = 30, MinNIGro = 30, 
+                   models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) )
 })

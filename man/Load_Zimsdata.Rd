@@ -38,8 +38,6 @@ Load ZIMS data frames of given taxa
 \examples{
 file = system.file("sci_Animal.csv", package = 'ISRverse')
 ZIMSDirtest = dirname(file)
-Split_Zimsdata(ZIMSDir = ZIMSDirtest)
-
 data <- Load_Zimsdata	(Taxa = "Reptilia", 
                        ZIMSDir = ZIMSDirtest, 
                        Species = list(Reptilia = "All"),

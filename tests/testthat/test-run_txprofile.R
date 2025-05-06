@@ -22,7 +22,7 @@ test_that("run_txprofile works", {
                 ZIMSDir = ZIMSDir, AnalysisDir = PlotDir,
                 InParallel = TRUE,
                 PlotDir = PlotDir, MeasureType="Live weight",
-                ExtractDate = "",MinLx=0.4,
+                ExtractDate = "",MinLx=0.4,MaxNSur = 10000,
                 MinDate = "1980-01-01",
                 Sections = c( "rep"),ErasePrevious=TRUE, spOutLev = c("Testudo hermanni"),
                 SexCats = c('Male', 'Female'),

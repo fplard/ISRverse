@@ -61,7 +61,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     inlog <- - log(inrat[idk]) / (logxInts[idk] - xInfl)
     gamma <- mean(inlog)
     if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
+      gamma <- 0.5 # nocov
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zInf, xInfl = xInfl, gamma = gamma)
@@ -134,7 +134,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     idkeep <- which(inlog > 0)
     gamma <- mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts))
     if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
+      gamma <- 0.5 # nocov
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zinf, beta = beta, gamma = gamma, m = 0)
@@ -155,7 +155,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     zInf <- mean(logz[idInf], na.rm = TRUE) - z0
     
     if (zInf <= 0) {
-      zInf <- z0 + diff(range(logz))
+      zInf <- z0 + diff(range(logz)) # nocov
     }
     # find starting gamma:
     nGams <- 5
@@ -170,7 +170,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     idkeep <- which(inlog > 0)
     gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
     if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
+      gamma <- 0.5 # nocov
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma)

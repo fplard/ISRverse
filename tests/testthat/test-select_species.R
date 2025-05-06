@@ -12,7 +12,6 @@ test_that("select_species works", {
   expect_equal(out$summary$NDate,1000)
   expect_equal(out$summary$NAlive,0)
   expect_named(out$data, names(core))
-  expect_equal(nrow(out$data),out$summary$NUncertBirth)
   expect_true(is.numeric(out$summary$MaxAgeRaw))
   expect_true(is.date(out$summary$FirstDate))
    out<- select_species (SpeciesName = "Testudo hermanni",

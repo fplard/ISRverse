@@ -86,14 +86,15 @@ Sur_out <- function(out,
   )
   
   #Check if model is gompertz report b -----------------------------------------
+  if(out$bastaRes$modelSpecs[["model"]] =="GO"){
   out$metrics = rbind(out$metrics,
                       tibble(Data = 'Model',
                              firstage = "birth",
                              param = "b_Gomp",
                              stat = c("mean", "sd", "lower", "upper"),
-                             value = ifelse(out$bastaRes$modelSpecs[["model"]] =="GO",
-                                            out$bastaRes$coefficient[2,c(1:4)],NA)
+                             value = out$bastaRes$coefficient[2,c(1:4)]
                       ))
+}
   
   # Define maximum predicted age: age at L(x) = 0.005---------------------------
   Lx_mean <- out$bastaRes$surv$nocov[1,]
@@ -217,12 +218,12 @@ Sur_out <- function(out,
   lx <-out$bastaRes$lifeTable$noCov$Mean$lx
   dif <-abs(out$bastaRes$lifeTable$noCov$Mean$Ages - out$bastaRes$PS$nocov$PS[1,1])
   out$check$LxatMLE = lx[which(dif == min(dif))]
-  if(lx[which(dif == min(dif))]< MinMLE){
+  if(lx[which(dif == min(dif))]< MinMLE & out$summary$Nerr==0){
     out$summary$error = "lx at MLE < MinMLE" #nocov
     out$summary$Nerr = 12 #nocov
   }
   out$check$KMMinLx = out$summary$lxMin
-  if( out$summary$lxMin >= MinLx){
+  if( out$summary$lxMin >= MinLx & out$summary$Nerr==0){
     out$summary$error = "lxmin > MinLx" #nocov
     out$summary$Nerr = 13 #nocov
   }

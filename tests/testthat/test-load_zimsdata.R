@@ -4,13 +4,13 @@ test_that("Load_Zimsdata works", {
   
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSDirtest = dirname(file)
-  Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
+  # Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
   
   data <- Load_Zimsdata	(Taxa = "Reptilia", 
                          ZIMSDir = ZIMSDirtest, 
                          Species = list(Reptilia = "All"),
                          Animal = TRUE,
-                         tables = 'Weight') 
+                         tables = c('Weight'))
   
   expect_named(data$Reptilia, c("Animal",  "Weight"))
   expect_true(is.data.frame(data$Reptilia$Animal))
@@ -24,7 +24,7 @@ test_that("Load_Zimsdata works2", {
   
   file = system.file("sci_Animal.csv", package = 'ISRverse')
   ZIMSDirtest = dirname(file)
-  Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
+  # Split_Zimsdata	(ZIMSDir = ZIMSDirtest)
 
   Load_Zimsdata	(Taxa = "Reptilia", 
                          ZIMSDir = ZIMSDirtest, 

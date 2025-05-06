@@ -133,7 +133,7 @@ Gro_Main <- function(data, coresubse,
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
       MeasureType_not = which(!(MeasureType %in% unique(data$MeasurementType)))
-      warnings(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
+      warning(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
     }
   }
   assertthat::assert_that(type %in% c("weight",'length'))
@@ -281,7 +281,13 @@ test_that("Gro_Main Captive works", {
   expect_true(output$Wild$wSummar$analyzed)
   expect_match(output$Wild$wSummar$error,"Model did not fit")
   expect_named(output$Captive$weightQ, c("percent", "fit", "AIC_tab", "GOF"))
-  
+  expect_warning(Gro_Main(data = weights, coresubse = core,
+                   Taxa = "Reptilia", Species = "Testudo hermanni" ,
+                   BirthType = c("Captive", "Wild"), MeasureType = "b",
+                   AgeMat = 1, 
+                   type = "weight", 
+                   MinNGro = 30, MinNIGro = 30, 
+                   models = c("vonBertalanffy", "logistic"), percentiles = c(2.5,97.5)) )
 })
 ```
 
@@ -361,7 +367,7 @@ Gro_cleanmeasures <- function(data, coresubse,
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
       MeasureType_not = which(!(MeasureType %in% unique(data$MeasurementType)))
-      warnings(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
+      warning(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
     }
   }
   assertthat::assert_that(type %in% c("weight",'length'))
@@ -400,7 +406,7 @@ Gro_cleanmeasures <- function(data, coresubse,
     summar$NInd_raw = length(unique(data$AnimalAnonID))
     summar$NWeight_raw = nrow(data)
   }else{
-    warnings('no common ID between measured data and core data')  # nocov
+    warning('no common ID between measured data and core data')  # nocov
   }
   
   if(nrow(data)>0){
@@ -454,6 +460,7 @@ test_that("Gro_cleanmeasures works", {
  d=Gro_cleanmeasures(weights, core,  MeasureType = 'Live weight',
                      corevariable = "FirstAcquisitionDate", 
                      variablekeep= "MeasurementType")
+ expect_warning(Gro_cleanmeasures(weights, core, MeasureType = "b"))
 
 })
 ```
@@ -525,7 +532,7 @@ Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL,
    # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(data_weight))
   assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
-  if(length(unique(data_weight$MeasurementType))==1){warnings( glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data should often include only one Measurement Type"))}
+  if(length(unique(data_weight$MeasurementType))==1){warning( glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data should often include only one Measurement Type"))}
   assert_that(Taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                           "Chondrichthyes", "Osteichthyes"),
               msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 
@@ -1479,7 +1486,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     inlog <- - log(inrat[idk]) / (logxInts[idk] - xInfl)
     gamma <- mean(inlog)
     if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
+      gamma <- 0.5 # nocov
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zInf, xInfl = xInfl, gamma = gamma)
@@ -1552,7 +1559,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     idkeep <- which(inlog > 0)
     gamma <- mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts))
     if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
+      gamma <- 0.5 # nocov
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zinf, beta = beta, gamma = gamma, m = 0)
@@ -1573,7 +1580,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     zInf <- mean(logz[idInf], na.rm = TRUE) - z0
     
     if (zInf <= 0) {
-      zInf <- z0 + diff(range(logz))
+      zInf <- z0 + diff(range(logz)) # nocov
     }
     # find starting gamma:
     nGams <- 5
@@ -1588,7 +1595,7 @@ Gro_ModSettings <- function(data, model = "vonBertalanffy") {
     idkeep <- which(inlog > 0)
     gamma <- abs(mean(-log(inlog[idkeep]) / (logxInts[idkeep] + dxInts)))
     if (is.na(gamma) | gamma == Inf | gamma == -Inf) {
-      gamma <- 0.5
+      gamma <- 0.5 # nocov
     }
     # Fill-up gamStart:
     gamStart <- list(zinf = zInf, z0 = z0, gamma = gamma)

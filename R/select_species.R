@@ -141,6 +141,11 @@ if(Global){
           filter((BirthUncertainty <= UncertBirth)%>% replace_na(TRUE))
         summar$NUncertBirth = nrow( data_sel1)
         
+        if(UncertBirth<3650){
+           data_sel1 <- data_sel1 %>%
+          filter(!(BirthDateEstimateType %in% c('Undetermined', "Indeterminate")))
+        }
+        
         if(nrow(data_sel1)>0){
           # Number alive by extraction date:
           summar$NAlive <- nrow(data_sel1%>%

@@ -83,7 +83,7 @@ Gro_Main <- function(data, coresubse,
   if(!is.null(MeasureType)){
     if(!all(MeasureType %in% unique(data$MeasurementType))){
       MeasureType_not = which(!(MeasureType %in% unique(data$MeasurementType)))
-      warnings(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
+      warning(paste0(MeasureType[MeasureType_not]," are not included in the data, check if they are spelled correctly"))
     }
   }
   assertthat::assert_that(type %in% c("weight",'length'))

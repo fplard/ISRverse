@@ -92,7 +92,7 @@ fusen::inflate_all_no_check()
 
 # Simulate package installation
 pkgload::load_all()
-
+  
 # Generate documentation and deal with dependencies
 attachment::att_amend_desc()
 

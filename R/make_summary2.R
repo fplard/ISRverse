@@ -109,7 +109,7 @@ make_summary2 <- function (AnalysisDir, SaveDir, namefile = "",
                     GapThresh = numeric(1),
                     NThres = numeric(1),
                     Surv_Ana = logical(1), 
-                    Surv_error = character(1),
+                    Surv_error = "Nselect < MinN",
                     Surv_model = character(1),
     )
     # Survival tables:
@@ -182,7 +182,7 @@ make_summary2 <- function (AnalysisDir, SaveDir, namefile = "",
                                         Species = specie,
                                         Sex = sx,
                                         models = nam[n]))
-              
+              if(repout$surv[[sx]][[n]]$summary$analyzed){
               tempsur <- rbind(tempsur,repout$surv[[sx]][[n]]$check%>%nullToNA%>%
                                  as_tibble() %>%
                                  tidyr::pivot_longer(everything(), names_to = 'param', values_to = "value")%>%
@@ -193,6 +193,7 @@ make_summary2 <- function (AnalysisDir, SaveDir, namefile = "",
                                         Data = "Raw",
                                         firstage = "birth",
                                         stat = "value"))
+              }
             }
           }
         }

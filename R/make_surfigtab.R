@@ -34,8 +34,8 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
   assert_that(is.character(namefile))
   
   #Load main tables --------------------------------------------------------------
-  Tab = readr::read_csv2(glue::glue("{AnalysisDir}/DP_Survival{namefile}.csv"))
-  AnyAna = readr::read_csv2(glue::glue("{AnalysisDir}/DP_Any_Ana{namefile}.csv"))
+  Tab = readr::read_csv2(glue::glue("{AnalysisDir}/DP_Survival{namefile}.csv"), show_col_types = FALSE)
+  AnyAna = readr::read_csv2(glue::glue("{AnalysisDir}/DP_Any_Ana{namefile}.csv"), show_col_types = FALSE)
   
   # Create the table for CHECKS---------------------------------------------------
   Tabcheck = Tab%>%
@@ -51,7 +51,7 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
            CH_SurMod = S1month_Model >  S1year_Model,
            CH_LKM = L50_KM <  L90_KM,
            CH_LMod = L50_Model <  L90_Model,
-           CH_MinLxatMLE = LxatMLE_Raw < 0.1,
+           CH_MinLxatMLE = LxatMLE_Raw > 0.1,
            CH_LEmaxage = LEmaxOage_Raw<=2,
            CH_KMMinLx = KMMinLx_Raw<= 0.1,
            CH_CIL50_Model = L50_Model <  L90_Model,
@@ -64,11 +64,19 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
     tidyr::pivot_wider(names_from=c(param,Data), names_prefix = "CH_IC_",values_from = IC)
   
   Tabcheck =Tabcheck %>%
-    left_join(Tabcheck2, by = c("Class", "Species","Sex"))
+    left_join(Tabcheck2, by = c("Class", "Species","Sex"))%>%
+    mutate(ALLcheck = all(across(starts_with("CH_"))))
   
   # Create the Figures -------------------------------------------------------
+  # Remove species for which checks are not ok
+  Tabselect = Tab%>%
+    left_join(Tabcheck%>%select(Species, Sex, ALLcheck), by = c('Species', 'Sex'))%>%
+    filter(ALLcheck)
+  if(nrow(Tabselect)==0){Tabselect = Tab
+  warning("No analyses passed all checks, so all analyses are present in plots and tables (instead of none)")}
+  
   # Figure Data Summary
-  A1 =  Tab%>%select(Class, Species)%>%distinct%>%
+  A1 =  Tabselect%>%select(Class, Species)%>%distinct%>%
     ggplot(aes(x = Class))+ ylab("Number of species")+
     geom_bar()+theme_bw()+xlab ('')
   mycol = c("grey", "lightsalmon2", "aquamarine3")
@@ -80,13 +88,13 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
     geom_boxplot(aes(fill = Sex),  linewidth = 0.75)+theme_bw()+
     scale_fill_manual(values=mycol)+xlab ('')
   
-  A3 =  Tab%>%filter(param %in% c("Nrc", "Ndead"))%>%
+  A3 =  Tabselect%>%filter(param %in% c("Nrc", "Ndead"))%>%
     tidyr::pivot_wider(names_from=param, values_from = value)%>%
     mutate(Pmort = Ndead/(Ndead +Nrc))%>%
     ggplot(aes(x = Class, y=Pmort))+ ylab("% of dead individuals")+
     geom_boxplot(linewidth = 0.75)+theme_bw()+xlab ('')
   
-  A4 =  Tab%>%filter(param %in% c("N8090", "N9000", "N0010", "N1020","N2030"))%>%
+  A4 =  Tabselect%>%filter(param %in% c("N8090", "N9000", "N0010", "N1020","N2030"))%>%
     mutate(param = factor(param, ordered = T, levels = c("N8090", "N9000", "N0010", "N1020","N2030")))%>%
     group_by(Class, param)%>%
     mutate(Pval =sum(value))%>%
@@ -106,7 +114,8 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
   figviol <-function(RES, PARAM, YLAB,colval){
     
     RES%>%
-      filter(param%in% PARAM)%>%
+      filter(param%in% PARAM,
+             stat %in% c("value", "mean"))%>%
       ggplot(aes(y=value, x=Data, fill =Data)) +
       geom_violin(trim = T, show.legend = FALSE)+
       scale_fill_manual(values=colval)+
@@ -116,22 +125,22 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
       facet_wrap(~Class, scales = "free",ncol = 1) +
       theme_bw()
   }
-  Fig2 = cowplot::plot_grid(plotlist = list(figviol(Tab, PARAM = c("L50"), YLAB = "Median LE", colval = colval),
-                                            figviol(Tab, PARAM = c("MLE"), YLAB = "Mean LE", colval = colval),
-                                            figviol(Tab, PARAM = c("Ex"),  YLAB = "Ex", colval = colval),
-                                            figviol(Tab, PARAM = c("L90"), YLAB = "Longevity", colval = colval)),  
+  Fig2 = cowplot::plot_grid(plotlist = list(figviol(Tabselect, PARAM = c("L50"), YLAB = "Median LE", colval = colval),
+                                            figviol(Tabselect, PARAM = c("MLE"), YLAB = "Mean LE", colval = colval),
+                                            figviol(Tabselect, PARAM = c("Ex"),  YLAB = "Ex", colval = colval),
+                                            figviol(Tabselect, PARAM = c("L90"), YLAB = "Longevity", colval = colval)),  
                             labels = c("","","",""), # label_x = 0.2, label_y = 1.2,
                             nrow = 4, ncol = 1, hjust = -1, vjust = 62
                             )
   
-  Fig3 = cowplot::plot_grid(plotlist = list(figviol(Tab, PARAM = c("G"),   YLAB = "Gini", colval = colval),
-                                            figviol(Tab, PARAM = c("CV"),  YLAB = "CV", colval = colval),
-                                            figviol(Tab, PARAM = c("Epx"), YLAB = "-log(H)", colval = colval)),
+  Fig3 = cowplot::plot_grid(plotlist = list(figviol(Tabselect, PARAM = c("G"),   YLAB = "Gini", colval = colval),
+                                            figviol(Tabselect, PARAM = c("CV"),  YLAB = "CV", colval = colval),
+                                            figviol(Tabselect, PARAM = c("Epx"), YLAB = "-log(H)", colval = colval)),
                             nrow = 3, ncol = 1, hjust = -1, vjust = 62
                             )
   
-  Fig4 = cowplot::plot_grid(plotlist = list(figviol(Tab, PARAM = c("S1month"), YLAB = "First month survival",colval = colval),
-                                            figviol(Tab, PARAM = c("S1year"), YLAB = "First year survival",colval = colval)),
+  Fig4 = cowplot::plot_grid(plotlist = list(figviol(Tabselect, PARAM = c("S1month"), YLAB = "First month survival",colval = colval),
+                                            figviol(Tabselect, PARAM = c("S1year"), YLAB = "First year survival",colval = colval)),
                             nrow = 2, ncol = 1,
                             hjust = -1, vjust = 62
                             )
@@ -139,16 +148,17 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
   Surtabsum <- AnyAna %>% 
     mutate(error =ifelse(Surv_error =="", "Analyzed",Surv_error),
            error = factor(Surv_error, levels = c('Analyzed','Nselect < MinN','Nuncertdeath < MinNSur', 
+                                                 "lxMin >0.99",
                                                  "NBasta = 0", "%known births < MinBirthKnown",
                                                  "Data from 1 Institution","Nbasta > MaxNSur",
                                                  "Nbasta < MinNSur",
                                                  "lxMin > MinLx",
                                                  "no DIC from Basta", 
                                                  "Kaplan-Meier does not fit",
-                                                 "lx[MLE] < MinMLE",
+                                                 "lx_MLE < MinMLE",
                                                  "Min(Life_exp) >= MaxLE",
                                                  "Kaplan-Meier does not fit:2"), 
-                          ordered = T)) %>% 
+                                                  ordered = T)) %>% 
     group_by(Class, Sex, error)%>% summarize(N = n())
   p<- ggplot(data = Surtabsum, aes(x = error, y = N, fill = Sex)) +
     geom_bar(stat = "identity", position = position_dodge()) +
@@ -160,14 +170,14 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
   ###Correlation?????????????
   
   # Create survival TABLES-----------------------------------------------------------
-  cortab = cor(Tab%>%
+  cortab = cor(Tabselect%>%
                  filter(stat %in% c("mean"))%>%
                  tidyr::drop_na()%>%
                  tidyr::pivot_wider(names_from=c(param,Data), values_from = value)%>%
                  select(-c("Class", "Species", "Sex", "models", "firstage", "stat" )))
   corplot = corrplot::corrplot(cortab, method = 'number')
   
-  Tabdata = Tab%>%
+  Tabdata = Tabselect%>%
     select(Class, Species, Sex, param, value)%>%
     filter(param %in% c("NBasta", "Ndead", "BDincert", 
                         "QBD10", "QBD50", "QBD90",
@@ -176,7 +186,7 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
     mutate(`%Birth>2000` = (N0010+N1020+N2030)/ (N8090+N9000+N0010+N1020+N2030))%>%
     select(-c("N8090","N9000","N0010","N1020","N2030"))
   
-  Tabmetrics = Tab%>%
+  Tabmetrics = Tabselect%>%
     filter(param %in% c("L50", "MLE", "remex0", "Ex",
                         "L90",
                         "S1month", "S1year",

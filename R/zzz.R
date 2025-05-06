@@ -39,4 +39,4 @@ globalVariables(c("Age", "anonID", "MeasurementValue", "age0", "agem", "ager", "
     "LxatMLE_Raw", "N0010", "N1020", "N2030", "N8090", "N9000", "Ndead", "Nerr", "Nrc", "Nselect",
     "Pmort", "Pval", "S1month_KM", "S1month_Model", "S1year_KM", "S1year_Model", "SurTab",
     "Surv_Ana", "Surv_error", "firstage", "model", "param", "stat",
-    "value","Gof_KM_coeff1_Raw", "IC", "Snd"), package ="ISRverse")
+    "value","Gof_KM_coeff1_Raw", "IC", "Snd", "ALLcheck", "BirthDateEstimateType"), package ="ISRverse")

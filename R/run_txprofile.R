@@ -85,7 +85,6 @@
 #' list.files(paste0(AnalysisDir,'/Rdata'))
 #'
 #' unlink(AnalysisDir, recursive = TRUE)
-#' unlink(PlotDir, recursive = TRUE)
 run_txprofile <- function(Taxa, SpeciesList, ZIMSDir, 
                           AnalysisDir, PlotDir,
                           ExtractDate, MinDate = "1980-01-01",
@@ -282,7 +281,7 @@ run_txprofile <- function(Taxa, SpeciesList, ZIMSDir,
       repout = list()
     }else{
       if(length(list.files(glue::glue("{AnalysisDir}/Rdata/"), glue::glue("{Taxa}_{speciesname}.RData")))>0){
-        load(glue::glue("{AnalysisDir}/Rdata/{Taxa}_{speciesname}.RData"))
+        load(glue::glue("{AnalysisDir}/Rdata/{Taxa}_{speciesname}.RData")) # nocov
       }else{repout = list()}
     }
     if (species %in% spOutLev) {MaxOutl1 <- 99.9

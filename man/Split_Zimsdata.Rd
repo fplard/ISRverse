@@ -29,7 +29,7 @@ Check Data and split tables per Taxa
 file = system.file("sci_Animal.csv", package = "ISRverse")
 ZIMSDirtest = dirname(file)
 
-Split_Zimsdata(ZIMSDir = ZIMSDirtest)
+Split_Zimsdata(ZIMSDir = ZIMSDirtest, ExtractDate = "2024-08-29")
 
 list.files(ZIMSDirtest, recursive = TRUE)
 }
