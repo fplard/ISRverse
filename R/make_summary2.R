@@ -201,10 +201,12 @@ make_summary2 <- function (AnalysisDir, SaveDir, namefile = "",
     }
     if (icount == 1) {
       SummTab <-table
+      AbyAna <-AnyAna
       SurTab <- tempsur
     } else {
       SummTab <- rbind(SummTab, table)
-      SurTab <- rbind(SurTab, tempsur)
+        AbyAna <-rbind(AbyAna, AnyAna)
+    SurTab <- rbind(SurTab, tempsur)
     }
     
   }
@@ -213,7 +215,7 @@ make_summary2 <- function (AnalysisDir, SaveDir, namefile = "",
     readr::write_excel_csv2(SurTab, file = glue::glue("{SaveDir}/DP_Survival{namefile}.csv"))
   }
   # Write main tables------------------------------------------------------------------
-  readr::write_excel_csv2(AnyAna, file =  glue::glue("{SaveDir}/DP_Any_Ana{namefile}.csv"))
+  readr::write_excel_csv2(AbyAna, file =  glue::glue("{SaveDir}/DP_Any_Ana{namefile}.csv"))
   readr::write_excel_csv2(SummTab, file =  glue::glue("{SaveDir}/DP_Analyses{namefile}.csv"))
   return(SummTab)
 }

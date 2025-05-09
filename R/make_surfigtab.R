@@ -10,7 +10,7 @@
 #' @return It saves the plots and tables used in the data papers.
 #' @export
 #' 
-#' @importFrom ggplot2 ggplot scale_fill_brewer facet_wrap geom_bar labs position_dodge coord_flip ylab xlab geom_boxplot scale_fill_manual theme_bw geom_violin stat_summary
+#' @importFrom ggplot2 ggplot scale_fill_brewer facet_wrap geom_bar labs position_dodge coord_flip ylab xlab geom_boxplot scale_fill_manual theme_bw geom_violin stat_summary theme element_text
 #' @importFrom ggpubr ggarrange
 #' @importFrom grDevices grey
 #' @importFrom stats cor
@@ -46,7 +46,7 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
     select(Class, Species, Sex, param, value,Data)%>% 
     tidyr::pivot_wider(names_from=c(param, Data), values_from = value)%>%
     mutate(`CH_GofKM0.6` = Gof_KM_coeff1_Raw >0.6,
-           `CH_GofKM0.8` = Gof_KM_coeff1_Raw >0.8,
+           `tCH_GofKM0.8` = Gof_KM_coeff1_Raw >0.8,
            CH_SurKM = S1month_KM >  S1year_KM,
            CH_SurMod = S1month_Model >  S1year_Model,
            CH_LKM = L50_KM <  L90_KM,
@@ -57,45 +57,50 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
            CH_CIL50_Model = L50_Model <  L90_Model,
     )
   Tabcheck2 = Tab%>%
-    filter(stat%in% c("mean", "upper", "lower"),
-           Data %in% c("KM", "Model"))%>%
+    filter(stat %in% c("mean", "upper", "lower"),
+           Data %in% c("KM", "Model"),
+           !(param %in% c("b_Gomp", "Epx", "H", "CV", "G")))%>%
     group_by(Class, Species, Sex, param, Data)%>%
     summarize(IC = (max(value)-min(value))/value[stat=="mean"]<1)%>%
     tidyr::pivot_wider(names_from=c(param,Data), names_prefix = "CH_IC_",values_from = IC)
   
   Tabcheck =Tabcheck %>%
     left_join(Tabcheck2, by = c("Class", "Species","Sex"))%>%
-    mutate(ALLcheck = all(across(starts_with("CH_"))))
+    rowwise()%>%
+    mutate(ALLcheck = all(across(starts_with("CH_")), na.rm = TRUE))
   
   # Create the Figures -------------------------------------------------------
   # Remove species for which checks are not ok
   Tabselect = Tab%>%
     left_join(Tabcheck%>%select(Species, Sex, ALLcheck), by = c('Species', 'Sex'))%>%
     filter(ALLcheck)
-  if(nrow(Tabselect)==0){Tabselect = Tab
+  if(nrow(Tabselect)==0){Tabselect = Tab%>%mutate(ALLcheck = FALSE)
   warning("No analyses passed all checks, so all analyses are present in plots and tables (instead of none)")}
   
   # Figure Data Summary
   A1 =  Tabselect%>%select(Class, Species)%>%distinct%>%
     ggplot(aes(x = Class))+ ylab("Number of species")+
-    geom_bar()+theme_bw()+xlab ('')
+    geom_bar()+theme_bw()+xlab ('')+
+  theme(text = element_text(size = 20),axis.text.x=element_text(size=20))
   mycol = c("grey", "lightsalmon2", "aquamarine3")
   names(mycol) = c("All", 'Female', 'Male')
   
   A2 =  AnyAna%>%
     filter(Surv_Ana)%>%select(Class, Species, Sex, Nselect)%>%
-    ggplot(aes(x = Class, group = Sex, y=Nselect))+ ylab("Number of individuals")+
-    geom_boxplot(aes(fill = Sex),  linewidth = 0.75)+theme_bw()+
-    scale_fill_manual(values=mycol)+xlab ('')
+    ggplot(aes(x = Class, fill = Sex, y=Nselect))+ ylab("Number of individuals")+
+    geom_boxplot( linewidth = 0.75)+theme_bw()+
+    scale_fill_manual(values=mycol)+xlab ('')+
+  theme(text = element_text(size = 20),axis.text.x=element_text(size=20))
   
   A3 =  Tabselect%>%filter(param %in% c("Nrc", "Ndead"))%>%
     tidyr::pivot_wider(names_from=param, values_from = value)%>%
     mutate(Pmort = Ndead/(Ndead +Nrc))%>%
     ggplot(aes(x = Class, y=Pmort))+ ylab("% of dead individuals")+
-    geom_boxplot(linewidth = 0.75)+theme_bw()+xlab ('')
+    geom_boxplot(linewidth = 0.75)+theme_bw()+xlab ('')+
+  theme(text = element_text(size = 20),axis.text.x=element_text(size=20))
   
   A4 =  Tabselect%>%filter(param %in% c("N8090", "N9000", "N0010", "N1020","N2030"))%>%
-    mutate(param = factor(param, ordered = T, levels = c("N8090", "N9000", "N0010", "N1020","N2030")))%>%
+    mutate(param = factor(param, ordered = T, levels = c("N8090", "N9000", "N0010", "N1020","N2030")) )%>%
     group_by(Class, param)%>%
     mutate(Pval =sum(value))%>%
     ungroup()%>%
@@ -104,8 +109,9 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
     # pivot_wider(names_from=param, values_from = Pval)%>%
     ggplot(aes(x = Class, y=Pval, fill =param))+ ylab("Percentage of births")+
     geom_bar(stat="identity")+theme_bw()+ scale_fill_brewer(palette="Paired") +
-    xlab ('')
-  Fig1 =cowplot::plot_grid(A1,A2,A3,A4, ncol = 2, rel_widths =c(7,11), rel_heights = 8)
+    xlab ('') +
+  theme(text = element_text(size = 20),axis.text.x=element_text(size=20))
+  Fig1 =cowplot::plot_grid(A1,A2,A3,A4, ncol = 2, rel_widths =c(7,9), rel_heights = 8)
   
   
   # Figure comparison stat
@@ -122,8 +128,9 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
       stat_summary(fun=median, geom="point", size=1, color=grey(0.9), show.legend = FALSE)+
       #geom_hline(yintercept = 0, color = "black", linetype = "dashed",linewidth=0.5, show.legend = FALSE) +
       ylab(YLAB) + xlab(" ") +
-      facet_wrap(~Class, scales = "free",ncol = 1) +
-      theme_bw()
+      facet_wrap(~Class, scales = "free",nrow = 1) +
+      theme_bw()+
+  theme(text = element_text(size = 20),axis.text.x=element_text(size=20))
   }
   Fig2 = cowplot::plot_grid(plotlist = list(figviol(Tabselect, PARAM = c("L50"), YLAB = "Median LE", colval = colval),
                                             figviol(Tabselect, PARAM = c("MLE"), YLAB = "Mean LE", colval = colval),
@@ -144,11 +151,13 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
                             nrow = 2, ncol = 1,
                             hjust = -1, vjust = 62
                             )
+
+   
   #Figure errors
   Surtabsum <- AnyAna %>% 
-    mutate(error =ifelse(Surv_error =="", "Analyzed",Surv_error),
-           error = factor(Surv_error, levels = c('Analyzed','Nselect < MinN','Nuncertdeath < MinNSur', 
-                                                 "lxMin >0.99",
+    mutate(error = ifelse(is.na(Surv_error), "Analyzed",Surv_error),
+           error = factor(error, levels = c('Analyzed','Nselect < MinN','Nuncertdeath < MinNSur', 
+                                                 "lxmin > MinLx",
                                                  "NBasta = 0", "%known births < MinBirthKnown",
                                                  "Data from 1 Institution","Nbasta > MaxNSur",
                                                  "Nbasta < MinNSur",
@@ -167,17 +176,51 @@ Make_SurFigTab <- function (AnalysisDir, SaveDir = NA, namefile = "",
     coord_flip()
   
   
-  ###Correlation?????????????
-  
-  # Create survival TABLES-----------------------------------------------------------
-  cortab = cor(Tabselect%>%
-                 filter(stat %in% c("mean"))%>%
+  # Correlation-----------------------------------------------------------
+   Tabcor = Tabselect%>%
+                 filter(stat %in% c("mean", "value"))%>%
                  tidyr::drop_na()%>%
-                 tidyr::pivot_wider(names_from=c(param,Data), values_from = value)%>%
-                 select(-c("Class", "Species", "Sex", "models", "firstage", "stat" )))
-  corplot = corrplot::corrplot(cortab, method = 'number')
+                 select(-c( "models", "firstage", "stat","ALLcheck" ))%>%
+                 tidyr::pivot_wider(names_from=c(param,Data), values_from = value)
+  Tabcor1 = Tabselect%>%
+                  filter(Data != "Raw",
+                         stat %in% c("mean", "value"))%>%
+                 tidyr::drop_na()%>%
+                 select(-c( "models", "firstage", "stat","ALLcheck" ))%>%
+                 tidyr::pivot_wider(names_from=c(param,Data), values_from = value)
   
-  Tabdata = Tabselect%>%
+   cortab = cor(Tabcor1%>%
+                   select(-c("Class", "Species", "Sex")))
+  corplot = corrplot::corrplot(cortab, method = 'number')
+  if(nrow(Tabcor)>25){
+    a=Tabcor%>%
+      select(Class, L50_KM,L50_Raw, L50_Model, MLE_Model, remex0_Model, Ex_KM, MLE_KM , MLE_Raw )%>%
+      mutate(Class = as.factor(Class))%>%
+     GGally::ggpairs(columns =2:7,                 # Data frame
+        aes(color = Class,  # Color by group (cat. variable)
+            alpha = 0.5))
+    ggsave(a, filename =glue::glue("{SaveDir}/Survival_corplot50{namefile}.pdf"), width = 20, height = 20)
+    
+   a=Tabcor%>%
+      select(Class, L90_KM, L90_Model, L90_Raw, S1month_KM, S1year_KM, S1month_Model, S1year_Model)%>%
+      mutate(Class = as.factor(Class))%>%
+     GGally::ggpairs(columns =2:8,                 # Data frame
+        aes(color = Class,  # Color by group (cat. variable)
+            alpha = 0.5))
+    ggsave(a, filename =glue::glue("{SaveDir}/Survival_corplot90{namefile}.pdf"), width = 20, height = 20)
+    
+     a=Tabcor%>%
+      select(Class, Epx_KM, G_KM, CV_KM,  Epx_Model, G_Model, CV_Model)%>%
+      mutate(Class = as.factor(Class))%>%
+     GGally::ggpairs(columns =2:7,                 # Data frame
+        aes(color = Class,  # Color by group (cat. variable)
+            alpha = 0.5))
+    ggsave(a, filename =glue::glue("{SaveDir}/Survival_corplotCV{namefile}.pdf"), width = 20, height = 20)
+}
+ 
+    
+     # Create survival TABLES-----------------------------------------------------------
+   Tabdata = Tabselect%>%
     select(Class, Species, Sex, param, value)%>%
     filter(param %in% c("NBasta", "Ndead", "BDincert", 
                         "QBD10", "QBD50", "QBD90",

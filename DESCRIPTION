@@ -18,6 +18,7 @@ Imports:
     corrplot,
     cowplot,
     dplyr,
+    GGally,
     ggplot2,
     ggpubr,
     glue,
