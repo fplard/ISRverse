@@ -54,7 +54,7 @@ estimator and the survival model.
 95\% CI of the survivorship estimated from the survival model.
 \item Gof_KM_coeff2: Maximum sum of same sign residuals between KM estimator and
 survival model
-\item Gof_martingale: using Martingale residuals
+\item Gof_martingale KM: Value of the test that must be compared to a kolmogorov Smirnov table and test telling if the model fits
 \item LxatMLE: Estimated survivorship at mean life expectancy
 \item LEmaxOage: Life expectancy at max observed age
 \item KMMinLx: Minimum survivorship reached by the Kaplan-Meier estimator
@@ -78,7 +78,7 @@ estimates key metrics from the selected survival model and returns illustrating 
 data(core)
 data(deathinformation)
 out <- Sur_ana(core,  DeathInformation = deathinformation, 
-                         Models = "GO", Shape = "simple",
+               Models = "GO", Shape = "simple",
                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 
 out <- Sur_out(out, ncpus = 3)

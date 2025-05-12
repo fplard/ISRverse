@@ -54,7 +54,7 @@
 #'    * lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
 #'    * OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%
 #'    * analyzed: a logical indicated if the basta survival model was performed
-#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx_MLE < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Gof martingale does not fit; 11/Kaplan-Meier does not fit; 12/Min(Life_exp) >= MaxLE; 13/lx_MLE < MinMLE; 14/lxmin > MinLx; 15/Kaplan-Meier does not fit:2.
 #' * the Kaplan-Meier table
 #' * the basta fit of the best model
 #' * the DIC table comparing the different fit of the Models
@@ -84,7 +84,7 @@
 #'                 niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 Sur_main <- function(DataCore,   DeathInformation, 
                      CalculateMetricsFrom = c("Raw", "Kaplan-Meier", "Model"),
-                      BirthType = "All",
+                     BirthType = "All",
                      Models = "GO", Shape= "simple",
                      MinAge =0, MaxAge=120, OutlLev1 = NA,UncertDeath=365,
                      MinDate = "1980-01-01", MinNSur = 50, MaxNSur = NULL,
@@ -107,9 +107,9 @@ Sur_main <- function(DataCore,   DeathInformation,
   assert_that(length(BirthType) == 1, msg = "You can use only one birth type for each sex analysis")
   assert_that(BirthType %in% c("Captive", "Wild", "All"))
   assert_that(is.character(Models))
- assert_that(is.character(CalculateMetricsFrom))
+  assert_that(is.character(CalculateMetricsFrom))
   assert_that(all(CalculateMetricsFrom %in% c("Raw", "Kaplan-Meier", "Model")))
- assert_that(all(Models %in% c("", "GO", "EX", "LO", "WE")))
+  assert_that(all(Models %in% c("", "GO", "EX", "LO", "WE")))
   assert_that(is.character(Shape))
   assert_that(all(Shape %in% c("","simple", "bathtub", "Makeham")))
   assert_that(is.numeric(MinAge))

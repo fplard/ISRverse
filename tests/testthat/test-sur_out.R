@@ -2,14 +2,14 @@
 
 test_that("Sur_out works", {
   PlotDir = paste0(tempdir(check = TRUE),'/temp')
-dir.create(PlotDir)
+  dir.create(PlotDir)
   data(core)
   data(deathinformation)
   out <- Sur_ana(core,  DeathInformation = deathinformation, Models = "GO", Shape = "simple",
                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3, AgeMat = 2)
   out <- Sur_out(out, ncpus = 3, PlotDir = PlotDir)
-  expect_named(out, c("summary","metrics",  "bastaRes", "DICmods", 'KM_estimator', "check", 'relex_from0', 'Sur5', 'Sur1', 'Sur1m'))
-  expect_named(out$check, c('Gof_KM_coeff1', 'Gof_KM_coeff2', 'Gof_martingale', 'LxatMLE', 'LEmaxOage', 'KMMinLx'))
+  expect_named(out, c("summary","metrics",  "bastaRes", "DICmods", 'KM_estimator', "bastatab", "check", 'relex_from0', 'Sur5', 'Sur1', 'Sur1m'))
+  expect_named(out$check, c('Gof_KM_coeff1', 'Gof_KM_coeff2', 'Gof_martingale', 'LxatMLE', 'LEmaxOage', 'KMMinLx', 'Gof_Martingal_KM' , 'Gof_Martingal_test'))
   expect_named(out$relex, c("Age", "RemLExp", "Lower", "Upper"))
   expect_true(is.numeric(out$relex_from0$Upper))
   expect_true(is.numeric(out$relex_from0$Age))
@@ -20,8 +20,8 @@ dir.create(PlotDir)
   expect_named(out$Sur5, c("Age", "Lower",  "Upper", "Sur"))
   expect_true(is.numeric(out$Sur5$Lower))
   expect_true(is.numeric(out$Sur5$Sur))
-    expect_true(file.exists(paste(PlotDir, "10__surcheck.pdf", sep = '/')))
- out <- Sur_out(out, ncpus = 3, PlotDir = PlotDir, AgeMat = 2)
-
-unlink(PlotDir, recursive = TRUE)
+  expect_true(file.exists(paste(PlotDir, "10__surcheck.pdf", sep = '/')))
+  out <- Sur_out(out, ncpus = 3, PlotDir = PlotDir, AgeMat = 2)
+  
+  unlink(PlotDir, recursive = TRUE)
 })

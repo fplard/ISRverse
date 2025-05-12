@@ -95,7 +95,7 @@ The output of a list including (depending of CalculateMetricsFrom) per sex categ
 \item lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
 \item OutLev: threshold selected for the distribution of longevity: 100\%, 99.9\%, 99\% or 95\%
 \item analyzed: a logical indicated if the basta survival model was performed
-\item If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx at MLE < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+\item If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ \%known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Gof martingale does not fit; 11/Kaplan-Meier does not fit; 12/Min(Life_exp) >= MaxLE; 13/lx_MLE < MinMLE; 14/lxmin > MinLx; 15/Kaplan-Meier does not fit:2.
 }
 \item the Kaplan-Meier table
 \item Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90\% of the individual died (Longevity = L90) estimated from raw data and from the Kaplan Meier Estimator. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator.

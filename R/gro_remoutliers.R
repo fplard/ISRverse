@@ -43,7 +43,7 @@ Gro_remoutliers <- function(data_weight, Taxa, AgeMat = NA, maxweight = NULL,
    # Check correct format for inputs ---------------------------------------------
   assert_that(is.data.frame(data_weight))
   assert_that(data_weight %has_name% c("MeasurementValue","MeasurementType", "Age"))
-  if(length(unique(data_weight$MeasurementType))==1){warning( glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data should often include only one Measurement Type"))}
+  if(length(unique(data_weight$MeasurementType))!=1){warning( glue::glue("Multiple measurment types found in the data: {stringr::str_flatten_comma(unique(data_weight$MeasurementType))}, Data should often include only one Measurement Type"))}
   assert_that(Taxa %in% c("Mammalia", "Aves", "Reptilia", "Amphibia", 
                           "Chondrichthyes", "Osteichthyes"),
               msg = "Taxa must one of 'Mammalia', 'Aves', 'Reptilia', 'Amphibia', 

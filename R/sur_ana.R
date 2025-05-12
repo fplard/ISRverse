@@ -47,7 +47,7 @@
 #'    * lxMin: Minimum survivorship reached with the raw Kaplan-Meier model
 #'    * OutLev: threshold selected for the distribution of longevity: 100%, 99.9%, 99% or 95%
 #'    * analyzed: a logical indicated if the basta survival model was performed
-#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Kaplan-Meier does not fit; 11/Min(Life_exp) >= MaxLE; 12/lx at MLE < MinMLE; 13/lxmin > MinLx; 14/Kaplan-Meier does not fit:2.
+#'    * If the basta survival model was not performed, an error and its number (Nerr) are returned: The possibility for  this functions are: 2/Nuncertdeath < MinNSur; 3/ lxMin >0.99; 4/NBasta = 0; 5/ %known births < MinBirthKnown; 6/Data from 1 Institution; 7/Nbasta < MinNSur; 8/Nbasta > MaxNSur; 9/no DIC from Basta; 10/Gof martingale does not fit; 11/Kaplan-Meier does not fit; 12/Min(Life_exp) >= MaxLE; 13/lx_MLE < MinMLE; 14/lxmin > MinLx; 15/Kaplan-Meier does not fit:2.
 #' * the Kaplan-Meier table
 #' * Key survival metrics including Mean life expectancy (MLE & Ex), median life expectancy (L50) and  age at which 90% of the individual died (Longevity = L90) estimated from raw data and from the Kaplan Meier Estimator. Estimates include ages from birth or from age at sexual maturity (if given). First year survival, First month survival, Entropy (H and Epx = -log(H)), coefficient of variation (CV) and Gini coefficient (G) are also estimated from the Kaplan-Meier estimator.
 #'* the basta fit of the best model
@@ -82,7 +82,7 @@ Sur_ana <- function(Data, DeathInformation,
   assert_that(DeathInformation %has_name% c("AnimalAnonID","RelevantDeathInformationType"))
   assert_that(is.character(Models))
   assert_that(all(Models %in% c("", "GO", "EX", "LO", "WE")))
- assert_that(is.character(CalculateMetricsFrom))
+  assert_that(is.character(CalculateMetricsFrom))
   assert_that(all(CalculateMetricsFrom %in% c("Raw", "Kaplan-Meier", "Model")))
   assert_that(is.character(Shape))
   assert_that(all(Shape %in% c("","simple", "bathtub", "Makeham")))  
@@ -179,104 +179,145 @@ Sur_ana <- function(Data, DeathInformation,
     #from Age at sexual maturity
     if(!is.na(AgeMat)){
       if ("Raw" %in% CalculateMetricsFrom){
-      metrics = rbind(metrics,
-                      tibble(Data = 'Raw',
-                             firstage = "AM",
-                             param = c("L50", "MLE", "L90"),
-                             stat = c("value"),
-                             value = c(
-                               median( data_sel$deparAge[data_sel$DepartType == "D"& 
+        metrics = rbind(metrics,
+                        tibble(Data = 'Raw',
+                               firstage = "AM",
+                               param = c("L50", "MLE", "L90"),
+                               stat = c("value"),
+                               value = c(
+                                 median( data_sel$deparAge[data_sel$DepartType == "D"& 
+                                                             data_sel$deparAge > AgeMat])%>%as.numeric(),
+                                 mean( data_sel$deparAge[data_sel$DepartType == "D"& 
                                                            data_sel$deparAge > AgeMat])%>%as.numeric(),
-                               mean( data_sel$deparAge[data_sel$DepartType == "D"& 
-                                                         data_sel$deparAge > AgeMat])%>%as.numeric(),
-                               quantile( data_sel$deparAge[data_sel$DepartType == "D"& 
-                                                             data_sel$deparAge > AgeMat],0.9)%>%as.numeric()
-                             )))
+                                 quantile( data_sel$deparAge[data_sel$DepartType == "D"& 
+                                                               data_sel$deparAge > AgeMat],0.9)%>%as.numeric()
+                               )))
       }
-       if ("Kaplan-Meier" %in% CalculateMetricsFrom){
-      xAM = min(which(rawPLE$Ages>AgeMat))
-      rawPLEAM =rawPLE[xAM:nrow(rawPLE),]
-      rawPLEAM$ple = rawPLEAM$ple/rawPLEAM$ple[1]
-      rawPLEAM$Ndead = c(0,rawPLEAM$ple[1:(nrow(rawPLEAM)-1)] * 1000 -rawPLEAM$ple[2:nrow(rawPLEAM)]*1000)
-      rawPLEAM$Z50 = (log(-log(rawPLEAM$ple))-log(-log(0.5)))*rawPLEAM$ple*log(rawPLEAM$ple)/(rawPLEAM$ple^2*rawPLEAM$Snd)
-      rawPLEAM$Z10 = (log(-log(rawPLEAM$ple))-log(-log(0.1)))*rawPLEAM$ple*log(rawPLEAM$ple)/(rawPLEAM$ple^2*rawPLEAM$Snd)
-      metrics = rbind(metrics,
-                      tibble(Data = 'KM',
-                             firstage = "AM",
-                             param = rep(c("L50", "L90"),each = 3),
-                             stat = rep(c("mean", "lower", "upper"), 2),
-                             value = c(
-                               KM_age(rawPLEAM, 0.1)[2]%>%as.numeric(), 
-                               rawPLEAM$Ages[min(which(rawPLEAM$Z10<=-1.96))]%>%as.numeric(),
-                               rawPLEAM$Ages[max(which(rawPLEAM$Z10>=1.96))]%>%as.numeric(),
-                               KM_age(rawPLEAM, 0.5)[2]%>%as.numeric(),
-                               rawPLEAM$Ages[min(which(rawPLEAM$Z50<=-1.96))]%>%as.numeric(),
-                               rawPLEAM$Ages[max(which(rawPLEAM$Z50>=1.96))]%>%as.numeric()
-                             )))
-      
-      metrics = rbind(metrics,
-                      tibble(Data = 'KM',
-                             firstage = "AM",
-                             param = c("MLE", "H", "Epx", "G", "Ex", "CV"),
-                             stat = rep("value",6),
-                             value = c(
-                               sum(rawPLEAM$Ndead *rawPLEAM$Ages)/sum(rawPLEAM$Ndead)%>%as.numeric(), 
-                               CalcHx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)) )%>%as.numeric(),
-                               -log(CalcHx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages))))%>%as.numeric(),
-                               CalcGx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)) )%>%as.numeric(),
-                               CalcEx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)))%>%as.numeric(),
-                               CalcCVx(rawPLEAM$ple,
-                                       rawPLEAM$Ages,c(0,diff(rawPLEAM$Ages)))%>%as.numeric()
-                             )))
-       }
+      if ("Kaplan-Meier" %in% CalculateMetricsFrom){
+        xAM = min(which(rawPLE$Ages>AgeMat))
+        rawPLEAM =rawPLE[xAM:nrow(rawPLE),]
+        rawPLEAM$ple = rawPLEAM$ple/rawPLEAM$ple[1]
+        rawPLEAM$Ndead = c(0,rawPLEAM$ple[1:(nrow(rawPLEAM)-1)] * 1000 -rawPLEAM$ple[2:nrow(rawPLEAM)]*1000)
+        rawPLEAM$Z50 = (log(-log(rawPLEAM$ple))-log(-log(0.5)))*rawPLEAM$ple*log(rawPLEAM$ple)/(rawPLEAM$ple^2*rawPLEAM$Snd)
+        rawPLEAM$Z10 = (log(-log(rawPLEAM$ple))-log(-log(0.1)))*rawPLEAM$ple*log(rawPLEAM$ple)/(rawPLEAM$ple^2*rawPLEAM$Snd)
+      if(min(rawPLEAM$Z10, na.rm = T)>-1.96){
+         mi10 = 1
+      }else{
+         mi10 = min(which(rawPLEAM$Z10<=-1.96))
+      }
+      if(max(rawPLEAM$Z10, na.rm = T)<1.96){
+         ma10 = length(rawPLEAM$Z10)
+      }else{
+         ma10 = max(which(rawPLEAM$Z10>=1.96))
+      }
+       if(min(rawPLEAM$Z50, na.rm = T)>-1.96){
+         mi50 = 1
+      }else{
+         mi50 = min(which(rawPLEAM$Z50<=-1.96))
+      }
+      if(max(rawPLEAM$Z50, na.rm = T)<1.96){
+         ma50 = length(rawPLEAM$Z10)
+      }else{
+         ma50 = max(which(rawPLEAM$Z50>=1.96))
+      }
+        metrics = rbind(metrics,
+                        tibble(Data = 'KM',
+                               firstage = "AM",
+                               param = rep(c("L50", "L90"),each = 3),
+                               stat = rep(c("mean", "lower", "upper"), 2),
+                               value = c(
+                                 KM_age(rawPLEAM, 0.1)[2]%>%as.numeric(), 
+                                 rawPLEAM$Ages[mi10]%>%as.numeric(),
+                                 rawPLEAM$Ages[ma10]%>%as.numeric(),
+                                 KM_age(rawPLEAM, 0.5)[2]%>%as.numeric(),
+                                 rawPLEAM$Ages[mi50]%>%as.numeric(),
+                                 rawPLEAM$Ages[ma50]%>%as.numeric()
+                               )))
+        
+        metrics = rbind(metrics,
+                        tibble(Data = 'KM',
+                               firstage = "AM",
+                               param = c("MLE", "H", "Epx", "G", "Ex", "CV"),
+                               stat = rep("value",6),
+                               value = c(
+                                 sum(rawPLEAM$Ndead *rawPLEAM$Ages)/sum(rawPLEAM$Ndead)%>%as.numeric(), 
+                                 CalcHx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)) )%>%as.numeric(),
+                                 -log(CalcHx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages))))%>%as.numeric(),
+                                 CalcGx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)) )%>%as.numeric(),
+                                 CalcEx(rawPLEAM$ple,c(0,diff(rawPLEAM$Ages)))%>%as.numeric(),
+                                 CalcCVx(rawPLEAM$ple,
+                                         rawPLEAM$Ages,c(0,diff(rawPLEAM$Ages)))%>%as.numeric()
+                               )))
+      }
     }
     #from birth
-     if ("Raw" %in% CalculateMetricsFrom){
-    metrics = rbind(metrics,
-                    tibble(Data = 'Raw',
-                           firstage = "birth",
-                           param = c("L50", "MLE", "L90"),
-                           stat = c("value"),
-                           value = c(median( data_sel$deparAge[data_sel$DepartType == "D"])%>%as.numeric(),
-                                     mean( data_sel$deparAge[data_sel$DepartType == "D"])%>%as.numeric(),
-                                     quantile( data_sel$deparAge[data_sel$DepartType == "D"],0.9)%>%as.numeric()
-                           )))
-     }
+    if ("Raw" %in% CalculateMetricsFrom){
+      metrics = rbind(metrics,
+                      tibble(Data = 'Raw',
+                             firstage = "birth",
+                             param = c("L50", "MLE", "L90"),
+                             stat = c("value"),
+                             value = c(median( data_sel$deparAge[data_sel$DepartType == "D"])%>%as.numeric(),
+                                       mean( data_sel$deparAge[data_sel$DepartType == "D"])%>%as.numeric(),
+                                       quantile( data_sel$deparAge[data_sel$DepartType == "D"],0.9)%>%as.numeric()
+                             )))
+    }
     if ("Kaplan-Meier" %in% CalculateMetricsFrom){
       KMest = rawPLE%>%
         select(-Snd)%>%
         rename(Lx = ple)
       rawPLE$Z50 = (log(-log(rawPLE$ple))-log(-log(0.5)))*rawPLE$ple*log(rawPLE$ple)/(rawPLE$ple^2*rawPLE$Snd)
-    rawPLE$Z10 = (log(-log(rawPLE$ple))-log(-log(0.1)))*rawPLE$ple*log(rawPLE$ple)/(rawPLE$ple^2*rawPLE$Snd)
-    metrics = rbind(metrics,
-                    tibble(Data = 'KM',
-                           firstage = "birth",
-                           param = c(rep(c("L90", "L50"), each =3),"S1month", "S1year"),
-                           stat = c(rep(c("mean", "lower", "upper"), 2),rep('value',2)),
-                           value = c(
-                             KM_age(rawPLE, 0.1)[2]%>%as.numeric(), 
-                             rawPLE$Ages[min(which(rawPLE$Z10<=-1.96))]%>%as.numeric(),
-                             rawPLE$Ages[max(which(rawPLE$Z10>=1.96))]%>%as.numeric(),
-                             KM_age(rawPLE, 0.5)[2]%>%as.numeric(),
-                             rawPLE$Ages[min(which(rawPLE$Z50<=-1.96))]%>%as.numeric(),
-                             rawPLE$Ages[max(which(rawPLE$Z50>=1.96))]%>%as.numeric(),
-                             KM_Lx(rawPLE, 1/12)$Lx,KM_Lx(rawPLE, 1)$Lx%>%as.numeric()
-                           )))
-    rawPLE$Ndead = c(0,rawPLE$ple[1:(nrow(rawPLE)-1)] * 1000 -rawPLE$ple[2:nrow(rawPLE)]*1000)
-    metrics = rbind(metrics,
-                    tibble(Data = 'KM',
-                           firstage = "birth",
-                           param = c("MLE", "H", "Epx", "G", "Ex", "CV"),
-                           stat =rep("value",6),
-                           value = c(
-                             sum(rawPLE$Ndead *rawPLE$Ages)/sum(rawPLE$Ndead)%>%as.numeric(), 
-                             CalcHx(rawPLE$ple,c(0,diff(rawPLE$Ages)) )%>%as.numeric(),
-                             -log(CalcHx(rawPLE$ple,c(0,diff(rawPLE$Ages))))%>%as.numeric(),
-                             CalcGx(rawPLE$ple,c(0,diff(rawPLE$Ages)) )%>%as.numeric(),
-                             CalcEx(rawPLE$ple,c(0,diff(rawPLE$Ages)))%>%as.numeric(),
-                             CalcCVx(rawPLE$ple,
-                                     rawPLE$Ages,c(0,diff(rawPLE$Ages)))%>%as.numeric()
-                           )))
+      rawPLE$Z10 = (log(-log(rawPLE$ple))-log(-log(0.1)))*rawPLE$ple*log(rawPLE$ple)/(rawPLE$ple^2*rawPLE$Snd)
+      
+      if(min(rawPLE$Z10, na.rm = T)>-1.96){
+         mi10 = 1
+      }else{
+         mi10 = min(which(rawPLE$Z10<=-1.96))
+      }
+      if(max(rawPLE$Z10, na.rm = T)<1.96){
+         ma10 = length(rawPLE$Z10)
+      }else{
+         ma10 = max(which(rawPLE$Z10>=1.96))
+      }
+       if(min(rawPLE$Z50, na.rm = T)>-1.96){
+         mi50 = 1
+      }else{
+         mi50 = min(which(rawPLE$Z50<=-1.96))
+      }
+      if(max(rawPLE$Z50, na.rm = T)<1.96){
+         ma50 = length(rawPLE$Z10)
+      }else{
+         ma50 = max(which(rawPLE$Z50>=1.96))
+      }
+         metrics = rbind(metrics,
+                      tibble(Data = 'KM',
+                             firstage = "birth",
+                             param = c(rep(c("L90", "L50"), each =3),"S1month", "S1year"),
+                             stat = c(rep(c("mean", "lower", "upper"), 2),rep('value',2)),
+                             value = c(
+                               KM_age(rawPLE, 0.1)[2]%>%as.numeric(), 
+                               rawPLE$Ages[mi10]%>%as.numeric(),
+                               rawPLE$Ages[ma10]%>%as.numeric(),
+                               KM_age(rawPLE, 0.5)[2]%>%as.numeric(),
+                               rawPLE$Ages[mi50]%>%as.numeric(),
+                               rawPLE$Ages[ma50]%>%as.numeric(),
+                               KM_Lx(rawPLE, 1/12)$Lx,KM_Lx(rawPLE, 1)$Lx%>%as.numeric()
+                             )))
+      rawPLE$Ndead = c(0,rawPLE$ple[1:(nrow(rawPLE)-1)] * 1000 -rawPLE$ple[2:nrow(rawPLE)]*1000)
+      metrics = rbind(metrics,
+                      tibble(Data = 'KM',
+                             firstage = "birth",
+                             param = c("MLE", "H", "Epx", "G", "Ex", "CV"),
+                             stat =rep("value",6),
+                             value = c(
+                               sum(rawPLE$Ndead *rawPLE$Ages)/sum(rawPLE$Ndead)%>%as.numeric(), 
+                               CalcHx(rawPLE$ple,c(0,diff(rawPLE$Ages)) )%>%as.numeric(),
+                               -log(CalcHx(rawPLE$ple,c(0,diff(rawPLE$Ages))))%>%as.numeric(),
+                               CalcGx(rawPLE$ple,c(0,diff(rawPLE$Ages)) )%>%as.numeric(),
+                               CalcEx(rawPLE$ple,c(0,diff(rawPLE$Ages)))%>%as.numeric(),
+                               CalcCVx(rawPLE$ple,
+                                       rawPLE$Ages,c(0,diff(rawPLE$Ages)))%>%as.numeric()
+                             )))
     }
     
     # Run survival model using Basta --------------------------------------------
@@ -311,85 +352,85 @@ Sur_ana <- function(Data, DeathInformation,
       summar$maxAge <- as.numeric(max(bastatab$Depart.Date - bastatab$Birth.Date, na.rm = TRUE))
       summar$maxAlive <- as.numeric(max(bastatab$Depart.Date - bastatab$Entry.Date, na.rm = TRUE))
       
-       if ("Model" %in% CalculateMetricsFrom){
-      if(summar$NBasta>0){
-        #Check the percentage of individuals with known births
-        Perbirthknown =  length(which(bastatab$bdun<32 & bastatab$Entry.Type=="B")) / 
-          summar$NBasta
-        if(Perbirthknown >= MinBirthKnown){
-          #Check the number of Institutions
-          Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
-          Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
-          if(length(unique(c(Instb,Instl)))>=MinInstitution){
-            #Check the number of individual selected
-            if (summar$NBasta >= MinNSur) {
-              if(summar$NBasta <= MaxNSur){
-                tempList <- list()
-                DICmods <- tibble(Models,
-                                  DIC = 0)
-                #Run the different basta models
-                for (imod in 1:length(Models)) {
-                  print(Models[imod])
-                  tempList[[Models[imod]]] <- BaSTA::basta(
-                    bastatab, dataType = "census", shape = Shape, minAge = MinAge, 
-                    model = Models[imod], parallel = TRUE, 
-                    ncpus = ncpus, nsim = nchain,
-                    niter = niter, burnin = burnin, thinning = thinning)
-                  
-                  if (!is.na( tempList[[Models[imod]]]$DIC[1])) {
-                    DICmods$DIC[imod] <-  tempList[[Models[imod]]]$DIC["DIC"]
-                  }
-                }
-                # If no model converged, run the models with more MCMC iterations
-                if (all(DICmods$DIC == 0)) {
-                  print("more iterations")
+      if ("Model" %in% CalculateMetricsFrom){
+        if(summar$NBasta>0){
+          #Check the percentage of individuals with known births
+          Perbirthknown =  length(which(bastatab$bdun<32 & bastatab$Entry.Type=="B")) / 
+            summar$NBasta
+          if(Perbirthknown >= MinBirthKnown){
+            #Check the number of Institutions
+            Instb =  unique(data_sel$FirstHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
+            Instl =  unique(data_sel$LastHoldingInstitution[data_sel$AnimalAnonID %in% bastatab$AnimalAnonID])
+            if(length(unique(c(Instb,Instl)))>=MinInstitution){
+              #Check the number of individual selected
+              if (summar$NBasta >= MinNSur) {
+                if(summar$NBasta <= MaxNSur){
+                  tempList <- list()
+                  DICmods <- tibble(Models,
+                                    DIC = 0)
+                  #Run the different basta models
                   for (imod in 1:length(Models)) {
                     print(Models[imod])
                     tempList[[Models[imod]]] <- BaSTA::basta(
-                      bastatab, dataType = "census", shape = Shape, MinAge = MinAge, 
-                        model = Models[imod], parallel = TRUE,
-                      ncpus = ncpus, nsim = nchain, 
-                      niter = niter*4, burnin = burnin*4-3, thinning = thinning)
-                    if (!is.na(tempList[[Models[imod]]]$DIC[1])) {
-                      DICmods$DIC[imod] <-tempList[[Models[imod]]]$DIC["DIC"]
+                      bastatab, dataType = "census", shape = Shape, minAge = MinAge, 
+                      model = Models[imod], parallel = TRUE, 
+                      ncpus = ncpus, nsim = nchain,
+                      niter = niter, burnin = burnin, thinning = thinning)
+                    
+                    if (!is.na( tempList[[Models[imod]]]$DIC[1])) {
+                      DICmods$DIC[imod] <-  tempList[[Models[imod]]]$DIC["DIC"]
                     }
-                  } 
-                }
-                
-                # Survival model outputs --------------------------------------------------
-                if (any(DICmods$DIC != 0)) {
-                  a = which(DICmods$DIC == 0)
-                  DICmods2 = DICmods
-                  if(length(a)>0){
-                    DICmods2 = DICmods2[-a,]
                   }
-                  idModSel <- which(DICmods$DIC == min(DICmods2$DIC, na.rm = TRUE))
-                  bastaRes <- tempList[[idModSel]]
-                  summar$model = bastaRes$modelSpecs[["model"]]
-                  summar$analyzed = TRUE
+                  # If no model converged, run the models with more MCMC iterations
+                  if (all(DICmods$DIC == 0)) {
+                    print("more iterations")
+                    for (imod in 1:length(Models)) {
+                      print(Models[imod])
+                      tempList[[Models[imod]]] <- BaSTA::basta(
+                        bastatab, dataType = "census", shape = Shape, MinAge = MinAge, 
+                        model = Models[imod], parallel = TRUE,
+                        ncpus = ncpus, nsim = nchain, 
+                        niter = niter*4, burnin = burnin*4-3, thinning = thinning)
+                      if (!is.na(tempList[[Models[imod]]]$DIC[1])) {
+                        DICmods$DIC[imod] <-tempList[[Models[imod]]]$DIC["DIC"]
+                      }
+                    } 
+                  }
+                  
+                  # Survival model outputs --------------------------------------------------
+                  if (any(DICmods$DIC != 0)) {
+                    a = which(DICmods$DIC == 0)
+                    DICmods2 = DICmods
+                    if(length(a)>0){
+                      DICmods2 = DICmods2[-a,]
+                    }
+                    idModSel <- which(DICmods$DIC == min(DICmods2$DIC, na.rm = TRUE))
+                    bastaRes <- tempList[[idModSel]]
+                    summar$model = bastaRes$modelSpecs[["model"]]
+                    summar$analyzed = TRUE
+                  } else {
+                    summar$error = 'no DIC from Basta' #nocov
+                    summar$Nerr = 9 #nocov
+                  }
                 } else {
-                  summar$error = 'no DIC from Basta' #nocov
-                  summar$Nerr = 9 #nocov
+                  summar$error = "Nbasta > MaxNSur" #nocov
+                  summar$Nerr = 8 #nocov
+                }} else {
+                  summar$error = "Nbasta < MinNSur" #nocov
+                  summar$Nerr = 7 #nocov
                 }
-              } else {
-                summar$error = "Nbasta > MaxNSur" #nocov
-                summar$Nerr = 8 #nocov
-              }} else {
-                summar$error = "Nbasta < MinNSur" #nocov
-                summar$Nerr = 7 #nocov
-              }
-          }else{
-            summar$error = "Data from 1 Institution" #nocov
-            summar$Nerr = 6 #nocov
+            }else{
+              summar$error = "Data from 1 Institution" #nocov
+              summar$Nerr = 6 #nocov
+            }
+          }else{ 
+            summar$error = "%known births < MinBirthKnown" #nocov
+            summar$Nerr = 5 #nocov
           }
-        }else{ 
-          summar$error = "%known births < MinBirthKnown" #nocov
-          summar$Nerr = 5 #nocov
-        }
-      }else{
-        summar$error = "NBasta = 0" #nocov
-        summar$Nerr = 4 #nocov
-      }}
+        }else{
+          summar$error = "NBasta = 0" #nocov
+          summar$Nerr = 4 #nocov
+        }}
     }else{
       summar$ error = "lxMin > 0.99" #nocov
       summar$ Nerr = 3 #nocov
@@ -400,7 +441,7 @@ Sur_ana <- function(Data, DeathInformation,
   }
   
   return(list(summary = summar, metrics = metrics, bastaRes = bastaRes, 
-              DICmods = DICmods, KM_estimator = KMest))
+              DICmods = DICmods, KM_estimator = KMest, bastatab = bastatab))
 }
 
 #Useful Functions
@@ -417,8 +458,8 @@ CalcHx <- function(Sx, dx) {
 # Gini coefficient:
 CalcGx <- function(Sx, dx) {
   Sx <- Sx / Sx[1]
-      if(length(dx)>1){dx <- dx[Sx > 0]}
-    Sx <- Sx[Sx > 0]
+  if(length(dx)>1){dx <- dx[Sx > 0]}
+  Sx <- Sx[Sx > 0]
   return(1 - 1 / sum(Sx * dx) * sum(Sx^2 * dx))
 }
 

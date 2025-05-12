@@ -103,7 +103,7 @@ It creates the associated plot
 data(core)
 data(deathinformation)
 out <- Sur_ana(core,  DeathInformation = deathinformation, 
-                         Models = "GO", Shape = "simple",
+               Models = "GO", Shape = "simple",
                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 
 out <- Sur_out(out, ncpus = 3)

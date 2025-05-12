@@ -39,7 +39,7 @@ surv_Bastab <- function (coresubset, DeathInformation,
 {   
   
   # Check correct format for inputs --------------------------------------------
-inclcols <- c("AnimalAnonID", "binSpecies", "Class", 
+  inclcols <- c("AnimalAnonID", "binSpecies", "Class", 
                 "Order", "Family", "CommonName", "BirthDate", "MinBirthDate", 
                 "MaxBirthDate", "EntryDate", "DepartDate", "EntryType", 
                 "DepartType")
@@ -108,6 +108,6 @@ inclcols <- c("AnimalAnonID", "binSpecies", "Class",
              stringr::str_detect(RelevantDeathInformationType, "Fetal death", negate = T)%>% replace_na(TRUE))
   }%>%
     select(-"RelevantDeathInformationType")
-
+  
   return(bastadat)
 }

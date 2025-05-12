@@ -28,7 +28,7 @@
 #'     95% CI of the survivorship estimated from the survival model.
 #'     * Gof_KM_coeff2: Maximum sum of same sign residuals between KM estimator and
 #'     survival model
-#'     * Gof_martingale: using Martingale residuals
+#'     * Gof_martingale KM: Value of the test that must be compared to a kolmogorov Smirnov table and test telling if the model fits
 #'     * LxatMLE: Estimated survivorship at mean life expectancy
 #'     * LEmaxOage: Life expectancy at max observed age
 #'     * KMMinLx: Minimum survivorship reached by the Kaplan-Meier estimator
@@ -49,7 +49,7 @@
 #' data(core)
 #' data(deathinformation)
 #' out <- Sur_ana(core,  DeathInformation = deathinformation, 
-#'                          Models = "GO", Shape = "simple",
+#'                Models = "GO", Shape = "simple",
 #'                niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3)
 #'
 #' out <- Sur_out(out, ncpus = 3)
@@ -60,7 +60,7 @@ Sur_out <- function(out,
                     PlotDir = NULL, PlotName = ''
 ) {
   # Check correct format for inputs -----------------------------------------------------------------------
-  assert_that(out %has_name% c("summary", "metrics", "bastaRes", "DICmods"))
+  assert_that(out %has_name% c("summary", "metrics", "bastaRes", "DICmods", "bastatab"))
   assert_that(is.numeric(MinAge))
   assert_that(is.numeric(MaxAge))
   assert_that(MinAge < MaxAge)
@@ -82,19 +82,20 @@ Sur_out <- function(out,
   # Initialize outpus ---------------------------------------------------------
   out$check = list(Gof_KM_coeff1= NA, Gof_KM_coeff2= NA,
                    Gof_martingale = NA, LxatMLE = NA,
-                   LEmaxOage = NA, KMMinLx = NA
+                   LEmaxOage = NA, KMMinLx = NA,
+                   Gof_Martingal_KM = NA, Gof_Martingal_test = NA
   )
   
   #Check if model is gompertz report b -----------------------------------------
   if(out$bastaRes$modelSpecs[["model"]] =="GO"){
-  out$metrics = rbind(out$metrics,
-                      tibble(Data = 'Model',
-                             firstage = "birth",
-                             param = "b_Gomp",
-                             stat = c("mean", "sd", "lower", "upper"),
-                             value = out$bastaRes$coefficient[2,c(1:4)]
-                      ))
-}
+    out$metrics = rbind(out$metrics,
+                        tibble(Data = 'Model',
+                               firstage = "birth",
+                               param = "b_Gomp",
+                               stat = c("mean", "sd", "lower", "upper"),
+                               value = out$bastaRes$coefficient[2,c(1:4)]
+                        ))
+  }
   
   # Define maximum predicted age: age at L(x) = 0.005---------------------------
   Lx_mean <- out$bastaRes$surv$nocov[1,]
@@ -211,7 +212,7 @@ Sur_out <- function(out,
   out$check$LEmaxOage = out$relex_from0$RemLExp[idMaxAge]
   if(out$relex_from0$RemLExp[idMaxAge]>= MaxLE){
     out$summary$error = "Min(Life_exp) >= MaxLE" #nocov
-    out$summary$Nerr=11 #nocov
+    out$summary$Nerr=12 #nocov
   }
   
   #Check  if the survivorship at mean life expectancy is higher than MinMLE
@@ -220,20 +221,20 @@ Sur_out <- function(out,
   out$check$LxatMLE = lx[which(dif == min(dif))]
   if(lx[which(dif == min(dif))]< MinMLE & out$summary$Nerr==0){
     out$summary$error = "lx at MLE < MinMLE" #nocov
-    out$summary$Nerr = 12 #nocov
+    out$summary$Nerr = 13 #nocov
   }
   out$check$KMMinLx = out$summary$lxMin
   if( out$summary$lxMin >= MinLx & out$summary$Nerr==0){
     out$summary$error = "lxmin > MinLx" #nocov
-    out$summary$Nerr = 13 #nocov
+    out$summary$Nerr = 14 #nocov
   }
   
   
   #Check if kaplan-meier estimator is within the 95% CI of the estimated Lx from the selected model
-  Lx= tibble(Meann = out$bastaRes$surv$nocov[1,],
-             Lower = out$bastaRes$surv$nocov[2,],
-             Upper = out$bastaRes$surv$nocov[3,],
-             Ages =out$bastaRes$x )
+  Lx = tibble(Meann = out$bastaRes$surv$nocov[1,],
+              Lower = out$bastaRes$surv$nocov[2,],
+              Upper = out$bastaRes$surv$nocov[3,],
+              Ages =out$bastaRes$x )
   #correct estimates when MinAge >0
   Lx$Meann=Lx$Meann/Lx$Meann[1]
   Lx$Lower=Lx$Lower/Lx$Lower[1]
@@ -259,23 +260,56 @@ Sur_out <- function(out,
   out$check$Gof_KM_coeff2 =max(v$resi)
   if(max(v$resi)>=2 & out$summary$Nerr==0 ){
     out$summary$error = "Kaplan-Meier does not fit:2" #nocov
-    out$summary$Nerr = 14 #nocov
+    out$summary$Nerr = 15 #nocov
   }
   if(check < 0.8){
     out$summary$error = "Kaplan-Meier does not fit" #nocov
-    out$summary$Nerr = 10 #nocov
+    out$summary$Nerr = 11 #nocov
   }
   
+  #Martingale residuals ---------------------------------------------------------
+  #REf = PRice and Jones 2017 bioRxiv A general goodness-of-fit test for survival analysis
+  # Censored or dead
+  delta = ifelse(out$bastatab$Depart.Type == "D", 1, 0)
+  #censoring rate
+  rho = length(which(out$bastatab$Depart.Type == "C"))/nrow(out$bastatab)
+  # Add age at death and corresponding age id lines for join with Lx
+  out$bastatab= out$bastatab%>%
+    mutate(agedeath = (Depart.Date - Birth.Date) / 365.25,
+           Ages = round(agedeath/0.05)*0.05)%>%
+    rowwise()%>%
+    mutate(idage = which(Lx$Ages==Ages))
+  # Martingale residuals
+  D = 0.5*(1-(1+delta)* Lx$Meann[out$bastatab$idage])
+  D = round(D,2)
+  # Possible value for D
+  d = seq(-0.5,0.5,0.01)
+  #Observed distribution
+  Gobs = cumsum(table(factor(D, levels = d))%>%as.numeric)
+  Gobs = Gobs/max(Gobs)
   
+  # theoretical probability distribution for martingale residuals
+    gi = c((1/2-d[1:50])^(rho/(1-rho)),(1/2-d[51:101])^(rho/(1-rho))+2*rho/(1-rho)*(1-2*d[51:101])^(rho/(1-rho)))
+  # theoretical Cumulative distribution
+  G=cumsum(gi)/sum(gi)
+   out$check$Gof_Martingal_KM = max(abs(Gobs-G))
+   out$check$Gof_Martingal_test = out$check$Gof_Martingal_KM<= 1.358/sqrt(nrow(out$bastatab))
+   if(!out$check$Gof_Martingal_test){
+    out$summary$error = "Gof martingale does not fit" #nocov
+    out$summary$Nerr = 10 #nocov
+   }
+   
   # Plots------------------------------------------------------------------------
   if(!is.null(PlotDir)){
-    pdf(file = paste0(PlotDir,"/",out$summary$Nerr,'_', PlotName, "_surcheck.pdf", sep=""), width = 6, height = 6)
+    pdf(file = paste0(PlotDir,"/",out$summary$Nerr,'_', PlotName, "_surcheck.pdf", sep=""),
+        width = 6, height = 6)
     plot(out$bastaRes, main = PlotName)
     plot(out$bastaRes, plot.type = 'demorates')
     plot(out$bastaRes, plot.type = 'gof')
     dev.off()
     
-    pdf(file = paste0(PlotDir,"/", out$summary$Nerr,'_', PlotName, "_surplot.pdf", sep=""), width = 6, height = 6)
+    pdf(file = paste0(PlotDir,"/", out$summary$Nerr,'_', PlotName, "_surplot.pdf", sep=""), 
+        width = 6, height = 6)
     plot(out$relex_from0$RemLExp~  out$relex_from0$Age, main = PlotName, xlab = "Age (year)", 
          ylab = "Remaining life expectancy", type = "l")
     lines(out$relex_from0$Lower ~  out$relex_from0$Age, lty = 2)

@@ -49,7 +49,7 @@ Sur_ple <- function(Data) {
   for (agev in nage) {
     ii = ii + 1
     idNx <-Data %>%filter(entryAge <= agev,
-                             deparAge >= agev)
+                          deparAge >= agev)
     delx[ii] <- length(which(Data$DepartType == "D"  & Data$deparAge ==agev))
     Cx[ii] <- 1- delx[ii]/nrow(idNx)
     if(ii==1){

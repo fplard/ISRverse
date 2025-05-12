@@ -6,11 +6,11 @@ test_that("Sur_ana works", {
   out <- Sur_ana(core, DeathInformation = deathinformation, Models = "GO", Shape = "bathtub",
                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                  LastDead = TRUE, AgeMat = 2)
-  expect_named(out, c("summary", "metrics", "bastaRes", "DICmods", 'KM_estimator'))
+  expect_named(out, c("summary", "metrics", "bastaRes", "DICmods", 'KM_estimator', 'bastatab'))
   expect_named(out$DICmods, c("Models",  "DIC"))
   expect_equal(nrow(out$DICmods),1)
   expect_named(out$summary, c('NSelect', 'NUncertdeath', 'NBasta', 'Ndead', 'Nrc', 'N8090', 'N9000', 'N0010', 'N1020', 'N2030', 'QBD10', 'QBD50', 'QBD90', 'BDincert', 'maxAge', 'maxAlive', 'lxMin', 'outLev', 'model', 'analyzed', 'Nerr', 'error'))
-   expect_true(out$summary$analyzed )
+  expect_true(out$summary$analyzed )
   expect_true(is.numeric(out$summary$NSelect ))
   expect_true(is.numeric(out$summary$NBasta ))
   expect_true(is.numeric(out$summary$Ndead ))
@@ -29,4 +29,5 @@ test_that("Sur_ana works2", {
                  niter = 1000, burnin = 101, thinning = 10, nchain = 3, ncpus = 3,
                  OutlLev1 = 100,MaxNSur=1000,
                  LastDead = TRUE, AgeMat = 2)
+  expect_named(out, c("summary", "metrics", "bastaRes", "DICmods", 'KM_estimator', 'bastatab'))
 })
