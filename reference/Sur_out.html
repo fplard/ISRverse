@@ -140,7 +140,7 @@ estimator and the survival model.</p></li>
 95% CI of the survivorship estimated from the survival model.</p></li>
 <li><p>Gof_KM_coeff2: Maximum sum of same sign residuals between KM estimator and
 survival model</p></li>
-<li><p>Gof_martingale: using Martingale residuals</p></li>
+<li><p>Gof_martingale KM: Value of the test that must be compared to a kolmogorov Smirnov table and test telling if the model fits</p></li>
 <li><p>LxatMLE: Estimated survivorship at mean life expectancy</p></li>
 <li><p>LEmaxOage: Life expectancy at max observed age</p></li>
 <li><p>KMMinLx: Minimum survivorship reached by the Kaplan-Meier estimator</p></li>
@@ -160,13 +160,12 @@ to live 5 years and 1 year more.</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">core</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deathinformation</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="Sur_ana.html">Sur_ana</a></span><span class="op">(</span><span class="va">core</span>,  DeathInformation <span class="op">=</span> <span class="va">deathinformation</span>, </span></span>
-<span class="r-in"><span>                         Models <span class="op">=</span> <span class="st">"GO"</span>, Shape <span class="op">=</span> <span class="st">"simple"</span>,</span></span>
+<span class="r-in"><span>               Models <span class="op">=</span> <span class="st">"GO"</span>, Shape <span class="op">=</span> <span class="st">"simple"</span>,</span></span>
 <span class="r-in"><span>               niter <span class="op">=</span> <span class="fl">1000</span>, burnin <span class="op">=</span> <span class="fl">101</span>, thinning <span class="op">=</span> <span class="fl">10</span>, nchain <span class="op">=</span> <span class="fl">3</span>, ncpus <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no non-missing arguments to min; returning Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GO"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running sequence to find jump SDs... Done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 11.39 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total jump SDs computing time: 11.12 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Multiple simulations started...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -177,7 +176,7 @@ to live 5 years and 1 year more.</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Stopping cluster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulations finished.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 6.05 secs.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total MCMC computing time: 5.94 secs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculating summary statistics... Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All parameters converged properly.</span>
